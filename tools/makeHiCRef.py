@@ -16,19 +16,51 @@ import re
 from Bio import SeqIO
 
 #the restriction enzyme motif sequence, as a regex, if non-palindromic
-reSeq = re.compile(str(sys.argv[2]).encode('utf-8'))
+#reSeq = re.compile(str(sys.argv[2]).encode('utf-8'))
 
+###
+rcDict = dict(zip('ACGTWSMKRYBDHVNacgtwsmkrybdhvn-','TGCAWSKMYRVHDBNtgcawskmyrvhdbn-'))
+
+def revcomp(seq):
+    """Return the reverse complement of a string:
+
+    :param seq: DNA Sequence to be reverse complemented
+    :type seq: str
+    :returns: A new string that is the reverse complement of seq
+    :rtype: string
+
+    """
+    return ''.join([rcDict[nuc] for nuc in  seq[::-1]])
+
+def REGEXsite(seq):
+    s = seq.replace("N","[ACGT]")
+    s = s.replace("V","[ACG]").replace("H","[ACT]").replace("D","[AGT]").replace("B","[CGT]")
+    s = s.replace("W","[AT]").replace("S","[CG]").replace("M","[AC]").replace("K","[GT]").replace("R","[AG]").replace("Y","[CT]")
+    return s
+
+site_raw = sys.argv[2]
+print('raw site:',site_raw,file = sys.stderr)
+fwd_rev_site = "({}|{})".format(site_raw,revcomp(site_raw))
+print('fwdrev site:',fwd_rev_site,file = sys.stderr)
+re_site = REGEXsite(fwd_rev_site)
+print('REGEX site:',re_site,file = sys.stderr)
+site_compiled = re.compile(re_site)
+
+###
 for entry in SeqIO.parse(sys.argv[1],"fasta"):
     refOut = [entry.name]
     print('reading {}, of {} bp.'.format(entry.name,len(entry.seq)),file=sys.stderr)
     #case where sequence contains no sites
-    seq = str(entry.seq).encode('utf-8')
-    if not re.search(reSeq,seq):
+    seq = str(entry.seq)
+    if not re.search(site_compiled,seq):
+        print('no {} sites found in {}.'.format(re_site,entry.name),file=sys.stderr)
         refOut.append(str(len(seq)))
         print(' '.join(refOut))
         continue
     #iterate over sites
-    for site in re.finditer(reSeq,seq):
+    for site in re.finditer(site_compiled,seq):
         refOut.append(str(site.start()))
+    #add the seq length to cap off the entry
+    refOut.append(str(len(seq)))
     print(' '.join(refOut))
     
