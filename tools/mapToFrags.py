@@ -175,9 +175,6 @@ if __name__ == "__main__":
 
     print('Loaded reference genome {} with {} total fragments.'.format(args.fragmentref,pos),file=sys.stderr)
 
-    #a read of interest, for testing purposes to be sure all fragments are being properly captured and in correct order
-    ##V##ROI = "0000be7c-f480-4cd8-9326-b8e16a3ade26"
-    ##V##print ('looking at ROI: {}'.format(ROI),file=sys.stderr)
     #bamFile/pafFile
     lastRead = False
     count = 0
@@ -185,9 +182,6 @@ if __name__ == "__main__":
     #####HERE BEGINS THE SPONGE!!!
     for entry in ps.AlignmentFile(args.alignments):
         
-        ##V##if entry.query_name == ROI:
-        ##V##    print (">>>",entry.reference_name, entry.reference_start,entry.reference_end)
-
         if entry.is_unmapped:
             if lastRead:
                 pass
@@ -211,29 +205,18 @@ if __name__ == "__main__":
                     frag,poss = assignToFragment(refFrags,refIDs,(monomer.reference_name,monomer.reference_start,monomer.reference_end),method=args.method)
                     new_contact = contact(monomer.reference_name,frag,monomer.is_reverse,poss,str(monomer.mapq))
                     walk.add(new_contact)
-                ##V##if lastRead == ROI:
-                ##V##    print(walk)
-                ##V##    for monomer in entries:
-                ##V##        print("sorted:",monomer.reference_name, monomer.reference_start,monomer.reference_end)
-
-                #print(walk)
                 print(walk)
 
             entries = [entry]
             
             count +=1
-            ##V##if lastRead == ROI:
-            ##V##    print([x.fragID for x in walk.contacts])
-            ##V##    print(walk) #for compatibility elsewhere
-            
-            #fragments - this doesn't yet support "all" as handling of multi-fragments isn't in place yet.
 
         elif entry.query_name == lastRead:
             entries.append(entry)
 
         lastRead = entry.query_name
 
-    if lastRead:
+    if lastRead and len(entries) > 1:
         for monomer in entries:
             frag,poss = assignToFragment(refFrags,refIDs,(monomer.reference_name,monomer.reference_start,monomer.reference_end),method=args.method)
             new_contact = contact(monomer.reference_name,frag,monomer.is_reverse,poss,str(monomer.mapping_quality))          
@@ -241,7 +224,6 @@ if __name__ == "__main__":
             if args.sort == True:
                 walk.boop()
             if len(walk.contacts) > 1:        
-                #print(count, walk)
                 print(walk) #compatible with other tools elsewhere without the index line
                 count += 1
     else:
