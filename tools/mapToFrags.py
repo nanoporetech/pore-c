@@ -233,7 +233,7 @@ if __name__ == "__main__":
 
         lastRead = entry.query_name
 
-    if not lastRead:
+    if lastRead:
         for monomer in entries:
             frag,poss = assignToFragment(refFrags,refIDs,(monomer.reference_name,monomer.reference_start,monomer.reference_end),method=args.method)
             new_contact = contact(monomer.reference_name,frag,monomer.is_reverse,poss,str(monomer.mapping_quality))          
