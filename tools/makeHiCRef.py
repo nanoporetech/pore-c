@@ -46,7 +46,12 @@ re_site = REGEXsite(fwd_rev_site)
 print('REGEX site:',re_site,file = sys.stderr)
 site_compiled = re.compile(re_site)
 
+fragMaps = {}
+#keyed on a (ind,len) tuple so that chrs can be sorted by length (getting around non-alphanumeric sorting problems)
+# while still guaranteeing key uniqueness by the indicator
+
 ###
+ind = 0
 for entry in SeqIO.parse(sys.argv[1],"fasta"):
     refOut = [entry.name]
     print('reading {}, of {} bp.'.format(entry.name,len(entry.seq)),file=sys.stderr)
@@ -62,5 +67,12 @@ for entry in SeqIO.parse(sys.argv[1],"fasta"):
         refOut.append(str(site.start()))
     #add the seq length to cap off the entry
     refOut.append(str(len(seq)))
-    print(' '.join(refOut))
-    
+    fragMaps[(ind,len(seq))] = ' '.join(refOut)
+#    print(' '.join(refOut))
+    ind += 1
+
+
+fragMaps = sorted(list(fragMaps.items()),key = lambda x: x[0][1], reverse = True)
+
+for key,value in fragMaps:
+    print(value)
