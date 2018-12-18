@@ -216,16 +216,19 @@ if __name__ == "__main__":
 
         lastRead = entry.query_name
 
-    if lastRead and len(entries) > 1:
-        for monomer in entries:
-            frag,poss = assignToFragment(refFrags,refIDs,(monomer.reference_name,monomer.reference_start,monomer.reference_end),method=args.method)
-            new_contact = contact(monomer.reference_name,frag,monomer.is_reverse,poss,str(monomer.mapping_quality))          
-            walk.add(new_contact)            
-            if args.sort == True:
-                walk.boop()
-            if len(walk.contacts) > 1:        
-                print(walk) #compatible with other tools elsewhere without the index line
-                count += 1
+    if lastRead:
+        if len(entries) > 1:
+            for monomer in entries:
+                frag,poss = assignToFragment(refFrags,refIDs,(monomer.reference_name,monomer.reference_start,monomer.reference_end),method=args.method)
+                new_contact = contact(monomer.reference_name,frag,monomer.is_reverse,poss,str(monomer.mapping_quality))          
+                walk.add(new_contact)            
+                if args.sort == True:
+                    walk.boop()
+                if len(walk.contacts) > 1:        
+                    print(walk) #compatible with other tools elsewhere without the index line
+                    count += 1
+        else:
+            pass
     else:
         print('no mappings identified.',file=sys.stderr)
     
