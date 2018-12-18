@@ -20,7 +20,7 @@ for entry in open(ref):
         fragToInterval[curFrag] = (l[pos], l[pos-1])
         #prints out the reference header information:
         #chr start end binID
-        print('{}\t{}\t{}\t{}'.format(l[0],l[pos],l[pos-1]+1,curFrag))
+        print(l[0], l[pos], int(l[pos-1])+1, curFrag)
         curFrag += 1
 
 contacts = Counter()
