@@ -17,26 +17,31 @@ __doc__ = """
 Takes all reads from a namesorted bam file. trims back each read by trimSize 
 number of bases, then clusters the reads by overlap. If reads overlap with 
 each other they get placed in a cluster together. From each cluster, the highest 
-scoring alignment is taken into the Hi-C flattening step."""
+scoring alignment is included in the filtered data set."""
 mappings = []
-unmappedReads = 0
+tot_count = 0
+inc_count = 0
+exc_count = 0
 lastRead = False
+
 for entry in bamIn:
-    if entry.flag == 4:
-        removedOut.write(entry)
-        unmappedReads += 1
-        continue
-    elif not lastRead:
+    tot_count += 1
+    if not lastRead:
         lastRead = entry.query_name
-        G = nx.Graph()
         mappings = [entry]
     elif lastRead == entry.query_name:
         mappings.append(entry)
-    else:
-        print(entry.query_name)
+    elif lastRead != entry.query_name:
+        if mappings[0].is_unmapped:
+            removedOut.write(mappings[0])
+            exc_count += 1
+            lastRead = entry.query_name
+            mappings = [entry]
+            continue
         L = len(mappings)
         #reads with only one mapping are not helpful and are here culled
         if L > 1:
+            G = nx.Graph()
             for x in range(L - 1):
                 G.add_node(x)
                 for y in range(x+1, L):
@@ -55,34 +60,27 @@ for entry in bamIn:
             Z = list(nx.connected_components(G))
             #a single cluster does not contain HiC data
             for clust in list(nx.connected_components(G)):
-                readsOut = 0
                 bestClustScore = 0
                 bestRead = -1
                 for node in clust:
-                    if mappings[node].is_unmapped:
-                        continue
                     score = dict(mappings[node].tags)["AS"]
                     if score > bestClustScore:
                         bestRead = node
                         bestClustScore = score
-                if bestRead != -1:
-                    #print(clust,bestRead)
-                    bamOut.write(mappings[bestRead])
-                    readsOut += 1
-                    lastClust = bestRead
-                #print ("Picking {} out of {} reads.".format(1, len(clust)))
-            else:#if single mapping with no supplemental
-                removedOut.write(mappings[0])
+                bamOut.write(mappings[bestRead])
+                inc_count += 1
+                for node in clust:
+                    if node != bestRead:
+                        removedOut.write(mappings[node])
+                        exc_count += 1
+        else:#if single mapping
+            removedOut.write(mappings[0])
+            exc_count += 1
         mappings = [entry]
         lastRead = entry.query_name
-        G = nx.Graph()
-
 ### and one last graph partitioning for the last read cluster, which has no read after it
-# if the last entry is unmapped, then this isn't necessary
-if mappings == []:
-    exit()
     
-if mappings[0].flag != 4:
+if not mappings[0].is_unmapped:
     L = len(mappings)
     #reads with only one mapping are not helpful and are here culled
     if L > 1:
@@ -109,26 +107,22 @@ if mappings[0].flag != 4:
                 bestClustScore = 0
                 bestRead = -1
                 for node in clust:
-                    if mappings[node].is_unmapped:
-                        removedOut.write(mappings[node])
-                        continue
                     score = dict(mappings[node].tags)["AS"]
                     if score > bestClustScore:
                         bestRead = node
                         bestClustScore = score
-                if bestRead != -1:
-                    #print(clust,bestRead)
-                    bamOut.write(mappings[bestRead])
-                    readsOut += 1
-                    lastClust = bestRead
-                #print ("Picking {} out of {} reads.".format(1, len(clust)))
-                rejects = set(clust).remove(bestRead)
-                if rejects:
-                    for rej in rejects:
-                        removedOut.write(mappings[rej])
-
+                bamOut.write(mappings[bestRead])
+                inc_count += 1
+                for node in clust:
+                    if node != bestRead:
+                        removedOut.write(mappings[node])
+                        exc_count += 1
         else:
             for node in Z[0]:
                 removedOut.write(mappings[node])
     else:
         removedOut.write(mappings[0])
+else:
+    removedOut.write(mappings[0])
+
+print("{} total. {} included. {} excluded.".format(tot_count,inc_count,exc_count),file = sys.stderr)
