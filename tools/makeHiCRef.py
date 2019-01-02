@@ -21,7 +21,7 @@ from Bio import SeqIO
 #reSeq = re.compile(str(sys.argv[2]).encode('utf-8'))
 
 ###
-rcDict = dict(zip('()ACGTWSMKRYBDHVNacgtwsmkrybdhvn-',')(TGCAWSKMYRVHDBNtgcawskmyrvhdbn-'))
+rcDict = dict(zip('ACGTWSMKRYBDHVNacgtwsmkrybdhvn-','TGCAWSKMYRVHDBNtgcawskmyrvhdbn-'))
 
 def revcomp(seq):
     """Return the reverse complement of a string:
@@ -40,9 +40,26 @@ def REGEXsite(seq):
     s = s.replace("W","[AT]").replace("S","[CG]").replace("M","[AC]").replace("K","[GT]").replace("R","[AG]").replace("Y","[CT]")
     return s
 
-site_raw = sys.argv[2].replace(' ','')
+
+
+site_raw = sys.argv[2].replace('(',' ').replace(')',' ').replace(' ','').replace('|',' ').split()
+
 print('raw site:',site_raw,file = sys.stderr)
-fwd_rev_site = "({}|{})".format(site_raw,revcomp(site_raw))
+
+sites_raw = []
+for entry in site_raw:
+    print(sites_raw,entry,file = sys.stderr)
+    sites_raw.append(revcomp(entry))
+
+sites_raw += site_raw
+print('fwdrev site, potentially redundant:',sites_raw,file = sys.stderr)
+
+if len(sites_raw) > 1:
+    sites_raw = '|'.join(list(set(sites_raw)))
+else:
+    sites_raw = sites_raw[0]
+
+fwd_rev_site = "({})".format(sites_raw)
 print('fwdrev site:',fwd_rev_site,file = sys.stderr)
 re_site = REGEXsite(fwd_rev_site)
 print('REGEX site:',re_site,file = sys.stderr)
