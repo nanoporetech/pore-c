@@ -62,7 +62,7 @@ else:
 
 ind = 0
 with fIn as handle:
-    for entry in SeqIO.parse(sys.argv[1],"fasta"):
+    for entry in SeqIO.parse(handle,"fasta"):
         refOut = [entry.name]
         print('reading {}, of {} bp.'.format(entry.name,len(entry.seq)),file=sys.stderr)
         #case where sequence contains no sites
