@@ -34,7 +34,7 @@ Example:
 
 mapToFrags.py
 -------------
-: This tool assigns each mapping in the filtered bam file to a restriction fragment and generates a multiway contact .poreC file, which is similar to the text version of the juicer .hic file format, but expanded so that there are more than two contacts per entry. 
+This tool assigns each mapping in the filtered bam file to a restriction fragment and generates a multiway contact .poreC file, which is similar to the text version of the juicer .hic file format, but expanded so that there are more than two contacts per entry. 
 
 Example:
 `mapToFrags.py --alignments 20180821_FAJ15224_DD.bwa.namesort.split.20.bam --fragments ref.EcoRI.hicREF > 20180821_FAJ15224_DD.bwa.namesort.split.20.poreC`
@@ -49,7 +49,7 @@ and a 4 way contact:
 
 If the space separated length of the line is L, the number of contacts in a multiway contact is therefore (L-1) / 5
 
-Nota bene: If you would like to combine multiple runs into a single data set, this can be done with a simple `cat` operation of all the .poreC files into a single .poreC file. I think that concatenating .hic.txt files can also be done (after flattening, for example), however this requires multiple rounds of sorting in order to retain compatibility with `juicer_tools.jar pre`. 
+**Nota bene**: If you would like to combine multiple runs into a single data set, this can be done with a simple `cat` operation of all the .poreC files into a single .poreC file. I think that concatenating .hic.txt files can also be done (after flattening, for example), however this requires multiple rounds of sorting in order to retain compatibility with `juicer_tools.jar pre`. 
 
 
 poreCflatten.py
