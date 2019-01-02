@@ -13,6 +13,8 @@ as in:
 """
 import sys
 import re
+import gzip
+
 from Bio import SeqIO
 
 #the restriction enzyme motif sequence, as a regex, if non-palindromic
