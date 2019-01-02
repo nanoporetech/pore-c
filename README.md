@@ -1,10 +1,10 @@
 Pore-C tools
 ============
-1. makeHiCRef.py
-2. clusterReads.py
-3. mapToFrags.py
-4. poreCflatten.py
-5. hicToHiCPro.py
+- makeHiCRef.py
+- clusterReads.py
+- mapToFrags.py
+- poreCflatten.py
+- hicToHiCPro.py
 
 
 makeHiCRef.py
