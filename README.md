@@ -49,6 +49,7 @@ and a 4 way contact:
 
 If the space separated length of the line is L, the number of contacts in a multiway contact is therefore (L-1) / 5
 
+Nota bene: If you would like to combine multiple runs into a single data set, this can be done with a simple `cat` operation of all the .poreC files into a single .poreC file. I think that concatenating .hic.txt files can also be done (after flattening, for example), however this requires multiple rounds of sorting in order to retain compatibility with `juicer_tools.jar pre`. 
 
 
 poreCflatten.py
