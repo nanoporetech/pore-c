@@ -1,0 +1,45 @@
+from pathlib import Path
+
+
+SRC_DATA_DIR = Path("../data/")
+REF_ID = "ens38_21and22"
+ENZYME = "HindIII"
+
+CUT_SITES = {
+  'HindIII': 'AAGCTT'
+}
+
+
+WORK_DIR = Path("work")
+REF_FASTA = WORK_DIR / "{ref_id}.fa.gz"
+REF_FAI = REF_FASTA.with_suffix(".gz.fai")
+FRAG_FILE = REF_FASTA.with_suffix(".{enzyme}.hicREF")
+
+rule all:
+    input: expand(str(FRAG_FILE), enzyme=ENZYME, ref_id=REF_ID)
+
+
+rule generate_fragments:
+    output: FRAG_FILE
+    input: 
+        fasta=REF_FASTA,
+        fai=REF_FAI
+    params: 
+        cut_site = lambda x: CUT_SITES[x['enzyme']]
+    shell:
+        "pore_c generate_fragments {input.fasta} {params.cut_site} {output}"
+
+rule copy_ref:
+    output: REF_FASTA
+    input: str(SRC_DATA_DIR / "{ref_id}.fa.gz")
+    shell:
+        "cp {input} {output}"
+
+rule index_ref:
+    output: REF_FAI
+    input: REF_FASTA
+    shell:
+        "samtools faidx {input}"
+
+
+
