@@ -21,7 +21,7 @@ from Bio import SeqIO
 #reSeq = re.compile(str(sys.argv[2]).encode('utf-8'))
 
 ###
-rcDict = dict(zip('ACGTWSMKRYBDHVNacgtwsmkrybdhvn-','TGCAWSKMYRVHDBNtgcawskmyrvhdbn-'))
+rcDict = dict(zip('()ACGTWSMKRYBDHVNacgtwsmkrybdhvn-',')(TGCAWSKMYRVHDBNtgcawskmyrvhdbn-'))
 
 def revcomp(seq):
     """Return the reverse complement of a string:
@@ -32,7 +32,7 @@ def revcomp(seq):
     :rtype: string
 
     """
-    return ''.join([rcDict[nuc] for nuc in  seq[::-1]])
+    return ''.join([rcDict[nuc] if nuc in rcDict else nuc for nuc in  seq.replace(' ','')[::-1]])
 
 def REGEXsite(seq):
     s = seq.replace("N","[ACGT]")
@@ -40,7 +40,7 @@ def REGEXsite(seq):
     s = s.replace("W","[AT]").replace("S","[CG]").replace("M","[AC]").replace("K","[GT]").replace("R","[AG]").replace("Y","[CT]")
     return s
 
-site_raw = sys.argv[2]
+site_raw = sys.argv[2].replace(' ','')
 print('raw site:',site_raw,file = sys.stderr)
 fwd_rev_site = "({}|{})".format(site_raw,revcomp(site_raw))
 print('fwdrev site:',fwd_rev_site,file = sys.stderr)
