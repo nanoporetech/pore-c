@@ -51,25 +51,33 @@ fragMaps = {}
 # while still guaranteeing key uniqueness by the indicator
 
 ###
+
+#accepts gzip compressed reference fasta
+if '.gz' in sys.argv[1]:
+    fIn = gzip.open(sys.argv[1], 'rt')
+else:
+    fIn = open(sys.argv[1])
+
 ind = 0
-for entry in SeqIO.parse(sys.argv[1],"fasta"):
-    refOut = [entry.name]
-    print('reading {}, of {} bp.'.format(entry.name,len(entry.seq)),file=sys.stderr)
-    #case where sequence contains no sites
-    seq = str(entry.seq)
-    if not re.search(site_compiled,seq):
-        print('no {} sites found in {}.'.format(re_site,entry.name),file=sys.stderr)
+with fIn as handle:
+    for entry in SeqIO.parse(sys.argv[1],"fasta"):
+        refOut = [entry.name]
+        print('reading {}, of {} bp.'.format(entry.name,len(entry.seq)),file=sys.stderr)
+        #case where sequence contains no sites
+        seq = str(entry.seq)
+        if not re.search(site_compiled,seq):
+            print('no {} sites found in {}.'.format(re_site,entry.name),file=sys.stderr)
+            refOut.append(str(len(seq)))
+            print(' '.join(refOut))
+            continue
+        #iterate over sites
+        for site in re.finditer(site_compiled,seq):
+            refOut.append(str(site.start()))
+        #add the seq length to cap off the entry
         refOut.append(str(len(seq)))
-        print(' '.join(refOut))
-        continue
-    #iterate over sites
-    for site in re.finditer(site_compiled,seq):
-        refOut.append(str(site.start()))
-    #add the seq length to cap off the entry
-    refOut.append(str(len(seq)))
-    fragMaps[(ind,len(seq))] = ' '.join(refOut)
-#    print(' '.join(refOut))
-    ind += 1
+        fragMaps[(ind,len(seq))] = ' '.join(refOut)
+    #    print(' '.join(refOut))
+        ind += 1
 
 
 fragMaps = sorted(list(fragMaps.items()),key = lambda x: x[0][1], reverse = True)
