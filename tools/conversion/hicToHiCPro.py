@@ -25,6 +25,7 @@ print('using reference digest file: {}'.format(sys.argv[2]),file=sys.stderr)
           
 ###first, load the reference
 chrList = []
+chrSizes = {}
 
 # Frags contains the fragment start positions, while fragPoss contains the fragment number for that fragment
 frags = {}
@@ -35,6 +36,7 @@ curPoss = 0
 for entry in open(refFile):
     l = entry.strip().split()
     L = len(l[1:])
+    chrSizes[l[0]] = int(l[-1])
     chrList.append(l[0])
     frags[l[0]] = list(map(int,l[1:]))
     fragToPoss[l[0]] = list(range(curPoss, curPoss + L ))
@@ -98,6 +100,14 @@ for c, data in bins.items():
 #this may need to be changed so that the bins are exact multiples of the binSize,
 #   which is dodgy when the fragments are not multiplies of the bin sizes. A
 #   rule must be asserted to determine how that discontinuity should be reconciled.
+
+#spit out the chromosome size file
+chrSizeOut = open(sys.argv[1].replace('.hic.txt','.sizes'),'w')
+for ch, size in chrSizes.items():
+    chrSizeOut.write('{}\t{}\n'.format(ch,size))
+
+chrSizeOut.close()
+
 
 ###calculate bin number -> position and save to "fragmap" file
 refBinsOut = open(sys.argv[1].replace('.hic.txt','.bed'),'w')
