@@ -24,6 +24,8 @@ REF_BWA_INDEX = REF_FASTA.with_suffix(".gz.bwt")
 FRAG_FILE = REF_FASTA.with_suffix(".{enzyme}.hicREF")
 
 MAPPED_BAM = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.ns.bam"
+FILTERED_BAM = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.keep.bam"
+DISCARDED_BAM = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.discard.bam"
 
 wildcard_constraints:
   ref_id="\S+_\S+"
@@ -32,7 +34,19 @@ wildcard_constraints:
 rule all:
     input: 
       frag_file = expand(str(FRAG_FILE), enzyme=ENZYME, ref_id=REF_ID),
-      mapping = expand(str(MAPPED_BAM), sample_id=SAMPLE_ID, ref_id=REF_ID, mapping_params="MC4C")
+      mapping = expand(str(FILTERED_BAM), sample_id=SAMPLE_ID, ref_id=REF_ID, mapping_params="MC4C")
+
+
+rule filter_bam:
+  output: 
+    keep=FILTERED_BAM,
+    discard=DISCARDED_BAM
+  input: MAPPED_BAM
+  params:
+    trim=20,
+    mapping_quality_cutoff=0
+  shell:
+    "pore_c cluster_reads {input} {output.keep} {output.discard} --trim {params.trim} --mapping_quality_cutoff {params.mapping_quality_cutoff}"
 
 
 rule bwa_map_reads:
