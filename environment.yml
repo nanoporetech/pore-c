@@ -11,3 +11,4 @@ dependencies:
   - click
   - numpy
   - pytest
+  - bwa
