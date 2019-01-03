@@ -1,5 +1,26 @@
-Pore-C tools
-============
+# Pore-C tools
+
+
+## Getting Started
+
+### Creating a development environment
+
+```
+conda env create
+source activate poreC
+pip install -e .
+pore_c --help
+```
+
+### Running tests
+
+```
+pytest tests
+```
+
+
+## The Pore-C tool suite [TODO: replace with click interface]
+
 - makeHiCRef.py
 - clusterReads.py
 - mapToFrags.py
@@ -7,8 +28,8 @@ Pore-C tools
 - hicToHiCPro.py
 
 
-makeHiCRef.py
--------------
+### makeHiCRef.py
+
 This is redundant with (https://github.com/aidenlab/juicer/blob/master/misc/generate_site_positions.py) in the juicer universe and generates an identical file. The included version of the tools supports degenerate sequences and sequence groups coded as REGEXes and prints to stdout. 
 Examples:
 
@@ -24,16 +45,15 @@ The resulting reference file consists of one space-separated line per chromosome
 
 
 
-clusterReads.py
----------------
+### clusterReads.py
 
 This tools is applied to the bam file produced during alignment of poreC reads to a reference genome. It removes spurious mappings, such as is seen when part or all of a restriction fragment contains an Alu, causing that interval to map to thousands of copies of that Alu around the genome. The step generates two .bam files, a file name <yourfile>.split.XX.bam and <yourfile>.split.XX.removed.bam. The first file contains a most complete tilepath of mappings across each of the pore-C reads such that no two mappings overlaps by more than XX bp. The removed file contains, as the name suggests, all the mappings that were deemed uninformative.
 
 Example:
 `clusterReads.py 20180821_FAJ15224_DD.bwa.namesort.bam 20`
 
-mapToFrags.py
--------------
+### mapToFrags.py
+
 This tool assigns each mapping in the filtered bam file to a restriction fragment and generates a multiway contact .poreC file, which is similar to the text version of the juicer .hic file format, but expanded so that there are more than two contacts per entry. 
 
 Example:
@@ -52,8 +72,7 @@ If the space separated length of the line is L, the number of contacts in a mult
 **Nota bene**: If you would like to combine multiple runs into a single data set, this can be done with a simple `cat` operation of all the .poreC files into a single .poreC file. I think that concatenating .hic.txt files can also be done (after flattening, for example), however this requires multiple rounds of sorting in order to retain compatibility with `juicer_tools.jar pre`. 
 
 
-poreCflatten.py
----------------
+### poreCflatten.py
 
 This tool takes in a multiway contact .poreC file and flattens that data to a single dimensionality, e.g. all pairwise interactions or all three-way interactions. For a concatemer of 4 mappings A B C D, the pairwise contacts produced are AB, AC, AD, BC, BD, CD. The sort option sorts the fragments by their fragment ID in each entry. Hi-C platforms often require fragments to be in sorted order, however multiway contacts lose information potentially when the fragments are sorted, so this --sort option is included to be able to choose whether the output is sorted.
 
@@ -64,7 +83,9 @@ The output of the above command can be turned into a binary .hic file using the 
 
 
 
-hicToHiCPro.py
---------------
+### hicToHiCPro.py
+
 This tool converts a text .hic file (produced by using poreCflatten.py on a .poreC file) into a format that can be loaded into HiCPro for analysis.
+
+
 
