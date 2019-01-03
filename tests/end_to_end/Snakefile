@@ -2,21 +2,61 @@ from pathlib import Path
 
 
 SRC_DATA_DIR = Path("../data/")
+
 REF_ID = "ens38_21and22"
 ENZYME = "HindIII"
+SAMPLE_ID = "chr22subset"
 
 CUT_SITES = {
   'HindIII': 'AAGCTT'
+}
+BWA_PARAMS = {
+  'MC4C': '-z 10 -b 5 -q 2 -r 1'
 }
 
 
 WORK_DIR = Path("work")
 REF_FASTA = WORK_DIR / "{ref_id}.fa.gz"
+READ_FASTQ = WORK_DIR / "{sample_id}.fq.gz"
+
 REF_FAI = REF_FASTA.with_suffix(".gz.fai")
+REF_BWA_INDEX = REF_FASTA.with_suffix(".gz.bwt")
 FRAG_FILE = REF_FASTA.with_suffix(".{enzyme}.hicREF")
 
+MAPPED_BAM = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.ns.bam"
+
+wildcard_constraints:
+  ref_id="\S+_\S+"
+
+
 rule all:
-    input: expand(str(FRAG_FILE), enzyme=ENZYME, ref_id=REF_ID)
+    input: 
+      frag_file = expand(str(FRAG_FILE), enzyme=ENZYME, ref_id=REF_ID),
+      mapping = expand(str(MAPPED_BAM), sample_id=SAMPLE_ID, ref_id=REF_ID, mapping_params="MC4C")
+
+
+rule bwa_map_reads:
+  output: MAPPED_BAM
+  input:
+    bwa_index = REF_BWA_INDEX,
+    ref_fasta = REF_FASTA,
+    reads = READ_FASTQ
+  params:
+    cli_opts = lambda x: BWA_PARAMS[x['mapping_params']]
+  threads: 20
+  shell:
+    """
+    bwa bwasw {params.cli_opts} -T {threads} {input.ref_fasta} {input.reads} | 
+    samtools view -Sb | 
+    samtools sort -n -o {output}
+    """
+
+
+rule bwa_index_ref:
+  output: REF_BWA_INDEX
+  input: REF_FASTA
+  shell:
+      "bwa index {input}"
 
 
 rule generate_fragments:
@@ -29,17 +69,24 @@ rule generate_fragments:
     shell:
         "pore_c generate_fragments {input.fasta} {params.cut_site} {output}"
 
-rule copy_ref:
-    output: REF_FASTA
-    input: str(SRC_DATA_DIR / "{ref_id}.fa.gz")
+
+rule copy_reads:
+    output: READ_FASTQ
+    input: str(SRC_DATA_DIR / READ_FASTQ.name)
     shell:
         "cp {input} {output}"
+
+rule copy_ref:
+    output: REF_FASTA
+    input: str(SRC_DATA_DIR / REF_FASTA.name)
+    shell:
+        "cp {input} {output}"
+
+
 
 rule index_ref:
     output: REF_FAI
     input: REF_FASTA
     shell:
         "samtools faidx {input}"
-
-
 
