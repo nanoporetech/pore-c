@@ -45,8 +45,22 @@ def replace_degenerate(pattern: str) -> str:
 def create_regex(pattern: str) -> Pattern :
     """Takes a raw restriction digest site in the form of a regular expression string and returns a
     regular expression object consisting of both forward and reverse complement versions of the pattern"""
+    ###
 
-    fwd_rev_pattern = replace_degenerate("({}|{})".format(pattern.upper(), revcomp(pattern.upper())))
+    site_raw = pattern.replace('(',' ').replace(')',' ').replace(' ','').replace('|',' ').split()
+    sites_raw = []
+    for entry in sites_raw:
+        sites_raw.append(revcomp(entry))
+    
+    sites_raw += site_raw
+    if len(sites_raw) > 1:
+        fwd_rev_pattern = "(" + '|'.join(list(set(sites_raw))) + ")"
+    else:
+        fwd_rev_pattern = sites_raw[0]
+
+    ###
+
+    #fwd_rev_pattern = replace_degenerate("({}|{})".format(pattern.upper(), revcomp(pattern.upper())))
     try:
         regex = re.compile(fwd_rev_pattern)
     except:
