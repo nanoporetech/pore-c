@@ -1,6 +1,7 @@
 import click
 import os.path
 from pore_c.tools.generate_fragments import fragment_generator
+from pore_c.tools.cluster_reads import cluster_reads as cluster_reads_tool
 
 
 class NaturalOrderGroup(click.Group):
@@ -63,16 +64,17 @@ def generate_fragments(reference_fasta, restriction_pattern, outfile):
             seq_match_pos.seq_length
         ))
 
-@cli.command(short_help="Map the reads against a reference genome")
-@click.argument('bam', type=click.Path(exists=True))
-def map_reads(bam):
-    print(bam)
 
 
 @cli.command(short_help="Cluster mappings by read")
-@click.argument('bam', type=click.Path(exists=True))
-def cluster_reads(bam):
-    print(bam)
+@click.argument('input_bam', type=click.Path(exists=True))
+@click.argument('keep_bam', type=click.Path(exists=False))
+@click.argument('discard_bam', type=click.Path(exists=False))
+@click.option("--trim", default=20, type=int, help="The number of bases to ignore at the end of each aligned segment when calculating overlaps")
+@click.option("--mapping_quality_cutoff", default=0, type=int, help="The minimum mapping quality for a alignment segment to be kept")
+def cluster_reads(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff):
+    num_reads, num_reads_kept, num_aligns, num_aligns_kept = cluster_reads_tool(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff)
+    print(num_reads, num_reads_kept, num_aligns, num_aligns_kept)
 
 
 @cli.command()
