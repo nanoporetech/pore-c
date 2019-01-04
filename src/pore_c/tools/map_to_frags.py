@@ -2,6 +2,8 @@ from typing import Pattern, List, NamedTuple, Iterator
 from pysam import AlignmentFile
 import bisect
 import sys
+import gzip
+
 
 class Contact:
     def __init__(self,ch,frag,strand,poss,mapq):
@@ -42,7 +44,7 @@ class Cwalk:
                 mapqs.append(x.mapq)
 
         mapString = ' '.join(mapString)
-        quals = ' '.join(mapqs)
+        quals = ' '.join(list(map(str,mapqs)))
         return "{name} {mappings} {quals}".format(name = self.name, mappings = mapString, quals = quals)
 
 
@@ -52,6 +54,9 @@ def load_reference(ref_file: str) -> NamedTuple:
     pos = 0
     ref_frags = {}
     ref_IDs = {}
+
+    print(ref_file)
+
     for entry in open(ref_file):
         l = entry.strip().split()
         l[0] = str(l[0])
@@ -67,19 +72,19 @@ def assign_to_fragment(ref_frags: tuple, ref_IDs: dict, loc: tuple, method: str)
 
     try:
         assert start < stop
-        assert ch in refCoords
-        assert ch in refIDs
-        assert stop < refCoords[ch][-1] 
+        assert ch in ref_frags
+        assert ch in ref_IDs
+        assert stop < ref_frags[ch][-1] 
     except:
-        print('warning: a broken mapping has been seen:\n{}-{} on {} which is {} bp long.'.format(start,stop, ch, refCoords[ch][-1]),file=sys.stderr)
+        print('warning: a broken mapping has been seen:\n{}-{} on {} which is {} bp long.'.format(start,stop, ch, ref_frags[ch][-1]),file=sys.stderr)
 
     if method == 'start':
-        frag = bisect.bisect_left(refCoords[ch],start + 1 ) -1
-        return (refIDs[ch][frag], refCoords[ch][frag])
+        frag = bisect.bisect_left(ref_frags[ch],start + 1 ) -1
+        return (ref_IDs[ch][frag], ref_frags[ch][frag])
 
     if method == 'midpoint':
-        frag = bisect.bisect_left(refCoords[ch],int((start+stop)/2) + 1 ) -1
-        return (refIDs[ch][frag], refCoords[ch][frag])
+        frag = bisect.bisect_left(ref_frags[ch],int((start+stop)/2) + 1 ) -1
+        return (ref_IDs[ch][frag], ref_frags[ch][frag])
 
     elif method == 'overlap_pct':
         pass
@@ -88,7 +93,7 @@ def assign_to_fragment(ref_frags: tuple, ref_IDs: dict, loc: tuple, method: str)
 def porec_iterator(input_bam: str):
     aligns = []
     current_read_name = None
-    for align in bam:
+    for align in AlignmentFile(input_bam):
         if current_read_name is None:
             current_read_name = align.query_name
             aligns.append(align)

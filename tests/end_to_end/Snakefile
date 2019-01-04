@@ -39,7 +39,7 @@ rule all:
       mapping = expand(str(FILTERED_BAM), sample_id=SAMPLE_ID, ref_id=REF_ID, mapping_params="MC4C"),
       porec = expand(str(POREC), sample_id=SAMPLE_ID,ref_id=REF_ID, mapping_params="MC4C")
 
-#Usage: pore_c map-to-fragments [OPTIONS] REFERENCE INPUT_BAM OUTPUT_POREC
+#def map_to_fragments(input_bam: str, ref_file: str, output_file: str, method: str) -> None:
 rule map_to_frags:
   output:
     porec = POREC
@@ -49,7 +49,7 @@ rule map_to_frags:
   params:
     method = "start"
   shell:
-    "pore_c map-to-fragments --method {params.method} {input.ref} {input.bam} {output.porec}"
+    "pore_c map-to-fragments --method {params.method} {input.bam} {input.ref} {output.porec}"
 
 rule filter_bam:
   output: 
@@ -60,7 +60,7 @@ rule filter_bam:
     trim=20,
     mapping_quality_cutoff=0
   shell:
-    "pore_c cluster_reads {input} {output.keep} {output.discard} --trim {params.trim} --mapping_quality_cutoff {params.mapping_quality_cutoff}"
+    "pore_c cluster-reads {input} {output.keep} {output.discard} --trim {params.trim} --mapping_quality_cutoff {params.mapping_quality_cutoff}"
 
 
 rule bwa_map_reads:
@@ -95,7 +95,7 @@ rule generate_fragments:
     params: 
         cut_site = lambda x: CUT_SITES[x['enzyme']]
     shell:
-        "pore_c generate_fragments {input.fasta} {params.cut_site} {output}"
+        "pore_c generate-fragments {input.fasta} {params.cut_site} {output}"
 
 
 rule copy_reads:
