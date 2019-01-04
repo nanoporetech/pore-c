@@ -79,10 +79,10 @@ def cluster_reads(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff
 @cli.command(short_help="create a .poreC file from a namesorted alignment of poreC data")
 @click.argument('reference',type=click.Path(exists=True))
 @click.argument('input_bam', type=click.Path(exists=True))
-@click.argument('output_bam', type=click.Path(exists=False))
+@click.argument('output_poreC', type=click.Path(exists=False))
 @click.option('--method', default = 'start', type = str, help="The method of determining fragment mapping of an alignment")
-def map_to_fragments(input_bam, reference, output_bam, method):
-    map_to_fragments_tool(reference, input_bam, output_bam, method)
+def map_to_fragments(input_bam, reference, output_poreC, method):
+    map_to_fragments_tool(reference, input_bam, output_poreC, method)
 
 
 @cli.command()
