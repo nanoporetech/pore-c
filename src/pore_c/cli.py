@@ -2,7 +2,7 @@ import click
 import os.path
 from pore_c.tools.generate_fragments import fragment_generator
 from pore_c.tools.cluster_reads import cluster_reads as cluster_reads_tool
-
+from pore_c.tools.map_to_frags import map_to_fragments as map_to_fragments_tool
 
 class NaturalOrderGroup(click.Group):
     """Command group trying to list subcommands in the order they were added.
@@ -65,7 +65,6 @@ def generate_fragments(reference_fasta, restriction_pattern, outfile):
         ))
 
 
-
 @cli.command(short_help="Cluster mappings by read")
 @click.argument('input_bam', type=click.Path(exists=True))
 @click.argument('keep_bam', type=click.Path(exists=False))
@@ -77,10 +76,14 @@ def cluster_reads(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff
     print(num_reads, num_reads_kept, num_aligns, num_aligns_kept)
 
 
-@cli.command()
-@click.argument('bam', type=click.Path(exists=True))
-def map_to_fragments(bam):
-    print(bam)
+@cli.command(short_help="create a .poreC file from a namesorted alignment of poreC data")
+@click.argument('reference',type=click.Path(exists=True))
+@click.argument('input_bam', type=click.Path(exists=True))
+@click.argument('output_bam', type=click.Path(exists=False))
+@click.option('--method', default = 'start', type = str, help="The method of determining fragment mapping of an alignment")
+def map_to_fragments(input_bam, reference, output_bam, method):
+    map_to_fragments_tool(reference, input_bam, output_bam, method)
+
 
 @cli.command()
 @click.argument('bam', type=click.Path(exists=True))
