@@ -5,7 +5,7 @@ SRC_DATA_DIR = Path("../data/")
 
 REF_ID = "ens38_21and22"
 ENZYME = "HindIII"
-SAMPLE_ID = "chr22subset"
+SAMPLE_ID = "chr21and22subset"
 
 CUT_SITES = {
   'HindIII': 'AAGCTT'
@@ -27,7 +27,7 @@ MAPPED_BAM = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.ns.bam"
 FILTERED_BAM = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.keep.bam"
 DISCARDED_BAM = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.discard.bam"
 
-POREC = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.poreC""
+POREC = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.poreC"
 
 wildcard_constraints:
   ref_id="\S+_\S+"
@@ -44,7 +44,7 @@ rule map_to_frags:
   output:
     porec = POREC
   input:
-    ref = FRAG_FILE
+    ref = expand(str(FRAG_FILE), enzyme = ENZYME, ref_id = REF_ID),
     bam = FILTERED_BAM
   params:
     method = "start"
