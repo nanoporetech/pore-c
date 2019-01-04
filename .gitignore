@@ -1,1 +1,6 @@
 tests/end_to_end/work/
+build/
+dist/
+src/pore_c.egg-info/
+src/pore_c/__pycache__/
+src/pore_c/tools/__pycache__/
