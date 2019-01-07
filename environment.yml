@@ -5,6 +5,7 @@ channels:
   - r
   - defaults
 dependencies:
+  - snakemake
   - python>=3.6
   - pysam
   - biopython
@@ -12,3 +13,4 @@ dependencies:
   - numpy
   - pytest
   - bwa
+  - intervaltree
