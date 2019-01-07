@@ -54,7 +54,7 @@ def create_regex(pattern: str) -> Pattern :
     
     sites_raw += site_raw
     if len(sites_raw) > 1:
-        fwd_rev_pattern = "(" + '|'.join(list(set(sites_raw))) + ")"
+        fwd_rev_pattern = "(" + '|'.join(sorted(list(set(sites_raw)))) + ")"
     else:
         fwd_rev_pattern = "(" + sites_raw[0] + ")"
 
