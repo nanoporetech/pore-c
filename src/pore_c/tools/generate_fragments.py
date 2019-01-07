@@ -56,11 +56,12 @@ def create_regex(pattern: str) -> Pattern :
     if len(sites_raw) > 1:
         fwd_rev_pattern = "(" + '|'.join(list(set(sites_raw))) + ")"
     else:
-        fwd_rev_pattern = sites_raw[0]
+        fwd_rev_pattern = "(" + sites_raw[0] + ")"
 
     ###
 
-    #fwd_rev_pattern = replace_degenerate("({}|{})".format(pattern.upper(), revcomp(pattern.upper())))
+    fwd_rev_pattern = replace_degenerate(fwd_rev_pattern)
+
     try:
         regex = re.compile(fwd_rev_pattern)
     except:
