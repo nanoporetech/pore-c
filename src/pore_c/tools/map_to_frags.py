@@ -119,7 +119,7 @@ def map_to_fragments(input_bam: str, ref_file: str, output_file: str, method: st
             frag,pos = assign_to_fragment(ref_frags, ref_IDs, loc, method = method)
             new_contact = Contact(monomer.reference_name, frag, monomer.is_reverse, pos, monomer.mapping_quality)
             walk.add(new_contact)
-        f_out.write(str(walk))
+        f_out.write(str(walk)+'\n')
     
     f_out.close()
 
