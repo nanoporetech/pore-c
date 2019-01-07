@@ -39,7 +39,6 @@ rule all:
       mapping = expand(str(FILTERED_BAM), sample_id=SAMPLE_ID, ref_id=REF_ID, mapping_params="MC4C"),
       porec = expand(str(POREC), sample_id=SAMPLE_ID,ref_id=REF_ID, mapping_params="MC4C")
 
-#def map_to_fragments(input_bam: str, ref_file: str, output_file: str, method: str) -> None:
 rule map_to_frags:
   output:
     porec = POREC
