@@ -79,16 +79,26 @@ def assign_to_fragment(ref_frags: tuple, ref_IDs: dict, loc: tuple, method: str)
         print('warning: a broken mapping has been seen:\n{}-{} on {} which is {} bp long.'.format(start,stop, ch, ref_frags[ch][-1]),file=sys.stderr)
 
     if method == 'start':
-        frag = bisect.bisect_left(ref_frags[ch],start + 1 ) -1
-        return (ref_IDs[ch][frag], ref_frags[ch][frag])
+        point = start
+        if point < ref_frags[ch][0]:
+            frag = 0
+        else:
+            frag = bisect.bisect_left(ref_frags[ch],point + 1 ) -1
+            
+    elif method == "midpoint":
+        point = int((start+stop)/2)
+        if point < ref_frags[ch][0]:
+            frag = 0
+        else:
+            frag = bisect.bisect_left(ref_frags[ch],point + 1 ) -1
 
-    if method == 'midpoint':
-        frag = bisect.bisect_left(ref_frags[ch],int((start+stop)/2) + 1 ) -1
-        return (ref_IDs[ch][frag], ref_frags[ch][frag])
-
-    elif method == 'overlap_pct':
+    elif method = 'overlap_pct':
         pass
+    
+    return (ref_IDs[ch][frag], ref_frags[ch][frag])
 
+
+    return (ref_IDs[ch][frag], ref_frags[ch][frag])
 
 def porec_iterator(input_bam: str):
     aligns = []
