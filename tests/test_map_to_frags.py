@@ -25,7 +25,7 @@ def test_load_reference(hicREF_file):
 #This is the function that actually does the assignment. map_to_fragments is a wrapper for it 
 #  that manages bam reading and fileIO, whose internal code is here for management purposes
 
-def test_assign_to_fragment(hicREF_file, namesorted_align_filename, method):
+def test_assign_to_fragment(hicREF_file, namesorted_align_filename):
     ref_sizes, ref_IDs = load_reference(hicREF_file)
 
     results = []
@@ -70,7 +70,7 @@ ref2: 1234567 8901234567890 123 45
 """
 
 #signature: assign_to_fragment(ref_frags: tuple, ref_IDs: dict, loc: tuple, method: str) -> NamedTuple:
-@pytest.mark.parameterize("loc,frag_pos,frag_IDs,method,fragID",[
+@pytest.mark.parametrize("loc,frag_pos,frag_IDs,assign_method,fragID",[
 (('ref1',10,21), {"ref1" : [9,19,30], "ref2" : [7,20,23,25]}, {"ref1" : [0,1,2], "ref2" : [3,4,5,6]},"start",1),
 (('ref1',1,19), {"ref1" : [9,19,30], "ref2" : [7,20,23,25]},{"ref1" : [0,1,2], "ref2" : [3,4,5,6]},"start",0),
 (('ref2',1,6), {"ref1" : [9,19,30], "ref2" : [7,20,23,25]},{"ref1" : [0,1,2], "ref2" : [3,4,5,6]},"start",3),
@@ -78,9 +78,9 @@ ref2: 1234567 8901234567890 123 45
 (('ref1',13,17), {"ref1" : [9,19,30], "ref2" : [7,20,23,25]},{"ref1" : [0,1,2], "ref2" : [3,4,5,6]},"start",1),
 (('ref1',10,19), {"ref1" : [9,19,30], "ref2" : [7,20,23,25]},{"ref1" : [0,1,2], "ref2" : [3,4,5,6]}, "start",1)]
 )
-def test_assign_to_fragment2(loc,frag_pos,frag_IDs,method,fragID):
-    x = assign_to_fragment(loc,frag_pos,frag_IDs,method)
-    assert x == fragID
+def test_assign_to_fragment2(frag_pos,frag_IDs,loc,assign_method,fragID):
+    ID,pos = assign_to_fragment(frag_pos,frag_IDs,loc,assign_method)
+    assert ID == fragID
 
 
 

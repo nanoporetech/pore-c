@@ -68,6 +68,9 @@ def load_reference(ref_file: str) -> NamedTuple:
 
 def assign_to_fragment(ref_frags: tuple, ref_IDs: dict, loc: tuple, method: str) -> NamedTuple:
 
+    #start and stop should be 1-indexed and inclusive on both ends
+    # rather than the python native 0-indexed, inclusive-exclusive
+
     ch, start, stop = loc
 
     try:
@@ -83,7 +86,7 @@ def assign_to_fragment(ref_frags: tuple, ref_IDs: dict, loc: tuple, method: str)
         if point < ref_frags[ch][0]:
             frag = 0
         else:
-            frag = bisect.bisect_left(ref_frags[ch],point + 1 ) -1
+            frag = bisect.bisect_left(ref_frags[ch],point + 1 ) 
             
     elif method == "midpoint":
         point = int((start+stop)/2)
