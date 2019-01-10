@@ -132,8 +132,19 @@ def assignToFragment(refCoords,refIDs,loc,method="start",pct = 0.7):
     # fragment (either based on pct aligned, alignment quality, etc.) this would be where it
     # is implemented.    
     if method == 'start':
-        frag = bisect.bisect_left(refCoords[ch],start +1) - 1
-        return refIDs[ch][frag],refCoords[ch][frag]
+        #last fragment
+        if start > refCoords[ch][-2]:
+            frag = len(refCoords[ch]) - 1
+        #first fragment
+        elif start < refCoords[ch][0]:
+            frag = 0
+        #anything in the middle
+        else:
+            frag = bisect.bisect_left(refCoords[ch],start + 1 ) -1
+        return (refIDs[ch][frag], refCoords[ch][frag])
+
+#        frag = bisect.bisect_left(refCoords[ch],start +1) - 1
+#        return refIDs[ch][frag],refCoords[ch][frag]
     elif method == 'overlap_pct':
         pass
     elif method == 'all':
