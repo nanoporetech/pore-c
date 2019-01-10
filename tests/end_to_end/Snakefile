@@ -27,7 +27,7 @@ MAPPED_BAM = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.ns.bam"
 FILTERED_BAM = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.keep.bam"
 DISCARDED_BAM = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.discard.bam"
 
-POREC = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.poreC"
+POREC = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}_{enzyme}.poreC"
 
 wildcard_constraints:
   ref_id="\S+_\S+"
@@ -37,13 +37,13 @@ rule all:
     input: 
       frag_file = expand(str(FRAG_FILE), enzyme=ENZYME, ref_id=REF_ID),
       mapping = expand(str(FILTERED_BAM), sample_id=SAMPLE_ID, ref_id=REF_ID, mapping_params="MC4C"),
-      porec = expand(str(POREC), sample_id=SAMPLE_ID,ref_id=REF_ID, mapping_params="MC4C")
+      porec = expand(str(POREC), sample_id=SAMPLE_ID,ref_id=REF_ID, mapping_params="MC4C", enzyme=ENZYME)
 
 rule map_to_frags:
   output:
     porec = POREC
   input:
-    ref = expand(str(FRAG_FILE), enzyme = ENZYME, ref_id = REF_ID),
+    ref = FRAG_FILE,
     bam = FILTERED_BAM
   params:
     method = "start"
