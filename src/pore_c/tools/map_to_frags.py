@@ -92,7 +92,7 @@ def assign_to_fragment(ref_frags: tuple, ref_IDs: dict, loc: tuple, method: str)
         else:
             frag = bisect.bisect_left(ref_frags[ch],point + 1 ) -1
 
-    elif method = 'overlap_pct':
+    elif method == 'overlap_pct':
         pass
     
     return (ref_IDs[ch][frag], ref_frags[ch][frag])
