@@ -24,8 +24,8 @@ def test_load_reference(hicREF_file):
 #signature: assign_to_fragment(ref_frags: tuple, ref_IDs: dict, loc: tuple, method: str) -> NamedTuple:
 #This is the function that actually does the assignment. map_to_fragments is a wrapper for it 
 #  that manages bam reading and fileIO, whose internal code is here for management purposes
-#TODO [ ]: future testing should include different methods
-def test_assign_to_fragment(hicREF_file, namesorted_align_filename):
+
+def test_assign_to_fragment(hicREF_file, namesorted_align_filename, method):
     ref_sizes, ref_IDs = load_reference(hicREF_file)
 
     results = []
@@ -39,6 +39,50 @@ def test_assign_to_fragment(hicREF_file, namesorted_align_filename):
         results.append(len(str(walk).split()))
 
     assert results == [11, 26, 21, 21, 11, 6]
+
+
+__doc__= """
+
+(all positions indicated by brackets are inclusive)
+
+                1          2         3
+ref1: 123456789 0123456789 01234567890
+      .........x..........x...........
+   1:           [           ]           10,21       mapping overflows onto subsequent fragment
+   2: [                  ]               1,19       mapping to two adjacent fragments
+
+   4:                          [     ]  24,30       end of last fragment
+   5:              [    ]               13,17       middle bit of a fragment
+   6:           [        ]              10,19       perfect mapping 
+                                 
+
+              1         2     
+ref2: 1234567 8901234567890 123 45
+      .......x.............x...x..
+
+   3: [     ]                            1, 6       beginning of first fragment,second chromosome
+
+
+	
+
+{"ref1" : [9,19,30], "ref2" : [7,20,23,25]}
+{"ref1" : [0,1,2], "ref2" : [3,4,5,6]}
+"""
+
+#signature: assign_to_fragment(ref_frags: tuple, ref_IDs: dict, loc: tuple, method: str) -> NamedTuple:
+@pytest.mark.parameterize("loc,frag_pos,frag_IDs,method,fragID",[
+(('ref1',10,21), {"ref1" : [9,19,30], "ref2" : [7,20,23,25]}, {"ref1" : [0,1,2], "ref2" : [3,4,5,6]},"start",1),
+(('ref1',1,19), {"ref1" : [9,19,30], "ref2" : [7,20,23,25]},{"ref1" : [0,1,2], "ref2" : [3,4,5,6]},"start",0),
+(('ref2',1,6), {"ref1" : [9,19,30], "ref2" : [7,20,23,25]},{"ref1" : [0,1,2], "ref2" : [3,4,5,6]},"start",3),
+(('ref1',24,30), {"ref1" : [9,19,30], "ref2" : [7,20,23,25]},{"ref1" : [0,1,2], "ref2" : [3,4,5,6]},"start",2),
+(('ref1',13,17), {"ref1" : [9,19,30], "ref2" : [7,20,23,25]},{"ref1" : [0,1,2], "ref2" : [3,4,5,6]},"start",1),
+(('ref1',10,19), {"ref1" : [9,19,30], "ref2" : [7,20,23,25]},{"ref1" : [0,1,2], "ref2" : [3,4,5,6]}, "start",1)]
+)
+def test_assign_to_fragment2(loc,frag_pos,frag_IDs,method,fragID):
+    x = assign_to_fragment(loc,frag_pos,frag_IDs,method)
+    assert x == fragID
+
+
 
 def test_porec_iterator(namesorted_align_filename):
     res = dict([aligns for aligns in porec_iterator(namesorted_align_filename)])
