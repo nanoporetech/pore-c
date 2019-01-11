@@ -36,9 +36,11 @@ def test_assign_to_fragment(hicREF_file, namesorted_align_filename):
             frag,pos = assign_to_fragment(ref_sizes, ref_IDs, loc, 'start') 
             new_contact = Contact(monomer.reference_name, frag, monomer.is_reverse, pos, monomer.mapping_quality)
             walk.add(new_contact)
-        results.append(len(str(walk).split()))
+#        results.append(len(walk.contacts))
+#        assert len(aligns) == len(walk.contacts)
+        results.append(len(walk.contacts))
 
-    assert results == [11, 26, 21, 21, 11, 6]
+    assert results == [2,5,6,5,2,1]
 
 def test_porec_iterator(namesorted_align_filename):
     res = dict([aligns for aligns in porec_iterator(namesorted_align_filename)])

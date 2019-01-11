@@ -4,17 +4,17 @@ import bisect
 import sys
 import gzip
 from collections import defaultdict
-from itertools import combinations_with_replacement
+from itertools import combinations
 
 
 class Contact:
     def __init__(self,ch,frag,strand,poss,mapq):
         self.ch = ch
         self.fragID = frag
-        if int(strand) not in [16, 0]:
-            raise ValueError("{} not a valid entry, due to improper strand.".format('\t'.join([ch,frag,"_"+strand+"_",poss,mapq])))
-        self.strand = strand
-
+        if type(strand ) == bool:
+            self.strand = 16 if strand else 0
+        else:
+            self.strand = strand
         self.poss = poss
         self.mapq = mapq
     def __str__(self):
@@ -38,6 +38,10 @@ class Cwalk:
         
         for x in range(L):
             strand,ch,poss,frag = entries[x]
+            if strand == "16":
+                strand = True
+            else:
+                strand = False
             self.add(Contact(ch,frag,strand,poss,mapqs[x]))
 
     def add(self,monomer):
@@ -59,15 +63,17 @@ class Cwalk:
         L = len(self.contacts)
 
         c = 0
-        for contact_group in combinations_with_replacement(range(L),r = size):
-            new_walk = Cwalk("{}_{}".format(self.name,c))
-            chrs = tuple(sorted([chrList[x] for x in contact_group]))
-            for pos in contact_group:
-                new_walk.add(self.contacts[pos])
-            outputs[chrs].append(new_walk)
-            c += 1
-        return outputs
-
+        if len(self.contacts) >= size:
+            for contact_group in combinations(range(L),r = size):
+                new_walk = Cwalk("{}_{}".format(self.name,c))
+                chrs = tuple(sorted([chrList[x] for x in contact_group]))
+                for pos in contact_group:
+                    new_walk.add(self.contacts[pos])
+                outputs[chrs].append(new_walk)
+                c += 1
+            return outputs
+        else:
+            return None
 ###
     def __str__(self):
         mapString = []
@@ -79,7 +85,7 @@ class Cwalk:
 
         mapString = ' '.join(mapString)
         quals = ' '.join(list(map(str,mapqs)))
-        return "{name} {mappings} {quals}\n".format(name = self.name, mappings = mapString, quals = quals)
+        return "{name} {mappings} {quals}".format(name = self.name, mappings = mapString, quals = quals)
 
 
 #returns ref_frags and ref_IDs

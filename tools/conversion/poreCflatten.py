@@ -91,6 +91,7 @@ if __name__ == "__main__":
             else:
                 comb = _comb
             #these should already be implicitly sorted as per fragmentIDs
+            # IF sorted=True for output...THIS IS A BUG.
             chrs = tuple(map(lambda x: x.split()[1],comb))
             chrData[chrs].append((comb,mapqDict))
             counts += 1
@@ -107,6 +108,7 @@ if __name__ == "__main__":
             #each contact is given a unique contact identifier composed of the poreC readID and a unique number.
             #   all decomposed contacts originating from the same poreC read should therefore be identifiable by the
             #   readID component of their unique contact identifier.
+
             print('{readID}_{count}\t{contacts}\t{mapqs}'.format(readID=readID, count = counts, contacts = '\t'.join(comb),mapqs = '\t'.join(map(lambda x: str(mapqDict[x]), comb))))        
             counts += 1
 
