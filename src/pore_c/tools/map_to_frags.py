@@ -3,50 +3,83 @@ from pysam import AlignmentFile
 import bisect
 import sys
 import gzip
+from collections import defaultdict
+from itertools import combinations_with_replacement
 
 
 class Contact:
     def __init__(self,ch,frag,strand,poss,mapq):
         self.ch = ch
         self.fragID = frag
-        self.strand = 16 if strand else 0
+        if int(strand) not in [16, 0]:
+            raise ValueError("{} not a valid entry, due to improper strand.".format('\t'.join([ch,frag,"_"+strand+"_",poss,mapq])))
+        self.strand = strand
+
         self.poss = poss
         self.mapq = mapq
     def __str__(self):
         return ' '.join(list(map(str,(self.ch,self.fragID,self.strand,self.poss,self.mapq))))
 
 class Cwalk:
-    def __init__(self,readname):
+    def __init__(self,readname=None):
         self.name = readname
-        self.fragIDs = set()
+#        self.fragIDs = set()
         self.contacts = []
+
+    def from_entry(self,entry):
+        l = entry.strip().split()
+        L = int((len(l[1:])) / 5)
+        self.name = l[0]
+        mapqs = l[-L:]
+        entries = []
+
+        for x in range(1, 4 * L,4):
+            entries.append (l[ x: x + 4])
+        
+        for x in range(L):
+            strand,ch,poss,frag = entries[x]
+            self.add(Contact(ch,frag,strand,poss,mapqs[x]))
+
     def add(self,monomer):
-        if len(self.contacts) == 0 or monomer.fragID != self.contacts[-1].fragID:
-            self.contacts.append(monomer)
-            self.fragIDs.add(monomer.fragID)
-        else:
-            #this would be a good point to join fragmented mappings where two alignments fully cover 
-            #   a single fragment but were split by the aligner.
-            pass
+        self.contacts.append(monomer)
+#        self.fragIDs.add(monomer.fragID)
+
 
     def sort(self):
-        self.sortedContacts = sorted(self.contacts,key = lambda c: c.fragID)
+        self.contacts.sort(key = lambda c: c.fragID)
+        
 
+    def get_chrs(self):
+        return tuple([x.ch for x in self.contacts])
+
+    #returns a dictionary of lists of cwalk objects keyed on sorted chromosome sets of size=size
+    def flatten(self, size):
+        outputs = defaultdict(list)
+        chrList = self.get_chrs()
+        L = len(self.contacts)
+
+        c = 0
+        for contact_group in combinations_with_replacement(range(L),r = size):
+            new_walk = Cwalk("{}_{}".format(self.name,c))
+            chrs = tuple(sorted([chrList[x] for x in contact_group]))
+            for pos in contact_group:
+                new_walk.add(self.contacts[pos])
+            outputs[chrs].append(new_walk)
+            c += 1
+        return outputs
+
+###
     def __str__(self):
         mapString = []
         mapqs = []
         for x in self.contacts:
             tempString = "{strand} {ch} {pos} {frag}".format(strand = x.strand, ch = x.ch, pos = x.poss, frag=x.fragID)
-            if "-1" in tempString:
-                continue
-            else:
-                mapString.append(tempString)
-                mapqs.append(x.mapq)
+            mapString.append(tempString)
+            mapqs.append(x.mapq)
 
         mapString = ' '.join(mapString)
         quals = ' '.join(list(map(str,mapqs)))
-        return "{name} {mappings} {quals}".format(name = self.name, mappings = mapString, quals = quals)
-
+        return "{name} {mappings} {quals}\n".format(name = self.name, mappings = mapString, quals = quals)
 
 
 #returns ref_frags and ref_IDs
