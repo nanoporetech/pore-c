@@ -1,5 +1,6 @@
 import pytest
 import re
+from pysam import AlignedSegment
 #from pore_c.tools.map_to_frags import load_reference, assign_to_fragment, porec_iterator, map_to_fragments
 from pore_c.tools.map_to_frags import FragmentMap, AlignedSegmentToFragment, AlignedSegmentMappingType
 
@@ -49,7 +50,7 @@ def test_overlaps(query, expected):
 ])
 def test_frag_assingment(start, end, frag_id, mapping_type):
     fm = frag_map()
-    segment = AlignedSegment("chr1", start, end, True, "read1", 300, 500, 0.1)
+    segment = AlignedSegmentToFragment("chr1", start, end, True, "read1", 300, 500, 0.1)
     segment.assign_to_fragment(fm)
     assert(segment.frag_id == frag_id)
     assert(segment.mapping_type == mapping_type)
