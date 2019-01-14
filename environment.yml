@@ -16,4 +16,5 @@ dependencies:
   - intervaltree
   - dataclasses
   - pybedtools
-
+  - pip:
+    - click-log

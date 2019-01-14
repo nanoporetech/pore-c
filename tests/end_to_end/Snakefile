@@ -21,29 +21,34 @@ READ_FASTQ = WORK_DIR / "{sample_id}.fq.gz"
 
 REF_FAI = REF_FASTA.with_suffix(".gz.fai")
 REF_BWA_INDEX = REF_FASTA.with_suffix(".gz.bwt")
-FRAG_FILE = REF_FASTA.with_suffix(".{enzyme}.hicREF")
 
-MAPPED_BAM = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.ns.bam"
-FILTERED_BAM = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.keep.bam"
-DISCARDED_BAM = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}.discard.bam"
+REF_ENZYME_PREFIX = WORK_DIR / "{ref_id}_{enzyme}"
+HICREF_FILE = REF_ENZYME_PREFIX.with_suffix(".hicREF")
+FRAG_BED_FILE = REF_ENZYME_PREFIX.with_suffix(".fragments.bed.gz")
 
-POREC = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}_{enzyme}.poreC"
+MAPPING_PREFIX = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}"
+MAPPED_BAM =  MAPPING_PREFIX.with_suffix(".ns.bam")
+FILTERED_BAM = MAPPING_PREFIX.with_suffix(".keep.bam")
+DISCARDED_BAM = MAPPING_PREFIX.with_suffix(".discard.bam")
+
+CONTACT_PREFIX = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}_{enzyme}"
+POREC = CONTACT_PREFIX.with_suffix(".poreC")
 
 wildcard_constraints:
   ref_id="\S+_\S+"
 
 
 rule all:
-    input: 
-      frag_file = expand(str(FRAG_FILE), enzyme=ENZYME, ref_id=REF_ID),
-      mapping = expand(str(FILTERED_BAM), sample_id=SAMPLE_ID, ref_id=REF_ID, mapping_params="MC4C"),
-      porec = expand(str(POREC), sample_id=SAMPLE_ID,ref_id=REF_ID, mapping_params="MC4C", enzyme=ENZYME)
+  input: 
+    frag_file = expand(str(HICREF_FILE), enzyme=ENZYME, ref_id=REF_ID),
+    mapping = expand(str(FILTERED_BAM), sample_id=SAMPLE_ID, ref_id=REF_ID, mapping_params="MC4C"),
+    porec = expand(str(POREC), sample_id=SAMPLE_ID,ref_id=REF_ID, mapping_params="MC4C", enzyme=ENZYME)
 
 rule map_to_frags:
   output:
     porec = POREC
   input:
-    ref = FRAG_FILE,
+    ref = FRAG_BED_FILE,
     bam = FILTERED_BAM
   params:
     method = "start"
@@ -87,33 +92,30 @@ rule bwa_index_ref:
 
 
 rule generate_fragments:
-    output: FRAG_FILE
-    input: 
-        fasta=REF_FASTA,
-        fai=REF_FAI
-    params: 
-        cut_site = lambda x: CUT_SITES[x['enzyme']]
-    shell:
-        "pore_c generate-fragments {input.fasta} {params.cut_site} {output}"
-
+  output: 
+    hicref_file=HICREF_FILE,
+    bed_file=FRAG_BED_FILE
+  input: 
+    fasta=REF_FASTA,
+    fai=REF_FAI
+  shell:
+    "pore_c generate-fragments {input.fasta} {wildcards.enzyme} {output.bed_file} {output.hicref_file}"
 
 rule copy_reads:
-    output: READ_FASTQ
-    input: str(SRC_DATA_DIR / READ_FASTQ.name)
-    shell:
-        "cp {input} {output}"
+  output: READ_FASTQ
+  input: str(SRC_DATA_DIR / READ_FASTQ.name)
+  shell:
+    "cp {input} {output}"
 
 rule copy_ref:
-    output: REF_FASTA
-    input: str(SRC_DATA_DIR / REF_FASTA.name)
-    shell:
-        "cp {input} {output}"
-
-
+  output: REF_FASTA
+  input: str(SRC_DATA_DIR / REF_FASTA.name)
+  shell:
+    "cp {input} {output}"
 
 rule index_ref:
-    output: REF_FAI
-    input: REF_FASTA
-    shell:
-        "samtools faidx {input}"
+  output: REF_FAI
+  input: REF_FASTA
+  shell:
+    "samtools faidx {input}"
 
