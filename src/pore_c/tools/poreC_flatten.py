@@ -57,18 +57,29 @@ class Cwalk:
         chrList = self.get_chrs()
         L = len(self.contacts)
 
-        c = 0
         if len(self.contacts) >= size:
-            for contact_group in combinations(range(L),r = size):
+            for c, contact_group in enumerate(combinations(self.contacts, r = size)):
                 new_walk = Cwalk("{}_{}".format(self.name,c))
-                chrs = tuple(sorted([chrList[x] for x in contact_group]))
-                for pos in contact_group:
-                    new_walk.add(self.contacts[pos])
+                chrs = tuple(sorted([x.ch for x in contact_group]))
+                for contact in contact_group:
+                    new_walk.add(contact)
                 outputs[chrs].append(new_walk)
-                c += 1
             return outputs
         else:
             return None
+
+#        c = 0
+#        if len(self.contacts) >= size:
+#            for contact_group in combinations(range(L),r = size):
+#                new_walk = Cwalk("{}_{}".format(self.name,c))
+#                chrs = tuple(sorted([chrList[x] for x in contact_group]))
+#                for pos in contact_group:
+#                    new_walk.add(self.contacts[pos])
+#                outputs[chrs].append(new_walk)
+#                c += 1
+#            return outputs
+#        else:
+#            return None
 ###
     def __str__(self):
         mapString = []
@@ -124,7 +135,12 @@ def flatten_multiway(file_in, file_out, size, sort ):
     chr_used = list(chr_used)
     natural_sort(chr_used)
 
-    for chrs in combinations_with_replacement(chr_used,r = size):
-        if chrs in contact_bundle:
-            for entry in contact_bundle[chrs]:
-                f_out.write(str(entry))
+
+#    for chrs in combinations_with_replacement(chr_used,r = size):
+#        if chrs in contact_bundle:
+#            for entry in contact_bundle[chrs]:
+#                f_out.write(str(entry))
+
+    for contacts in contact_bundle.values():
+        for entry in contacts:
+            f_out.write(str(entry))
