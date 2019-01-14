@@ -122,7 +122,8 @@ def flatten_multiway(file_in, file_out, size, sort ):
         for entry in f:
             walk = Cwalk()
             walk.from_entry(entry)
-            walk.sort()
+            if sort:
+                walk.sort()
             for contact in walk.contacts:
                 chr_used.add(contact.ch)
             flattened_contacts = walk.flatten(size)
