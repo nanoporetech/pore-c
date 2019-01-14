@@ -3,6 +3,8 @@ import os.path
 from pore_c.tools.generate_fragments import fragment_generator
 from pore_c.tools.cluster_reads import cluster_reads as cluster_reads_tool
 from pore_c.tools.map_to_frags import map_to_fragments as map_to_fragments_tool
+from pore_c.tools.poreC_flatten import flatten_multiway as flatten_multiway_tool
+
 
 class NaturalOrderGroup(click.Group):
     """Command group trying to list subcommands in the order they were added.
@@ -85,11 +87,13 @@ def map_to_fragments(input_bam, reference, output_porec, method):
     map_to_fragments_tool(input_bam,reference, output_porec, method)
 
 
-@cli.command()
-@click.argument('bam', type=click.Path(exists=True))
-def flatten_multiway(bam):
-    print(bam)
-
+@cli.command(short_help = "Flatten down a pore-C file filled with multiway contacts to a single specified contact dimension." )
+@click.argument('input_porec',type=click.Path(exists=True))
+@click.argument('output_porec', type=click.Path(exists=False))
+@click.option('--sort', default=False, type=bool, help="Sort the monomers in each contact according to fragment ID.")
+@click.option('--size', default=2, type=int, help="The size of the generated contacts in the output file. Default is 2.")
+def flatten_multiway(input_porec, output_porec,size,sort):
+    flatten_multiway_tool(input_porec, output_porec,size,sort)
 
 @cli.command()
 @click.argument('bam', type=click.Path(exists=True))
