@@ -1,7 +1,6 @@
 import pytest
 
-from pore_c.tools.poreC_flatten import flatten_multiway as flatten_multiway
-from pore_c.tools.map_to_frags import Contact, Cwalk
+from pore_c.tools.poreC_flatten import Contact, Cwalk
 
 @pytest.mark.parametrize("poreC,size,sort,monomers",[ ("00aaefda-bc3e-4e34-9cab-3ef38f59c5eb 0 1 160205974 38790 16 1 182085591 45470 16 1 192474669 48773 16 1 192480456 48775 42 248 44 26",2,True,
 ['00aaefda-bc3e-4e34-9cab-3ef38f59c5eb_0 0 1 160205974 38790 16 1 182085591 45470 42 248',
