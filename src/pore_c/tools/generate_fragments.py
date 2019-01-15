@@ -1,6 +1,51 @@
 from pysam import FastaFile
 from typing import Pattern, List, NamedTuple, Iterator
-import re
+#import re
+
+from Bio import Seq,SeqIO
+from Bio import Restriction
+
+#takes in the sequence argument provided by name or by sequence,
+#  looks through the Bio.Restriction class members
+#  for a matching enzyme.
+# returns a restriction batch with either a single enzyme or multiple 
+# enzymes depending on what was specified
+def loadRestrictionEnzymes(**args):
+    RE_data = dir(Restriction)
+    RE_ref = {}
+    for entry in RE_data:
+        RE_ref[entry.site] = entry
+
+    rb = RestrictionBatch()
+    for arg in args:
+        if arg in RE_ref.values():
+            rb.add(arg)
+        elif arg in RE_ref.keys():
+            rb.add(RE_ref[arg])
+    return rb
+
+def digest(restriction_batch, reference_fasta):
+    for seq in SeqIO.parser(reference_fasta):
+        frags = restriction_batch.catalyze(seq)
+        for 
+    
+
+
+
+
+
+
+
+
+
+
+
+
+####
+    
+
+    
+    
 
 # complement translation table with support for regex punctuation
 COMPLEMENT_TRANS = str.maketrans(
