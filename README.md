@@ -19,27 +19,32 @@ pytest tests
 ```
 
 
-## The Pore-C tool suite [TODO: replace with click interface]
+## The Pore-C tool suite
 
-- makeHiCRef.py
-- clusterReads.py
-- mapToFrags.py
-- poreCflatten.py
-- hicToHiCPro.py
+- generate-fragments
+- cluster-reads
+- map-to-fragments
+- flatten-multiway
+- hic-to-hicpro
 
-
-### makeHiCRef.py
+### generate-fragments
 
 This is redundant with (https://github.com/aidenlab/juicer/blob/master/misc/generate_site_positions.py) in the juicer universe and generates an identical file. The included version of the tools supports degenerate sequences and sequence groups coded as REGEXes and prints to stdout. 
+
+Signature:
+` Usage: pore_c generate-fragments [OPTIONS] REFERENCE_FASTA RESTRICTION_PATTERN`
+`                                 OUTFILE`
+`Try "pore_c generate-fragments --help" for help.`
+
 Examples:
 
-`makeHiCRef.py reference.fa “AAGCTT” > ref.HindIII.hicREF		#a single site`
+`pore_c generate-fragments reference.fa “AAGCTT” ref.HindIII.hicREF		#a single site`
 
-`makeHiCRef.py reference.fa “(GAATTC |GCGGCCGC)” > ref.mix.hicREF	#two sites: ecoRI + NotI`
+`pore_c generate-fragments “(GAATTC |GCGGCCGC)” ref.mix.hicREF	#two sites: ecoRI + NotI`
 
-`makeHiCRef.py reference.fa “GCCNNNNNGGC” > ref.BglI.hicREF		#BglI (with degeneracy)`
+`pore_c generate-fragments reference.fa “GCCNNNNNGGC” ref.BglI.hicREF		#BglI (with degeneracy)`
 
-`makeHiCRef.py reference.fa “RAATY” > ref.ApoI.hicREF		#ApoI (with degeneracy)`
+`pore_c generate-fragments reference.fa “RAATY” ref.ApoI.hicREF		#ApoI (with degeneracy)`
 
 The resulting reference file consists of one space-separated line per chromosome. The first item of each line is the chromosome name, the subsequent items are restriction site positions. The final item is the length of the chromosome.
 
