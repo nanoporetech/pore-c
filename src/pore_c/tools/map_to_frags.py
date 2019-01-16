@@ -8,90 +8,12 @@ from collections import defaultdict
 
 from enum import Enum, unique
 
-from pybedtools import BedTool
 
 from collections import namedtuple, Counter
 from dataclasses import dataclass
 
+from pore_c.model import FragmentMap
 
-class FragmentMap(object):
-    """Represents the fragments created by a restriction digestion"""
-    def __init__(self, bedtool: BedTool, chrom_lengths: Dict[str, int] = None):
-        self.bt = bedtool #bedtool.saveas().tabix(is_sorted=True)
-        self.chrom_lengths = chrom_lengths
-
-    @staticmethod
-    def endpoints_to_intervals(chrom, positions, id_offset) -> List[Tuple[str, int, int, int]]:
-        if not positions[0] == 0:
-            positions = [0] + positions
-        return [
-            (chrom, start, end, str(x + id_offset))
-            for x, (start, end) in enumerate(zip(positions[:-1], positions[1:]))
-        ]
-
-
-    def save_to_bed(self, path):
-        if not path.endswith(".bed.gz"):
-            raise ValueError("Must end with .bed.gz: {}".format(path))
-        self.bt.saveas(path).tabix(is_sorted=True)
-
-    def save_to_reference_file(self, path):
-        raise NotImplementedError
-
-    @classmethod
-    def from_dict(cls, d: Dict[str, List[int]]):
-        """Create a fragment map from a dictionary mapping chromosomes to fragment endpoints (useful for testing)"""
-        intervals = []
-        chrom_lengths = {}
-        id_offset = 0
-        for chrom, endpoints in d.items():
-            intervals.extend(cls.endpoints_to_intervals(chrom, endpoints, id_offset))
-            chrom_lengths[chrom] = endpoints[-1]
-            id_offset += len(endpoints)
-        bt = BedTool(intervals)
-        return cls(bt, chrom_lengths)
-
-    @classmethod
-    def from_bed_file(cls, path):
-        if not path.endswith(".bed.gz"):
-            raise ValueError("Must end with .bed.gz: {}".format(path))
-        return cls(BedTool(path))
-
-    @classmethod
-    def from_reference_file(cls, fname):
-        intervals = []
-        chrom_lengths = {}
-        id_offset = 0
-        with open(fname) as fh:
-            for line in fh:
-                fields = line.strip().split()
-                chrom = fields[0]
-                endpoints = list(map(int, fields[1:]))
-                intervals.extend(cls.endpoints_to_intervals(chrom, endpoints, id_offset))
-                chrom_lengths[chrom] = endpoints[-1]
-                id_offset += len(endpoints)
-        bt = BedTool(intervals)
-        return cls(bt, chrom_lengths)
-
-    def _query_to_bedtool(self, query):
-        def _interval_from_tuple(t, id_offset=0):
-            if len(t) == 3:
-                return (t[0], t[1], t[2], str(id_offset))
-            else:
-                assert(len(t) == 4)
-                return t
-        if isinstance(query, tuple):
-            intervals = [_interval_from_tuple(query)]
-        else:
-            raise NotImplementedError
-        return BedTool(intervals)
-
-    def iter_overlaps(self, query, min_overlap=0):
-        query_bt = self._query_to_bedtool(query)
-        for overlap in (BedToolsOverlap(*i.fields) for i in query_bt.intersect(self.bt, sorted=True, wo=True)):
-            if overlap.overlap <= min_overlap:
-                continue
-            yield overlap
 
 @unique
 class AlignedSegmentMappingType(Enum):
@@ -261,30 +183,8 @@ class ReadAlignments(object):
         yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
 
 
-@dataclass
-class BedToolsOverlap(object):
-    """Datastructure to hold the results of a bedtools intersect command"""
-    query_chrom: str
-    query_start: int
-    query_end: int
-    query_id: str
-    frag_chrom: str
-    frag_start: int
-    frag_end: int
-    frag_id: int
-    overlap: int
-
-    def __post_init__(self):
-        self.query_start = int(self.query_start)
-        self.query_end = int(self.query_end)
-        self.frag_start = int(self.frag_start)
-        self.frag_end = int(self.frag_end)
-        self.frag_id = int(self.frag_id)
-        self.overlap = int(self.overlap)
-
-
-def map_to_fragments(input_bam: str, ref_file: str, output_file: str, method: str) -> None:
-    fm = FragmentMap.from_reference_file(ref_file)
+def map_to_fragments(input_bam: str, bed_file: str, output_file: str, method: str) -> None:
+    fm = FragmentMap.from_bed_file(bed_file)
     f_out = open(output_file, 'w')
     for read_alignments in ReadAlignments.iter_bam(input_bam):
         frag_mapping = ReadToFragments.from_read_alignments(read_alignments, fm)
