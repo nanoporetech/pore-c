@@ -1,6 +1,8 @@
 import click
 import os.path
-from pore_c.tools.generate_fragments import fragment_generator
+#from pore_c.tools.generate_fragments import fragment_generator
+from pore_c.tools.generate_fragments import digest
+
 from pore_c.tools.cluster_reads import cluster_reads as cluster_reads_tool
 from pore_c.tools.map_to_frags import map_to_fragments as map_to_fragments_tool
 from pore_c.tools.poreC_flatten import flatten_multiway as flatten_multiway_tool
@@ -20,6 +22,19 @@ def cli():
     """Pore-C tools"""
     pass
 
+@cli.command(short_help="Virtual digest of reference genome.")
+@click.argument('reference_fasta', type=click.Path(exists=True))
+@click.argument('restriction_pattern')
+@click.argument('outfile', type=click.File('w'))
+def biogenerate_fragments(reference_fasta, restriction_pattern, outfile):
+    #if restriction pattern contains multiple patterns,
+    #   this line turns that into a RE list
+    #   if it is a single pattern, it properly
+    #   packages it up as a RE list used by the functions
+    #   on up the stack
+    re = restriction_pattern.split(' ')
+    for entry in digest(re, reference_fasta):
+        outfile.write(entry + "\n")
 
 
 @cli.command(short_help="Virtual digest of reference genome.")

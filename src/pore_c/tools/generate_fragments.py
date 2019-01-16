@@ -1,48 +1,61 @@
-from pysam import FastaFile
+#from pysam import FastaFile
 from typing import Pattern, List, NamedTuple, Iterator
 #import re
 
+import gzip
 from Bio import Seq,SeqIO
 from Bio import Restriction
+from Bio.Restriction.Restriction_Dictionary import rest_dict
 
 #takes in the sequence argument provided by name or by sequence,
 #  looks through the Bio.Restriction class members
 #  for a matching enzyme.
 # returns a restriction batch with either a single enzyme or multiple 
 # enzymes depending on what was specified
-def loadRestrictionEnzymes(**args):
-    RE_data = dir(Restriction)
+def loadRestrictionEnzymes(rest_dict, enzyme_targets):
+    #generate a table of all restriction enzymes in Biopython
     RE_ref = {}
-    for entry in RE_data:
-        RE_ref[entry.site] = entry
-
-    rb = RestrictionBatch()
-    for arg in args:
+    for name, data in rest_dict.items():
+        enzyme = getattr(Restriction, name)
+        RE_ref[name] = enzyme
+        RE_ref[data["site"]] = enzyme
+    #identify enzymes by motif or by name
+    rb = Restriction.RestrictionBatch()
+    for arg in enzyme_targets:
         if arg in RE_ref.values():
-            rb.add(arg)
+            rb.add(getattr(Restriction,arg))
         elif arg in RE_ref.keys():
             rb.add(RE_ref[arg])
     return rb
 
-def digest(restriction_batch, reference_fasta):
-    for seq in SeqIO.parser(reference_fasta):
-        frags = restriction_batch.catalyze(seq)
-        for 
-    
 
+def digest(enzyme_targets, ref):
+    restriction_batch = loadRestrictionEnzymes(rest_dict,enzyme_targets)
+#    raise TypeError(type(restriction_batch))
+    if '.gz' in ref:
+        fIn = gzip.open(ref,'rt')
+    else:
+        fIn = open(ref)
+    with fIn as handle:
+        for seq in SeqIO.parse(handle,'fasta'):
+            #a list of fragments
+            frags = restriction_batch.search(seq.seq)
+            locs = []
+            for enz_locs in frags.values():
+                locs.extend(enz_locs)
+            locs = sorted(locs)
+            entry = ' '.join(list(map(str, [seq.name] + locs + [len(seq)])))
+            yield entry
 
-
-
-
-
-
-
-
-
+def digest_handler(reference_fasta,filename_out,enzymes):
+    fOut = open(filename_out,'w')
+    for entry in digest(enzymes, reference_fasta):
+        fOut.write(entry + '\n')
 
 
 ####
-    
+####herefore is the old implementation using roll-your-own restriction digests
+#### that should be deprecated.
 
     
     
