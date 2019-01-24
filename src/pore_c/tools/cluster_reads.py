@@ -23,11 +23,15 @@ def read_mappings_iter(bam, mapping_quality_cutoff=0):
             aligns = [align]
     yield aligns
 
+def read_midpoint(align):
+    return int ((align.query_alignment_end + align.query_alignment_start ) / 2)
+
 def cluster_aligned_segments(aligns, trim, mapping_quality_cutoff=0):
     if len(aligns) == 1:
         return []
     intervals = [
-        (align.query_alignment_start + trim, align.query_alignment_end - trim, x)
+
+        (max( read_midpoint( align, align.query_alignment_start + trim), read_midpoint(align) + 1, align.query_alignment_end - trim), x)
         for x, align in enumerate(aligns)
         if align.mapping_quality >= mapping_quality_cutoff
     ]
