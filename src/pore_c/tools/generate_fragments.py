@@ -91,7 +91,10 @@ def find_site_positions_biopython(enzyme: str, seq:str) -> List[int]:
     #print("{} cut site: {}".format(enz, enz.elucidate()))
     s = Seq(seq, IUPACAmbiguousDNA())
     positions = [_ -1 for _ in enz.search(s)]
-    return positions
+    if len(positions) == 0:
+        return [0]
+    else:
+        return positions
 
 
 def fragment_generator(reference_fasta: str, restriction_pattern: str) -> Iterator[SeqDigest]:
