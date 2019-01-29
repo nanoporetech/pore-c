@@ -31,7 +31,7 @@ def cluster_aligned_segments(aligns, trim, mapping_quality_cutoff=0):
         return []
     intervals = [
 
-        (max( read_midpoint( align, align.query_alignment_start + trim), read_midpoint(align) + 1, align.query_alignment_end - trim), x)
+        (min( read_midpoint( align ) , align.query_alignment_start + trim), max(read_midpoint(align) + 1, align.query_alignment_end - trim), x)
         for x, align in enumerate(aligns)
         if align.mapping_quality >= mapping_quality_cutoff
     ]
