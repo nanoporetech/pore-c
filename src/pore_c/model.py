@@ -41,9 +41,11 @@ class FragmentMap(object):
         self.chrom_lengths = chrom_lengths
 
     @staticmethod
-    def endpoints_to_intervals(chrom, positions, id_offset) -> List[Tuple[str, int, int, int]]:
+    def endpoints_to_intervals(chrom, positions, id_offset, chrom_length=None) -> List[Tuple[str, int, int, int]]:
         if not positions[0] == 0:
             positions = [0] + positions
+        if chrom_length and positions[-1] != chrom_length:
+            positions = positions + [chrom_length]
         return [
             (chrom, start, end, str(x + id_offset))
             for x, (start, end) in enumerate(zip(positions[:-1], positions[1:]))
@@ -105,14 +107,11 @@ class FragmentMap(object):
         for digest in i:
             chrom = digest.seq_name
             endpoints = digest.positions
-            intervals.extend(cls.endpoints_to_intervals(chrom, endpoints, id_offset))
-            chrom_lengths[chrom] = endpoints[-1]
+            intervals.extend(cls.endpoints_to_intervals(chrom, endpoints, id_offset, chrom_length=digest.seq_length))
+            chrom_lengths[chrom] = digest.seq_length
             id_offset += len(endpoints)
         bt = BedTool(intervals)
         return cls(bt, chrom_lengths)
-
-
-
 
     def _query_to_bedtool(self, query):
         def _interval_from_tuple(t, id_offset=0):
