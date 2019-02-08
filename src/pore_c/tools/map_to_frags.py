@@ -130,7 +130,7 @@ class ReadToFragments(object):
 
         return "{name},{contact_count},{num_aligned_bases},{num_nonadj_frags}".format(
             name = self.read_name, contact_count = self.num_frags,
-            num_aligned_bases = tot_overlap, num_nonadj_frags = self.num_nonadj_frags).
+            num_aligned_bases = tot_overlap, num_nonadj_frags = self.num_nonadj_frags)
 
 
     @classmethod
