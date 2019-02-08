@@ -87,8 +87,12 @@ def generate_fragments(reference_fasta, restriction_pattern, bedfile, hicref):
 @click.argument('discard_bam', type=click.Path(exists=False))
 @click.option("--trim", default=20, type=int, help="The number of bases to ignore at the end of each aligned segment when calculating overlaps")
 @click.option("--mapping_quality_cutoff", default=0, type=int, help="The minimum mapping quality for a alignment segment to be kept")
-def cluster_reads(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff):
-    num_reads, num_reads_kept, num_aligns, num_aligns_kept = cluster_reads_tool(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff)
+@click.option("--logfile", default=None, type=click.Path(exists=False), help="A filename for storing the per-mapping logging data about filtering.")
+def cluster_reads(input_bam, keep_bam, discard_bam, logfile, trim, mapping_quality_cutoff):
+    if logfile is not None:
+        num_reads, num_reads_kept, num_aligns, num_aligns_kept = cluster_reads_tool(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff,logfile)
+    else:
+        num_reads, num_reads_kept, num_aligns, num_aligns_kept = cluster_reads_tool(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff)
     print(num_reads, num_reads_kept, num_aligns, num_aligns_kept)
 
 
@@ -97,18 +101,14 @@ def cluster_reads(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff
 @click.argument('fragment_bed_file',type=click.Path(exists=True))
 @click.argument('output_porec', type=click.Path(exists=False))
 @click.option('--method', default = 'start', type = str, help="The method of determining fragment mapping of an alignment")
-#@click.option('--log_stats/--no_log_stats',default=False, help="Triggers creation of a per-read logfile containing aggregate contact information. Requires --logfile option to indicate where the log data should be saved.") #creates a log file containing: contacts_per_reads, pct_read_aligned,num_nonadjacent_contacts (num of adjacent contacts is simply (N-1) - nonadj_contacts where N = number of contacts in the read
-#@click.option('--logfile',type = str,default = "nofile",type=click.Path(exists=False))
+@click.option('--logfile', default = None, type=click.Path(exists=False), help="A filename for storing logged data about fragment assignment.")
 def map_to_fragments(input_bam, fragment_bed_file, output_porec, method,log_stats):
-#    if log_stats:
-#        if  logfile != "nofile":
-#            map_to_fragments_tool_logging(input_bam,fragment_bed_file, output_porec, method,log_stats,logfile)
-#        else:
-#            raise ValueError("--log_stats flag requires user to specify a save location for log data using --logfile <filename.log>")
-#    else:
-#        map_to_fragments_tool(input_bam,fragment_bed_file, output_porec, method)
-    map_to_fragments_tool(input_bam,fragment_bed_file, output_porec, method)
-1
+     if  logfile is not None:
+         map_to_fragments_tool(input_bam,fragment_bed_file, output_porec, method,logfile)
+     else:
+         map_to_fragments_tool(input_bam,fragment_bed_file, output_porec, method)
+
+
 @cli.command(short_help = "Flatten down a pore-C file filled with multiway contacts to a single specified contact dimension." )
 @click.argument('input_porec',type=click.Path(exists=True))
 @click.argument('output_porec', type=click.Path(exists=False))
