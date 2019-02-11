@@ -101,12 +101,10 @@ def cluster_reads(input_bam, keep_bam, discard_bam, logfile, trim, mapping_quali
 @click.argument('fragment_bed_file',type=click.Path(exists=True))
 @click.argument('output_porec', type=click.Path(exists=False))
 @click.option('--method', default = 'start', type = str, help="The method of determining fragment mapping of an alignment")
-@click.option('--logfile', default = None, type=click.Path(exists=False), help="A filename for storing logged data about fragment assignment.")
+@click.option('--log_stats', default = None, type=click.Path(exists=False), help="A filename for storing logged data about fragment assignment.")
 def map_to_fragments(input_bam, fragment_bed_file, output_porec, method,log_stats):
-     if  logfile is not None:
-         map_to_fragments_tool(input_bam,fragment_bed_file, output_porec, method,logfile)
-     else:
-         map_to_fragments_tool(input_bam,fragment_bed_file, output_porec, method)
+    map_to_fragments_tool(input_bam,fragment_bed_file, output_porec, method,log_stats)
+
 
 
 @cli.command(short_help = "Flatten down a pore-C file filled with multiway contacts to a single specified contact dimension." )

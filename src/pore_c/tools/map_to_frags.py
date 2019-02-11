@@ -126,9 +126,9 @@ class ReadToFragments(object):
     def log(self):
         #percent of read mapped can be calculated once this table is combined with
         #   the fastq summary table, which contains the length of each read.
-        tot_overlap = sum([_.overlap for _ in self.fragment_assignments])
+        tot_overlap = sum([_.total_overlap for _ in self.fragment_assignments])
 
-        return "{name},{contact_count},{num_aligned_bases},{num_nonadj_frags}".format(
+        return "{name},{contact_count},{num_aligned_bases},{num_nonadj_frags}\n".format(
             name = self.read_name, contact_count = self.num_frags,
             num_aligned_bases = tot_overlap, num_nonadj_frags = self.num_nonadj_frags)
 
@@ -195,23 +195,26 @@ class ReadAlignments(object):
         yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
 
 
-def map_to_fragments(input_bam: str, bed_file: str, output_file: str, method: str) -> None:
+#def map_to_fragments(input_bam: str, bed_file: str, output_file: str, method: str) -> None:
+#    fm = FragmentMap.from_bed_file(bed_file)
+#    f_out = open(output_file, 'w')
+#    for read_alignments in ReadAlignments.iter_bam(input_bam):
+#        frag_mapping = ReadToFragments.from_read_alignments(read_alignments, fm)
+#        f_out.write(frag_mapping.to_HiC_str())
+#    f_out.close()
+
+def map_to_fragments(input_bam: str, bed_file: str, output_file: str, method: str, log_file: str) -> None:
     fm = FragmentMap.from_bed_file(bed_file)
     f_out = open(output_file, 'w')
+    if log_file:
+        log_out = open(log_file, 'w')
+        log_out.write("name,contact_count,num_aligned_bases,num_nonadj_frags\n")
     for read_alignments in ReadAlignments.iter_bam(input_bam):
         frag_mapping = ReadToFragments.from_read_alignments(read_alignments, fm)
         f_out.write(frag_mapping.to_HiC_str())
-    f_out.close()
-
-def map_to_fragments_logging(input_bam: str, bed_file: str, output_file: str, method: str, log_file: str) -> None:
-    fm = FragmentMap.from_bed_file(bed_file)
-    f_out = open(output_file, 'w')
-    log_out = open(log_file, 'w')
-    log_out.write("name,contact_count,num_aligned_bases,num_nonadj_frags")
-    for read_alignments in ReadAlignments.iter_bam(input_bam):
-        frag_mapping = ReadToFragments.from_read_alignments(read_alignments, fm)
-        f_out.write(frag_mapping.to_HiC_str())
-        log_out.write(frag_mapping.log())
+        if log_file:
+            log_out.write(frag_mapping.log())
 
     f_out.close()
-    log_out.close()
+    if log_file:
+        log_out.close()
