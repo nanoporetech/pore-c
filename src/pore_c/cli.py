@@ -87,8 +87,12 @@ def generate_fragments(reference_fasta, restriction_pattern, bedfile, hicref):
 @click.argument('discard_bam', type=click.Path(exists=False))
 @click.option("--trim", default=20, type=int, help="The number of bases to ignore at the end of each aligned segment when calculating overlaps")
 @click.option("--mapping_quality_cutoff", default=0, type=int, help="The minimum mapping quality for a alignment segment to be kept")
-def cluster_reads(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff):
-    num_reads, num_reads_kept, num_aligns, num_aligns_kept = cluster_reads_tool(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff)
+@click.option("--logfile", default=None, type=click.Path(exists=False), help="A filename for storing the per-mapping logging data about filtering.")
+def cluster_reads(input_bam, keep_bam, discard_bam, logfile, trim, mapping_quality_cutoff):
+    if logfile is not None:
+        num_reads, num_reads_kept, num_aligns, num_aligns_kept = cluster_reads_tool(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff,logfile)
+    else:
+        num_reads, num_reads_kept, num_aligns, num_aligns_kept = cluster_reads_tool(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff)
     print(num_reads, num_reads_kept, num_aligns, num_aligns_kept)
 
 
@@ -97,8 +101,10 @@ def cluster_reads(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff
 @click.argument('fragment_bed_file',type=click.Path(exists=True))
 @click.argument('output_porec', type=click.Path(exists=False))
 @click.option('--method', default = 'start', type = str, help="The method of determining fragment mapping of an alignment")
-def map_to_fragments(input_bam, fragment_bed_file, output_porec, method):
-    map_to_fragments_tool(input_bam,fragment_bed_file, output_porec, method)
+@click.option('--log_stats', default = None, type=click.Path(exists=False), help="A filename for storing logged data about fragment assignment.")
+def map_to_fragments(input_bam, fragment_bed_file, output_porec, method,log_stats):
+    map_to_fragments_tool(input_bam,fragment_bed_file, output_porec, method,log_stats)
+
 
 
 @cli.command(short_help = "Flatten down a pore-C file filled with multiway contacts to a single specified contact dimension." )

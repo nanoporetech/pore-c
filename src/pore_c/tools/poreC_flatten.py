@@ -5,7 +5,7 @@ from collections import defaultdict
 class Contact:
     def __init__(self,ch,frag,strand,poss,mapq):
         self.ch = ch
-        self.fragID = frag
+        self.fragID = int(frag)
         if type(strand ) == bool:
             self.strand = 16 if strand else 0
         else:
@@ -107,7 +107,7 @@ def natural_sort( l ):
 #creates output filehandle
 #reads input file
 #passes off operations to the functions above as necessary
-def flatten_multiway(file_in, file_out, size, sort ):
+def flatten_multiway(file_in, file_out, size, sort = True ):
     #gather data by chromosome combination, 
     #   so that it can be printed out in sorted order 
     #   in order to play nicely with juicer
@@ -133,15 +133,15 @@ def flatten_multiway(file_in, file_out, size, sort ):
 
     f_out = open(file_out,'w')
 
-    chr_used = list(chr_used)
-    natural_sort(chr_used)
+#    chr_used = list(chr_used)
+#    natural_sort(chr_used)
 
 
 #    for chrs in combinations_with_replacement(chr_used,r = size):
 #        if chrs in contact_bundle:
 #            for entry in contact_bundle[chrs]:
-#                f_out.write(str(entry))
+#                f_out.write(str(entry) + "\n")
 
     for contacts in contact_bundle.values():
         for entry in contacts:
-            f_out.write(str(entry))
+            f_out.write(str(entry) + "\n")
