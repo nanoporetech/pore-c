@@ -31,6 +31,9 @@ MAPPED_BAM =  MAPPING_PREFIX.with_suffix(".ns.bam")
 FILTERED_BAM = MAPPING_PREFIX.with_suffix(".keep.bam")
 DISCARDED_BAM = MAPPING_PREFIX.with_suffix(".discard.bam")
 
+FILTERED_BAM = MAPPING_PREFIX.with_suffix(".refsort.keep.bam")
+FILTERED_BED = MAPPING_PREFIX.with_suffix(".refsort.keep.bed")
+
 CONTACT_PREFIX = WORK_DIR / "{sample_id}_{ref_id}_{mapping_params}_{enzyme}"
 POREC = CONTACT_PREFIX.with_suffix(".poreC")
 
@@ -54,6 +57,37 @@ rule map_to_frags:
     method = "start"
   shell:
     "pore_c map-to-fragments --method {params.method} {input.bam} {input.ref} {output.porec}"
+
+
+rule bedtools_intersect:
+  input:
+  output:
+  conda:
+    "bedtools.yml"
+  shell:
+    "bedtools intersect -a {input.mappings} -b {input.ref} -wo > {output}"
+
+rule find_overlaps:
+  input:
+  output:
+  conda:
+  shell:
+
+rule bam2bed:
+  input:
+    mappings = REFSORT_FILTERED_BAM
+  output:
+    REFSORT_FILTERED_BED
+  conda:
+    "pysam.yml"
+  script:
+    "python bam_to_bed.py"
+
+rule refsort_filtered_reads:
+  output: FILTERED_BAM
+  input: REFSORT_FILTERED_BAM
+  shell:
+    "samtools sort {input} -@ 5 -o {output}"
 
 rule filter_bam:
   output: 
