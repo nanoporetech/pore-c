@@ -88,20 +88,10 @@ class AlignedSegmentToFragment(object):
             align.mapping_quality
         )
 
-    #format: {ch}\t{t_st}\t{t_en}\t{read_id}\t{q_st}\t{q_en}\t{mapq}\t{strand}
+    #format: {ch}\t{t_st}\t{t_en}\t{strand}\t{read_id}\t{q_st}\t{q_en}\t{mapq}
     @classmethod
     def from_bedformat(cls, align):
-        l = align.strip().split()
-        return cls(
-            l[0],
-            l[1],
-            l[2],
-            l[7],
-            l[3],
-            l[4],
-            l[5],
-            l[6]
-        )
+        return cls(**align.split())
 
 @dataclass
 class ReadToFragmentAssignment(object):
