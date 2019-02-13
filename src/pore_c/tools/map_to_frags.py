@@ -6,6 +6,8 @@ import gzip
 import numpy as np
 from collections import defaultdict
 
+import os
+
 from enum import Enum, unique
 
 
@@ -86,6 +88,20 @@ class AlignedSegmentToFragment(object):
             align.mapping_quality
         )
 
+    #format: {ch}\t{t_st}\t{t_en}\t{read_id}\t{q_st}\t{q_en}\t{mapq}\t{strand}
+    @classmethod
+    def from_bedformat(cls, align):
+        l = align.strip().split()
+        return cls(
+            l[0],
+            l[1],
+            l[2],
+            l[7],
+            l[3],
+            l[4],
+            l[5],
+            l[6]
+        )
 
 @dataclass
 class ReadToFragmentAssignment(object):
@@ -194,14 +210,27 @@ class ReadAlignments(object):
                 current_read_name = align.read_name
         yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
 
+    @staticmethod
+    def iter_bed(input_bed: str) -> Iterator['ReadAlignments']:
+        """Iterate over a namesorted Bam and extract all of the aligments for a given read"""
+        aligns = []
+        current_read_name = None
+        reads_seen = set([])
+        for align in map(AlignedSegmentToFragment.from_bed, open(input_bed)):
+            if current_read_name is None:
+                current_read_name = align.read_name
+                aligns.append(align)
+            elif current_read_name == align.read_name:
+                aligns.append(align)
+            else:
+                if align.read_name in reads_seen:
+                    raise IOError("Seen this read already, is the BAM namesorted?: {}".format(align.read_name))
+                yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
+                reads_seen.add(current_read_name)
+                aligns = [align]
+                current_read_name = align.read_name
+        yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
 
-#def map_to_fragments(input_bam: str, bed_file: str, output_file: str, method: str) -> None:
-#    fm = FragmentMap.from_bed_file(bed_file)
-#    f_out = open(output_file, 'w')
-#    for read_alignments in ReadAlignments.iter_bam(input_bam):
-#        frag_mapping = ReadToFragments.from_read_alignments(read_alignments, fm)
-#        f_out.write(frag_mapping.to_HiC_str())
-#    f_out.close()
 
 def map_to_fragments(input_bam: str, bed_file: str, output_file: str, method: str, log_file: str) -> None:
     fm = FragmentMap.from_bed_file(bed_file)
@@ -215,6 +244,8 @@ def map_to_fragments(input_bam: str, bed_file: str, output_file: str, method: st
         if log_file:
             log_out.write(frag_mapping.log())
 
+
     f_out.close()
     if log_file:
         log_out.close()
+
