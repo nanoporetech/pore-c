@@ -52,14 +52,16 @@ def cluster_aligned_segments(aligns, trim, mapping_quality_cutoff=0):
     return sorted(keep)
 
 
-def cluster_reads(input_bam: str, keep_bam: str, discard_bam: str, trim: int, mapping_quality_cutoff: int, statsfile: Optional[str] = None) -> Tuple[int, int, int, int]:
+def cluster_reads(input_bam: str, keep_bam: str, discard_bam: str, trim: int, mapping_quality_cutoff: int, alignment_stats: Optional[str] = None) -> Tuple[int, int, int, int]:
 
     bam_in = AlignmentFile(input_bam)
     bam_keep = AlignmentFile(keep_bam, 'wb', template=bam_in)
     bam_discard = AlignmentFile(discard_bam, 'wb', template=bam_in)
-    if statsfile != None:
-        stats_out = open(statsfile,'w')
-        stats_out.write('read_id,mapping_id,filter_retained,query_start,query_end,mapq\n')
+
+    if alignment_stats != None:
+        alignment_stats_out = open(alignment_stats,'w')
+        alignment_stats_out.write('read_id,mapping_id,filter_retained,query_start,query_end,mapq\n')
+
     num_reads = 0
     num_reads_kept = 0
     num_aligns = 0
@@ -70,21 +72,22 @@ def cluster_reads(input_bam: str, keep_bam: str, discard_bam: str, trim: int, ma
         num_aligns += len(read_aligns)
         keep = cluster_aligned_segments(read_aligns, trim, mapping_quality_cutoff)
         #keep is a list of indices into the read_aligns object of which alignments to keep
+
         if len(keep) == 0:
             for idx, align in enumerate(read_aligns):
                 bam_discard.write(align)
-                if statsfile != None:
-                    stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 0, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
+                if alignment_stats != None:
+                    alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 0, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
             continue
-        num_reads_kept += 1
+
         for idx, align in enumerate(read_aligns):
             if idx in keep:
                 bam_keep.write(read_aligns[idx])
-                if statsfile != None:
-                    stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 1, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
+                if alignment_stats != None:
+                    alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 1, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
             else:
                 bam_discard.write(read_aligns[idx])
-                if statsfile != None:
-                    stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 0, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
+                if alignment_stats != None:
+                    alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 0, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
         num_aligns_kept += len(keep)
     return (num_reads, num_reads_kept, num_aligns, num_aligns_kept)

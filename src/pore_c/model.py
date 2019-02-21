@@ -1,4 +1,4 @@
-from typing import Pattern, List, NamedTuple, Iterator, Union, Dict, Tuple
+from typing import Pattern, List, NamedTuple, Iterator, Union, Dict, Tuple, Set
 from pybedtools import BedTool
 from collections import defaultdict
 from dataclasses import dataclass
@@ -36,9 +36,14 @@ class BedToolsOverlap(object):
 
 class FragmentMap(object):
     """Represents the fragments created by a restriction digestion"""
-    def __init__(self, bedtool: BedTool, chrom_lengths: Dict[str, int] = None):
+    def __init__(self, bedtool: BedTool, chrom_lengths: Dict[str, int] = None, Terminal_Fragments: Set = None):
         self.bt = bedtool #bedtool.saveas().tabix(is_sorted=True)
         self.chrom_lengths = chrom_lengths
+
+        #this will store a list of fragment_ids which, while adjacent in number space,
+        # are not physically adjacent, e.g. q-telomere of chr1 and p-telomere of chr2.
+        self.terminal_fragments = Terminal_Fragments
+
 
     @staticmethod
     def endpoints_to_intervals(chrom, positions, id_offset, chrom_length=None) -> List[Tuple[str, int, int, int]]:
@@ -97,12 +102,13 @@ class FragmentMap(object):
                 chrom_lengths[chrom] = endpoints[-1]
                 id_offset += len(endpoints)
         bt = BedTool(intervals)
-        return cls(bt, chrom_lengths)
+        return cls(bt, chrom_lengths, terminal_fragments)
 
     @classmethod
     def from_digest_iter(cls, i: Iterator[SeqDigest]):
         intervals = []
         chrom_lengths = {}
+        terminal_fragments = set()
         id_offset = 0
         for digest in i:
             chrom = digest.seq_name
@@ -110,8 +116,11 @@ class FragmentMap(object):
             intervals.extend(cls.endpoints_to_intervals(chrom, endpoints, id_offset, chrom_length=digest.seq_length))
             chrom_lengths[chrom] = digest.seq_length
             id_offset += len(endpoints)
+            if id_offset != 0:
+                terminal_fragments.add((id_offset,id_offset+1))
+
         bt = BedTool(intervals)
-        return cls(bt, chrom_lengths)
+        return cls(bt, chrom_lengths, terminal_fragments)
 
     def _query_to_bedtool(self, query):
         def _interval_from_tuple(t, id_offset=0):
