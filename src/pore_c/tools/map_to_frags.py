@@ -267,7 +267,7 @@ def map_to_fragments(input_bam: str, bed_file: str, output_file: str, method: st
     f_out = open(output_file, 'w')
     if log_file:
         log_out = open(log_file, 'w')
-        log_out.write("name,contact_count,num_aligned_bases,num_nonadj_frags\n")
+        log_out.write("read_id,contact_count,num_aligned_bases,num_nonadj_frags\n")
     for read_alignments in ReadAlignments.iter_bed(input_bam):
         frag_mapping = ReadToFragments.from_read_alignments(read_alignments, fm)
         f_out.write(frag_mapping.to_HiC_str())
