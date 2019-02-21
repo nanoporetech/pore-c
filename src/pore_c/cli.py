@@ -101,9 +101,9 @@ def cluster_reads(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff
 @click.argument('fragment_bed_file',type=click.Path(exists=True))
 @click.argument('output_porec', type=click.Path(exists=False))
 @click.option('--method', default = 'start', type = str, help="The method of determining fragment mapping of an alignment")
-@click.option("--logfile", default=None, type=click.Path(exists=False), help="A filename for storing the per-mapping logging data about fragment mapping.")
-def map_to_fragments(input_bam, fragment_bed_file, output_porec, method,alignment_stats, read_stats):
-    map_to_fragments_tool(input_bam,fragment_bed_file, output_porec, method, logfile)
+@click.option("--stats", default=None, type=click.Path(exists=False), help="A filename for storing the per-mapping logging data about fragment mapping.")
+def map_to_fragments(input_bam, fragment_bed_file, output_porec, method, stats):
+    map_to_fragments_tool(input_bam,fragment_bed_file, output_porec, method, stats)
 
 
 
