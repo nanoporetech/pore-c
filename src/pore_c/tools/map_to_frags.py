@@ -133,6 +133,7 @@ class ReadToFragments(object):
         )
 
     def stats(self):
+
         #percent of read mapped can be calculated once this table is combined with
         #   the fastq summary table, which contains the length of each read.
         tot_overlap = sum([_.total_overlap for _ in self.fragment_assignments])
@@ -140,6 +141,7 @@ class ReadToFragments(object):
         return "{name},{contact_count},{num_aligned_bases},{num_nonadj_frags}\n".format(
             name = self.read_name, contact_count = self.num_frags,
             num_aligned_bases = tot_overlap, num_nonadj_frags = self.num_nonadj_frags)
+
 
     def groupBy(self):
         self.overlaps = defaultdict(list)
@@ -265,6 +267,7 @@ class ReadAlignments(object):
         yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
 
 
+
 def map_to_fragments(input_bam: str, bed_file: str, output_file: str, method: str, stats_file: str) -> None:
     fm = FragmentMap.from_bed_file(bed_file)
     f_out = open(output_file, 'w')
@@ -284,3 +287,7 @@ def map_to_fragments(input_bam: str, bed_file: str, output_file: str, method: st
     if stats_file:
         stats_out.close()
 
+
+    f_out.close()
+    if log_file:
+        log_out.close()
