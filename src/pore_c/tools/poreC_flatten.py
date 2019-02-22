@@ -47,6 +47,8 @@ class Cwalk:
     def sort(self):
         self.contacts.sort(key = lambda c: c.fragID)
         
+    def length(self):
+        return len(self.contacts)
 
     def get_chrs(self):
         return tuple([x.ch for x in self.contacts])
@@ -122,6 +124,8 @@ def flatten_multiway(file_in, file_out, size, sort = True ):
         for entry in f:
             walk = Cwalk()
             walk.from_entry(entry)
+            if walk.length() < size:
+                continue
             if sort:
                 walk.sort()
             for contact in walk.contacts:
