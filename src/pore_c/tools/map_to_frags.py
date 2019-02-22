@@ -120,6 +120,9 @@ class ReadToFragments(object):
     num_nonadj_frags: int
     fragment_assignments: List[ReadToFragmentAssignment]
 
+    def length(self):
+        return len(fragment_assignments)
+
     def to_HiC_str(self):
         quals, mappings = zip(*[
             (str(_.max_mapping_quality), _.to_HiC_str())
@@ -270,7 +273,9 @@ def map_to_fragments(input_bam: str, bed_file: str, output_file: str, method: st
         stats_out.write("read_id,contact_count,num_aligned_bases,num_nonadj_frags\n")
     for read_alignments in ReadAlignments.iter_bed(input_bam):
         frag_mapping = ReadToFragments.from_read_alignments(read_alignments, fm)
-        f_out.write(frag_mapping.to_HiC_str())
+        #do not print out entries to a .poreC file for a single monomer. An entry must be at least a pairwise contact.
+        if frag_mapping.length() > 1:
+            f_out.write(frag_mapping.to_HiC_str())
         if stats_file:
             stats_out.write(frag_mapping.stats())
 
