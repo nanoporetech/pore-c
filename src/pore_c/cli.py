@@ -93,7 +93,7 @@ def cluster_reads(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff
         num_reads, num_reads_kept, num_aligns, num_aligns_kept = cluster_reads_tool(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff, alignment_stats)
     else:
         num_reads, num_reads_kept, num_aligns, num_aligns_kept = cluster_reads_tool(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff)
-    print(num_reads, num_reads_kept, num_aligns, num_aligns_kept)
+#    print(num_reads, num_reads_kept, num_aligns, num_aligns_kept)
 
 
 @cli.command(short_help="create a .poreC file from a namesorted alignment of poreC data")
@@ -110,7 +110,7 @@ def map_to_fragments(input_bam, fragment_bed_file, output_porec, method, stats):
 @cli.command(short_help = "Flatten down a pore-C file filled with multiway contacts to a single specified contact dimension." )
 @click.argument('input_porec',type=click.Path(exists=True))
 @click.argument('output_porec', type=click.Path(exists=False))
-@click.option('--sort', default=False, type=bool, help="Sort the monomers in each contact according to fragment ID.")
+@click.option('--sort', is_flag = True, help="Sort the monomers in each contact according to fragment ID.")
 @click.option('--size', default=2, type=int, help="The size of the generated contacts in the output file. Default is 2.")
 def flatten_multiway(input_porec, output_porec,size,sort):
     flatten_multiway_tool(input_porec, output_porec,size,sort)
