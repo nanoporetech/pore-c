@@ -87,13 +87,14 @@ def generate_fragments(reference_fasta, restriction_pattern, bedfile, hicref):
 @click.argument('discard_bam', type=click.Path(exists=False))
 @click.option("--trim", default=20, type=int, help="The number of bases to ignore at the end of each aligned segment when calculating overlaps")
 @click.option("--mapping_quality_cutoff", default=0, type=int, help="The minimum mapping quality for a alignment segment to be kept")
-@click.option("--logfile", default=None, type=click.Path(exists=False), help="A filename for storing the per-mapping logging data about filtering.")
-def cluster_reads(input_bam, keep_bam, discard_bam, logfile, trim, mapping_quality_cutoff):
-    if logfile is not None:
-        num_reads, num_reads_kept, num_aligns, num_aligns_kept = cluster_reads_tool(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff,logfile)
+@click.option('--alignment_stats', default = None, type=click.Path(exists=False), help="A filename for storing logged data about fragment assignment on a per-alignment basis.")
+def cluster_reads(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff, alignment_stats):
+    if alignment_stats is not None:
+        num_reads, num_reads_kept, num_aligns, num_aligns_kept = cluster_reads_tool(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff, alignment_stats)
     else:
         num_reads, num_reads_kept, num_aligns, num_aligns_kept = cluster_reads_tool(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff)
-    print(num_reads, num_reads_kept, num_aligns, num_aligns_kept)
+#    print(num_reads, num_reads_kept, num_aligns, num_aligns_kept)
+
 
 
 @cli.command(short_help="create a .poreC file from a namesorted alignment of poreC data")
@@ -101,16 +102,18 @@ def cluster_reads(input_bam, keep_bam, discard_bam, logfile, trim, mapping_quali
 @click.argument('fragment_bed_file',type=click.Path(exists=True))
 @click.argument('output_porec', type=click.Path(exists=False))
 @click.option('--method', default = 'start', type = str, help="The method of determining fragment mapping of an alignment")
-@click.option('--log_stats', default = None, type=click.Path(exists=False), help="A filename for storing logged data about fragment assignment.")
-def map_to_fragments(input_bam, fragment_bed_file, output_porec, method,log_stats):
-    map_to_fragments_tool(input_bam,fragment_bed_file, output_porec, method,log_stats)
+
+@click.option("--stats", default=None, type=click.Path(exists=False), help="A filename for storing the per-mapping logging data about fragment mapping.")
+def map_to_fragments(input_bam, fragment_bed_file, output_porec, method, stats):
+    map_to_fragments_tool(input_bam,fragment_bed_file, output_porec, method, stats)
+
 
 
 
 @cli.command(short_help = "Flatten down a pore-C file filled with multiway contacts to a single specified contact dimension." )
 @click.argument('input_porec',type=click.Path(exists=True))
 @click.argument('output_porec', type=click.Path(exists=False))
-@click.option('--sort', default=False, type=bool, help="Sort the monomers in each contact according to fragment ID.")
+@click.option('--sort', is_flag = True, help="Sort the monomers in each contact according to fragment ID.")
 @click.option('--size', default=2, type=int, help="The size of the generated contacts in the output file. Default is 2.")
 def flatten_multiway(input_porec, output_porec,size,sort):
     flatten_multiway_tool(input_porec, output_porec,size,sort)
