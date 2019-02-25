@@ -121,7 +121,7 @@ class ReadToFragments(object):
     fragment_assignments: List[ReadToFragmentAssignment]
 
     def length(self):
-        return len(fragment_assignments)
+        return len(self.fragment_assignments)
 
     def to_HiC_str(self):
         quals, mappings = zip(*[
@@ -286,8 +286,3 @@ def map_to_fragments(input_bam: str, bed_file: str, output_file: str, method: st
     f_out.close()
     if stats_file:
         stats_out.close()
-
-
-    f_out.close()
-    if log_file:
-        log_out.close()
