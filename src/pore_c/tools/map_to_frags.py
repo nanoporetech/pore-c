@@ -107,7 +107,7 @@ class ReadToFragmentAssignment(object):
 
     def to_HiC_str(self):
         return "{strand} {chrom} {frag_endpoint} {frag_id}".format(
-            strand = '16' if self.strand else 0,
+            strand = '16' if self.strand else '0',
             chrom = self.chrom, frag_endpoint = self.frag_endpoint, frag_id=self.frag_id
         )
 
@@ -202,10 +202,8 @@ class BedHit(object):
     @classmethod
     def from_bedformat(cls, align):
         l = align.strip().split()
-        for field in [1,2,5,6,7,9,10,11,12]:
+        for field in [1,2,3,5,6,7,9,10,11,12]:
             l[field] = int(l[field])
-        l[3] = bool(l[3])
-
         return cls(*l)
 
 
@@ -260,10 +258,12 @@ class ReadAlignments(object):
                     sorted_overlaps = sorted(overlaps, key=lambda x: x.frag_overlap)
                     aligns.append(sorted_overlaps[-1])
                 yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
+                print("bed>>>",align)
                 reads_seen.add(current_read_name)
                 pre_aligns = defaultdict(list)
                 pre_aligns[align.read_start].append(align)
                 current_read_name = align.read_name
+        print("bed>>>",align)
         yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
 
 
