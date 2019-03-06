@@ -4,7 +4,7 @@ import numpy as np
 from pysam import AlignmentFile
 from intervaltree import IntervalTree
 
-
+import random
 
 def read_mappings_iter(bam, mapping_quality_cutoff=0):
     aligns = []
@@ -26,9 +26,29 @@ def read_mappings_iter(bam, mapping_quality_cutoff=0):
 def read_midpoint(align):
     return int ((align.query_alignment_end + align.query_alignment_start ) / 2)
 
+def substring_filter(aligns):
+    discard = set()
+    tree = IntervalTree.from_tuples(aligns)
+    for interval in tree:
+        for substring in tree.envelop(start,end):
+            discard.add(substring)
+    keep = set(range(len(aligns))) - discard
+    return keep
+
 def cluster_aligned_segments(aligns, trim, mapping_quality_cutoff=0):
     if len(aligns) == 1:
         return []
+    intervals_no_trim = [
+
+        ((align.query_alignment_start, align.query_alignment_end), x)
+        for x, align in enumerate(aligns)
+        if align.mapping_quality >= mapping_quality_cutoff
+    ]
+
+    #first filter by simple substring check
+
+
+    #then filter by clustering
     intervals = [
 
         (min( read_midpoint( align ) , align.query_alignment_start + trim), max(read_midpoint(align) + 1, align.query_alignment_end - trim), x)
