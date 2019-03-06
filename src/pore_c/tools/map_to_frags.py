@@ -74,7 +74,7 @@ class AlignedSegmentToFragment(object):
                 #alignment crosses fragment boundary, pick longest overlap as fragment
                 mapping_type = AlignedSegmentMappingType.multi_frag
         best_hit = overlaps[0]
-        print('from overlaps: {}\nThis overlap was chosen: {}'.format(overlaps, best_hit))
+#        print('from overlaps: {}\nThis overlap was chosen: {}'.format(overlaps, best_hit))
         self.set_fragment(best_hit.frag_id, best_hit.frag_end, best_hit.overlap, mapping_type)
 
 
@@ -258,12 +258,10 @@ class ReadAlignments(object):
                     sorted_overlaps = sorted(overlaps, key=lambda x: x.frag_overlap)
                     aligns.append(sorted_overlaps[-1])
                 yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
-                print("bed>>>",align)
                 reads_seen.add(current_read_name)
                 pre_aligns = defaultdict(list)
                 pre_aligns[align.read_start].append(align)
                 current_read_name = align.read_name
-        print("bed>>>",align)
         yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
 
 
