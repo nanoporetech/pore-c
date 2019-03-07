@@ -26,29 +26,36 @@ def read_mappings_iter(bam, mapping_quality_cutoff=0):
 def read_midpoint(align):
     return int ((align.query_alignment_end + align.query_alignment_start ) / 2)
 
-def substring_filter(aligns):
-    discard = set()
-    tree = IntervalTree.from_tuples(aligns)
-    for interval in tree:
-        for substring in tree.envelop(start,end):
-            discard.add(substring)
-    keep = set(range(len(aligns))) - discard
-    return keep
+def remove_contained_segments(aligns, mapping_quality_cutoff = 0):
+    """ takes a list of alignments (as gathered by the namesorted bam iterator).
+    returns indices into that list of aligns to keep.
+    """
 
-def cluster_aligned_segments(aligns, trim, mapping_quality_cutoff=0):
-    if len(aligns) == 1:
-        return []
-    intervals_no_trim = [
+    discard = set()
+
+    intervals = [
 
         ((align.query_alignment_start, align.query_alignment_end), x)
         for x, align in enumerate(aligns)
         if align.mapping_quality >= mapping_quality_cutoff
     ]
 
-    #first filter by simple substring check
+    tree = IntervalTree.from_tuples(intervals)
+
+    for interval in tree:
+        start,stop,val = interval
+        for hits in tree.envelop(start+1,stop-1):
+            print("[{}:{}]".format(start,stop),hits)
+            new_discards = set(list(zip(hits))[2])
+            discard = discard.union(new_discards)
+    keep = set(range(len(aligns))) - discard
+    return sorted(list(keep))
 
 
-    #then filter by clustering
+def cluster_aligned_segments(aligns, trim, mapping_quality_cutoff=0):
+    if len(aligns) == 1:
+        return []
+
     intervals = [
 
         (min( read_midpoint( align ) , align.query_alignment_start + trim), max(read_midpoint(align) + 1, align.query_alignment_end - trim), x)
@@ -92,9 +99,11 @@ def cluster_reads(input_bam: str, keep_bam: str, discard_bam: str, trim: int, ma
         #read_aligns is a list of pysam.AlignmentFile objects
         num_reads += 1
         num_aligns += len(read_aligns)
+
+        #non_substring_aligns = [aligns[x] for x in substring_filter(read_aligns,mapping_quality_cutoff = mapping_quality_cutoff)]
+
         keep = cluster_aligned_segments(read_aligns, trim, mapping_quality_cutoff)
         #keep is a list of indices into the read_aligns object of which alignments to keep
-
 
         if len(keep) == 0:
             for idx, align in enumerate(read_aligns):
