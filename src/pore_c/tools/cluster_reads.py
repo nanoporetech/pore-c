@@ -77,6 +77,37 @@ def cluster_aligned_segments(aligns, trim, mapping_quality_cutoff=0):
         keep.append(indices[best_read])
     return sorted(keep)
 
+def overlap(align1, align2):
+    start1 = align1.query_alignment_start
+    end1 = align1.query_alignment_end
+    start2 = align2.query_alignment_start
+    end2 = align2.query_alignment_end
+
+    if end1 < start2 or end2 < start1:
+        return 0
+    elif start1 <= start2 and end1 >= end2:
+        return  align1.query_alignment_length
+    elif start1 >= start2 and end1 <= end2:
+        return  align2.query_alignment_length
+    elif start1 <= start2 and end1 <= end2:
+        return end1 - start2
+    elif start1 >= start2 and end1 >= end2:
+        return end2 - start1
+
+def measure_overlaps(input_bam: str, output_table: str):
+
+    bam_in = AlignmentFile(input_bam)
+    f_out = open(output_table,'w')
+    header = "read_id,align1,align2,overlap_length\n"
+    f_out.write(header)
+
+    for read_aligns in read_mappings_iter(bam_in):
+        l = len(read_aligns)
+        for x in range(l-1):
+            for y in range(1,l):
+                f_out.write('{read_id},{align1},{align2},{overlap}\n'.format(read_id = read_aligns[x].query_name,align1 = x,align2 = y, overlap = overlap(read_aligns[x],read_aligns[y])))
+
+
 def remove_contained_segments(input_bam: str, keep_bam: str, discard_bam: str, mapping_quality_cutoff: int, alignment_stats: Optional[str] = None) -> Tuple[int, int, int, int]:
 
     bam_in = AlignmentFile(input_bam)
