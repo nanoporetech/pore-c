@@ -128,8 +128,9 @@ def cluster_reads(input_bam, keep_bam, discard_bam, trim, contained, mapping_qua
 @cli.command(short_help="In each sequencing read, this tool measures the overlap intervals between all pairs of alignments (for diagnosing alignment filtering).") 
 @click.argument('input_bam', type=click.Path(exists=True))
 @click.argument('output_table', type=click.Path(exists=False))
+@click.option('--no_zero', is_flag = True, help="for pairs of alignments that do not overlap, do not include a table entry. This cuts down the table size dramatically.")
 def measure_overlaps(input_bam, output_table):
-    measure_overlaps_tool(input_bam,output_table)
+    measure_overlaps_tool(input_bam,output_table, no_zero)
 
 @cli.command(short_help = "Flatten down a pore-C file filled with multiway contacts to a single specified contact dimension." )
 @click.argument('input_porec',type=click.Path(exists=True))

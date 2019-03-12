@@ -94,7 +94,7 @@ def overlap(align1, align2):
     elif start1 >= start2 and end1 >= end2:
         return end2 - start1
 
-def measure_overlaps(input_bam: str, output_table: str):
+def measure_overlaps(input_bam: str, output_table: str, no_zero):
 
     bam_in = AlignmentFile(input_bam)
     f_out = open(output_table,'w')
@@ -105,7 +105,10 @@ def measure_overlaps(input_bam: str, output_table: str):
         l = len(read_aligns)
         for x in range(l-1):
             for y in range(1,l):
-                f_out.write('{read_id},{align1},{align2},{overlap}\n'.format(read_id = read_aligns[x].query_name,align1 = x,align2 = y, overlap = overlap(read_aligns[x],read_aligns[y])))
+                olap = overlap(read_aligns[x],read_aligns[y])
+                if no_zero and olap == 0:
+                    continue
+                f_out.write('{read_id},{align1},{align2},{overlap}\n'.format(read_id = read_aligns[x].query_name,align1 = x,align2 = y, overlap = olap))
 
 
 def remove_contained_segments(input_bam: str, keep_bam: str, discard_bam: str, mapping_quality_cutoff: int, alignment_stats: Optional[str] = None) -> Tuple[int, int, int, int]:
