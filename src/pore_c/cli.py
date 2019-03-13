@@ -8,8 +8,6 @@ from pore_c.tools.cluster_reads import measure_overlaps as measure_overlaps_tool
 from pore_c.tools.cluster_reads import remove_contained_segments as remove_contained_segments_tool
 from pore_c.tools.map_to_frags import map_to_fragments as map_to_fragments_tool
 from pore_c.tools.poreC_flatten import flatten_multiway as flatten_multiway_tool
-from pore_c.tools.poreC_flatten import flatten_multiway2 as flatten_multiway2_tool
-
 
 logger = logging.getLogger(__name__)
 click_log.basic_config(logger)
@@ -129,24 +127,16 @@ def cluster_reads(input_bam, keep_bam, discard_bam, trim, contained, mapping_qua
 @click.argument('input_bam', type=click.Path(exists=True))
 @click.argument('output_table', type=click.Path(exists=False))
 @click.option('--no_zero', is_flag = True, help="for pairs of alignments that do not overlap, do not include a table entry. This cuts down the table size dramatically.")
-def measure_overlaps(input_bam, output_table):
+def measure_overlaps(input_bam, output_table, no_zero):
     measure_overlaps_tool(input_bam,output_table, no_zero)
 
 @cli.command(short_help = "Flatten down a pore-C file filled with multiway contacts to a single specified contact dimension." )
 @click.argument('input_porec',type=click.Path(exists=True))
 @click.argument('output_porec', type=click.Path(exists=False))
-@click.option('--sort', is_flag = True, help="Sort the monomers in each contact according to fragment ID.")
+@click.option('--sort', is_flag = True, help="Sort the monomers within each contact according to fragment ID. This does not sort the entries as they might need to be sorted for conversion to other formats or for visualisation tools..")
 @click.option('--size', default=2, type=int, help="The size of the generated contacts in the output file. Default is 2.")
 def flatten_multiway(input_porec, output_porec,size,sort):
     flatten_multiway_tool(input_porec, output_porec,size,sort)
-
-@cli.command(short_help = "Flatten down a pore-C file filled with multiway contacts to a single specified contact dimension. More memory-lean than flatten_multiway" )
-@click.argument('input_porec',type=click.Path(exists=True))
-@click.argument('output_porec', type=click.Path(exists=False))
-@click.option('--sort', is_flag = True, help="Sort the monomers in each contact according to fragment ID.")
-@click.option('--size', default=2, type=int, help="The size of the generated contacts in the output file. Default is 2.")
-def flatten_multiway2(input_porec, output_porec,size,sort):
-    flatten_multiway2_tool(input_porec, output_porec,size,sort)
 
 @cli.command()
 @click.argument('bam', type=click.Path(exists=True))

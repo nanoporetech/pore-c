@@ -1,4 +1,7 @@
+import sys 
 import re
+import uuid
+
 from itertools import combinations, combinations_with_replacement
 from collections import defaultdict
 
@@ -120,6 +123,9 @@ def flatten_multiway(file_in, file_out, size, sort = True ):
     #   community.
     chr_used = set()
     contact_bundle = defaultdict(list)
+    f_out = open(file_out,'w')
+
+
     with open(file_in) as f:
         for entry in f:
             walk = Cwalk()
@@ -133,19 +139,11 @@ def flatten_multiway(file_in, file_out, size, sort = True ):
             flattened_contacts = walk.flatten(size)
             #this is better than a = {**a, **b} because |entries| <<< |chrs| 
             for c , entries in flattened_contacts.items():
-                contact_bundle[c].extend(entries)
+                #contacts must be sorted into blocks (e.g. all chr1 intra-chr, then chr1-chr2, chr1-chr3,etc.) which is different from a simple sort.
+                for contact in entries:
+                    f_out.write(str(contact) + "\n")
 
-    f_out = open(file_out,'w')
-
-#    chr_used = list(chr_used)
-#    natural_sort(chr_used)
+    f_out.close()
 
 
-#    for chrs in combinations_with_replacement(chr_used,r = size):
-#        if chrs in contact_bundle:
-#            for entry in contact_bundle[chrs]:
-#                f_out.write(str(entry) + "\n")
 
-    for contacts in contact_bundle.values():
-        for entry in contacts:
-            f_out.write(str(entry) + "\n")
