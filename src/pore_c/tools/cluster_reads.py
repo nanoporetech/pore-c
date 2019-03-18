@@ -6,7 +6,7 @@ from intervaltree import IntervalTree
 
 import random
 
-def read_mappings_iter(bam, mapping_quality_cutoff=0):
+def read_mappings_iter(bam):
     aligns = []
     current_read_name = None
     for align in bam:
@@ -142,7 +142,6 @@ def remove_contained_segments(input_bam: str, keep_bam: str, discard_bam: str, m
                 if alignment_stats != None:
                     alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 0, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
 
-
 def cluster_reads(input_bam: str, keep_bam: str, discard_bam: str, trim: int, mapping_quality_cutoff: int, alignment_stats: Optional[str] = None) -> Tuple[int, int, int, int]:
 
 
@@ -190,3 +189,93 @@ def cluster_reads(input_bam: str, keep_bam: str, discard_bam: str, trim: int, ma
 
         num_aligns_kept += len(keep)
     return (num_reads, num_reads_kept, num_aligns, num_aligns_kept)
+
+
+##################
+###fragdag code###
+##################
+def minimap_gapscore(length, o1=4, o2=24, e1=2, e2=1):
+    return min([int(o1) + int(length) * int(e1), int(o2) + int(length) * int(e2)])
+
+#O=5 E=2 is default for bwa bwasw
+#O=6 E=1 is default for bwa mem
+
+def bwa_gapscore(length, O = 5,E = 2):
+    return (O + length * E)
+
+#aligns must be sorted by END position (I think)
+def fragDAG(_aligns, mapping_quality_cutoff = 0):
+    #filter by mapq and (start,stop) first
+
+    seen = {}
+    for idx, align in enumerate(_aligns):
+        if align.mapq >= mapping_quality_cutoff:
+            coords = (align.query_alignment_start,align.query_alignment_emd) 
+            if coords not in seen:
+                seen[coords] = align.get_tag("AS")
+            elif align.get_tag("AS") > seen[coords]:
+                seen[coords] = align.get_tag("AS")
+    keep = seen.keys()
+
+    ##sort by end position so that DAG is preserved from cycles
+    aligns = sorted([_aligns[x] for x in keep], key = lambda x: x.query_alignment_end)
+
+    G = nx.DiGraph()
+    edge_values = {}
+    G.add_node("IN")
+    G.add_node("OUT")
+    L = len(aligns)
+    readlen = aligns[0].query_length
+    for x in keep:
+        G.add_node(x)
+        GP_in = minimap_gapscore(aligns[x].query_alignment_start)
+        GP_out = minimap_gapscore(readlen - aligns[x].query_alignment_end)
+        AS = aligns[x].get_tag("AS")
+        G.add_edge("IN",x,weight = GP_in - AS)
+        G.add_edge(x,"OUT",weight = GP_out)
+    for x in range(L-1):
+        for y in range(x, L):
+            #abs, because if the alignments are overlapping, then this still describes the penalty of having to disregard the part
+            # . of the second alignment that overlaps the first alignment
+            GP = minimap_gapscore(abs(aligns[y].query_alignment_start - aligns[x].query_alignment_end ))
+            AS = aligns[y].get_tag("AS")
+            edge_values[(aligns[y].query_alignment_start,aligns[y].query_alignment_end, aligns[x].query_alignment_start,aligns[x].query_alignment_end) = (GP,AS) #store this data for diagnosis
+            G.add_edge(x,y, weight = GP - AS)
+
+    #returns a list of the path through the graph as well as the 
+    return nx.single_source_bellman_ford(G,"in", "out")[1],edge
+
+
+
+def fragment_DAG(input_bam: str, keep_bam: str, discard_bam: str, mapping_quality_cutoff: int, aligner_params: str,  alignment_stats: Optional[str] = None):
+
+    bam_in = AlignmentFile(input_bam)
+    bam_keep = AlignmentFile(keep_bam, 'wb', template=bam_in)
+    bam_discard = AlignmentFile(discard_bam, 'wb', template=bam_in)
+
+    if alignment_stats != None:
+        alignment_stats_out = open(alignment_stats,'w')
+        alignment_stats_out.write('read_id,mapping_id,filter_retained,query_start,query_end,mapq\n')
+
+
+    for read_aligns in read_mappings_iter(bam_in):
+
+        #this line returns two lists, the number of the reads that are part of the best scoring path, and the scores for that path based on the scoring function outlined
+        keep,scores = fragDAG(read_aligns,mapping_quality_cutoff = mapping_quality_cutoff)
+
+        if len(keep) == 0:
+            for idx, align in enumerate(read_aligns):
+                bam_discard.write(align)
+                if alignment_stats != None:
+                    alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 0, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
+            continue
+
+        for idx, align in enumerate(read_aligns):
+            if idx in keep:
+                bam_keep.write(read_aligns[idx])
+                if alignment_stats != None:
+                    alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 1, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
+            else:
+                bam_discard.write(read_aligns[idx])
+                if alignment_stats != None:
+                    alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 0, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
