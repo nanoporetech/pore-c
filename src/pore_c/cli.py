@@ -3,6 +3,7 @@ import click_log
 import logging
 import os.path
 from pore_c.tools.generate_fragments import create_fragment_map
+from pore_c.tools.generate_fragments import create_bin_file as create_bin_file_tool
 from pore_c.tools.cluster_reads import cluster_reads as cluster_reads_tool
 from pore_c.tools.cluster_reads import measure_overlaps as measure_overlaps_tool
 from pore_c.tools.cluster_reads import remove_contained_segments as remove_contained_segments_tool
@@ -127,6 +128,13 @@ def measure_overlaps(input_bam, output_table, no_zero):
 @click.option('--size', default=2, type=int, help="The size of the generated contacts in the output file. Default is 2.")
 def flatten_multiway(input_porec, output_porec,size,sort):
     flatten_multiway_tool(input_porec, output_porec,size,sort)
+
+@cli.command(short_help = "Flatten down a pore-C file filled with multiway contacts to a single specified contact dimension." )
+@click.argument('input_fai',type=click.Path(exists=True))
+@click.argument('output_bin_bed', type=click.Path(exists=False))
+@click.argument('size', default=1000000, type=int, help="The bin size for the file. Default is 10**6 bp.")
+def create_bin_file(input_fai, output_bin_bed, size):
+    create_bin_file_tool(input_fai, output_bin_bed,size)
 
 @cli.command()
 @click.argument('bam', type=click.Path(exists=True))

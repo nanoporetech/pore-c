@@ -112,3 +112,21 @@ def create_fragment_map(reference_fasta: str, restriction_pattern: str) -> Fragm
         fragment_generator(reference_fasta, restriction_pattern)
     )
     return frag_map
+
+def create_bin_file(reference_fai: str, bedfile_out: str,  bin_size: int) -> None:
+    """generate a bedfile from a reference fai that describes the bin tiling that covers the entire genome."""
+    frag_num = 0
+    f_out = open(bedfile_out,'w')
+    for line in open(reference_fai):
+        l = line.strip().split()
+        l[1] = int(l[1])
+        frags = list(range(1, bin_size * (1+(l[1] // bin_size)) + 1, bin_size))
+        frags = list(zip(frags[:-1],frags[1:]))
+        tail_frag = (((l[1] -1 ) // bin_size) * bin_size + 1 , l[1])
+        frags.append(tail_frag)
+        for idx, entry in enumerate( frags ) :
+            f_out.write('{ch}\t{st}\t{en}\t{num}\n'.format(ch = l[0] , st = 0 if entry[0] == 1 else entry[0], en = entry[1], num = idx + frag_num))
+        frag_num += len(frags)
+        
+
+
