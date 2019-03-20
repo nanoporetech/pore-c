@@ -204,7 +204,7 @@ def bwa_gapscore(length, O = 5,E = 2):
     return (O + length * E)
 
 #aligns must be sorted by END position (I think)
-def fragDAG(_aligns, mapping_quality_cutoff = 0):
+def fragDAG(_aligns, mapping_quality_cutoff = 0, aligner = "minimap2", params = "default"):
     #filter by mapq and (start,stop) first
 
     seen = {}
@@ -228,26 +228,47 @@ def fragDAG(_aligns, mapping_quality_cutoff = 0):
     readlen = aligns[0].query_length
     for x in keep:
         G.add_node(x)
-        GP_in = minimap_gapscore(aligns[x].query_alignment_start)
-        GP_out = minimap_gapscore(readlen - aligns[x].query_alignment_end)
+        if aligner == "minimap2":
+            GP_in = minimap_gapscore(aligns[x].query_alignment_start)
+            GP_out = minimap_gapscore(readlen - aligns[x].query_alignment_end)
+        elif aligner = "bwasw":
+            GP_in = bwa_gapscore(aligns[x].query_alignment_start)
+            GP_out = bwap_gapscore(readlen - aligns[x].query_alignment_end)
         AS = aligns[x].get_tag("AS")
+        edge_values[("IN",x)] = (GP_in,AS) #store this data for diagnosis
+        edge_values[(x,"OUT")] = (GP_out,AS) #store this data for diagnosis
         G.add_edge("IN",x,weight = GP_in - AS)
         G.add_edge(x,"OUT",weight = GP_out)
     for x in range(L-1):
-        for y in range(x, L):
+        for y in range(x + 1, L):
+            #if the two reads end on the same base, check which one starts first. If they map to the same interval, skip.
+            # . otherwise, edge from the alignment that starts closer to the beginning of the read
+            if aligns[x].query_alignment_end == aligns[y].query_alignment_end:
+                if aligns[x].query_alignment_start == aligns[y].query_alignment_start:
+                    continue 
+                elif aligns[x].query_alignment_start > aligns[y].query_alignment_start:
+                    align1 =  aligns[y]
+                    align2 = aligns[x]
+                else:
+                    align1 =  aligns[x]
+                    align2 = aligns[y]
+
             #abs, because if the alignments are overlapping, then this still describes the penalty of having to disregard the part
             # . of the second alignment that overlaps the first alignment
-            GP = minimap_gapscore(abs(aligns[y].query_alignment_start - aligns[x].query_alignment_end ))
-            AS = aligns[y].get_tag("AS")
-            edge_values[(aligns[y].query_alignment_start,aligns[y].query_alignment_end, aligns[x].query_alignment_start,aligns[x].query_alignment_end) = (GP,AS) #store this data for diagnosis
+            if aligner == "minimap2":
+                GP = minimap_gapscore(abs(align1.query_alignment_start - align2.query_alignment_end ))
+            elif aligner = "bwasw":
+                GP = bwa_gapscore(abs(aligns1.query_alignment_start - align2.query_alignment_end ))
+            AS = align2.get_tag("AS")
+            edge_values[(x,y)] = (GP,AS) #store this data for diagnosis
             G.add_edge(x,y, weight = GP - AS)
 
     #returns a list of the path through the graph as well as the 
-    return nx.single_source_bellman_ford(G,"in", "out")[1],edge
+    return nx.single_source_bellman_ford(G,"in", "out")[1]# edge_values # including this as output enables reconstruction of the DAG that ended up filtering reads out. useful for diagnostic purposes
 
 
 
-def fragment_DAG(input_bam: str, keep_bam: str, discard_bam: str, mapping_quality_cutoff: int, aligner_params: str,  alignment_stats: Optional[str] = None):
+def fragment_DAG(input_bam: str, keep_bam: str, discard_bam: str, mapping_quality_cutoff: int, aligner: str, aligner_params: str,  alignment_stats: Optional[str] = None):
 
     bam_in = AlignmentFile(input_bam)
     bam_keep = AlignmentFile(keep_bam, 'wb', template=bam_in)
@@ -261,7 +282,7 @@ def fragment_DAG(input_bam: str, keep_bam: str, discard_bam: str, mapping_qualit
     for read_aligns in read_mappings_iter(bam_in):
 
         #this line returns two lists, the number of the reads that are part of the best scoring path, and the scores for that path based on the scoring function outlined
-        keep,scores = fragDAG(read_aligns,mapping_quality_cutoff = mapping_quality_cutoff)
+        keep = fragDAG(read_aligns,mapping_quality_cutoff = mapping_quality_cutoff, aligner = aligner, params = aligner_params)
 
         if len(keep) == 0:
             for idx, align in enumerate(read_aligns):
