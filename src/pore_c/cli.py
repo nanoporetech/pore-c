@@ -132,12 +132,17 @@ def flatten_multiway(input_porec, output_porec,size,sort):
 @cli.command(short_help = "Flatten down a pore-C file filled with multiway contacts to a single specified contact dimension." )
 @click.argument('input_fai',type=click.Path(exists=True))
 @click.argument('output_bin_bed', type=click.Path(exists=False))
-@click.argument('size', default=1000000, type=int, help="The bin size for the file. Default is 10**6 bp.")
+@click.argument('size', default=1000000, type=int)# help="The bin size for the file. Default is 10**6 bp."
 def create_bin_file(input_fai, output_bin_bed, size):
     create_bin_file_tool(input_fai, output_bin_bed,size)
 
+#@click.argument('size', default=1000000, type=int, help="The bin size for the file. Default is 10**6 bp.") #this might be unnecessary as an argument, since it's implied by the reference bedfile.
+
 @cli.command()
-@click.argument('bam', type=click.Path(exists=True))
-def hic_to_hicpro(bam):
-    print(bam)
+@click.argument('hictxt', type=click.Path(exists=True))
+@click.argument('hic_ref', type=click.Path(exists=True))
+@click.argument('bin_ref', type=click.Path(exists=True))
+@click.argument('output_bin_matrix', type=click.Path(exists=False))
+def hic_to_binfile(hictxt,hic_ref,bin_ref,output_bin_matrix):
+    hic_to_binfile_tool(hictxt,hic_ref, bin_ref,output_bin_matrix)
 
