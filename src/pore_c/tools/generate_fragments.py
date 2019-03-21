@@ -113,6 +113,8 @@ def create_fragment_map(reference_fasta: str, restriction_pattern: str) -> Fragm
     )
     return frag_map
 
+
+#a tool for creating bin level partitionings of the reference genome
 def create_bin_file(reference_fai: str, bedfile_out: str,  bin_size: int) -> None:
     """generate a bedfile from a reference fai that describes the bin tiling that covers the entire genome."""
     frag_num = 0
