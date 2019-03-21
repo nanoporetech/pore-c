@@ -4,6 +4,7 @@ import logging
 import os.path
 from pore_c.tools.generate_fragments import create_fragment_map
 from pore_c.tools.generate_fragments import create_bin_file as create_bin_file_tool
+from pore_c.tools.map_to_bins import bin_hic_data as bin_hic_data_tool
 from pore_c.tools.cluster_reads import cluster_reads as cluster_reads_tool
 from pore_c.tools.cluster_reads import measure_overlaps as measure_overlaps_tool
 from pore_c.tools.cluster_reads import remove_contained_segments as remove_contained_segments_tool
@@ -143,6 +144,6 @@ def create_bin_file(input_fai, output_bin_bed, size):
 @click.argument('hic_ref', type=click.Path(exists=True))
 @click.argument('bin_ref', type=click.Path(exists=True))
 @click.argument('output_bin_matrix', type=click.Path(exists=False))
-def hic_to_binfile(hictxt,hic_ref,bin_ref,output_bin_matrix):
-    hic_to_binfile_tool(hictxt,hic_ref, bin_ref,output_bin_matrix)
+def bin_hic_data(hictxt,hic_ref,bin_ref,output_bin_matrix):
+    bin_hic_data_tool(hictxt,output_bin_matrix, hic_ref, bin_ref)
 
