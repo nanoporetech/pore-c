@@ -141,9 +141,9 @@ def create_bin_file(input_fai, output_bin_bed, size):
 
 @cli.command()
 @click.argument('hictxt', type=click.Path(exists=True))
+@click.argument('output_bin_matrix', type=click.Path(exists=False))
 @click.argument('hic_ref', type=click.Path(exists=True))
 @click.argument('bin_ref', type=click.Path(exists=True))
-@click.argument('output_bin_matrix', type=click.Path(exists=False))
-def bin_hic_data(hictxt,hic_ref,bin_ref,output_bin_matrix):
+def bin_hic_data(hictxt,output_bin_matrix, hic_ref, bin_ref):
     bin_hic_data_tool(hictxt,output_bin_matrix, hic_ref, bin_ref)
 
