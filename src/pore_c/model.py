@@ -118,6 +118,7 @@ class FragmentMap(object):
             id_offset += len(endpoints)
             if id_offset != 0:
                 terminal_fragments.add((id_offset,id_offset+1))
+                id_offset += 1
 
         bt = BedTool(intervals)
         return cls(bt, chrom_lengths, terminal_fragments)
