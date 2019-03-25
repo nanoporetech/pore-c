@@ -47,13 +47,17 @@ class HicContact(object):
         return data_template.format(ch = ref_ch1,st=midpoint1, en = midpoint1+1, read_id = self.read_id),\
             data_template.format(ch = ref_ch2,st=midpoint2, en = midpoint2+1, read_id = self.read_id)
 
+    def __str__(self):
+        return " ".join(list(map(str,[self.read_id,self.strand1,self.chr1,self.pos1,self.frag1,self.strand2,self.chr2,self.pos2,self.frag2,self.mapq1,self.mapq2])))
+
 
 def bin_hic_data(input_hictxt: str, output_bin_matrix: str, fragment_reference: str, bin_reference: str) -> None:
     frag_midpoint_reference = {}
     with gzip.open(fragment_reference) as handle:
         for entry in handle:
             l = entry.decode('utf-8').strip().split()
-            frag_midpoint_reference[int(l[3])] = (l[0], (int(l[1]) + int(l[2]) // 2))
+            frag_midpoint_reference[int(l[3])] = (l[0], (int(l[1]) + int(l[2])) // 2)
+            
 
     #gather contacts into a list of strings to be concatenated 
     # . and converted into a single bedtool object for mashing against the reference bin bedfile
@@ -62,6 +66,7 @@ def bin_hic_data(input_hictxt: str, output_bin_matrix: str, fragment_reference: 
         c1, c2 = entry.to_midpoint_bed_pair(frag_midpoint_reference)
         contacts.append(c1)
         contacts.append(c2)
+
 
     contact_bed = BedTool("\n".join(contacts),from_string= True)
     
