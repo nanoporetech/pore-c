@@ -4,9 +4,15 @@ import numpy as np
 from pysam import AlignmentFile
 from intervaltree import IntervalTree
 
+import networkx as nx
+
 import random
 
-def read_mappings_iter(bam):
+def read_mappings_iter(bam, sort_flag = False, unique_intervals = False):
+    try:
+        assert sort_flag in ["start", "end", False]
+    except:
+        raise ValueError("sort flag must be either \"start\" or \"end\" or False.")
     aligns = []
     current_read_name = None
     for align in bam:
@@ -18,10 +24,37 @@ def read_mappings_iter(bam):
         elif current_read_name == align.query_name:
             aligns.append(align)
         else:
-            yield aligns
+            seen = {}
+            if unique_intervals:
+                for entry in aligns:
+                    st,en = entry.query_alignment_start,entry.query_alignment_end
+                    if (st,en) not in seen:
+                        seen[(st,en)] = entry
+                    elif entry.get_tag("AS") > seen[(st,en)].get_tag("AS"):
+                        seen[(st,en)] = entry
+                aligns = seen.values()
+            if sort_flag == "end":
+                yield sorted(aligns, key=lambda x: x.query_alignment_end)
+            elif sort_flag == "start":
+                yield sorted(aligns, key=lambda x: x.query_alignment_start)
+            else:
+                yield aligns
             current_read_name = align.query_name
             aligns = [align]
-    yield aligns
+    if unique_intervals:
+        for entry in aligns:
+            st,en = entry.query_alignment_start,entry.query_alignment_end
+            if (st,en) not in seen:
+                seen[(st,en)] = entry
+            elif entry.get_tag("AS") > seen[(st,en)].get_tag("AS"):
+                seen[(st,en)] = entry
+        aligns = seen.values()
+    if sort_flag == "end":
+        yield sorted(aligns, key=lambda x: x.query_alignment_end)
+    elif sort_flag == "start":
+        yield sorted(aligns, key=lambda x: x.query_alignment_start)
+    else:
+        yield aligns
 
 def read_midpoint(align):
     return int ((align.query_alignment_end + align.query_alignment_start ) / 2)
@@ -194,6 +227,7 @@ def cluster_reads(input_bam: str, keep_bam: str, discard_bam: str, trim: int, ma
 ##################
 ###fragdag code###
 ##################
+
 def minimap_gapscore(length, o1=4, o2=24, e1=2, e2=1):
     return min([int(o1) + int(length) * int(e1), int(o2) + int(length) * int(e2)])
 
@@ -204,36 +238,21 @@ def bwa_gapscore(length, O = 5,E = 2):
     return (O + length * E)
 
 #aligns must be sorted by END position (I think)
-def fragDAG(_aligns, mapping_quality_cutoff = 0, aligner = "minimap2", params = "default"):
-    #filter by mapq and (start,stop) first
-
-    seen = {}
-    for idx, align in enumerate(_aligns):
-        if align.mapq >= mapping_quality_cutoff:
-            coords = (align.query_alignment_start,align.query_alignment_emd) 
-            if coords not in seen:
-                seen[coords] = align.get_tag("AS")
-            elif align.get_tag("AS") > seen[coords]:
-                seen[coords] = align.get_tag("AS")
-    keep = seen.keys()
-
-    ##sort by end position so that DAG is preserved from cycles
-    aligns = sorted([_aligns[x] for x in keep], key = lambda x: x.query_alignment_end)
-
+def fragDAG(aligns, mapping_quality_cutoff = 0, aligner = "minimap2", params = "default"):
     G = nx.DiGraph()
     edge_values = {}
     G.add_node("IN")
     G.add_node("OUT")
     L = len(aligns)
     readlen = aligns[0].query_length
-    for x in keep:
+    for x in range(L):
         G.add_node(x)
         if aligner == "minimap2":
             GP_in = minimap_gapscore(aligns[x].query_alignment_start)
             GP_out = minimap_gapscore(readlen - aligns[x].query_alignment_end)
-        elif aligner = "bwasw":
+        elif aligner == "bwasw":
             GP_in = bwa_gapscore(aligns[x].query_alignment_start)
-            GP_out = bwap_gapscore(readlen - aligns[x].query_alignment_end)
+            GP_out = bwa_gapscore(readlen - aligns[x].query_alignment_end)
         AS = aligns[x].get_tag("AS")
         edge_values[("IN",x)] = (GP_in,AS) #store this data for diagnosis
         edge_values[(x,"OUT")] = (GP_out,AS) #store this data for diagnosis
@@ -241,62 +260,60 @@ def fragDAG(_aligns, mapping_quality_cutoff = 0, aligner = "minimap2", params = 
         G.add_edge(x,"OUT",weight = GP_out)
     for x in range(L-1):
         for y in range(x + 1, L):
-            #if the two reads end on the same base, check which one starts first. If they map to the same interval, skip.
-            # . otherwise, edge from the alignment that starts closer to the beginning of the read
-            if aligns[x].query_alignment_end == aligns[y].query_alignment_end:
-                if aligns[x].query_alignment_start == aligns[y].query_alignment_start:
-                    continue 
-                elif aligns[x].query_alignment_start > aligns[y].query_alignment_start:
-                    align1 =  aligns[y]
-                    align2 = aligns[x]
-                else:
-                    align1 =  aligns[x]
-                    align2 = aligns[y]
 
-            #abs, because if the alignments are overlapping, then this still describes the penalty of having to disregard the part
-            # . of the second alignment that overlaps the first alignment
             if aligner == "minimap2":
-                GP = minimap_gapscore(abs(align1.query_alignment_start - align2.query_alignment_end ))
-            elif aligner = "bwasw":
-                GP = bwa_gapscore(abs(aligns1.query_alignment_start - align2.query_alignment_end ))
-            AS = align2.get_tag("AS")
+                GP = minimap_gapscore(abs(aligns[y].query_alignment_start - aligns[x].query_alignment_end ))
+            elif aligner == "bwasw":
+                GP = bwa_gapscore(abs(aligns[y].query_alignment_start - aligns[x].query_alignment_end ))
+            AS = aligns[y].get_tag("AS")
             edge_values[(x,y)] = (GP,AS) #store this data for diagnosis
             G.add_edge(x,y, weight = GP - AS)
 
     #returns a list of the path through the graph as well as the 
-    return nx.single_source_bellman_ford(G,"in", "out")[1]# edge_values # including this as output enables reconstruction of the DAG that ended up filtering reads out. useful for diagnostic purposes
+    return nx.single_source_bellman_ford(G,"IN", "OUT")[1], edge_values # including this as output enables reconstruction of the DAG that ended up filtering reads out. useful for diagnostic purposes
 
-
-
-def fragment_DAG(input_bam: str, keep_bam: str, discard_bam: str, mapping_quality_cutoff: int, aligner: str, aligner_params: str,  alignment_stats: Optional[str] = None):
+def fragDAG_filter(input_bam: str, keep_bam: str, discard_bam: str, mapping_quality_cutoff: int, aligner: str, aligner_params: Optional[str] = None, stats: Optional[str] = None):
+    #the graph structure for each read should maybe be stored for diagnostics, but it isn't clear how to go about doing that tersely. maybe a string of the data dictionary?
 
     bam_in = AlignmentFile(input_bam)
     bam_keep = AlignmentFile(keep_bam, 'wb', template=bam_in)
     bam_discard = AlignmentFile(discard_bam, 'wb', template=bam_in)
 
-    if alignment_stats != None:
-        alignment_stats_out = open(alignment_stats,'w')
+    if stats != None:
+        alignment_stats_out = open(stats,'w')
         alignment_stats_out.write('read_id,mapping_id,filter_retained,query_start,query_end,mapq\n')
 
+        graph_stats_out = open(stats + ".graph",'w')
 
-    for read_aligns in read_mappings_iter(bam_in):
+
+    for _read_aligns in read_mappings_iter(bam_in, sort_flag = "end", unique_intervals = True):
+
+        #first filter on quality score, writing out anything that doesn't pass 
+        read_aligns = []
+        for entry in _read_aligns:
+            if entry.mapq < mapping_quality_cutoff:
+                bam_discard.write(entry)
+                if stats != None:
+                    alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 0, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
+            else:
+                read_aligns.append(entry)
 
         #this line returns two lists, the number of the reads that are part of the best scoring path, and the scores for that path based on the scoring function outlined
-        keep = fragDAG(read_aligns,mapping_quality_cutoff = mapping_quality_cutoff, aligner = aligner, params = aligner_params)
+        keep, graph_data = fragDAG(read_aligns,mapping_quality_cutoff = mapping_quality_cutoff, aligner = aligner, params = aligner_params)
 
         if len(keep) == 0:
             for idx, align in enumerate(read_aligns):
                 bam_discard.write(align)
-                if alignment_stats != None:
+                if stats != None:
                     alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 0, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
             continue
 
         for idx, align in enumerate(read_aligns):
             if idx in keep:
                 bam_keep.write(read_aligns[idx])
-                if alignment_stats != None:
+                if stats != None:
                     alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 1, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
             else:
                 bam_discard.write(read_aligns[idx])
-                if alignment_stats != None:
+                if stats != None:
                     alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 0, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
