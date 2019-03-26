@@ -5,6 +5,7 @@ import os.path
 from pore_c.tools.generate_fragments import create_fragment_map
 from pore_c.tools.generate_fragments import create_bin_file as create_bin_file_tool
 from pore_c.tools.cluster_reads import cluster_reads as cluster_reads_tool
+from pore_c.tools.cluster_reads import fragDAG_filter as fragDAG_filter_tool
 from pore_c.tools.cluster_reads import measure_overlaps as measure_overlaps_tool
 from pore_c.tools.cluster_reads import remove_contained_segments as remove_contained_segments_tool
 from pore_c.tools.map_to_frags import map_to_fragments as map_to_fragments_tool
@@ -103,6 +104,20 @@ def cluster_reads(input_bam, keep_bam, discard_bam, trim, contained, mapping_qua
         else:
             num_reads, num_reads_kept, num_aligns, num_aligns_kept = cluster_reads_tool(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff)
 
+@cli.command(short_help="Cluster mappings by read")
+@click.argument('input_bam', type=click.Path(exists=True))
+@click.argument('keep_bam', type=click.Path(exists=False))
+@click.argument('discard_bam', type=click.Path(exists=False))
+@click.argument('aligner', default = "bwasw")
+@click.argument('aligner_params', default = "default")
+@click.option("--mapping_quality_cutoff", default=0, type=int, help="The minimum mapping quality for a alignment segment to be kept")
+@click.option('--filter_stats', default = None, type=click.Path(exists=False), help="A filename for storing logged data about fragment assignment on a per-alignment basis.")
+def fragDAG_filter(input_bam, keep_bam, discard_bam, mapping_quality_cutoff, aligner, aligner_params, filter_stats):
+    if filter_stats is not None:
+        fragDAG_filter_tool( input_bam, keep_bam, discard_bam, mapping_quality_cutoff, aligner, aligner_params, filter_stats)
+    else:
+        fragDAG_filter_tool( input_bam, keep_bam, discard_bam, mapping_quality_cutoff, aligner, aligner_params)
+
 
 @cli.command(short_help="create a .poreC file from a namesorted alignment of poreC data")
 @click.argument('input_bed', type=click.Path(exists=True))# bedtools overlap file between the filtered bam and the reference fragment file
@@ -132,7 +147,7 @@ def flatten_multiway(input_porec, output_porec,size,sort):
 @cli.command(short_help = "Flatten down a pore-C file filled with multiway contacts to a single specified contact dimension." )
 @click.argument('input_fai',type=click.Path(exists=True))
 @click.argument('output_bin_bed', type=click.Path(exists=False))
-@click.argument('size', default=1000000, type=int, help="The bin size for the file. Default is 10**6 bp.")
+@click.argument('size', default=1000000, type=int) #3 help="The bin size for the file. Default is 10**6 bp."
 def create_bin_file(input_fai, output_bin_bed, size):
     create_bin_file_tool(input_fai, output_bin_bed,size)
 
