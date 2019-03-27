@@ -108,15 +108,14 @@ def cluster_reads(input_bam, keep_bam, discard_bam, trim, contained, mapping_qua
 @click.argument('input_bam', type=click.Path(exists=True))
 @click.argument('keep_bam', type=click.Path(exists=False))
 @click.argument('discard_bam', type=click.Path(exists=False))
-@click.argument('aligner', default = "bwasw")
+@click.argument('aligner', default = "bwa")
 @click.argument('aligner_params', default = "default")
 @click.option("--mapping_quality_cutoff", default=0, type=int, help="The minimum mapping quality for a alignment segment to be kept")
 @click.option('--filter_stats', default = None, type=click.Path(exists=False), help="A filename for storing logged data about fragment assignment on a per-alignment basis.")
-def fragDAG_filter(input_bam, keep_bam, discard_bam, mapping_quality_cutoff, aligner, aligner_params, filter_stats):
-    if filter_stats is not None:
-        fragDAG_filter_tool( input_bam, keep_bam, discard_bam, mapping_quality_cutoff, aligner, aligner_params, filter_stats)
-    else:
-        fragDAG_filter_tool( input_bam, keep_bam, discard_bam, mapping_quality_cutoff, aligner, aligner_params)
+@click.option('--store_graph', default = None, type=click.Path(exists=False), help="A filename for storing a representation of the graph for logging purposes.")
+def fragDAG_filter(input_bam, keep_bam, discard_bam, mapping_quality_cutoff, aligner, aligner_params, filter_stats, store_graph):
+    fragDAG_filter_tool( input_bam, keep_bam, discard_bam, mapping_quality_cutoff, aligner, aligner_params, filter_stats, store_graph)
+
 
 
 @cli.command(short_help="create a .poreC file from a namesorted alignment of poreC data")

@@ -250,7 +250,7 @@ def fragDAG(aligns, mapping_quality_cutoff = 0, aligner = "minimap2", params = "
         if aligner == "minimap2":
             GP_in = minimap_gapscore(aligns[x].query_alignment_start)
             GP_out = minimap_gapscore(readlen - aligns[x].query_alignment_end)
-        elif aligner == "bwasw":
+        elif aligner == "bwa":
             GP_in = bwa_gapscore(aligns[x].query_alignment_start)
             GP_out = bwa_gapscore(readlen - aligns[x].query_alignment_end)
         AS = aligns[x].get_tag("AS")
@@ -263,7 +263,7 @@ def fragDAG(aligns, mapping_quality_cutoff = 0, aligner = "minimap2", params = "
 
             if aligner == "minimap2":
                 GP = minimap_gapscore(abs(aligns[y].query_alignment_start - aligns[x].query_alignment_end ))
-            elif aligner == "bwasw":
+            elif aligner == "bwa":
                 GP = bwa_gapscore(abs(aligns[y].query_alignment_start - aligns[x].query_alignment_end ))
             AS = aligns[y].get_tag("AS")
             edge_values[(x,y)] = (GP,AS) #store this data for diagnosis
@@ -272,7 +272,7 @@ def fragDAG(aligns, mapping_quality_cutoff = 0, aligner = "minimap2", params = "
     #returns a list of the path through the graph as well as the 
     return nx.single_source_bellman_ford(G,"IN", "OUT")[1], edge_values # including this as output enables reconstruction of the DAG that ended up filtering reads out. useful for diagnostic purposes
 
-def fragDAG_filter(input_bam: str, keep_bam: str, discard_bam: str, mapping_quality_cutoff: int, aligner: str, aligner_params: Optional[str] = None, stats: Optional[str] = None):
+def fragDAG_filter(input_bam: str, keep_bam: str, discard_bam: str, mapping_quality_cutoff: int, aligner: str, aligner_params: Optional[str] = None, stats: Optional[str] = None, graph: Optional[str] = None):
     #the graph structure for each read should maybe be stored for diagnostics, but it isn't clear how to go about doing that tersely. maybe a string of the data dictionary?
 
     bam_in = AlignmentFile(input_bam)
@@ -283,7 +283,7 @@ def fragDAG_filter(input_bam: str, keep_bam: str, discard_bam: str, mapping_qual
         alignment_stats_out = open(stats,'w')
         alignment_stats_out.write('read_id,mapping_id,filter_retained,query_start,query_end,mapq\n')
 
-        graph_stats_out = open(stats + ".graph",'w')
+        graph_stats_out = open(graph,'w')
 
 
     for _read_aligns in read_mappings_iter(bam_in, sort_flag = "end", unique_intervals = True):
@@ -300,7 +300,10 @@ def fragDAG_filter(input_bam: str, keep_bam: str, discard_bam: str, mapping_qual
 
         #this line returns two lists, the number of the reads that are part of the best scoring path, and the scores for that path based on the scoring function outlined
         keep, graph_data = fragDAG(read_aligns,mapping_quality_cutoff = mapping_quality_cutoff, aligner = aligner, params = aligner_params)
-
+        if stats != None:
+            # the pipe should not be present in any of the graph structures produced, so should be splittable if this needs to be examined
+            graph_stats_out.write("{}|{}\n".format(read_aligns[0].query_name,str(graph_data))) 
+ 
         if len(keep) == 0:
             for idx, align in enumerate(read_aligns):
                 bam_discard.write(align)
