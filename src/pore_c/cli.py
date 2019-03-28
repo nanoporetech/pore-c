@@ -4,6 +4,7 @@ import logging
 import os.path
 from pore_c.tools.generate_fragments import create_fragment_map
 from pore_c.tools.generate_fragments import create_bin_file as create_bin_file_tool
+from pore_c.tools.map_to_bins import bin_hic_data as bin_hic_data_tool
 from pore_c.tools.cluster_reads import cluster_reads as cluster_reads_tool
 from pore_c.tools.cluster_reads import fragDAG_filter as fragDAG_filter_tool
 from pore_c.tools.cluster_reads import measure_overlaps as measure_overlaps_tool
@@ -143,15 +144,19 @@ def measure_overlaps(input_bam, output_table, no_zero):
 def flatten_multiway(input_porec, output_porec,size,sort):
     flatten_multiway_tool(input_porec, output_porec,size,sort)
 
-@cli.command(short_help = "Flatten down a pore-C file filled with multiway contacts to a single specified contact dimension." )
+@cli.command(short_help = "Generate a reference bedfile of bin intervals provided a reference fasta index file and a bin size." )
 @click.argument('input_fai',type=click.Path(exists=True))
 @click.argument('output_bin_bed', type=click.Path(exists=False))
 @click.argument('size', default=1000000, type=int) #3 help="The bin size for the file. Default is 10**6 bp."
 def create_bin_file(input_fai, output_bin_bed, size):
     create_bin_file_tool(input_fai, output_bin_bed,size)
 
+
 @cli.command()
-@click.argument('bam', type=click.Path(exists=True))
-def hic_to_hicpro(bam):
-    print(bam)
+@click.argument('hictxt', type=click.Path(exists=True))
+@click.argument('output_bin_matrix', type=click.Path(exists=False))
+@click.argument('hic_ref', type=click.Path(exists=True))
+@click.argument('bin_ref', type=click.Path(exists=True))
+def bin_hic_data(hictxt,output_bin_matrix, hic_ref, bin_ref):
+    bin_hic_data_tool(hictxt,output_bin_matrix, hic_ref, bin_ref)
 
