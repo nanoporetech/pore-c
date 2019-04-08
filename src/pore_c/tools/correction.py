@@ -19,6 +19,7 @@ class HiCMap(object):
         self.total_contacts = 0
 
     def populate_matrix(self, matrix_file):
+        symmetry_test = set()
 
         for entry in open(matrix_file):
             l = entry.strip().split()
@@ -28,6 +29,9 @@ class HiCMap(object):
                 continue
             l[0] = int(l[0])
             l[1] = int(l[1])
+            if tuple(sorted([l[0],l[1]])) in symmetry_test:
+                raise ValueError("This data set is not contact commutative. There are contacts such that there is an AB contact value that is not equal to BA contact value.")
+            symmetry_test.add(tuple(sorted([l[0],l[1]])))
             l[2] = float(l[2])
             if l[0] == l[1]:
                 self.matrix[l[0],l[1]] = l[2]
@@ -94,9 +98,6 @@ class HiCMap(object):
         size = self.matrix.shape[0]
 
         r = np.ones((size,1))
-        mdotr = self.matrix.dot(r)
-        c = 1 / mdotr
-        mdotc = self.matrix.dot(c)
         
         self.cP = np.copy(self.matrix)
 
@@ -104,20 +105,29 @@ class HiCMap(object):
         e_max = 1 + epsilon
         
         iterations = 0
-        while np.any(np.sum(self.cP,axis=1) < e_min) or np.any(np.sum(self.cP, axis=1) > e_max) or np.any(np.sum(self.cP, axis=0) < e_min) or np.any(np.sum(self.cP, axis=0) > e_max):
-            c = 1/ self.matrix.T.dot(r)
+        while np.any(np.sum(self.cP,axis=1) < e_min) or \
+              np.any(np.sum(self.cP, axis=1) > e_max) or \
+              np.any(np.sum(self.cP, axis=0) < e_min) or \
+              np.any(np.sum(self.cP, axis=0) > e_max):
+
+            c = 1 / self.matrix.T.dot(r)
             r = 1 / self.matrix.dot(c)
 
             d1 = np.diag(np.squeeze(r))
             d2 = np.diag(np.squeeze(c))
-            self.cP = d1.dot(self.cP).dot(d2)
+            self.cP = d1.dot(self.matrix).dot(d2)
+
             iterations += 1
+
             if iterations > max_iter:
                 break
 
         d1 = np.diag(np.squeeze(r))
         d2 = np.diag(np.squeeze(c))
+
         self.cP = d1.dot(self.matrix).dot(d2)
+
+        print(iterations)
 
     def knight_ruiz_correction(self, remove_zeros = True, min = 1, max = 10**9, epsilon = 10.**-6):
         """
@@ -139,7 +149,7 @@ class HiCMap(object):
         f_out = open(matrix_file_out,'w')
         
         nonzero_coords = zip(*np.nonzero(self.cP))
-        print("corrected:\n",np.array(100*self.cP, dtype = int))
+        print("corrected:\n",  .01 * np.array( np.array(10000*self.cP, dtype = int),dtype=float))
         for x,y in list(nonzero_coords):
             f_out.write(template.format(row = x,column = y, 
                                         raw_counts = self.matrix[x,y], 
@@ -167,4 +177,3 @@ def compute_contact_probabilities( matrix_file_in: str, bin_ref:str, corrected_m
         raise NotImplementedError
 
     contact_matrix.write_out_sparse_probability_matrix(corrected_matrix_file_out)
-
