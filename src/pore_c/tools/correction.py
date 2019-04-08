@@ -13,6 +13,7 @@ class HiCMap(object):
             self.bin_count += 1
 
         self.matrix = np.ma.zeros((self.bin_count,self.bin_count),dtype = float)
+        self.mask = None
         self.cP = None #np.copy(self.matrix)
         self.min_val = np.min(self.matrix)
         self.max_val = np.max(self.matrix)
@@ -38,11 +39,8 @@ class HiCMap(object):
             else:
                 self.matrix[l[0],l[1]] = self.matrix[l[1],l[0]] = l[2] 
 
-        #must mask any rows/columns that are zeros
-        np.ma.masked_where(self.matrix == 0, self.matrix)
-        self.mask = self.matrix.mask #store the mask to prevent overwriting information about blank row/columns
-
-        #confirm that the resulting matrix is a square, strictly positive matrix with total support
+        #confirm that the resulting matrix is a square, strictly positive matrix 
+        # total support is tested in the set_thresholds step
         try:
             assert self.matrix.ndim == 2
             assert self.matrix.shape[0] == self.matrix.shape[1]
@@ -50,9 +48,36 @@ class HiCMap(object):
         except:
             raise ValueError("Contact matrix is not square and strictly positive.")
 
-        size = self.matrix.shape[0]
+        ###very clever cheating is happening here: force the matrix to have total support by including the notion that
+        #  every bin on the genome is in contact with itself (i.e., add the constituted contact matrix with 
+        #  a diagonal matrix whose value is all 1). >:)
+        diag = np.diag(np.ones(self.bin_count))
+        self.matrix = np.maximum( diag, self.matrix)
+        
 
-        r = np.ones((size,1))
+
+    def set_thresholds(self, ci=0.9999, remove_zeros = True):
+        """
+        This protocol establishes a mask for the contact matrix
+        such that values above the confidence interval are masked
+        since they can underskew unsaturated data during correction.
+
+        Additionally, low values are masked as their prominence 
+        can be unduly amplified, and zero value
+        """
+
+        # mask zeros
+        if remove_zeros:
+            np.ma.masked_where(self.matrix == 0, self.matrix)
+        
+        raw_values_mean = np.mean(self.matrix)
+
+        #interval(alpha,df,loc=0,scale=1)
+        self.min_val, self.max_val = st.t.interval(ci,raw_values_mean)
+        self.matrix[self.matrix < self.min_val] = np.ma.masked
+        self.matrix[self.matrix > self.max_val] = np.ma.masked
+
+        r = np.ones((self.bin_count,1))
         mdotr = self.matrix.dot(r)
         if not np.all(mdotr != 0):
             print(mdotr)
@@ -68,25 +93,7 @@ class HiCMap(object):
 
         print(self.matrix)
 
-    def set_thresholds(self, ci=0.999, remove_zeros = True):
-        """
-        This protocol establishes a mask for the contact matrix
-        such that values above the confidence interval are masked
-        since they can skew the correction protocols.
-        Additionally, low and zero values are masked as their prominence 
-        can be unduly amplified. 
-        """
 
-        # mask zeros
-        if remove_zeros:
-            np.ma.masked_where(self.matrix == 0, self.matrix)
-        
-        raw_values_mean = np.mean(self.matrix)
-
-        #interval(alpha,df,loc=0,scale=1)
-        self.min_val, self.max_val = st.t.interval(ci,raw_values_mean)
-        self.matrix[self.matrix < self.min_val] = np.ma.masked
-        self.matrix[self.matrix > self.max_val] = np.ma.masked
 
     def sinkhorn_knopp_correction(self, max_iter = 1000, epsilon = 10.**-6):
         """
@@ -95,9 +102,7 @@ class HiCMap(object):
         """
 
         #zeroeth iteration
-        size = self.matrix.shape[0]
-
-        r = np.ones((size,1))
+        r = np.ones((self.bin_count,1))
         
         self.cP = np.copy(self.matrix)
 
