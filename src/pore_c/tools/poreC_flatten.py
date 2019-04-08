@@ -57,18 +57,29 @@ class Cwalk:
         return tuple([x.ch for x in self.contacts])
 
     #returns a dictionary of lists of cwalk objects keyed on sorted chromosome sets of size=size
-    def flatten(self, size):
+    def flatten(self, size, direct = False):
         outputs = defaultdict(list)
         chrList = self.get_chrs()
         L = len(self.contacts)
 
         if len(self.contacts) >= size:
-            for c, contact_group in enumerate(combinations(self.contacts, r = size)):
-                new_walk = Cwalk("{}_{}".format(self.name,c))
-                chrs = tuple(sorted([x.ch for x in contact_group]))
-                for contact in contact_group:
-                    new_walk.add(contact)
-                outputs[chrs].append(new_walk)
+            if direct:
+                for pos in range(len(self.contacts) - size):
+                    contact_group = self.contacts[pos:pos + size]
+                    new_walk = Cwalk("{}_{}".format(self.name,pos))
+                    chrs = tuple(sorted([x.ch for x in contact_group]))
+                    for contact in contact_group:
+                        new_walk.add(contact)
+                    outputs[chrs].append(new_walk)
+                return outputs
+
+            else:
+                for c, contact_group in enumerate(combinations(self.contacts, r = size)):
+                    new_walk = Cwalk("{}_{}".format(self.name,c))
+                    chrs = tuple(sorted([x.ch for x in contact_group]))
+                    for contact in contact_group:
+                        new_walk.add(contact)
+                    outputs[chrs].append(new_walk)
             return outputs
         else:
             return None
@@ -112,7 +123,7 @@ def natural_sort( l ):
 #creates output filehandle
 #reads input file
 #passes off operations to the functions above as necessary
-def flatten_multiway(file_in, file_out, size, sort = True ):
+def flatten_multiway(file_in, file_out, size, sort = True , direct = False):
     #gather data by chromosome combination, 
     #   so that it can be printed out in sorted order 
     #   in order to play nicely with juicer
@@ -136,7 +147,7 @@ def flatten_multiway(file_in, file_out, size, sort = True ):
                 walk.sort()
             for contact in walk.contacts:
                 chr_used.add(contact.ch)
-            flattened_contacts = walk.flatten(size)
+            flattened_contacts = walk.flatten(size, direct = direct)
             #this is better than a = {**a, **b} because |entries| <<< |chrs| 
             for c , entries in flattened_contacts.items():
                 #contacts must be sorted into blocks (e.g. all chr1 intra-chr, then chr1-chr2, chr1-chr3,etc.) which is different from a simple sort.
