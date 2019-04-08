@@ -50,8 +50,53 @@ class HicContact(object):
     def __str__(self):
         return " ".join(list(map(str,[self.read_id,self.strand1,self.chr1,self.pos1,self.frag1,self.strand2,self.chr2,self.pos2,self.frag2,self.mapq1,self.mapq2])))
 
+def fragment_bin_assignments(fragment_reference: str, bin_reference:str, mapping_bed_out: str) -> None:
+    frag_midpoint_reference = []
+    with gzip.open(fragment_reference) as handle:
+        for entry in handle:
+            l = entry.decode('utf-8').strip().split()
+            start = (int(l[1]) + int(l[2])) // 2
+            frag_midpoint_reference.append("{ch}\t{st}\t{en}\t{frag_id}".format(ch = l[0],st = start, en = start + 1, frag_id = l[3]))
 
-def bin_hic_data(input_hictxt: str, output_bin_matrix: str, fragment_reference: str, bin_reference: str) -> None:
+    midpoints = BedTool("\n".join(frag_midpoint_reference), from_string=True)
+    
+    bin_bed = BedTool(bin_reference)
+
+    map_bed = midpoints.intersect(bin_bed,wao=True)
+
+    f_out = open(mapping_bed_out,'w')
+    for entry in map_bed:
+        l = str(entry).strip().split()
+        f_out.write("{frag_id}\t{bin_id}\n".format(frag_id = l[3],bin_id = l[7]))
+
+
+def bin_hic_data(input_hictxt: str, output_bin_matrix: str, frag_bin_reference: str) -> None:
+    frag_to_bin = {}
+    frag_seen = set()
+    for entry in open(frag_bin_reference):
+        l = entry.strip().split()
+        if l[0] in frag_seen:
+            raise ValueError("fragment seen more than once.")
+        frag_seen.add(l[0])
+        frag_to_bin[int(l[0])] = int(l[1])
+        
+    contacts = Counter()
+    for entry in open(input_hictxt):
+        l = entry.strip().split()
+        pt1 = frag_to_bin[int(l[4])]
+        pt2 = frag_to_bin[int(l[8])]
+        contacts[(pt1,pt2)] += 1
+
+    f_out = open(output_bin_matrix,'w')
+
+    for pts, count in contacts.items():
+        pt1,pt2 = pts
+        f_out.write("{}\t{}\t{}\n".format(pt1,pt2,count))
+
+
+
+
+def bin_hic_data_old(input_hictxt: str, output_bin_matrix: str, fragment_reference: str, bin_reference: str) -> None:
     frag_midpoint_reference = {}
     with gzip.open(fragment_reference) as handle:
         for entry in handle:
@@ -88,7 +133,7 @@ def bin_hic_data(input_hictxt: str, output_bin_matrix: str, fragment_reference: 
         else:
             contacts_seen[l[3]] = int(l[7])
 
-    print(sparse_matrix)
+#    print(sparse_matrix)
 
     f_out = open(output_bin_matrix,'w')
                         
