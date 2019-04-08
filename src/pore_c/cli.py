@@ -5,12 +5,15 @@ import os.path
 from pore_c.tools.generate_fragments import create_fragment_map
 from pore_c.tools.generate_fragments import create_bin_file as create_bin_file_tool
 from pore_c.tools.map_to_bins import bin_hic_data as bin_hic_data_tool
+from pore_c.tools.map_to_bins import fragment_bin_assignments as fragment_bin_assignments_tool
 from pore_c.tools.cluster_reads import cluster_reads as cluster_reads_tool
 from pore_c.tools.cluster_reads import fragDAG_filter as fragDAG_filter_tool
 from pore_c.tools.cluster_reads import measure_overlaps as measure_overlaps_tool
 from pore_c.tools.cluster_reads import remove_contained_segments as remove_contained_segments_tool
 from pore_c.tools.map_to_frags import map_to_fragments as map_to_fragments_tool
 from pore_c.tools.poreC_flatten import flatten_multiway as flatten_multiway_tool
+from pore_c.tools.correction import compute_contact_probabilities as compute_contact_probabilities_tool
+from pore_c.tools.hic_split import split_hic_data as split_hic_data_tool
 
 logger = logging.getLogger(__name__)
 click_log.basic_config(logger)
@@ -151,12 +154,39 @@ def flatten_multiway(input_porec, output_porec,size,sort):
 def create_bin_file(input_fai, output_bin_bed, size):
     create_bin_file_tool(input_fai, output_bin_bed,size)
 
+@cli.command(short_help = "Generate a mapping file which assigns fragments to bin intervals.")
+@click.argument('fragment_reference',type=click.Path(exists=True))
+@click.argument('bin_reference', type=click.Path(exists=True))
+@click.argument('mapping_file_out',type=click.Path(exists=False)) #3 help="The bin size for the file. Default is 10**6 bp."
+def fragment_bin_assignments(fragment_reference,bin_reference,mapping_file_out):
+    fragment_bin_assignments_tool(fragment_reference,bin_reference,mapping_file_out)
 
-@cli.command()
+@cli.command(short_help = "This command takes in a hictxt file, identifies the bin for each member of a pairwise contact and records it into a sparse .matrix raw contact file.")
 @click.argument('hictxt', type=click.Path(exists=True))
 @click.argument('output_bin_matrix', type=click.Path(exists=False))
-@click.argument('hic_ref', type=click.Path(exists=True))
-@click.argument('bin_ref', type=click.Path(exists=True))
-def bin_hic_data(hictxt,output_bin_matrix, hic_ref, bin_ref):
-    bin_hic_data_tool(hictxt,output_bin_matrix, hic_ref, bin_ref)
+@click.argument('frag_bins', type=click.Path(exists=True))
+def bin_hic_data(hictxt,output_bin_matrix, frag_bins):
+    bin_hic_data_tool(hictxt,output_bin_matrix, frag_bins)
+
+
+@cli.command(short_help = "Splits hictxt file into a set of per-chromosome intrachromosomal contacts for normalisation, and an inter-chromosomal contacts dump file. This enables intrachromosomal correction at higher resolutions than are practically capable at a whole-genome scale, due to memory constraints.")
+@click.argument('input_hictxt',type=click.Path(exists=True))
+@click.argument('output_hictxt_prefix', type=click.Path(exists=False)) #this won't exist since it's just a prefix
+@click.argument('output_inter_hictxt',type=click.Path(exists=False)) 
+def split_hic_data(input_hictxt, output_hictxt_prefix, output_inter_hictxt):
+    fragment_bin_assignments_tool(fragment_reference,bin_reference,mapping_file_out)
+
+@cli.command(short_help = "Applies zero-masking, extreme value masking and iterative correction and eigenvector decomposition to a raw matrix file.")
+@click.argument('matrix_file_in',type=click.Path(exists=True))
+@click.argument('bin_ref',type=click.Path(exists=True)) #a reference bin bed file. This is only used to create the initial matrix based on the number of bins in the genome.
+@click.argument('corrected_matrix_file_out', type=click.Path(exists=False)) #this will be identical to the input file, but with additional fields for cP and corrected count number
+@click.argument('output_eigenvector_data',type=click.Path(exists=False)) #not sure what format this will take since it's a pair of 1D vectors
+
+@click.option('--correction_method', default="SK", type=str, help="The correction method used. SK = Sinkhorn-Knopp, KR = Knight Ruiz. KR is not yet implemented.")
+@click.option('--ci', default=0.999, type=float, help="In order to prevent artifacts in correction due to saturated data, matrix values outside the indicated confidence interval about the mean can be masked.")
+@click.option('--mask_zeros', is_flag = True, default = True, help = "Indicates whether zero values matrix positions be masked from the iterative correction process. This is true by default.")
+@click.option('--max_iter', default=1000, type=int, help="The maximum iterations of correction allowed on the sample.")
+@click.option('--epsilon', default=10**-3, type=float, help="The correction-tolerance that indicates successful correction.")
+def compute_contact_probabilities(matrix_file_in, bin_ref, corrected_matrix_file_out, output_eigenvector_data, correction_method, ci, mask_zeros, epsilon, max_iter):   
+    compute_contact_probabilities_tool(matrix_file_in, bin_ref, corrected_matrix_file_out, output_eigenvector_data, correction_method, ci, mask_zeros, epsilon, max_iter)
 
