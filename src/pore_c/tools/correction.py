@@ -127,7 +127,7 @@ class HiCMap(object):
 
         self.cP = d1.dot(self.matrix).dot(d2)
 
-        print(iterations)
+#        print(iterations)
 
     def knight_ruiz_correction(self, remove_zeros = True, min = 1, max = 10**9, epsilon = 10.**-6):
         """
@@ -150,11 +150,12 @@ class HiCMap(object):
         
         nonzero_coords = zip(*np.nonzero(self.cP))
         print("corrected:\n",  .01 * np.array( np.array(10000*self.cP, dtype = int),dtype=float))
+        per_bin_contacts = self.total_contacts / float(self.matrix.shape[0])
         for x,y in list(nonzero_coords):
             f_out.write(template.format(row = x,column = y, 
                                         raw_counts = self.matrix[x,y], 
                                         contact_probability = self.cP[x,y], 
-                                        corrected_counts = int(self.cP[x,y] * self.total_contacts / len(self.cP[x]))
+                                        corrected_counts = self.cP[x,y] * per_bin_contacts
                                     )
                         )
         f_out.close()
