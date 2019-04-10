@@ -12,6 +12,7 @@ dependencies:
   - click
   - numpy
   - scipy
+  - matplotlib
   - pytest
   - bwa
   - intervaltree
