@@ -13,7 +13,7 @@ from pore_c.tools.cluster_reads import remove_contained_segments as remove_conta
 from pore_c.tools.map_to_frags import map_to_fragments as map_to_fragments_tool
 from pore_c.tools.poreC_flatten import flatten_multiway as flatten_multiway_tool
 from pore_c.tools.correction import compute_contact_probabilities as compute_contact_probabilities_tool
-from pore_c.tools.hic_split import split_hic_data as split_hic_data_tool
+#from pore_c.tools.hic_split import split_hic_data as split_hic_data_tool
 from pore_c.tools.analysis import plot_contact_distances as plot_contact_distances_tool
 
 
@@ -178,25 +178,27 @@ def bin_hic_data(hictxt,output_bin_matrix, frag_bins):
 def split_hic_data(input_hictxt, output_hictxt_prefix, output_inter_hictxt):
     fragment_bin_assignments_tool(fragment_reference,bin_reference,mapping_file_out)
 
+
+s = """
+@cli.command(short_help = "Takes in a corrected matrix file, and plots the distribution of contact distances.")
+@click.argument(EC_matrix_file_in,type=click.Path(exists=True))
+@click.argument( ref_bin_file,type=click.Path(exists=True))
+@click.argument( graph_file_out,type=click.Path(exists=False))
+def plot_contact_distances(EC_matrix_file_in, ref_bin_file, graph_file_out):
+    plot_contact_distances_tool(EC_matrix_file_in, ref_bin_file, graph_file_out)
+"""
+
 @cli.command(short_help = "Applies zero-masking, extreme value masking and iterative correction and eigenvector decomposition to a raw matrix file.")
 @click.argument('matrix_file_in',type=click.Path(exists=True))
 @click.argument('bin_ref',type=click.Path(exists=True)) #a reference bin bed file. This is only used to create the initial matrix based on the number of bins in the genome.
 @click.argument('corrected_matrix_file_out', type=click.Path(exists=False)) #this will be identical to the input file, but with additional fields for cP and corrected count number
-#@click.argument('output_eigenvector_data',type=click.Path(exists=False)) #not sure what format this will take since it's a pair of 1D vectors
-#eigen vectors can be output into the damn corrected contact file! Duh!
-
 @click.option('--correction_method', default="SK", type=str, help="The correction method used. SK = Sinkhorn-Knopp, KR = Knight Ruiz. KR is not yet implemented.")
 @click.option('--ci', default=0.999, type=float, help="In order to prevent artifacts in correction due to saturated data, matrix values outside the indicated confidence interval about the mean can be masked.")
 @click.option('--mask_zeros', is_flag = True, default = True, help = "Indicates whether zero values matrix positions be masked from the iterative correction process. This is true by default.")
 @click.option('--max_iter', default=1000, type=int, help="The maximum iterations of correction allowed on the sample.")
-@click.option('--epsilon', default=10**-3, type=float, help="The correction-tolerance that indicates successful correction.")
+@click.option('--epsilon', default=0.0001, type=float, help="The correction-tolerance that indicates successful correction.")
 def compute_contact_probabilities(matrix_file_in, bin_ref, corrected_matrix_file_out, correction_method, ci, mask_zeros, epsilon, max_iter):   
     compute_contact_probabilities_tool(matrix_file_in, bin_ref, corrected_matrix_file_out, correction_method, ci, mask_zeros, epsilon, max_iter)
+    #Nb. eigen vectors can be output right into the damn corrected contact file! Duh!
 
-@cli.command(short_help = "Takes in a corrected matrix file, and plots the distribution of contact distances.")
-@click.argument(EC_matrix_file_in, type =click.Path(exists=True))
-@click.argument( graph_file_out, type =click.Path(exists=False))
-@click.argument( ref_bin_file, type =click.Path(exists=True))
-def plot_contact_distances(EC_matrix_file_in, graph_file_out, ref_bin_file):
-    plot_contact_distances_tool(EC_matrix_file_in, graph_file_out, ref_bin_file)
-    
+
