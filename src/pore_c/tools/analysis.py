@@ -49,6 +49,8 @@ def plot_contact_distances(EC_matrix_file_in: str, graph_file_out: str, ref_bin_
     ax.set_xlim(0,min_max_size * bin_size)
     fig.savefig(graph_file_out)
 
+
+construction= """
 def plot_corrected_contact_map(EC_matrix_file_in: str, heat_map_file_out: str, ref_bin_file: str) -> None:
 
     names = []
@@ -74,3 +76,4 @@ def plot_corrected_contact_map(EC_matrix_file_in: str, heat_map_file_out: str, r
 
 
     fig, ax 
+"""
