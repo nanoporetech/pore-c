@@ -1,5 +1,6 @@
 from collections import defaultdict, Counter
 
+import gzip
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
@@ -9,7 +10,7 @@ def plot_contact_distances(EC_matrix_file_in: str, graph_file_out: str, ref_bin_
     chr_sizes =  {}
 
     bin_size = False
-    for entry in open(ref_bin_file):
+    for entry in gzip.open(ref_bin_file):
         l = entry.strip().split()
         if not bin_size:
             bin_size = int(l[2]) - int(l[1])
@@ -20,7 +21,7 @@ def plot_contact_distances(EC_matrix_file_in: str, graph_file_out: str, ref_bin_
         min_max_size = len(min(chr_sizes.values()))
 
     bin_data = {}
-    for entry in open(ref_bin_file):
+    for entry in gzip.open(ref_bin_file):
         l = entry.strip().split()
         l[1] = int(l[1])
         l[2] = int(l[2])
@@ -47,3 +48,29 @@ def plot_contact_distances(EC_matrix_file_in: str, graph_file_out: str, ref_bin_
     ax.ylabel("Contacts", fontsize = "x-small")
     ax.set_xlim(0,min_max_size * bin_size)
     fig.savefig(graph_file_out)
+
+def plot_corrected_contact_map(EC_matrix_file_in: str, heat_map_file_out: str, ref_bin_file: str) -> None:
+
+    names = []
+    markers = []
+    lastChr = False
+    size = 0
+    for idx, entry in enumerate(gzip.open(ref_bin_file)):
+        l = entry.strip().split()
+        if not lastChr:
+            lastChr = l[0]
+        if lastChr != l[0]:
+            markers.append(idx)
+            names.append(lastChr)
+        size = idx
+    
+    matrix = np.zeros((size,size))
+    for entry in open(EC_matrix_file_in):
+        l = entry.strip().split()
+        l[0] = int(l[0])
+        l[1] = int(l[1])
+
+        matrix[
+
+
+    fig, ax 
