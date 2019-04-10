@@ -237,7 +237,7 @@ def minimap_gapscore(length, o1=4, o2=24, e1=2, e2=1):
 def bwa_gapscore(length, O = 5,E = 2):
     return (O + length * E)
 
-#aligns must be sorted by END position (I think)
+
 def fragDAG(aligns, mapping_quality_cutoff = 0, aligner = "minimap2", params = "default"):
     G = nx.DiGraph()
     edge_values = {}
