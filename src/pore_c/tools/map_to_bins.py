@@ -65,19 +65,23 @@ def fragment_bin_assignments(fragment_reference: str, bin_reference:str, mapping
     map_bed = midpoints.intersect(bin_bed,wao=True)
 
     f_out = open(mapping_bed_out,'w')
+    frags_seen = set()
     for entry in map_bed:
         l = str(entry).strip().split()
-        f_out.write("{frag_id}\t{bin_id}\n".format(frag_id = l[3],bin_id = l[7]))
+        if l[3] not in frags_seen:
+            f_out.write("{frag_id}\t{bin_id}\n".format(frag_id = l[3],bin_id = l[7]))
+            frags_seen.add(l[3])
+        else:
+            print ("frag {} has already been seen".format(l[3]))
+        
 
 
 def bin_hic_data(input_hictxt: str, output_bin_matrix: str, frag_bin_reference: str) -> None:
     frag_to_bin = {}
-    frag_seen = set()
     for entry in open(frag_bin_reference):
         l = entry.strip().split()
-        if l[0] in frag_seen:
-            raise ValueError("fragment seen more than once.")
-        frag_seen.add(l[0])
+        if l[0] in frag_to_bin:
+            raise ValueError("fragment seen more than once. {} seen in bins {} and {}.".format(l[0], frag_to_bin[int(l[0])], l[1]))
         frag_to_bin[int(l[0])] = int(l[1])
         
     contacts = Counter()

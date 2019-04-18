@@ -165,15 +165,17 @@ class HiCMap(object):
         """
         raise NotImplemented
         
-    def calculate_eigenvectors(self):
-        raise NotImplemented
-
+#    def calculate_eigenvectors(self):
+#        from sklearn.decomposition import PCA
+#        pca = PCA(n_components=2)
+#        self.pca = fit_transform(self.cP)
 
     def write_out_sparse_probability_matrix(self, matrix_file_out):
         if self.cP is None:
             raise ValueError("Sparse matrix hasn't been calculated yet.")
 
         template = "{row} {column} {raw_counts} {contact_probability} {corrected_counts}\n"
+#        template = "{row} {column} {raw_counts} {contact_probability} {corrected_counts} {E1} {E2}\n"
 
         f_out = open(matrix_file_out,'w')
         
@@ -181,10 +183,15 @@ class HiCMap(object):
         print("corrected:\n",  .01 * np.array( np.array(10000*self.cP, dtype = int),dtype=float))
         per_bin_contacts = self.total_contacts / float(self.matrix.shape[0])
         for x,y in list(nonzero_coords):
-            f_out.write(template.format(row = x,column = y, 
-                                        raw_counts = self.matrix[x,y], 
-                                        contact_probability = self.cP[x,y], 
-                                        corrected_counts = self.cP[x,y] * per_bin_contacts
+            if x > y:
+                continue #makes the matrix non-redundant as the raw matrix was
+            else:
+                f_out.write(template.format(row = x,column = y, 
+                                            raw_counts = self.matrix[x,y], 
+                                            contact_probability = self.cP[x,y], 
+                                            corrected_counts = self.cP[x,y] * per_bin_contacts,
+                                            #                                        E1 = self.pca[x][0],
+                                            #                                        E2 = self.pca[x][1]
                                     )
                         )
         f_out.close()
@@ -206,6 +213,8 @@ def compute_contact_probabilities( matrix_file_in: str, bin_ref:str, corrected_m
 
     if correction_method == "KR":
         raise NotImplementedError
+
+#    contact_matrix.calculate_eigenvectors()
 
     print(contact_matrix.cP)
     contact_matrix.write_out_sparse_probability_matrix(corrected_matrix_file_out)

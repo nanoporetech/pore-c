@@ -2,20 +2,30 @@ import click
 import click_log
 import logging
 import os.path
+
 from pore_c.tools.generate_fragments import create_fragment_map
 from pore_c.tools.generate_fragments import create_bin_file as create_bin_file_tool
+
 from pore_c.tools.map_to_bins import bin_hic_data as bin_hic_data_tool
 from pore_c.tools.map_to_bins import fragment_bin_assignments as fragment_bin_assignments_tool
+
 from pore_c.tools.cluster_reads import cluster_reads as cluster_reads_tool
 from pore_c.tools.cluster_reads import fragDAG_filter as fragDAG_filter_tool
 from pore_c.tools.cluster_reads import measure_overlaps as measure_overlaps_tool
 from pore_c.tools.cluster_reads import remove_contained_segments as remove_contained_segments_tool
-from pore_c.tools.map_to_frags import map_to_fragments as map_to_fragments_tool
-from pore_c.tools.poreC_flatten import flatten_multiway as flatten_multiway_tool
-from pore_c.tools.correction import compute_contact_probabilities as compute_contact_probabilities_tool
-#from pore_c.tools.hic_split import split_hic_data as split_hic_data_tool
-from pore_c.tools.analysis import plot_contact_distances as plot_contact_distances_tool
 
+from pore_c.tools.map_to_frags import map_to_fragments as map_to_fragments_tool
+
+from pore_c.tools.poreC_flatten import flatten_multiway as flatten_multiway_tool
+
+from pore_c.tools.correction import compute_contact_probabilities as compute_contact_probabilities_tool
+
+from pore_c.tools.analysis import plot_contact_distances as plot_contact_distances_tool
+from pore_c.tools.analysis import cis_trans_analysis as cis_trans_analysis_tool
+from pore_c.tools.analysis import matrix_correlation as matrix_correlation_tool
+from pore_c.tools.analysis import plot_corrected_contact_map as plot_corrected_contact_map_tool
+
+#from pore_c.tools.hic_split import split_hic_data as split_hic_data_tool
 
 logger = logging.getLogger(__name__)
 click_log.basic_config(logger)
@@ -110,6 +120,7 @@ def cluster_reads(input_bam, keep_bam, discard_bam, trim, contained, mapping_qua
         else:
             num_reads, num_reads_kept, num_aligns, num_aligns_kept = cluster_reads_tool(input_bam, keep_bam, discard_bam, trim, mapping_quality_cutoff)
 
+
 @cli.command(short_help="Cluster mappings by read")
 @click.argument('input_bam', type=click.Path(exists=True))
 @click.argument('keep_bam', type=click.Path(exists=False))
@@ -121,7 +132,6 @@ def cluster_reads(input_bam, keep_bam, discard_bam, trim, contained, mapping_qua
 @click.option('--store_graph', default = None, type=click.Path(exists=False), help="A filename for storing a representation of the graph for logging purposes.")
 def fragDAG_filter(input_bam, keep_bam, discard_bam, mapping_quality_cutoff, aligner, aligner_params, filter_stats, store_graph):
     fragDAG_filter_tool( input_bam, keep_bam, discard_bam, mapping_quality_cutoff, aligner, aligner_params, filter_stats, store_graph)
-
 
 
 @cli.command(short_help="create a .poreC file from a namesorted alignment of poreC data")
@@ -141,6 +151,7 @@ def map_to_fragments(input_bed, fragment_bed_file, output_porec, method, stats):
 def measure_overlaps(input_bam, output_table, no_zero):
     measure_overlaps_tool(input_bam,output_table, no_zero)
 
+
 @cli.command(short_help = "Flatten down a pore-C file filled with multiway contacts to a single specified contact dimension." )
 @click.argument('input_porec',type=click.Path(exists=True))
 @click.argument('output_porec', type=click.Path(exists=False))
@@ -149,6 +160,7 @@ def measure_overlaps(input_bam, output_table, no_zero):
 def flatten_multiway(input_porec, output_porec,size,sort):
     flatten_multiway_tool(input_porec, output_porec,size,sort)
 
+
 @cli.command(short_help = "Generate a reference bedfile of bin intervals provided a reference fasta index file and a bin size." )
 @click.argument('input_fai',type=click.Path(exists=True))
 @click.argument('output_bin_bed', type=click.Path(exists=False))
@@ -156,12 +168,14 @@ def flatten_multiway(input_porec, output_porec,size,sort):
 def create_bin_file(input_fai, output_bin_bed, size):
     create_bin_file_tool(input_fai, output_bin_bed,size)
 
+
 @cli.command(short_help = "Generate a mapping file which assigns fragments to bin intervals.")
 @click.argument('fragment_reference',type=click.Path(exists=True))
 @click.argument('bin_reference', type=click.Path(exists=True))
 @click.argument('mapping_file_out',type=click.Path(exists=False)) #3 help="The bin size for the file. Default is 10**6 bp."
 def fragment_bin_assignments(fragment_reference,bin_reference,mapping_file_out):
     fragment_bin_assignments_tool(fragment_reference,bin_reference,mapping_file_out)
+
 
 @cli.command(short_help = "This command takes in a hictxt file, identifies the bin for each member of a pairwise contact and records it into a sparse .matrix raw contact file.")
 @click.argument('hictxt', type=click.Path(exists=True))
@@ -179,14 +193,41 @@ def split_hic_data(input_hictxt, output_hictxt_prefix, output_inter_hictxt):
     fragment_bin_assignments_tool(fragment_reference,bin_reference,mapping_file_out)
 
 
-s = """
+
 @cli.command(short_help = "Takes in a corrected matrix file, and plots the distribution of contact distances.")
-@click.argument(EC_matrix_file_in,type=click.Path(exists=True))
-@click.argument( ref_bin_file,type=click.Path(exists=True))
-@click.argument( graph_file_out,type=click.Path(exists=False))
-def plot_contact_distances(EC_matrix_file_in, ref_bin_file, graph_file_out):
-    plot_contact_distances_tool(EC_matrix_file_in, ref_bin_file, graph_file_out)
-"""
+@click.argument("ec_matrix_file_in",type=click.Path(exists=True))
+@click.argument( "ref_bin_file",type=click.Path(exists=True))
+@click.argument( "graph_file_out",type=click.Path(exists=False))
+def plot_contact_distances(ec_matrix_file_in, ref_bin_file, graph_file_out):
+    plot_contact_distances_tool(ec_matrix_file_in, ref_bin_file, graph_file_out)
+
+
+@cli.command(short_help = "Takes in a corrected matrix file, and plots a comparative contact heat map with raw and corrected values in lower and upper halves respectively.")
+@click.argument("ec_matrix_file_in",type=click.Path(exists=True))
+@click.argument( "ref_bin_file",type=click.Path(exists=True))
+@click.argument( "graph_file_out",type=click.Path(exists=False))
+def plot_corrected_contact_map(ec_matrix_file_in, ref_bin_file, graph_file_out):
+    plot_corrected_contact_map_tool(ec_matrix_file_in, ref_bin_file, graph_file_out)
+
+
+@cli.command(short_help = "Takes in a pair of corrected matrix files, and calculates the pearson coefficient of the individual matrix values that are non-zero. Generates a correlation plot for non-zero values.")
+@click.argument("matrix1_file_in",type=click.Path(exists=True))
+@click.argument("matrix2_file_in",type=click.Path(exists=True))
+@click.argument( "plot_out",type=click.Path(exists=False))
+@click.argument( "result_out",type=click.Path(exists=False))
+def matrix_correlation(matrix1_file_in,matrix2_file_in, plot_out, result_out):
+    matrix_correlation_tool(matrix1_file_in,matrix2_file_in, plot_out, result_out)
+
+
+@cli.command(short_help = "Takes in a corrected matrix file, and generates a cis-trans plot (for all non-zero matrix rows, plot the ratio of cis contacts to trans contacts). Calculates the cis/trans contact ratio.")
+@click.argument("ec_matrix_file_in",type=click.Path(exists=True))
+@click.argument( "ref_bin_file",type=click.Path(exists=True))
+@click.argument( "data_file_out",type=click.Path(exists=False))
+@click.argument( "results_file_out",type=click.Path(exists=False))
+@click.argument( "scatter_map_file_out",type=click.Path(exists=False))
+def cis_trans_analysis(ec_matrix_file_in, ref_bin_file, results_file_out, data_file_out, scatter_map_file_out):
+     cis_trans_analysis_tool(ec_matrix_file_in, ref_bin_file, results_file_out,  data_file_out,scatter_map_file_out)
+
 
 @cli.command(short_help = "Applies zero-masking, extreme value masking and iterative correction and eigenvector decomposition to a raw matrix file.")
 @click.argument('matrix_file_in',type=click.Path(exists=True))

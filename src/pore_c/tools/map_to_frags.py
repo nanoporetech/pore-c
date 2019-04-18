@@ -157,6 +157,9 @@ class ReadToFragments(object):
             frag_overlaps[align.frag_id].append(align)
         num_frags = len(frag_overlaps)
         if num_frags > 1:
+            ####THE BELOW CODE EVALUATES THE CASE OF ADB AS A CASE OF A PAIR OF ADJACENT FRAGMENTS
+            ####EVEN THOUGH A AND B ARE SEPARATED BY A THIRD FRAGMENT. NOT SURE IF THIS IS THE B
+            ####BEST BEHAVIOUR.
             frag_ids = sorted(frag_overlaps.keys())
             #FIXME: edge case where telomeric fragments from different chromosomes considered adjacent
             #n.b.: this is the number of non-adjacent pairs. in a concat a b c d e, i.e., there
