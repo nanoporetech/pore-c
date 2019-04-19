@@ -123,12 +123,12 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
     
     matrix = np.zeros((size+1,size+1))
     for entry in map(Matrix_Entry.from_string, open(matrix_file_in)):
-        try:
-            assert entry.contact_probability != -1.0
-        except:
-            raise ValueError ("This matrix file has not been balanced.")
-        if entry.bin1 == entry.bin2:
-            #the diagonal is never informative and only serves to scale down the rest of the data in the colorspace
+#        try:
+#            assert entry.contact_probability != -1.0
+#        except:
+#            raise ValueError ("This matrix file has not been balanced.")
+#        if entry.bin1 == entry.bin2:
+#            #the diagonal is never informative and only serves to scale down the rest of the data in the colorspace
             continue 
         if matrix_type == "corrected":
             matrix[entry.bin1,entry.bin2] = entry.corrected_counts
