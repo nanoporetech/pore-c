@@ -251,7 +251,7 @@ def compute_contact_probabilities(matrix_file_in, bin_ref, corrected_matrix_file
 @click.argument( "matrix_files_in",type=click.Path(exists=True), nargs = -1)
 
 @click.option('--correction', is_flag = True , help="Indicates whether to perform ICE on the raw matrix after populating it.")
-def join_contact_matrices(ref_bin_file,  matrix_file_out,matrix_files_in, correction):
+def join_contact_matrices(ref_bin_file,  matrix_file_out, matrix_files_in, correction):
     print("joining:",matrix_files_in)
     print("using bin_ref:", ref_bin_file)
     print("and printing to:", matrix_file_out)
