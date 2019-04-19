@@ -41,9 +41,9 @@ class HiCMap(object):
             l[1] = int(l[1])
             l[2] = int(l[2])
             if l[0] > l[1]:
-                self.matrix.add_datum(l[1], l[0], l[2])
+                self.add_datum(l[1], l[0], l[2])
             else:
-                self.matrix.add_datum(*l)
+                self.add_datum(*l)
             
 
         symmetry_test = set()
