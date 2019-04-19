@@ -156,9 +156,14 @@ def cis_trans_analysis(EC_matrix_file_in: str, ref_bin_file: str, data_file_out:
     inter = Counter()
     for entry in open(EC_matrix_file_in):
         l = entry.strip().split()
-        c_count = float(l[2])
-#        c_count = int(round(float(l[4])))
-        if chrs[l[0]] == chrs[l[1]] and int(l[0]) < int(l[1]):
+        l[0] = int(l[0])
+        l[1] = int(l[1])
+        if l[0] > l[1]:
+            continue
+        c_count = float(l[2]) # raw counts
+        #c_count = float(l[2]) #corrected counts
+        
+        if chrs[l[0]] == chrs[l[1]]:
             intra[l[0]] += c_count
         else:
             inter[l[0]] += c_count
