@@ -129,7 +129,7 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
 #            raise ValueError ("This matrix file has not been balanced.")
 #        if entry.bin1 == entry.bin2:
 #            #the diagonal is never informative and only serves to scale down the rest of the data in the colorspace
-            continue 
+#            continue 
         if matrix_type == "corrected":
             matrix[entry.bin1,entry.bin2] = entry.corrected_counts
             matrix[entry.bin2,entry.bin1] = entry.corrected_counts
