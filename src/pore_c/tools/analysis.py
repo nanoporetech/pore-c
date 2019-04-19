@@ -1,3 +1,5 @@
+from typing import Optional
+
 from collections import defaultdict, Counter
 
 import numpy as np
@@ -104,7 +106,7 @@ def plot_contact_distances(EC_matrix_file_in: str,ref_bin_file: str,  graph_file
     fig.savefig(graph_file_out)
 
 
-def plot_raw_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: str, matrix_type: Option[str] = "raw") -> None:
+def plot_raw_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: str, matrix_type: Optional[str] = "raw") -> None:
 
     names = []
     markers = []
