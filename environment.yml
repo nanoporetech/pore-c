@@ -20,3 +20,4 @@ dependencies:
   - pybedtools
   - pip:
     - click-log
+    - sklearn
