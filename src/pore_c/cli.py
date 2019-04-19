@@ -19,10 +19,12 @@ from pore_c.tools.map_to_frags import map_to_fragments as map_to_fragments_tool
 from pore_c.tools.poreC_flatten import flatten_multiway as flatten_multiway_tool
 
 from pore_c.tools.correction import compute_contact_probabilities as compute_contact_probabilities_tool
+from pore_c.tools.correction import join_contact_matrices as join_contact_matrices_tool
 
 from pore_c.tools.analysis import plot_contact_distances as plot_contact_distances_tool
 from pore_c.tools.analysis import cis_trans_analysis as cis_trans_analysis_tool
 from pore_c.tools.analysis import matrix_correlation as matrix_correlation_tool
+
 from pore_c.tools.analysis import plot_corrected_contact_map as plot_corrected_contact_map_tool
 
 #from pore_c.tools.hic_split import split_hic_data as split_hic_data_tool
@@ -238,8 +240,19 @@ def cis_trans_analysis(ec_matrix_file_in, ref_bin_file, results_file_out, data_f
 @click.option('--mask_zeros', is_flag = True, default = True, help = "Indicates whether zero values matrix positions be masked from the iterative correction process. This is true by default.")
 @click.option('--max_iter', default=1000, type=int, help="The maximum iterations of correction allowed on the sample.")
 @click.option('--epsilon', default=0.0001, type=float, help="The correction-tolerance that indicates successful correction.")
-def compute_contact_probabilities(matrix_file_in, bin_ref, corrected_matrix_file_out, correction_method, ci, mask_zeros, epsilon, max_iter):   
-    compute_contact_probabilities_tool(matrix_file_in, bin_ref, corrected_matrix_file_out, correction_method, ci, mask_zeros, epsilon, max_iter)
-    #Nb. eigen vectors can be output right into the damn corrected contact file! Duh!
+@click.option('--eigen', is_flag = True, default = False,  help="Calculates the first two eigenvectors for the matrix and includes them in the .matrix file.")
+def compute_contact_probabilities(matrix_file_in, bin_ref, corrected_matrix_file_out, correction_method, ci, mask_zeros, epsilon, max_iter, eigen):   
+    compute_contact_probabilities_tool(matrix_file_in, bin_ref, corrected_matrix_file_out, correction_method, ci, mask_zeros, epsilon, max_iter, eigen)
 
 
+@cli.command(short_help = "Takes in a series of .matrix files, and joins them into a single .matrix file.")
+@click.argument( "ref_bin_file",type=click.Path(exists=True))
+@click.argument( "matrix_file_out",type=click.Path(exists=False))
+@click.argument( "matrix_files_in",type=click.Path(exists=True), nargs = -1)
+
+@click.option('--correction', is_flag = True , help="Indicates whether to perform ICE on the raw matrix after populating it.")
+def join_contact_matrices(ref_bin_file,  matrix_file_out,matrix_files_in, correction):
+    print("joining:",matrix_files_in)
+    print("using bin_ref:", ref_bin_file)
+    print("and printing to:", matrix_file_out)
+    join_contact_matrices_tool(ref_bin_file, matrix_file_out, *matrix_files_in, correction = correction)
