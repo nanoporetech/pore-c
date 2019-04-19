@@ -104,7 +104,7 @@ def plot_contact_distances(EC_matrix_file_in: str,ref_bin_file: str,  graph_file
     fig.savefig(graph_file_out)
 
 
-def plot_corrected_contact_map(EC_matrix_file_in: str,ref_bin_file: str, heat_map_file_out: str) -> None:
+def plot_raw_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: str, matrix_type: Option[str] = "raw") -> None:
 
     names = []
     markers = []
@@ -120,13 +120,23 @@ def plot_corrected_contact_map(EC_matrix_file_in: str,ref_bin_file: str, heat_ma
         size = idx
     
     matrix = np.zeros((size+1,size+1))
-    for entry in map(Matrix_Entry.from_string, open(EC_matrix_file_in)):
+    for entry in map(Matrix_Entry.from_string, open(matrix_file_in)):
         try:
             assert entry.contact_probability != -1.0
         except:
             raise ValueError ("This matrix file has not been balanced.")
-        matrix[entry.bin1,entry.bin2] = entry.raw_counts
-        matrix[entry.bin2,entry.bin1] = entry.corrected_counts
+        if entry.bin1 == entry.bin2:
+            #the diagonal is never informative and only serves to scale down the rest of the data in the colorspace
+            continue 
+        if matrix_type == "corrected":
+            matrix[entry.bin1,entry.bin2] = entry.corrected_counts
+            matrix[entry.bin2,entry.bin1] = entry.corrected_counts
+        elif matrix_type == "raw":
+            matrix[entry.bin1,entry.bin2] = entry.raw_counts
+            matrix[entry.bin2,entry.bin1] = entry.raw_counts
+        elif matrix_type == "compare":
+            matrix[entry.bin1,entry.bin2] = entry.raw_counts
+            matrix[entry.bin2,entry.bin1] = entry.corrected_counts
 
     fig, ax = plt.subplots(1,figsize= (12,6))
 
@@ -135,11 +145,12 @@ def plot_corrected_contact_map(EC_matrix_file_in: str,ref_bin_file: str, heat_ma
     #TODO: chromosome names halfway between the major ticks
     ax.set_yticks(markers, names)
     ax.set_xticks(markers, names)
-    ax.set_xlabel("corrected counts")
-    ax.set_ylabel("raw counts")
+    if matrix_type == "compare":
+        ax.set_xlabel("corrected counts")
+        ax.set_ylabel("raw counts")
+
     ax.yaxis.set_label_position("right")
     plt.savefig(heat_map_file_out)
-
 
 
 #this is done on corrected values

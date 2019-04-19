@@ -25,7 +25,7 @@ from pore_c.tools.analysis import plot_contact_distances as plot_contact_distanc
 from pore_c.tools.analysis import cis_trans_analysis as cis_trans_analysis_tool
 from pore_c.tools.analysis import matrix_correlation as matrix_correlation_tool
 
-from pore_c.tools.analysis import plot_corrected_contact_map as plot_corrected_contact_map_tool
+from pore_c.tools.analysis import plot_contact_map as plot_contact_map_tool
 
 #from pore_c.tools.hic_split import split_hic_data as split_hic_data_tool
 
@@ -203,14 +203,13 @@ def split_hic_data(input_hictxt, output_hictxt_prefix, output_inter_hictxt):
 def plot_contact_distances(ec_matrix_file_in, ref_bin_file, graph_file_out):
     plot_contact_distances_tool(ec_matrix_file_in, ref_bin_file, graph_file_out)
 
-
 @cli.command(short_help = "Takes in a corrected matrix file, and plots a comparative contact heat map with raw and corrected values in lower and upper halves respectively.")
-@click.argument("ec_matrix_file_in",type=click.Path(exists=True))
+@click.argument("matrix_file_in",type=click.Path(exists=True))
 @click.argument( "ref_bin_file",type=click.Path(exists=True))
+@click.option("--matrix_type",type=click.Choice(["corrected","raw","compare"]))
 @click.argument( "graph_file_out",type=click.Path(exists=False))
-def plot_corrected_contact_map(ec_matrix_file_in, ref_bin_file, graph_file_out):
-    plot_corrected_contact_map_tool(ec_matrix_file_in, ref_bin_file, graph_file_out)
-
+def plot_contact_map(ec_matrix_file_in, ref_bin_file, graph_file_out, matrix_type):
+    plot_contact_map_tool(matrix_file_in, ref_bin_file, graph_file_out, matrix_type)
 
 @cli.command(short_help = "Takes in a pair of corrected matrix files, and calculates the pearson coefficient of the individual matrix values that are non-zero. Generates a correlation plot for non-zero values.")
 @click.argument("matrix1_file_in",type=click.Path(exists=True))
