@@ -89,62 +89,17 @@ def bin_hic_data(input_hictxt: str, output_bin_matrix: str, frag_bin_reference: 
         l = entry.strip().split()
         pt1 = frag_to_bin[int(l[4])]
         pt2 = frag_to_bin[int(l[8])]
-        contacts[(pt1,pt2)] += 1
+        if pt1 > pt2:
+            contacts[(pt2,pt1)] += 1
+        else:
+            contacts[(pt1,pt2)] += 1
 
     f_out = open(output_bin_matrix,'w')
 
     for pts, count in contacts.items():
         pt1,pt2 = pts
+        count = int(count)
         f_out.write("{}\t{}\t{}\n".format(pt1,pt2,count))
 
 
-
-
-def bin_hic_data_old(input_hictxt: str, output_bin_matrix: str, fragment_reference: str, bin_reference: str) -> None:
-    frag_midpoint_reference = {}
-    with gzip.open(fragment_reference) as handle:
-        for entry in handle:
-            l = entry.decode('utf-8').strip().split()
-            frag_midpoint_reference[int(l[3])] = (l[0], (int(l[1]) + int(l[2])) // 2)
-            
-
-    #gather contacts into a list of strings to be concatenated 
-    # . and converted into a single bedtool object for mashing against the reference bin bedfile
-    contacts = []
-    for entry in map( HicContact.from_hictxt, open(input_hictxt)):
-        c1, c2 = entry.to_midpoint_bed_pair(frag_midpoint_reference)
-        contacts.append(c1)
-        contacts.append(c2)
-
-
-    contact_bed = BedTool("\n".join(contacts),from_string= True)
-    
-    bins_bed = BedTool(bin_reference)
-    map_bed = contact_bed.intersect(bins_bed,wao=True) #should this be outputted as a helper file
-
-    contacts_seen = {}
-    sparse_matrix = Counter()
-    for entry in map_bed:
-        l = str(entry).strip().split()
-        if l[3] in contacts_seen:
-            #I think sort order is preserved here by virtue of the pipeline, though it may be worthwhile to
-            # . explicitly enforce it
-            if contacts_seen[l[3]] > int(l[7]):
-                x1, x2 = int(l[7]) , contacts_seen[l[3]]
-            else:
-                x1, x2 = contacts_seen[l[3]], int(l[7])
-            sparse_matrix[(x1,x2)] += 1
-        else:
-            contacts_seen[l[3]] = int(l[7])
-
-#    print(sparse_matrix)
-
-    f_out = open(output_bin_matrix,'w')
-                        
-
-    for coords, val in sparse_matrix.items():
-        x,y = coords
-        f_out.write("{} {} {}\n".format(x,y,val))
-
-    f_out.close()
 
