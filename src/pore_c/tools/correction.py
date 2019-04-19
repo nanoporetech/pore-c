@@ -257,6 +257,7 @@ def compute_contact_probabilities( matrix_file_in: str, bin_ref:str, matrix_file
 def join_contact_matrices( bin_ref_file_in, matrix_file_out, *matrix_filenames, correction=False):
     outputted_matrix = HiCMap(bin_ref_file_in)
     for filename in matrix_filenames:
+        print("Adding in matrix {}".format(filename))
         #this works because raw matrix file loading is done using the add datum operation
         outputted_matrix.from_raw_matrix_file(filename)
 
