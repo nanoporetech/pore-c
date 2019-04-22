@@ -112,21 +112,21 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
     markers = []
     lastChr = False
     size = 0
-    for idx, entry in enumerate(gzip.open(ref_bin_file)):
+    for idx, entry in enumerate(gzip.open(ref_bin_file,'rt')):
         l = entry.strip().split()
         if not lastChr:
             lastChr = l[0]
         if lastChr != l[0]:
-            markers.append(idx)
+            markers.append(idx - 1)
             names.append(lastChr)
         size = idx
+        lastChr = l[0]
+
+    print(markers)
+    print(names)
     
     matrix = np.zeros((size+1,size+1))
     for entry in map(Matrix_Entry.from_string, open(matrix_file_in)):
-#        try:
-#            assert entry.contact_probability != -1.0
-#        except:
-#            raise ValueError ("This matrix file has not been balanced.")
 #        if entry.bin1 == entry.bin2:
 #            #the diagonal is never informative and only serves to scale down the rest of the data in the colorspace
 #            continue 
@@ -140,13 +140,18 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
             matrix[entry.bin1,entry.bin2] = entry.raw_counts
             matrix[entry.bin2,entry.bin1] = entry.corrected_counts
 
-    fig, ax = plt.subplots(1,figsize= (12,6))
+    fig, ax = plt.subplots(1,figsize= (12,6), dpi = 500)
 
     plt.imshow(matrix,norm=colors.LogNorm(vmin=1, vmax=matrix.max()), cmap="viridis")
 
     #TODO: chromosome names halfway between the major ticks
-    ax.set_yticks(markers, names)
-    ax.set_xticks(markers, names)
+    ax.set_yticks(markers)
+    ax.set_yticklabels(names)
+    ax.set_xticks(markers)
+    ax.set_xticklabels(names)
+    plt.tick_params(axis="both",which="major",labelsize=1)
+    plt.xticks(rotation=90)
+
     if matrix_type == "compare":
         ax.set_xlabel("corrected counts")
         ax.set_ylabel("raw counts")
