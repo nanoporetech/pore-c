@@ -99,7 +99,7 @@ def bin_hic_data(input_hictxt: str, output_bin_matrix: str, frag_bin_reference: 
     for pts, count in contacts.items():
         pt1,pt2 = pts
         count = int(count)
-        f_out.write("{}\t{}\t{}\n".format(pt1,pt2,count))
+        f_out.write("{} {} {}\n".format(pt1,pt2,count))
 
 
 

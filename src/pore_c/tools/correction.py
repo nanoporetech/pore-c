@@ -2,9 +2,68 @@ from typing import Pattern, List, NamedTuple, Iterator, Union, Dict, Tuple, Opti
 
 from dataclasses import dataclass
 
+from collections import Counter
 import scipy.stats as st
 import numpy as np
 import gzip
+
+@dataclass
+class joinable_HiCMap(object):
+    def __init__(self, bin_ref):
+        self.bin_count = 0
+
+        for entry in gzip.open(bin_ref):
+            self.bin_count += 1
+        
+        self.matrix = Counter()
+        #instantiate diagonal to 1 to insure total support
+        for bin_num in range(self.bin_count):
+            self.matrix[(bin_num,bin_num)] = 1
+
+    def from_raw_matrix_file(self,file_in):
+        for entry in open(file_in):
+            l = entry.strip().split()
+            l[0] = int(l[0])
+            l[1] = int(l[1])
+            l[2] = int(l[2])
+            self.add_datum(*l[:3])
+
+
+    def add_datum(self,x,y,value):
+        if x == y:
+            if self.matrix[(x,y)] == 1:
+                self.matrix[(x,y)] = value
+            else:
+                self.matrix[(x,y)] += value
+        elif x < y:
+            self.matrix[(x,y)] += value
+        else:
+            self.matrix[(y,x)] += value
+
+
+    def write_out_sparse_probability_matrix(self, matrix_file_out):
+
+        template = "{row} {column} {raw_counts}\n"
+        
+        data = []
+        for coord , val in self.matrix.items():
+            x, y = coord
+            data.append((x,y,val))
+
+        data = np.array(data,dtype=[("x",">u4"),("y",">u4"),("val",">u4")])
+        
+        data.sort(order=["y","x","val"])
+
+        f_out = open(matrix_file_out,'w')
+
+#        print(data)
+        for x,y,val in data:
+            if x > y:
+                continue #makes the matrix non-redundant as the raw matrix was not properly made sparse
+            else:
+                f_out.write(template.format(row = x,column = y,raw_counts = self.matrix[x,y]))
+        f_out.close()
+
 
 @dataclass
 class HiCMap(object):
@@ -14,25 +73,11 @@ class HiCMap(object):
         for entry in gzip.open(bin_ref):
             self.bin_count += 1
 
-        self.sparse_data = {}
-#        self.matrix = np.zeros((self.bin_count,self.bin_count),dtype = float)
         self.matrix = np.ma.identity(self.bin_count,dtype = float)
-        self.mask = None
         self.cP = None #np.copy(self.matrix)
         self.min_val = np.min(self.matrix)
         self.max_val = np.max(self.matrix)
         self.total_contacts = 0
-
-    def add_datum(self,x,y, value):
-        if x == y:
-            #protect from losing total support
-            if self.matrix[x,y] == 1:
-                self.matrix[x,y] = value
-            else:
-                self.matrix[x,y] += value
-        else:
-            self.matrix[x,y] += value
-            self.matrix[y,x] = self.matrix[x,y]
 
     def from_raw_matrix_file(self, matrix_file):
         for entry in open(matrix_file):
@@ -62,12 +107,12 @@ class HiCMap(object):
                 raise ValueError("This data set is not contact commutative. There are contacts such that there is an AB contact value that is not equal to BA contact value.")
             symmetry_test.add(ts)
             l[2] = float(l[2])
-            self.sparse_data[(l[0],l[1])] = l
+#            self.sparse_data[(l[0],l[1])] = l
             if l[0] == l[1]:
                 ###very clever cheating is happening here: force the matrix to have total support by including the notion that
                 #  every bin on the genome is in contact with itself (i.e., add the constituted contact matrix with
                 #  a diagonal matrix whose value is all 1). >:)
-                self.matrix[l[0],l[1]] = np.max([self.matrix[l[0],l[1]],l[2]])
+                self.matrix[l[0],l[1]] = l[2] # no need to max valu this sinc we're now setting up the matrix to have a 1 at this position by default. 
             else:
                 self.matrix[l[0],l[1]] = self.matrix[l[1],l[0]] = l[2] 
 
@@ -255,8 +300,11 @@ def compute_contact_probabilities( matrix_file_in: str, bin_ref:str, matrix_file
 #takes in a set of contact matrix files and joins them together into a new .matrix file.
 # if they've been balanced, the resulting matrix can be balanced if specified.
 def join_contact_matrices( bin_ref_file_in, matrix_file_out, *matrix_filenames, correction=False):
-    outputted_matrix = HiCMap(bin_ref_file_in)
+    print('Creating new matrix for storing collated data.')
+    outputted_matrix = joinable_HiCMap(bin_ref_file_in)
+    print('New matrix creation complete.')
     for filename in matrix_filenames:
+        print("reading {}".format(filename))
         #this works because raw matrix file loading is done using the add datum operation
         outputted_matrix.from_raw_matrix_file(filename)
 
