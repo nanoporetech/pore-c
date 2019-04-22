@@ -79,6 +79,18 @@ class HiCMap(object):
         self.max_val = np.max(self.matrix)
         self.total_contacts = 0
 
+    def add_datum(self,x,y,value):
+        if x == y:
+            if self.matrix[(x,y)] == 1:
+                self.matrix[(x,y)] = value
+            else:
+                self.matrix[(x,y)] += value
+        elif x < y:
+            self.matrix[(x,y)] += value
+        else:
+            self.matrix[(y,x)] += value
+
+
     def from_raw_matrix_file(self, matrix_file):
         for entry in open(matrix_file):
             l = entry.strip().split()
