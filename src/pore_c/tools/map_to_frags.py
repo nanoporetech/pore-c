@@ -160,7 +160,8 @@ class ReadToFragments(object):
             ####THE BELOW CODE EVALUATES THE CASE OF ADB AS A CASE OF A PAIR OF ADJACENT FRAGMENTS
             ####EVEN THOUGH A AND B ARE SEPARATED BY A THIRD FRAGMENT. NOT SURE IF THIS IS THE B
             ####BEST BEHAVIOUR.
-            frag_ids = sorted(frag_overlaps.keys())
+#            frag_ids = sorted(frag_overlaps.keys()) two fragments can be non-adjacent if they're interjected with a third, also non-adjacent fragment. Sorting the list before traversing it masks this structure though.
+            frag_ids = frag_overlaps.keys()
             #FIXME: edge case where telomeric fragments from different chromosomes considered adjacent
             #n.b.: this is the number of non-adjacent pairs. in a concat a b c d e, i.e., there
             #      should be at most (a,b),(b,c),(c,d),(d,e): 4 pairs of potentially non-adjacent monomers
