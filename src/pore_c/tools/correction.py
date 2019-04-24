@@ -78,6 +78,7 @@ class HiCMap(object):
         self.min_val = np.min(self.matrix)
         self.max_val = np.max(self.matrix)
         self.total_contacts = 0
+        self.pca_flag = False
 
     def add_datum(self,x,y,value):
         if x == y:
@@ -212,6 +213,7 @@ class HiCMap(object):
         from sklearn.decomposition import PCA
         pca = PCA(n_components=2)
         self.pca = pca.fit_transform(self.cP)
+        self.pca_flag = True
 
     def write_out_sparse_probability_matrix(self, matrix_file_out):
         if self.cP is None:
@@ -232,14 +234,22 @@ class HiCMap(object):
                 #diagonal values that are dummies should be removed
                 continue
             else:
-                f_out.write(template.format(row = x,column = y, 
-                                            raw_counts = self.matrix[x,y], 
-                                            contact_probability = self.cP[x,y], 
-                                            corrected_counts = self.cP[x,y] * per_bin_contacts,
-                                            E1 = self.pca[x][0],
-                                            E2 = self.pca[x][1]
-                                    )
-                        )
+                if self.pca_flag:
+                    f_out.write(template.format(row = x,column = y, 
+                                                raw_counts = self.matrix[x,y], 
+                                                contact_probability = self.cP[x,y], 
+                                                corrected_counts = self.cP[x,y] * per_bin_contacts,
+                                                E1 = self.pca[x][0],
+                                                E2 = self.pca[x][1]
+                                                )
+                                )
+                else:
+                    f_out.write(template.format(row = x,column = y, 
+                                                raw_counts = self.matrix[x,y], 
+                                                contact_probability = self.cP[x,y], 
+                                                corrected_counts = self.cP[x,y] * per_bin_contacts
+                                                )
+                                )
         f_out.close()
 
 def compute_contact_probabilities( matrix_file_in: str, bin_ref:str, matrix_file_out: str, correction_method: str, ci: Optional[float] = 0.999, mask_zeros: Optional[bool] = True,  epsilon: Optional[float] = 10**-3 , max_iter: Optional[float] = 1000, eigen: Optional[bool] = False) -> None:
