@@ -219,8 +219,8 @@ class HiCMap(object):
         if self.cP is None:
             raise ValueError("Sparse matrix hasn't been calculated yet.")
 
-#        template = "{row} {column} {raw_counts} {contact_probability} {corrected_counts}\n"
-        template = "{row} {column} {raw_counts} {contact_probability} {corrected_counts} {E1} {E2}\n"
+
+
 
         f_out = open(matrix_file_out,'w')
         
@@ -235,6 +235,7 @@ class HiCMap(object):
                 continue
             else:
                 if self.pca_flag:
+                    template = "{row} {column} {raw_counts} {contact_probability} {corrected_counts}\n"
                     f_out.write(template.format(row = x,column = y, 
                                                 raw_counts = self.matrix[x,y], 
                                                 contact_probability = self.cP[x,y], 
@@ -244,6 +245,7 @@ class HiCMap(object):
                                                 )
                                 )
                 else:
+                    template = "{row} {column} {raw_counts} {contact_probability} {corrected_counts} {E1} {E2}\n"
                     f_out.write(template.format(row = x,column = y, 
                                                 raw_counts = self.matrix[x,y], 
                                                 contact_probability = self.cP[x,y], 
