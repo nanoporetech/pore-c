@@ -103,46 +103,6 @@ class HiCMap(object):
                 self.add_datum(*l)
             
 
-        symmetry_test = set()
-
-        for entry in open(matrix_file):
-            l = entry.strip().split()
-            try:
-                assert len(l) == 3
-            except:
-                continue
-            l[0] = int(l[0])
-            l[1] = int(l[1])
-
-            ts = tuple(sorted([l[0],l[1]]))
-            if ts in symmetry_test:
-                raise ValueError("This data set is not contact commutative. There are contacts such that there is an AB contact value that is not equal to BA contact value.")
-            symmetry_test.add(ts)
-            l[2] = float(l[2])
-#            self.sparse_data[(l[0],l[1])] = l
-            if l[0] == l[1]:
-                ###very clever cheating is happening here: force the matrix to have total support by including the notion that
-                #  every bin on the genome is in contact with itself (i.e., add the constituted contact matrix with
-                #  a diagonal matrix whose value is all 1). >:)
-                self.matrix[l[0],l[1]] = l[2] # no need to max valu this sinc we're now setting up the matrix to have a 1 at this position by default. 
-            else:
-                self.matrix[l[0],l[1]] = self.matrix[l[1],l[0]] = l[2] 
-
-            #test for matrix square-ness
- #           try:
- #               assert self.matrix.ndim == 2
- #               assert self.matrix.shape[0] == self.matrix.shape[1]
- #           except:
- #               raise ValueError("Contact matrix is not square.")
-
-            #confirm that the resulting matrix is strictly positive matrix 
-            # total support is tested in the set_thresholds step
-            try:
-                assert np.all(self.matrix >= 0)
-            except:
-                raise ValueError("Contact matrix is not strictly positive.")
-
-
     def set_thresholds(self, file_out, ci=0.9999, remove_zeros = True):
         """
         This protocol establishes a mask for the contact matrix
@@ -268,6 +228,9 @@ class HiCMap(object):
         for x,y in list(nonzero_coords):
             if x > y:
                 continue #makes the matrix non-redundant as the raw matrix was
+            elif x == y and self.matrix[x,y] == 1.0: 
+                #diagonal values that are dummies should be removed
+                continue
             else:
                 f_out.write(template.format(row = x,column = y, 
                                             raw_counts = self.matrix[x,y], 
