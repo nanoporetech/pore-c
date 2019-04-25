@@ -157,7 +157,7 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
     plt.xticks(rotation=90)
     #TODO: chromosome names halfway between the major ticks
 
-    ax.vlines(markers,0,names, linestyle = ":", linewidth = .1, alpha=0.3, color = '#357BA1')
+    ax.vlines(markers,0,size, linestyle = ":", linewidth = .1, alpha=0.3, color = '#357BA1')
 
     if matrix_type == "compare":
         ax.set_xlabel("corrected counts")
