@@ -56,7 +56,6 @@ class joinable_HiCMap(object):
 
         f_out = open(matrix_file_out,'w')
 
-#        print(data)
         for x,y,val in data:
             if x > y:
                 continue #makes the matrix non-redundant as the raw matrix was not properly made sparse

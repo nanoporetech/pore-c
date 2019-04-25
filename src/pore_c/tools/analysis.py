@@ -143,6 +143,9 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
         elif matrix_type == "compare":
             matrix[entry.bin1,entry.bin2] = entry.raw_counts
             matrix[entry.bin2,entry.bin1] = entry.corrected_counts
+         elif matrix_type == "contactprobability":
+             matrix[entry.bin1,entry.bin2] = entry.contact_probability
+             matrix[entry.bin2,entry.bin1] = entry.contact_probability
 
     fig, ax = plt.subplots(1,figsize= (12,6), dpi = 500)
 
