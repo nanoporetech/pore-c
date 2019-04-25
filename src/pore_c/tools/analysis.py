@@ -117,13 +117,17 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
         if not lastChr:
             lastChr = l[0]
         if lastChr != l[0]:
-            markers.append(idx - 1)
+            markers.append(idx - 1 - .5)
             names.append(lastChr)
         size = idx
         lastChr = l[0]
 
-    print(markers)
-    print(names)
+    #tail entry
+    markers.append(idx - 0.5)
+    names.append(l[0])
+
+#    print(markers)
+#    print(names)
     
     matrix = np.zeros((size+1,size+1))
     for entry in map(Matrix_Entry.from_string, open(matrix_file_in)):
@@ -144,13 +148,16 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
 
     plt.imshow(matrix,norm=colors.LogNorm(vmin=1, vmax=matrix.max()), cmap="viridis")
 
-    #TODO: chromosome names halfway between the major ticks
+
     ax.set_yticks(markers)
     ax.set_yticklabels(names)
     ax.set_xticks(markers)
     ax.set_xticklabels(names)
     plt.tick_params(axis="both",which="major",labelsize=1)
     plt.xticks(rotation=90)
+    #TODO: chromosome names halfway between the major ticks
+
+    ax.vlines(markers,0,names, linestyle = ":", linewidth = .1, alpha=0.3, color = '#357BA1')
 
     if matrix_type == "compare":
         ax.set_xlabel("corrected counts")
