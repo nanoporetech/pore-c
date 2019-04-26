@@ -124,16 +124,16 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
 
     #tail entry
     markers.append(idx - 0.5)
+    _markers = [0] + markers
+    minor_markers = [ (x+y) / 2 for x,y in zip(_markers[:-1],_markers[1:])]
     names.append(l[0])
 
-#    print(markers)
-#    print(names)
     
     matrix = np.zeros((size+1,size+1))
     for entry in map(Matrix_Entry.from_string, open(matrix_file_in)):
-#        if entry.bin1 == entry.bin2:
-#            #the diagonal is never informative and only serves to scale down the rest of the data in the colorspace
-#            continue 
+        if entry.bin1 == entry.bin2:
+            #the diagonal is never informative and only serves to scale down the rest of the data in the colorspace
+            continue 
         if matrix_type == "corrected":
             matrix[entry.bin1,entry.bin2] = entry.corrected_counts
             matrix[entry.bin2,entry.bin1] = entry.corrected_counts
@@ -147,25 +147,36 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
              matrix[entry.bin1,entry.bin2] = entry.contact_probability
              matrix[entry.bin2,entry.bin1] = entry.contact_probability
 
-    fig, ax = plt.subplots(1,figsize= (12,6), dpi = 800)
+    fig, ax = plt.subplots(1,figsize= (12,6), dpi = 500)
 
-    plt.imshow(matrix,norm=colors.LogNorm(vmin=1, vmax=matrix.max()), cmap="red")
+#    matrix[matrix < 1] = .1
+
+    plt.imshow(matrix,norm=colors.LogNorm(vmin=.1, vmax=matrix.max()), cmap="inferno")
 
 
+    null_markers = [""] * len(markers)
     ax.set_yticks(markers)
-    ax.set_yticklabels(names)
+    ax.set_yticks(minor_markers, minor = True)
+    ax.set_yticklabels(null_markers)
+    ax.set_yticklabels(names, minor = True)
     ax.set_xticks(markers)
-    ax.set_xticklabels(names)
-    plt.tick_params(axis="both",which="major",labelsize=1)
-    plt.xticks(rotation=90)
+    ax.set_xticklabels(null_markers)
+    ax.set_xticks(minor_markers, minor = True)
+    ax.set_xticklabels(names, minor = True)
+
+    ax.tick_params( axis="both", which="minor",labelsize= 'xx-small',length=0)
+    ax.tick_params( axis="both", which="major",labelsize= 'xx-small',length=3)
+    plt.xticks(rotation='vertical')
+
     #TODO: chromosome names halfway between the major ticks
 
-    print(markers)
-    print(names)
-    print(size)
+#    print("markers:",markers)
+#    print("minor markers:",minor_markers)
+#    print("names:",names)
+#    print("size:",size)
 
-    ax.vlines(markers,0,size, linestyle = ":", linewidth = .1, alpha=0.4, color = '#357BA1')
-    ax.hlines(markers,0,size, linestyle = ":", linewidth = .1, alpha=0.4, color = '#357BA1')
+    ax.vlines(markers,0,size, linestyle = ":", linewidth = .5, alpha=0.4, color = '#357BA1')
+    ax.hlines(markers,0,size, linestyle = ":", linewidth = .5, alpha=0.4, color = '#357BA1')
 
     if matrix_type == "compare":
         ax.set_xlabel("corrected counts")
