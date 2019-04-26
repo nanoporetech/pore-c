@@ -238,7 +238,7 @@ def bwa_gapscore(length, O = 5,E = 2):
     return (O + length * E)
 
 
-def fragDAG(aligns, mapping_quality_cutoff = 0, aligner = "minimap2", params = "default"):
+def fragDAG(aligns, aligner = "minimap2", params = "default"):
     G = nx.DiGraph()
     edge_values = {}
     G.add_node("IN")
@@ -299,7 +299,7 @@ def fragDAG_filter(input_bam: str, keep_bam: str, discard_bam: str, mapping_qual
                 read_aligns.append(entry)
 
         #this line returns two lists, the number of the reads that are part of the best scoring path, and the scores for that path based on the scoring function outlined
-        keep, graph_data = fragDAG(read_aligns,mapping_quality_cutoff = mapping_quality_cutoff, aligner = aligner, params = aligner_params)
+        keep, graph_data = fragDAG(read_aligns, aligner = aligner, params = aligner_params)
         if stats != None:
             # the pipe should not be present in any of the graph structures produced, so should be splittable if this needs to be examined
             graph_stats_out.write("{}|{}\n".format(read_aligns[0].query_name,str(graph_data))) 
