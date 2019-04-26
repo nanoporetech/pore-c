@@ -205,8 +205,8 @@ def plot_contact_distances(ec_matrix_file_in, ref_bin_file, graph_file_out):
 @cli.command(short_help = "Takes in a corrected matrix file, and plots a comparative contact heat map with raw and corrected values in lower and upper halves respectively.")
 @click.argument("matrix_file_in",type=click.Path(exists=True))
 @click.argument( "ref_bin_file",type=click.Path(exists=True))
-@click.option("--matrix_type",type=click.Choice(["corrected","raw","compare"]))
 @click.argument( "graph_file_out",type=click.Path(exists=False))
+@click.argument( "matrix_type", type=click.Choice(["corrected","raw","compare","contactprobability"]))
 def plot_contact_map(matrix_file_in, ref_bin_file, graph_file_out, matrix_type):
     plot_contact_map_tool(matrix_file_in, ref_bin_file, graph_file_out, matrix_type)
 
