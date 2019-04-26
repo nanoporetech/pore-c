@@ -151,7 +151,7 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
 
     matrix[matrix < 1] = .1
 
-    plt.imshow(matrix,norm=colors.LogNorm(vmin=.1, vmax=matrix.max()), cmap="viridis")
+    plt.imshow(matrix,norm=colors.LogNorm(vmin=.1, vmax=matrix.max()), cmap="gist_heat_r")
 
 
     null_markers = [""] * len(markers)
