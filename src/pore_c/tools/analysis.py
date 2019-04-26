@@ -147,9 +147,9 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
              matrix[entry.bin1,entry.bin2] = entry.contact_probability
              matrix[entry.bin2,entry.bin1] = entry.contact_probability
 
-    fig, ax = plt.subplots(1,figsize= (12,6), dpi = 500)
+    fig, ax = plt.subplots(1,figsize= (12,6), dpi = 800)
 
-    plt.imshow(matrix,norm=colors.LogNorm(vmin=1, vmax=matrix.max()), cmap="viridis")
+    plt.imshow(matrix,norm=colors.LogNorm(vmin=1, vmax=matrix.max()), cmap="red")
 
 
     ax.set_yticks(markers)
@@ -160,13 +160,18 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
     plt.xticks(rotation=90)
     #TODO: chromosome names halfway between the major ticks
 
-    ax.vlines(markers,0,size, linestyle = ":", linewidth = .1, alpha=0.3, color = '#357BA1')
+    print(markers)
+    print(names)
+    print(size)
+
+    ax.vlines(markers,0,size, linestyle = ":", linewidth = .1, alpha=0.4, color = '#357BA1')
+    ax.hlines(markers,0,size, linestyle = ":", linewidth = .1, alpha=0.4, color = '#357BA1')
 
     if matrix_type == "compare":
         ax.set_xlabel("corrected counts")
         ax.set_ylabel("raw counts")
+        ax.yaxis.set_label_position("right")
 
-    ax.yaxis.set_label_position("right")
     plt.savefig(heat_map_file_out)
 
 
