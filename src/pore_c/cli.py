@@ -17,6 +17,7 @@ from pore_c.tools.cluster_reads import remove_contained_segments as remove_conta
 from pore_c.tools.map_to_frags import map_to_fragments as map_to_fragments_tool
 
 from pore_c.tools.poreC_flatten import flatten_multiway as flatten_multiway_tool
+from pore_c.tools.poreC_flatten import make_salsa_bedfile as make_salsa_bedfile_tool
 
 from pore_c.tools.correction import compute_contact_probabilities as compute_contact_probabilities_tool
 from pore_c.tools.correction import join_contact_matrices as join_contact_matrices_tool
@@ -252,3 +253,12 @@ def join_contact_matrices(ref_bin_file,  matrix_file_out, matrix_files_in):
     print("using bin_ref:", ref_bin_file)
     print("and printing to:", matrix_file_out)
     join_contact_matrices_tool(ref_bin_file, matrix_file_out, *matrix_files_in)
+
+
+@cli.command(short_help = "maybe generates a bedfile in the form required for the Hi-C hybrid genome assembly tool SALSA.")
+@click.argument( "hictxt_file_in",type=click.Path(exists=True))
+@click.argument( "bedfile_out",type=click.Path(exists=False))
+@click.argument( "frag_bed_ref",type=click.Path(exists=True))
+def make_salsa_bedfile(hictxt_file_in, bedfile_out, frag_bed_ref):
+    make_salsa_bedfile_tool(hictxt_file_in, bedfile_out, frag_bed_ref)
+             
