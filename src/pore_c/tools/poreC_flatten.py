@@ -168,14 +168,14 @@ def make_salsa_bedfile(hictxt_file_in: str, bedfile_out: str, frag_bed_ref: str)
     
     fOut = open(bedfile_out,'w')
 
-    entry_template = "{ch}\t{start}\t{end}\t{read_id}\t{mapq}\t{strand}\n"
+    entry_template = "{ch}\t{start}\t{end}\t{read_id}/{pairID}\t{mapq}\t{strand}\n"
 
     for entry in open(hictxt_file_in):
         l = entry.strip().split()
         frag = fragments[l[4]]
-        fOut.write(entry_template.format(ch = frag[0], start = frag[1] , end = frag[2], read_id = l[0], mapq = l[9], strand =  "-" if l[1] else "+" ))
+        fOut.write(entry_template.format(ch = frag[0], start = frag[1] , end = frag[2], read_id = l[0], pairID = 1, mapq = l[9], strand =  "-" if l[1] else "+" ))
         frag = fragments[l[8]]
-        fOut.write(entry_template.format(ch = frag[0], start = frag[1] , end = frag[2], read_id = l[0], mapq = l[10], strand =  "-" if l[5] else "+" ))
+        fOut.write(entry_template.format(ch = frag[0], start = frag[1] , end = frag[2], read_id = l[0], pairID = 2, mapq = l[10], strand =  "-" if l[5] else "+" ))
 
     fOut.close()
 
