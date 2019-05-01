@@ -166,6 +166,7 @@ class ReadToFragments(object):
             #n.b.: this is the number of non-adjacent pairs. in a concat a b c d e, i.e., there
             #      should be at most (a,b),(b,c),(c,d),(d,e): 4 pairs of potentially non-adjacent monomers
             num_nonadj_frags = sum(([(b - a > 1) for a, b in zip(frag_ids[:-1], frag_ids[1:])]))
+            ###the appropriate behaviour here would be if a pair of fragments are adjacent, one of the fragments should be removed
         else:
             num_nonadj_frags = 0
         fragment_assignments = []
