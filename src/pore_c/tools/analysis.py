@@ -149,7 +149,7 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
 
     fig, ax = plt.subplots(1,figsize= (12,6), dpi = 500)
 
-    matrix[matrix < 1] = .1
+    matrix[matrix < 2] = .1
 
     plt.imshow(matrix,norm=colors.LogNorm(vmin=.1, vmax=matrix.max()), cmap="gist_heat_r")
 
@@ -162,11 +162,17 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
     ax.set_xticks(markers)
     ax.set_xticklabels(null_markers)
     ax.set_xticks(minor_markers, minor = True)
-    ax.set_xticklabels(names, minor = True)
+    ax.set_xticklabels(names, minor = True,rotation=90)
 
     ax.tick_params( axis="both", which="minor",labelsize= 'xx-small',length=0)
-    ax.tick_params( axis="both", which="major",labelsize= 'xx-small',length=3, labelrotation = 90)
-#    plt.xticks(rotation=90)
+    ax.tick_params( axis="both", which="major",labelsize= 'xx-small',length=3)
+
+    #TODO: chromosome names halfway between the major ticks
+
+#    print("markers:",markers)
+#    print("minor markers:",minor_markers)
+#    print("names:",names)
+#    print("size:",size)
 
     ax.vlines(markers,0,size, linestyle = ":", linewidth = .5, alpha=0.4, color = '#357BA1')
     ax.hlines(markers,0,size, linestyle = ":", linewidth = .5, alpha=0.4, color = '#357BA1')
