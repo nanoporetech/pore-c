@@ -185,6 +185,73 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
     plt.savefig(heat_map_file_out)
 
 
+def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_file: str, heat_map_file_out: str, matrix_type: Optional[str] = "raw") -> None:
+
+    names = []
+    markers = []
+    lastChr = False
+    size = 0
+    for idx, entry in enumerate(gzip.open(ref_bin_file,'rt')):
+        l = entry.strip().split()
+        if not lastChr:
+            lastChr = l[0]
+        if lastChr != l[0]:
+            markers.append(idx - 1 - .5)
+            names.append(lastChr)
+        size = idx
+        lastChr = l[0]
+
+    #tail entry
+    markers.append(idx - 0.5)
+    _markers = [0] + markers
+    minor_markers = [ (x+y) / 2 for x,y in zip(_markers[:-1],_markers[1:])]
+    names.append(l[0])
+
+    
+    matrix = np.zeros((size+1,size+1))
+
+    for entry in map(Matrix_Entry.from_string, open(matrix1_file_in)):
+        if entry.bin1 == entry.bin2:
+            #the diagonal is never informative and only serves to scale down the rest of the data in the colorspace
+            continue 
+        if matrix_type == "corrected":
+            matrix[entry.bin1,entry.bin2] = entry.corrected_counts
+        elif matrix_type == "raw":
+            matrix[entry.bin1,entry.bin2] = entry.raw_counts
+
+    for entry in map(Matrix_Entry.from_string, open(matrix2_file_in)):
+        if entry.bin1 == entry.bin2:
+            #the diagonal is never informative and only serves to scale down the rest of the data in the colorspace
+            continue 
+        if matrix_type == "corrected":
+            matrix[entry.bin2,entry.bin1] = entry.corrected_counts
+        elif matrix_type == "raw":
+            matrix[entry.bin2,entry.bin1] = entry.raw_counts
+
+    fig, ax = plt.subplots(1,figsize= (12,6), dpi = 500)
+
+    plt.imshow(matrix,norm=colors.LogNorm(vmin=1, vmax=matrix.max()), cmap="gist_heat_r")
+
+
+    null_markers = [""] * len(markers)
+    ax.set_yticks(markers)
+    ax.set_yticks(minor_markers, minor = True)
+    ax.set_yticklabels(null_markers)
+    ax.set_yticklabels(names, minor = True)
+    ax.set_xticks(markers)
+    ax.set_xticklabels(null_markers)
+    ax.set_xticks(minor_markers, minor = True)
+    ax.set_xticklabels(names, minor = True,rotation=90)
+
+    ax.tick_params( axis="both", which="minor",labelsize= 'xx-small',length=0)
+    ax.tick_params( axis="both", which="major",labelsize= 'xx-small',length=3)
+
+    ax.vlines(markers,0,size, linestyle = ":", linewidth = .5, alpha=0.4, color = '#357BA1')
+    ax.hlines(markers,0,size, linestyle = ":", linewidth = .5, alpha=0.4, color = '#357BA1')
+
+    plt.savefig(heat_map_file_out)
+
+
 #this is done on corrected values
 def cis_trans_analysis(EC_matrix_file_in: str, ref_bin_file: str, data_file_out:str, results_file_out: str, scatter_map_file_out: str ) -> None:
 
