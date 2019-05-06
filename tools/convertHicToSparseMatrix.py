@@ -6,6 +6,13 @@ import straw
 import sys
 from dataclasses import dataclass
 
+"""
+command structure:
+python convertHicToSparseMatrix.py hic_file_in resolution reference_bedfile matrix_filename_out
+
+"""
+
+
 @dataclass
 class bedEntry:
     ch: str
