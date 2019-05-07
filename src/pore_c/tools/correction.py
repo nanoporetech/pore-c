@@ -96,7 +96,7 @@ class HiCMap(object):
             l = entry.strip().split()
             l[0] = int(l[0])
             l[1] = int(l[1])
-            l[2] = int(l[2])
+            l[2] = float(l[2])
             if l[0] > l[1]:
                 self.add_datum(l[1], l[0], l[2])
             else:
@@ -169,18 +169,28 @@ class HiCMap(object):
         r = np.ones((self.bin_count,1))
  
         #keeping an original copy of the matrix may be unnecessary
-#        self.cP = np.copy(self.matrix)
-        self.cP = self.matrix
+        self.cP = np.copy(self.matrix)
+#        self.cP = self.matrix
 
         e_min = 1 - epsilon
         e_max = 1 + epsilon
-        
+
+        print("emin,emax:",e_min,e_max)
+
         iterations = 0
         while np.any(np.sum(self.cP,axis=1) < e_min) or \
               np.any(np.sum(self.cP, axis=1) > e_max) or \
               np.any(np.sum(self.cP, axis=0) < e_min) or \
               np.any(np.sum(self.cP, axis=0) > e_max):
 
+#            if iterations % 10 == 0:
+#                print("####")
+#                print("Iteration: {}".format(iterations))
+#                delta = np.sum(self.cP,axis=1)
+#                print("x sums (lt emin, gt emax):",len(delta[delta < e_min]), len(delta[delta > e_max]))
+#                delta = np.sum(self.cP,axis=0)
+#                print("y sums (lt emin, gt emax):",len(delta[delta < e_min]), len(delta[delta > e_max]))
+ 
             c = 1 / self.matrix.T.dot(r)
             r = 1 / self.matrix.dot(c)
 
