@@ -186,29 +186,79 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
     plt.savefig(heat_map_file_out)
 
 
-def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_file: str, heat_map_file_out: str, matrix_type: Optional[str] = "raw", normalise: Optional[bool] = True) -> None:
+def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_file: str, heat_map_file_out: str, matrix_type: Optional[str] = "raw", normalise: Optional[bool] = True, chr_file: Optional[str] = "None" ) -> None:
 
-    names = []
-    markers = []
-    lastChr = False
-    size = 0
-    for idx, entry in enumerate(gzip.open(ref_bin_file,'rt')):
-        l = entry.strip().split()
-        if not lastChr:
+
+    if chr_file != "None":
+
+        chrs = set()
+        for entry in open(chr_file):
+            chrs.add(entry.strip())
+
+#        print(chrs)
+        names = []
+        markers = []
+        lastChr = False
+        size = 0
+        selected_binranges = []
+        absolute_binranges = []
+        idx = 0
+
+        for net_idx, entry in enumerate(gzip.open(ref_bin_file,'rt')):
+            l = entry.strip().split()
+            if not lastChr:
+                lastChr = l[0]
+                intrachr_idx = 0
+
+            if lastChr != l[0]:
+#                print(l)
+                if lastChr in chrs:
+                    markers.append(idx + intrachr_idx - .5)
+                    names.append(lastChr)
+                    selected_binranges.extend(list(range(idx,idx + intrachr_idx)))
+                    absolute_binranges.extend(list(range(net_idx - intrachr_idx, net_idx)))
+                    idx +=  intrachr_idx
+                intrachr_idx = 0
+            intrachr_idx += 1
             lastChr = l[0]
-        if lastChr != l[0]:
-            markers.append(idx - 1 - .5)
+
+        if lastChr in chrs:
+            markers.append(intrachr_idx - 0.5)
             names.append(lastChr)
-        size = idx
-        lastChr = l[0]
+            selected_binranges.extend(list(range(idx,idx + intrachr_idx)))
+            absolute_binranges.extend(list(range(net_idx - intrachr_idx, net_idx)))
 
-    #tail entry
-    markers.append(idx - 0.5)
-    _markers = [0] + markers
-    minor_markers = [ (x+y) / 2 for x,y in zip(_markers[:-1],_markers[1:])]
-    names.append(l[0])
+        _markers = [0] + markers
+        minor_markers = [ (x+y) / 2 for x,y in zip(_markers[:-1],_markers[1:])]
 
-    
+#        print(selected_binranges)
+#        print(absolute_binranges)
+#        print(names,minor_markers)
+        size = selected_binranges[-1]
+        bin_mappings = dict(zip(absolute_binranges, selected_binranges))
+
+    else:
+
+        names = []
+        markers = []
+        lastChr = False
+        size = 0
+        for idx, entry in enumerate(gzip.open(ref_bin_file,'rt')):
+            l = entry.strip().split()
+            if not lastChr:
+                lastChr = l[0]
+            if lastChr != l[0]:
+                markers.append(idx - 1 - .5)
+                names.append(lastChr)
+            size = idx
+            lastChr = l[0]
+
+        markers.append(idx - 0.5)
+        _markers = [0] + markers
+        minor_markers = [ (x+y) / 2 for x,y in zip(_markers[:-1],_markers[1:])]
+        names.append(l[0])
+
+###    
     matrix = np.zeros((size + 1,size + 1)) + .1
 
     upper_sum = 0
@@ -216,12 +266,27 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
         if entry.bin1 == entry.bin2:
             #the diagonal is never informative and only serves to scale down the rest of the data in the colorspace
             continue 
-        if matrix_type == "corrected":
-            matrix[entry.bin1,entry.bin2] = entry.corrected_counts
-            upper_sum += entry.corrected_counts
-        elif matrix_type == "raw":
-            matrix[entry.bin1,entry.bin2] = entry.raw_counts
-            upper_sum += entry.raw_counts
+
+        if chr_file != "None":
+            if entry.bin1 in bin_mappings and entry.bin2 in bin_mappings:
+                x = bin_mappings[entry.bin1]
+                y = bin_mappings[entry.bin2]
+                if matrix_type == "corrected":
+                    matrix[x,y] = entry.corrected_counts
+                    upper_sum += entry.corrected_counts
+                elif matrix_type == "raw":
+                    matrix[x,y] = entry.raw_counts
+                    upper_sum += entry.raw_counts
+            else:
+                continue
+
+        else:
+            if matrix_type == "corrected":
+                matrix[entry.bin1,entry.bin2] = entry.corrected_counts
+                upper_sum += entry.corrected_counts
+            elif matrix_type == "raw":
+                matrix[entry.bin1,entry.bin2] = entry.raw_counts
+                upper_sum += entry.raw_counts
 
 
     lower_sum = 0
@@ -229,12 +294,25 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
         if entry.bin1 == entry.bin2:
             #the diagonal is never informative and only serves to scale down the rest of the data in the colorspace
             continue 
-        if matrix_type == "corrected":
-            matrix[entry.bin2,entry.bin1] = entry.corrected_counts
-            lower_sum += entry.corrected_counts
-        elif matrix_type == "raw":
-            matrix[entry.bin2,entry.bin1] = entry.raw_counts
-            lower_sum += entry.raw_counts
+        if chr_file != "None":
+            if entry.bin1 in bin_mappings and entry.bin2 in bin_mappings:
+                x = bin_mappings[entry.bin1]
+                y = bin_mappings[entry.bin2]
+                if matrix_type == "corrected":
+                    matrix[y,x] = entry.corrected_counts
+                    lower_sum += entry.corrected_counts
+                elif matrix_type == "raw":
+                    matrix[y,x] = entry.raw_counts
+                    lower_sum += entry.raw_counts
+            else:
+                continue
+        else:
+            if matrix_type == "corrected":
+                matrix[entry.bin2,entry.bin1] = entry.corrected_counts
+                lower_sum += entry.corrected_counts
+            elif matrix_type == "raw":
+                matrix[entry.bin2,entry.bin1] = entry.raw_counts
+                lower_sum += entry.raw_counts
     
     if normalise:
 
@@ -260,7 +338,7 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
                         matrix[x,y] = matrix[x,y] /factor
 
 
-    fig, ax = plt.subplots(1,figsize= (12,6), dpi = 500)
+    fig, ax = plt.subplots(1,figsize= (12,12), dpi = 2000)
 
     plt.imshow(matrix,norm=colors.LogNorm(vmin=1, vmax=matrix.max()), cmap="gist_heat_r")
 #    plt.imshow(matrix, cmap="gist_heat_r")
@@ -276,8 +354,8 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
     ax.set_xticks(minor_markers, minor = True)
     ax.set_xticklabels(names, minor = True,rotation=90)
 
-    ax.set_xlabel(matrix1_file_in)
-    ax.set_ylabel(matrix2_file_in)
+    ax.set_ylabel(matrix1_file_in)
+    ax.set_xlabel(matrix2_file_in)
     ax.yaxis.set_label_position("right")    
 
     ax.tick_params( axis="both", which="minor",labelsize= 'xx-small',length=0)

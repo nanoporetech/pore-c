@@ -221,8 +221,13 @@ def plot_contact_map(matrix_file_in, ref_bin_file, graph_file_out, matrix_type):
 @click.argument( "graph_file_out",type=click.Path(exists=False))
 @click.option("--normalise", is_flag = True, default = True,help="Normalise the values so the greater data set doesn't wash out the data set with fewer contacts.")
 @click.option( "--matrix_type", default = "raw", type=click.Choice(["corrected","raw","compare","contactprobability"]))
-def comparison_contact_map(matrix1_file_in,matrix2_file_in, ref_bin_file, graph_file_out, matrix_type, normalise):
-    comparison_contact_map_tool(matrix1_file_in, matrix2_file_in, ref_bin_file, graph_file_out, matrix_type, normalise)
+@click.option( "--chr_file", default = "None", type=str)
+def comparison_contact_map(matrix1_file_in,matrix2_file_in, ref_bin_file, graph_file_out, matrix_type, normalise,chr_file):
+    if chr_file == "None":
+        comparison_contact_map_tool(matrix1_file_in, matrix2_file_in, ref_bin_file, graph_file_out, matrix_type, normalise)
+    else:
+        comparison_contact_map_tool(matrix1_file_in, matrix2_file_in, ref_bin_file, graph_file_out, matrix_type, normalise,chr_file)
+
 
 @cli.command(short_help = "Takes in a pair of corrected matrix files, and calculates the pearson coefficient of the individual matrix values that are non-zero. Generates a correlation plot for non-zero values.")
 @click.argument("matrix1_file_in",type=click.Path(exists=True))
