@@ -35,9 +35,8 @@ class joinable_HiCMap(object):
                 self.matrix[(x,y)] = value
             else:
                 self.matrix[(x,y)] += value
-        elif x < y:
-            self.matrix[(x,y)] += value
         else:
+            self.matrix[(x,y)] += value
             self.matrix[(y,x)] += value
 
 
@@ -87,7 +86,10 @@ class HiCMap(object):
                 self.matrix[(x,y)] += value
         elif x < y:
             self.matrix[(x,y)] += value
+            self.matrix[(y,x)] += value
         else:
+            print("Warning: non-sparsity related reduncy possibly detected.")
+            self.matrix[(x,y)] += value
             self.matrix[(y,x)] += value
 
 
@@ -183,13 +185,13 @@ class HiCMap(object):
               np.any(np.sum(self.cP, axis=0) < e_min) or \
               np.any(np.sum(self.cP, axis=0) > e_max):
 
-#            if iterations % 10 == 0:
-#                print("####")
-#                print("Iteration: {}".format(iterations))
-#                delta = np.sum(self.cP,axis=1)
-#                print("x sums (lt emin, gt emax):",len(delta[delta < e_min]), len(delta[delta > e_max]))
-#                delta = np.sum(self.cP,axis=0)
-#                print("y sums (lt emin, gt emax):",len(delta[delta < e_min]), len(delta[delta > e_max]))
+            if iterations % 20 == 0:
+                print("####")
+                print("Iteration: {}".format(iterations))
+                delta = np.sum(self.cP,axis=1)
+                print("x sums (lt emin, gt emax):",len(delta[delta < e_min]), len(delta[delta > e_max]))
+                delta = np.sum(self.cP,axis=0)
+                print("y sums (lt emin, gt emax):",len(delta[delta < e_min]), len(delta[delta > e_max]))
  
             c = 1 / self.matrix.T.dot(r)
             r = 1 / self.matrix.dot(c)
