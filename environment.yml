@@ -17,7 +17,9 @@ dependencies:
   - bwa
   - intervaltree
   - dataclasses
+  - bedtools==2.27.1
   - pybedtools
+  - pip
   - pip:
     - click-log
     - sklearn
