@@ -77,7 +77,11 @@ def find_site_positions(regex_or_enzyme: str, seq: str) -> List[int]:
 
 def find_site_positions_regex(regex: Pattern, seq: str) -> List[int]:
     """Finds the start positions of all matches of the regex in the sequence"""
-    return [m.start() for m in regex.finditer(seq.upper())]
+    positions =  [m.start() for m in regex.finditer(seq.upper())]
+    if len(positions) == 0:
+        return [0]
+    else:
+        return positions
 
 
 def find_site_positions_biopython(enzyme: str, seq:str) -> List[int]:
