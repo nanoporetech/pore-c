@@ -198,11 +198,11 @@ def split_hic_data(input_hictxt, output_hictxt_prefix, output_inter_hictxt):
 
 
 @cli.command(short_help = "Takes in a corrected matrix file, and plots the distribution of contact distances.")
-@click.argument("ec_matrix_file_in",type=click.Path(exists=True))
 @click.argument( "ref_bin_file",type=click.Path(exists=True))
 @click.argument( "graph_file_out",type=click.Path(exists=False))
-def plot_contact_distances(ec_matrix_file_in, ref_bin_file, graph_file_out):
-    plot_contact_distances_tool(ec_matrix_file_in, ref_bin_file, graph_file_out)
+@click.argument( "ec_matrix_files_in",type=click.Path(exists=True), nargs = -1)
+def plot_contact_distances(ref_bin_file, graph_file_out, ec_matrix_files_in):
+    plot_contact_distances_tool(ref_bin_file, graph_file_out, *ec_matrix_files_in)
 
 @cli.command(short_help = "Takes in a corrected matrix file, and plots a comparative contact heat map with raw and corrected values in lower and upper halves respectively.")
 @click.argument("matrix_file_in",type=click.Path(exists=True))
@@ -234,8 +234,9 @@ def comparison_contact_map(matrix1_file_in,matrix2_file_in, ref_bin_file, graph_
 @click.argument("matrix2_file_in",type=click.Path(exists=True))
 @click.argument( "plot_out",type=click.Path(exists=False))
 @click.argument( "result_out",type=click.Path(exists=False))
-def matrix_correlation(matrix1_file_in,matrix2_file_in, plot_out, result_out):
-    matrix_correlation_tool(matrix1_file_in,matrix2_file_in, plot_out, result_out)
+@click.option( "--matrix_type", default = "raw", type=click.Choice(["corrected","raw"]))
+def matrix_correlation(matrix1_file_in,matrix2_file_in, plot_out, result_out, matrix_type):
+    matrix_correlation_tool(matrix1_file_in,matrix2_file_in, plot_out, result_out, matrix_type)
 
 
 @cli.command(short_help = "Takes in a corrected matrix file, and generates a cis-trans plot (for all non-zero matrix rows, plot the ratio of cis contacts to trans contacts). Calculates the cis/trans contact ratio.")
