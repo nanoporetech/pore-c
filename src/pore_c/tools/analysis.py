@@ -8,6 +8,7 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
+import matplotlib.cm as cm
 
 from scipy.stats import pearsonr
 from dataclasses import dataclass
@@ -43,12 +44,10 @@ class Matrix_Entry:
                                                                                                           corrected_counts = self.corrected_counts,
                                                                                                           E1 = self.E1,
                                                                                                           E2 = self.E2)
-        else:
-            return "{bin1} {bin2} {raw_counts}\n".format(bin1 = self.bin1,
-                                                       bin2 = self.bin2,
-                                                       raw_counts = self.raw_counts)
 
-def plot_contact_distances(EC_matrix_file_in: str,ref_bin_file: str,  graph_file_out: str) -> None:
+
+
+def plot_contact_distances(ref_bin_file: str,  graph_file_out: str, *EC_matrix_files_in) -> None:
 
     chr_sizes =  {}
 
@@ -77,33 +76,37 @@ def plot_contact_distances(EC_matrix_file_in: str,ref_bin_file: str,  graph_file
         l[3] = int(l[3])
         bin_data[int(l[3])] = l
 
-    data = Counter()
-
-    for entry in map(Matrix_Entry.from_string, open(EC_matrix_file_in)):
-        bin1 = bin_data[entry.bin1]
-        bin2 = bin_data[entry.bin2]
-        if bin1[1] > bin2[1]:
-            continue #forces removal of redundant entries
-        if bin1[0] == bin2[0]:
+    data_set = {}
+    
+    for fn in EC_matrix_files_in:
+        data = Counter()
+        for entry in map(Matrix_Entry.from_string, open( fn )):
+            bin1 = bin_data[entry.bin1]
+            bin2 = bin_data[entry.bin2]
+            if bin1[1] > bin2[1]:
+                continue #forces removal of redundant entries
+            if bin1[0] == bin2[0]:
             #intrachromosomal
-            if bin2[3] - bin1[3] <= min_max_size:
-                data[bin_size * (bin2[3] - bin1[3])] += l[3]
+                if bin2[3] - bin1[3] <= min_max_size:
+                    data[bin_size * (bin2[3] - bin1[3])] += l[3]
+        data_set[fn] = data
+
+    colors = cm.rainbow(np.linspace(0, 1, len(data_set)))
 
     fig, ax = plt.subplots(1,figsize=(12,6))
-    plt.title("{} Contact Distance Distribution".format(EC_matrix_file_in))
-    distances, counts = zip(*sorted(data.items(),key = lambda x: x[0]))
-    print(distances[:100])
-    print(counts[:100])
+    plt.title("Contact Distance Distribution")
+    for idx, d in enumerate(data_set.items()):
+        name, data = d
+        distances, counts = zip(*sorted(data.items(),key = lambda x: x[0]))
+        distances_Mb = np.array(np.array(distances) / 10**6,dtype = int)
+        ax.plot(distances_Mb,counts, c = colors[idx])
 
-    distances_Mb = np.array(np.array(distances) / 10**6,dtype = int)
-    print(distances_Mb[:100])    
-    ax.plot(distances_Mb,counts, 'k:')
     ax.set_xlabel("distance (Mbp)", fontsize = "x-small")
-    ax.set_ylabel("Contacts", fontsize = "x-small")
+    ax.set_ylabel("Corrected counts", fontsize = "x-small")
     ax.set_yscale('log')
     ax.set_xscale('log')
-    ax.set_xlim(0,min_max_size)
-    ax.set_ylim(100,max(counts))
+    ax.set_xlim(1,min_max_size)
+    ax.set_ylim(1000,max(counts))
     fig.savefig(graph_file_out)
 
 
@@ -129,12 +132,17 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
     minor_markers = [ (x+y) / 2 for x,y in zip(_markers[:-1],_markers[1:])]
     names.append(l[0])
 
-    
+
     matrix = np.zeros((size+1,size+1))
     for entry in map(Matrix_Entry.from_string, open(matrix_file_in)):
         if entry.bin1 == entry.bin2:
             #the diagonal is never informative and only serves to scale down the rest of the data in the colorspace
-            continue 
+            continue
+        else:
+            return "{bin1} {bin2} {raw_counts}\n".format(bin1 = self.bin1,
+                                                       bin2 = self.bin2,
+                                                       raw_counts = self.raw_counts)
+
         if matrix_type == "corrected":
             matrix[entry.bin1,entry.bin2] = entry.corrected_counts
             matrix[entry.bin2,entry.bin1] = entry.corrected_counts
@@ -152,7 +160,8 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
 
     matrix[matrix < 2] = .1
 
-    plt.imshow(matrix,norm=colors.LogNorm(vmin=.1, vmax=matrix.max()), cmap="gist_heat_r")
+#    plt.imshow(matrix,norm=colors.LogNorm(vmin=.1, vmax=matrix.max()), cmap="gist_heat_r")
+    plt.imshow(matrix,norm=colors.LogNorm(vmin=.1, vmax=matrix.max()), cmap="viridis")
 
 
     null_markers = [""] * len(markers)
@@ -183,6 +192,7 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
         ax.set_ylabel("raw counts")
         ax.yaxis.set_label_position("right")
 
+    plt.colorbar()
     plt.savefig(heat_map_file_out)
 
 
@@ -231,9 +241,6 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
         _markers = [0] + markers
         minor_markers = [ (x+y) / 2 for x,y in zip(_markers[:-1],_markers[1:])]
 
-#        print(selected_binranges)
-#        print(absolute_binranges)
-#        print(names,minor_markers)
         size = selected_binranges[-1]
         bin_mappings = dict(zip(absolute_binranges, selected_binranges))
 
@@ -340,6 +347,7 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
 
     fig, ax = plt.subplots(1,figsize= (12,12), dpi = 2000)
 
+#    plt.imshow(matrix,norm=colors.LogNorm(vmin=1, vmax=matrix.max()), cmap="viridis")
     plt.imshow(matrix,norm=colors.LogNorm(vmin=1, vmax=matrix.max()), cmap="gist_heat_r")
 #    plt.imshow(matrix, cmap="gist_heat_r")
 
@@ -364,8 +372,10 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
     ax.vlines(markers,0,size, linestyle = ":", linewidth = .5, alpha=0.4, color = '#357BA1')
     ax.hlines(markers,0,size, linestyle = ":", linewidth = .5, alpha=0.4, color = '#357BA1')
 
+#    plt.colorbar()
     plt.savefig(heat_map_file_out)
 
+    np.save(heat_map_file_out.replace('.png','.npy'),matrix)
 
 #this is done on corrected values
 def cis_trans_analysis(EC_matrix_file_in: str, ref_bin_file: str, data_file_out:str, results_file_out: str, scatter_map_file_out: str ) -> None:
@@ -435,14 +445,20 @@ def cis_trans_analysis(EC_matrix_file_in: str, ref_bin_file: str, data_file_out:
 
 ####
 #plots a log-log scatter plot of point-matched raw count values and calculates the pearson correlation coefficient for that distribution.
-def matrix_correlation(matrix1_file_in: str, matrix2_file_in: str, plot_out: str, result_out:str) -> None:
+def matrix_correlation(matrix1_file_in: str, matrix2_file_in: str, plot_out: str, result_out:str, matrix_type: Optional[str] = "raw") -> None:
     matrix1_data = {}
     matrix2_data = {}
     for entry in map(Matrix_Entry.from_string, open(matrix1_file_in)):
-        matrix1_data[(entry.bin1,entry.bin2)] = entry.raw_counts
+        if matrix_type == "raw":
+            matrix1_data[(entry.bin1,entry.bin2)] = entry.raw_counts
+        if matrix_type == "corrected":
+            matrix1_data[(entry.bin1,entry.bin2)] = entry.corrected_counts
 
     for entry in map(Matrix_Entry.from_string, open(matrix2_file_in)):
-        matrix2_data[(entry.bin1,entry.bin2)] = entry.raw_counts
+        if matrix_type == "raw":
+            matrix2_data[(entry.bin1,entry.bin2)] = entry.raw_counts
+        if matrix_type == "corrected":
+            matrix2_data[(entry.bin1,entry.bin2)] = entry.corrected_counts
 
     matrix1_nonzero = set(matrix1_data.keys())
     shared_nonzero = list(matrix1_nonzero.intersection(set(matrix2_data.keys())))
