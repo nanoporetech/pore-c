@@ -71,7 +71,7 @@ class HiCMap(object):
         for entry in gzip.open(bin_ref):
             self.bin_count += 1
 
-        self.matrix = np.ma.identity(self.bin_count,dtype = float)
+        self.matrix = np.ma.identity(self.bin_count ,dtype = float)
         self.cP = None #np.copy(self.matrix)
         self.min_val = np.min(self.matrix)
         self.max_val = np.max(self.matrix)
@@ -80,17 +80,17 @@ class HiCMap(object):
 
     def add_datum(self,x,y,value):
         if x == y:
-            if self.matrix[(x,y)] == 1:
-                self.matrix[(x,y)] = value
+            if self.matrix[x,y] == 1:
+                self.matrix[x,y] = value
             else:
-                self.matrix[(x,y)] += value
+                self.matrix[x,y] += value
         elif x < y:
-            self.matrix[(x,y)] += value
-            self.matrix[(y,x)] += value
+            self.matrix[x,y] += value
+            self.matrix[y,x] += value
         else:
             print("Warning: non-sparsity related reduncy possibly detected.")
-            self.matrix[(x,y)] += value
-            self.matrix[(y,x)] += value
+            self.matrix[x,y] += value
+            self.matrix[y,x] += value
 
 
     def from_raw_matrix_file(self, matrix_file):
