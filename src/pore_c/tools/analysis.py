@@ -6,6 +6,10 @@ import numpy as np
 import gzip
 import matplotlib
 matplotlib.use('agg')
+
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cm
@@ -115,7 +119,6 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
     names = []
     markers = []
     lastChr = False
-    size = 0
     for idx, entry in enumerate(gzip.open(ref_bin_file,'rt')):
         l = entry.strip().split()
         if not lastChr:
@@ -123,10 +126,11 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
         if lastChr != l[0]:
             markers.append(idx - 1 - .5)
             names.append(lastChr)
-        size = idx
+
         lastChr = l[0]
 
     #tail entry
+    size = idx
     markers.append(idx - 0.5)
     _markers = [0] + markers
     minor_markers = [ (x+y) / 2 for x,y in zip(_markers[:-1],_markers[1:])]
@@ -198,58 +202,69 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
 
 def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_file: str, heat_map_file_out: str, matrix_type: Optional[str] = "raw", normalise: Optional[bool] = True, chr_file: Optional[str] = "None" ) -> None:
 
-
     if chr_file != "None":
 
-        chrs = set()
-        for entry in open(chr_file):
-            chrs.add(entry.strip())
-
-#        print(chrs)
+        chr_strands = {}
         names = []
-        markers = []
-        lastChr = False
-        size = 0
-        selected_binranges = []
-        absolute_binranges = []
-        idx = 0
+        for entry in open(chr_file):
+            #first col is contig, second is strandedness as either + or -
+            l = entry.strip().split()
+            names.append(l[0])
+            chr_strands[l[0]] = l[1]
 
-        for net_idx, entry in enumerate(gzip.open(ref_bin_file,'rt')):
+        sizes = {}
+        intrachr_binranges = {}
+        absolute_binranges = {}
+        lastChr = False
+        for idx, entry in enumerate(gzip.open(ref_bin_file,'rt')):
             l = entry.strip().split()
             if not lastChr:
                 lastChr = l[0]
                 intrachr_idx = 0
-
+                continue
             if lastChr != l[0]:
-#                print(l)
-                if lastChr in chrs:
-                    markers.append(idx + intrachr_idx - .5)
-                    names.append(lastChr)
-                    selected_binranges.extend(list(range(idx,idx + intrachr_idx)))
-                    absolute_binranges.extend(list(range(net_idx - intrachr_idx, net_idx)))
-                    idx +=  intrachr_idx
+                sizes[lastChr] = max( 1, intrachr_idx)
+                intrachr_binranges[lastChr] = (0,intrachr_idx )
+                absolute_binranges[lastChr] = (idx - intrachr_idx ,idx )
                 intrachr_idx = 0
             intrachr_idx += 1
             lastChr = l[0]
 
-        if lastChr in chrs:
-            markers.append(intrachr_idx - 0.5)
-            names.append(lastChr)
-            selected_binranges.extend(list(range(idx,idx + intrachr_idx)))
-            absolute_binranges.extend(list(range(net_idx - intrachr_idx, net_idx)))
+        #tail chromosome info
+        sizes[lastChr] = intrachr_idx
+        intrachr_binranges[lastChr] = (0,intrachr_idx)
+        absolute_binranges[lastChr] = (idx - intrachr_idx ,idx )
+
+        #keys are absolute bin position in genome
+        #values are the position in the selection given the ordering and orientating of the selected chromosomes
+        bin_mappings = {}
+        markers = []
+        pos = 0
+        for entry in names:
+            markers.append(pos + sizes[entry] - 0.5)
+            start,stop = intrachr_binranges[entry]
+            abs_start, abs_stop = absolute_binranges[entry]
+            print(pos +start,pos+stop,abs_start,abs_stop)
+
+            if chr_strands[entry] == "+":
+                for x1, x2 in zip(  list(range(*absolute_binranges[entry])) , list(range(pos + start, pos + stop))):
+                    bin_mappings[x1] = x2
+            else:
+                for x1, x2 in zip(  list(range(*absolute_binranges[entry])) , list(range(pos + start, pos + stop))[::-1]):
+                    bin_mappings[x1] = x2
+            pos += sizes[entry]
+
+        size = pos + 1
 
         _markers = [0] + markers
         minor_markers = [ (x+y) / 2 for x,y in zip(_markers[:-1],_markers[1:])]
 
-        size = selected_binranges[-1]
-        bin_mappings = dict(zip(absolute_binranges, selected_binranges))
 
     else:
 
         names = []
         markers = []
         lastChr = False
-        size = 0
         for idx, entry in enumerate(gzip.open(ref_bin_file,'rt')):
             l = entry.strip().split()
             if not lastChr:
@@ -257,16 +272,16 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
             if lastChr != l[0]:
                 markers.append(idx - 1 - .5)
                 names.append(lastChr)
-            size = idx
             lastChr = l[0]
 
         markers.append(idx - 0.5)
-        _markers = [0] + markers
+        _markers = [-.5] + markers
         minor_markers = [ (x+y) / 2 for x,y in zip(_markers[:-1],_markers[1:])]
         names.append(l[0])
+        size = idx + 1
 
-###    
-    matrix = np.zeros((size + 1,size + 1)) + .1
+######construct contact matrix
+    matrix = np.zeros((size,size )) 
 
     upper_sum = 0
     for entry in map(Matrix_Entry.from_string, open(matrix1_file_in)):
@@ -321,6 +336,15 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
                 matrix[entry.bin2,entry.bin1] = entry.raw_counts
                 lower_sum += entry.raw_counts
     
+    #cheat section
+    for x in range(size-1):
+        for y in range(x+1, size):
+            if matrix[x,y] == 0:
+                if matrix[y,x] > 0:
+                    matrix[x,y] = 0.1
+                
+                
+
     if normalise:
 
         print('normalising two datasets.')
@@ -339,13 +363,13 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
                     continue
                 elif x > y: 
                     if flag:
-                        matrix[x,y] = matrix[x,y] /factor
+                        matrix[x,y] = matrix[x,y] / factor
                 else:
                     if not flag:
-                        matrix[x,y] = matrix[x,y] /factor
+                        matrix[x,y] = matrix[x,y] / factor
 
 
-    fig, ax = plt.subplots(1,figsize= (12,12), dpi = 2000)
+    fig, ax = plt.subplots(1,figsize= (12,12), dpi = 1000)
 
 #    plt.imshow(matrix,norm=colors.LogNorm(vmin=1, vmax=matrix.max()), cmap="viridis")
     plt.imshow(matrix,norm=colors.LogNorm(vmin=1, vmax=matrix.max()), cmap="gist_heat_r")
@@ -369,8 +393,12 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
     ax.tick_params( axis="both", which="minor",labelsize= 'xx-small',length=0)
     ax.tick_params( axis="both", which="major",labelsize= 'xx-small',length=3)
 
-    ax.vlines(markers,0,size, linestyle = ":", linewidth = .5, alpha=0.4, color = '#357BA1')
-    ax.hlines(markers,0,size, linestyle = ":", linewidth = .5, alpha=0.4, color = '#357BA1')
+    ax.vlines(markers,-0.5, size - 1, linestyle = ":", linewidth = .5, alpha=0.4, color = '#357BA1')
+    ax.hlines(markers,-0.5, size - 1, linestyle = ":", linewidth = .5, alpha=0.4, color = '#357BA1')
+
+
+    ax.set_xlim(right=size-1.5, left = -.5)
+    ax.set_ylim(bottom=size-1.5, top =-.5)
 
 #    plt.colorbar()
     plt.savefig(heat_map_file_out)
@@ -384,7 +412,7 @@ def cis_trans_analysis(EC_matrix_file_in: str, ref_bin_file: str, data_file_out:
     chrs = {}
     for entry in gzip.open(ref_bin_file,'rt'):
         l = entry.strip().split()
-        chrs[l[3]] = l[0]
+        chrs[int(l[3])] = l[0]
 
     #key these on matrix bin with values equal to count
     intra = Counter()
@@ -396,7 +424,6 @@ def cis_trans_analysis(EC_matrix_file_in: str, ref_bin_file: str, data_file_out:
         if l[0] > l[1]:
             continue
         c_count = float(l[2]) # raw counts
-        #c_count = float(l[2]) #corrected counts
         
         if chrs[l[0]] == chrs[l[1]]:
             intra[l[0]] += c_count
@@ -404,19 +431,20 @@ def cis_trans_analysis(EC_matrix_file_in: str, ref_bin_file: str, data_file_out:
             inter[l[0]] += c_count
 
 
-    shared = sorted(list(set(intra.keys()).intersection(set(inter.keys()))))
+    shared = sorted(list(set(intra.keys()).union(set(inter.keys()))))
+
     print("data sizes:")
     print("intra:",len(intra))
     print("inter:",len(inter))
     print("shared data coordinates:",len(shared))
     fig, ax = plt.subplots(1,figsize= (12,6))
-    intra_values = np.array([intra[x] for x in shared])
-    inter_values = np.array([inter[x] for x in shared])
+    intra_values = np.array([intra[x] if x in intra else 0.0 for x in shared])
+    inter_values = np.array([inter[x] if x in inter else 1.0 for x in shared])
 
     print("max intra:",max(intra_values))
     print("max inter:",max(inter_values))
     ratios = intra_values / inter_values
-    plt.hexbin(intra_values,inter_values,gridsize = (200,200))
+    plt.hexbin(intra_values,inter_values,gridsize = (100,100))
 
     ax.set_xlabel("cis counts")
     ax.set_ylabel("trans counts")
@@ -437,15 +465,14 @@ def cis_trans_analysis(EC_matrix_file_in: str, ref_bin_file: str, data_file_out:
     y = np.sum(inter_values)
 
     ratio = x / y
-    print(x,y, ratio)
 
-    f_out.write("{},{},{}".format(x, y, ratio))
+    f_out.write("{},{},{}\n".format(x, y, ratio))
     f_out.close()
     
 
 ####
 #plots a log-log scatter plot of point-matched raw count values and calculates the pearson correlation coefficient for that distribution.
-def matrix_correlation(matrix1_file_in: str, matrix2_file_in: str, plot_out: str, result_out:str, matrix_type: Optional[str] = "raw") -> None:
+def matrix_correlation(matrix1_file_in: str, matrix2_file_in: str, plot_out: str, result_out:str, contact_data_out: str,matrix_type: Optional[str] = "raw") -> None:
     matrix1_data = {}
     matrix2_data = {}
     for entry in map(Matrix_Entry.from_string, open(matrix1_file_in)):
@@ -466,6 +493,13 @@ def matrix_correlation(matrix1_file_in: str, matrix2_file_in: str, plot_out: str
     shared_matrix1 = [matrix1_data[x] for x in shared_nonzero]
     shared_matrix2 = [matrix2_data[x] for x in shared_nonzero]
 
+    f_out = open(contact_data_out,'w')
+    f_out.write("bin1,bin2,val1,val2\n")
+    for entry in shared_nonzero:
+        bin1, bin2 = entry
+        f_out.write("{bin1},{bin2},{val1},{val2}\n".format(bin1 = bin1, bin2= bin2, val1 = matrix1_data[bin1,bin2],val2 = matrix2_data[bin1,bin2]))
+
+    f_out.close()
 
     r, p = pearsonr(shared_matrix1, shared_matrix2)
     fig, ax = plt.subplots(1,figsize= (12,6))
