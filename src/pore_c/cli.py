@@ -219,7 +219,7 @@ def plot_contact_map(matrix_file_in, ref_bin_file, graph_file_out, matrix_type):
 @click.argument("matrix2_file_in",type=click.Path(exists=True))
 @click.argument( "ref_bin_file",type=click.Path(exists=True))
 @click.argument( "graph_file_out",type=click.Path(exists=False))
-@click.option("--normalise", is_flag = True, default = True,help="Normalise the values so the greater data set doesn't wash out the data set with fewer contacts.")
+@click.option("--normalise", is_flag = True, default = False , help="Normalise the values so the greater data set doesn't wash out the data set with fewer contacts.")
 @click.option( "--matrix_type", default = "raw", type=click.Choice(["corrected","raw","compare","contactprobability"]))
 @click.option( "--chr_file", default = "None", type=str)
 def comparison_contact_map(matrix1_file_in,matrix2_file_in, ref_bin_file, graph_file_out, matrix_type, normalise,chr_file):
@@ -234,9 +234,10 @@ def comparison_contact_map(matrix1_file_in,matrix2_file_in, ref_bin_file, graph_
 @click.argument("matrix2_file_in",type=click.Path(exists=True))
 @click.argument( "plot_out",type=click.Path(exists=False))
 @click.argument( "result_out",type=click.Path(exists=False))
+@click.argument( "data_out",type=click.Path(exists=False))
 @click.option( "--matrix_type", default = "raw", type=click.Choice(["corrected","raw"]))
-def matrix_correlation(matrix1_file_in,matrix2_file_in, plot_out, result_out, matrix_type):
-    matrix_correlation_tool(matrix1_file_in,matrix2_file_in, plot_out, result_out, matrix_type)
+def matrix_correlation(matrix1_file_in,matrix2_file_in, plot_out, result_out,data_out, matrix_type):
+    matrix_correlation_tool(matrix1_file_in,matrix2_file_in, plot_out, result_out, data_out,matrix_type)
 
 
 @cli.command(short_help = "Takes in a corrected matrix file, and generates a cis-trans plot (for all non-zero matrix rows, plot the ratio of cis contacts to trans contacts). Calculates the cis/trans contact ratio.")
