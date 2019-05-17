@@ -460,13 +460,13 @@ def cis_trans_analysis(EC_matrix_file_in: str, ref_bin_file: str, data_file_out:
     f_out.close()
 
     f_out = open(results_file_out,'w')
-    f_out.write("intra,inter,ratio\n")
+    f_out.write("intra,inter,ratio,pct_intra\n")
     x = np.sum(intra_values)
     y = np.sum(inter_values)
 
     ratio = x / y
 
-    f_out.write("{},{},{}\n".format(x, y, ratio))
+    f_out.write("{},{},{},{}\n".format(x, y, ratio, x / (x+y)))
     f_out.close()
     
 
