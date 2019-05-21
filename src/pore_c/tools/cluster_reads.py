@@ -15,6 +15,7 @@ def read_mappings_iter(bam, sort_flag = False, unique_intervals = False):
         raise ValueError("sort flag must be either \"start\" or \"end\" or False.")
     aligns = []
     current_read_name = None
+    seen = {}
     for align in bam:
         if align.is_unmapped:
             continue
@@ -24,7 +25,6 @@ def read_mappings_iter(bam, sort_flag = False, unique_intervals = False):
         elif current_read_name == align.query_name:
             aligns.append(align)
         else:
-            seen = {}
             if unique_intervals:
                 for entry in aligns:
                     st,en = entry.query_alignment_start,entry.query_alignment_end
@@ -239,6 +239,8 @@ def bwa_gapscore(length, O = 5,E = 2):
 
 
 def fragDAG(aligns, aligner = "minimap2", params = "default"):
+    if len(aligns) == 0:
+        return [],[]
     G = nx.DiGraph()
     edge_values = {}
     G.add_node("IN")
@@ -299,11 +301,15 @@ def fragDAG_filter(input_bam: str, keep_bam: str, discard_bam: str, mapping_qual
                 read_aligns.append(entry)
 
         #this line returns two lists, the number of the reads that are part of the best scoring path, and the scores for that path based on the scoring function outlined
-        keep, graph_data = fragDAG(read_aligns, aligner = aligner, params = aligner_params)
+        if len(read_aligns) > 0:
+            keep, graph_data = fragDAG(read_aligns, aligner = aligner, params = aligner_params)
+
         if stats != None:
-            # the pipe should not be present in any of the graph structures produced, so should be splittable if this needs to be examined
-            graph_stats_out.write("{}|{}\n".format(read_aligns[0].query_name,str(graph_data))) 
- 
+            if len(read_aligns) > 1:
+                # the pipe should not be present in any of the graph structures produced, so should be splittable if this needs to be examined
+                graph_stats_out.write("{}|{}\n".format(read_aligns[0].query_name,str(graph_data))) 
+            else:
+                continue
         if len(keep) == 0:
             for idx, align in enumerate(read_aligns):
                 bam_discard.write(align)
