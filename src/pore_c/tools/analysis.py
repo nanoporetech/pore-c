@@ -450,6 +450,8 @@ def cis_trans_analysis(EC_matrix_file_in: str, ref_bin_file: str, data_file_out:
     ax.set_ylabel("trans counts")
 #    ax.set_yscale('log')
 #    ax.set_xscale('log')
+    ax.set_ylim(bottom = 0, top = 500)
+    ax.set_xlim(left= 0, right = 500)
 
     plt.savefig(scatter_map_file_out)
 
