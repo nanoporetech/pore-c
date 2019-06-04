@@ -179,6 +179,12 @@ class HiCMap(object):
 
         print("emin,emax:",e_min,e_max)
 
+        c = 1 / self.matrix.T.dot(r)
+        r = 1 / self.matrix.dot(c)
+
+        d1 = np.diag(np.squeeze(r))
+        d2 = np.diag(np.squeeze(c))
+
         iterations = 0
         while np.any(np.sum(self.cP,axis=1) < e_min) or \
               np.any(np.sum(self.cP, axis=1) > e_max) or \
