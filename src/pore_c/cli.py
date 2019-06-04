@@ -17,6 +17,7 @@ from pore_c.tools.cluster_reads import remove_contained_segments as remove_conta
 from pore_c.tools.map_to_frags import map_to_fragments as map_to_fragments_tool
 
 from pore_c.tools.poreC_flatten import flatten_multiway as flatten_multiway_tool
+from pore_c.tools.poreC_flatten import fragment_end_metrics as fragment_end_metrics_tool
 from pore_c.tools.poreC_flatten import make_salsa_bedfile as make_salsa_bedfile_tool
 
 from pore_c.tools.correction import compute_contact_probabilities as compute_contact_probabilities_tool
@@ -135,7 +136,10 @@ def cluster_reads(input_bam, keep_bam, discard_bam, trim, contained, mapping_qua
 @click.option('--filter_stats', default = None, type=click.Path(exists=False), help="A filename for storing logged data about fragment assignment on a per-alignment basis.")
 @click.option('--store_graph', default = None, type=click.Path(exists=False), help="A filename for storing a representation of the graph for logging purposes.")
 def fragDAG_filter(input_bam, keep_bam, discard_bam, mapping_quality_cutoff, aligner, aligner_params, filter_stats, store_graph):
-    fragDAG_filter_tool( input_bam, keep_bam, discard_bam, mapping_quality_cutoff, aligner, aligner_params, filter_stats, store_graph)
+    if store_graph is not None:
+        fragDAG_filter_tool( input_bam, keep_bam, discard_bam, mapping_quality_cutoff, aligner, aligner_params, filter_stats, store_graph)
+    else:
+        fragDAG_filter_tool( input_bam, keep_bam, discard_bam, mapping_quality_cutoff, aligner, aligner_params, filter_stats)
 
 
 @cli.command(short_help="create a .poreC file from a namesorted alignment of poreC data")
@@ -161,8 +165,9 @@ def measure_overlaps(input_bam, output_table, no_zero):
 @click.argument('output_porec', type=click.Path(exists=False))
 @click.option('--sort', is_flag = True, help="Sort the monomers within each contact according to fragment ID. This does not sort the entries as they might need to be sorted for conversion to other formats or for visualisation tools..")
 @click.option('--size', default=2, type=int, help="The size of the generated contacts in the output file. Default is 2.")
-def flatten_multiway(input_porec, output_porec,size,sort):
-    flatten_multiway_tool(input_porec, output_porec,size,sort)
+@click.option( "--direct", is_flag= True,  default = False, help= "Decompose multiway contacts to pairwise by direct ligation, rather than by co-inclusion in a multiway contact.")
+def flatten_multiway(input_porec, output_porec,size,sort, direct):
+    flatten_multiway_tool(input_porec, output_porec,size,sort, direct)
 
 
 @cli.command(short_help = "Generate a reference bedfile of bin intervals provided a reference fasta index file and a bin size." )
@@ -275,10 +280,17 @@ def join_contact_matrices(ref_bin_file,  matrix_file_out, matrix_files_in):
     join_contact_matrices_tool(ref_bin_file, matrix_file_out, *matrix_files_in)
 
 
-@cli.command(short_help = "maybe generates a bedfile in the form required for the Hi-C hybrid genome assembly tool SALSA.")
+@cli.command(short_help = "Generates a bedfile in the form required for the Hi-C hybrid genome assembly tool SALSA.")
 @click.argument( "hictxt_file_in",type=click.Path(exists=True))
 @click.argument( "bedfile_out",type=click.Path(exists=False))
 @click.argument( "frag_bed_ref",type=click.Path(exists=True))
 def make_salsa_bedfile(hictxt_file_in, bedfile_out, frag_bed_ref):
     make_salsa_bedfile_tool(hictxt_file_in, bedfile_out, frag_bed_ref)
-             
+
+@cli.command(short_help = "calculates distances from the start and end of each alignment to the nearest reference restriction fragment.")
+@click.argument( "bam_file_in",type=click.Path(exists=True))
+@click.argument( "csv_out",type=click.Path(exists=False))
+@click.argument( "hicref",type=click.Path(exists=True))
+def fragment_end_metrics(bam_file_in, csv_out, hicref):
+    fragment_end_metrics_tool(bam_file_in, csv_out, hicref)
+
