@@ -18,6 +18,7 @@ def read_mappings_iter(bam, sort_flag = False, unique_intervals = False):
     seen = {}
     for align in bam:
         if align.is_unmapped:
+            yield([align])
             continue
         if current_read_name is None:
             current_read_name = align.query_name
@@ -33,6 +34,7 @@ def read_mappings_iter(bam, sort_flag = False, unique_intervals = False):
                     elif entry.get_tag("AS") > seen[(st,en)].get_tag("AS"):
                         seen[(st,en)] = entry
                 aligns = seen.values()
+                seen = {}
             if sort_flag == "end":
                 yield sorted(aligns, key=lambda x: x.query_alignment_end)
             elif sort_flag == "start":
@@ -285,12 +287,18 @@ def fragDAG_filter(input_bam: str, keep_bam: str, discard_bam: str, mapping_qual
         alignment_stats_out = open(stats,'w')
         alignment_stats_out.write('read_id,mapping_id,filter_retained,query_start,query_end,mapq\n')
 
+    if graph != None:
         graph_stats_out = open(graph,'w')
-
 
     for _read_aligns in read_mappings_iter(bam_in, sort_flag = "end", unique_intervals = True):
 
-        #first filter on quality score, writing out anything that doesn't pass 
+        #address unmapped reads
+        if _read_aligns[0].is_unmapped:
+            if stats != None:
+                alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = 0, filter_retained = -1, q_start = 0, q_end = 0, mapq = align.mapq))
+            continue
+
+        #filter on quality score, writing out anything that doesn't pass 
         read_aligns = []
         for entry in _read_aligns:
             if entry.mapq < mapping_quality_cutoff:
@@ -304,12 +312,6 @@ def fragDAG_filter(input_bam: str, keep_bam: str, discard_bam: str, mapping_qual
         if len(read_aligns) > 0:
             keep, graph_data = fragDAG(read_aligns, aligner = aligner, params = aligner_params)
 
-        if stats != None:
-            if len(read_aligns) > 1:
-                # the pipe should not be present in any of the graph structures produced, so should be splittable if this needs to be examined
-                graph_stats_out.write("{}|{}\n".format(read_aligns[0].query_name,str(graph_data))) 
-            else:
-                continue
         if len(keep) == 0:
             for idx, align in enumerate(read_aligns):
                 bam_discard.write(align)
@@ -317,12 +319,15 @@ def fragDAG_filter(input_bam: str, keep_bam: str, discard_bam: str, mapping_qual
                     alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 0, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
             continue
 
-        for idx, align in enumerate(read_aligns):
-            if idx in keep:
-                bam_keep.write(read_aligns[idx])
-                if stats != None:
-                    alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 1, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
-            else:
-                bam_discard.write(read_aligns[idx])
-                if stats != None:
-                    alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 0, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
+        else:
+            if graph != None:
+                graph_stats_out.write("{}|{}\n".format(read_aligns[0].query_name,str(graph_data))) 
+            for idx, align in enumerate(read_aligns):
+                if idx in keep:
+                    bam_keep.write(read_aligns[idx])
+                    if stats != None:
+                        alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 1, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
+                else:
+                    bam_discard.write(read_aligns[idx])
+                    if stats != None:
+                        alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 0, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
