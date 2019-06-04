@@ -1,9 +1,15 @@
+import bisect
+import gzip
 import sys 
 import re
 import uuid
 
+import numpy as np
+
 from itertools import combinations, combinations_with_replacement
 from collections import defaultdict
+
+from pysam import AlignmentFile
 
 class Contact:
     def __init__(self,ch,frag,strand,poss,mapq):
@@ -109,17 +115,6 @@ class Cwalk:
         quals = ' '.join(list(map(str,mapqs)))
         return "{name} {mappings} {quals}".format(name = self.name, mappings = mapString, quals = quals)
 
-
-
-#creates a smart sorted order of chromosomes in the output file
-#  handling things like 'chr1,chr2,chr11,chr19,chr20, chr21' and listing chrs with
-#  letter names "X,U,W,Y,M..." at the end in alphabetical order
-#As written, it sorts in place.
-def natural_sort( l ):
-    convert = lambda text: int(text) if text.isdigit() else text
-    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
-    l.sort( key=alphanum_key )
-
 #creates output filehandle
 #reads input file
 #passes off operations to the functions above as necessary
@@ -158,7 +153,6 @@ def flatten_multiway(file_in, file_out, size, sort = True , direct = False):
 
 
 
-import gzip
 
 def make_salsa_bedfile(hictxt_file_in: str, bedfile_out: str, frag_bed_ref: str) -> None:
     fragments = {}
@@ -173,10 +167,89 @@ def make_salsa_bedfile(hictxt_file_in: str, bedfile_out: str, frag_bed_ref: str)
     for entry in open(hictxt_file_in):
         l = entry.strip().split()
         frag = fragments[l[4]]
-        fOut.write(entry_template.format(ch = frag[0], start = frag[1] , end = frag[2], read_id = l[0], pairID = 1, mapq = l[9], strand =  "-" if l[1] else "+" ))
+        fOut.write(entry_template.format(ch = frag[0], start = frag[1] , end = frag[2], 
+                                         read_id = l[0], pairID = 1, mapq = l[9], 
+                                         strand =  "-" if l[1] else "+" ))
         frag = fragments[l[8]]
-        fOut.write(entry_template.format(ch = frag[0], start = frag[1] , end = frag[2], read_id = l[0], pairID = 2, mapq = l[10], strand =  "-" if l[5] else "+" ))
+        fOut.write(entry_template.format(ch = frag[0], start = frag[1] , end = frag[2], 
+                                         read_id = l[0], pairID = 2, mapq = l[10], 
+                                         strand =  "-" if l[5] else "+" ))
 
     fOut.close()
 
     
+#decomoposes multiway contacts into a value of intra and inter chromosomal contacts
+# reports each of these values, along with the ratio between them.
+
+def per_read_intra_inter(porec_file_in: str, csv_out: str, frag_bed_ref: str) -> None:
+    entry_template = "{read_id},{intra},{inter},{ratio},{pct_intra}\n"
+    header = "read_id,intra,inter,ratio,pct_intra\n"
+
+    f_out = open(csv_out,'w')
+
+    f_out.write(header)
+
+    for entry in map(Cwalk.from_entry,  open(porec_file_in)):
+        intra = 0
+        inter = 0
+        for c1 in range(len(entry) - 1 ):
+            for c2 in range(c1+1, len(entry)):
+                if entry.contacts[c1].ch == entry.contacts[c2].ch:
+                    intra += 1
+                else:
+                    inter += 1
+        f_out.write(entry_template.format(read_id = entry.name, intra = intra, inter = inter, 
+                                          ratio = intra / float(inter), 
+                                          pct_intra = ( intra / float(intra + inter))))
+
+def fragment_end_metrics(bam_file_in: str, csv_out: str, hicref: str):
+    entry_template = "{read_id},{frag_num},{startpoint_d_to_motif},{endpoint_d_to_motif}\n"
+    header = "read_id,frag_num,startpoint_d_to_motif,endpoint_d_to_motif\n"
+
+    f_out = open(csv_out,'w')
+
+    f_out.write(header)
+
+    cutmap = {}
+    for entry in open(hicref):
+        l = entry.strip().split()
+        cutmap[l[0]] = np.array(list(map(int,[0] + l[1:])),dtype = int)
+
+    last_readname = False
+    for entry in AlignmentFile(bam_file_in):
+            
+        start = bisect.bisect_left(cutmap[entry.reference_name], entry.reference_start)
+        l_start = max(0,start - 1)
+        r_start = min(len(cutmap[entry.reference_name]) - 1, start +1)
+        if len(cutmap[entry.reference_name]) > 3:
+            d_start = min(map(lambda x: abs(cutmap[entry.reference_name][x] - entry.reference_start), [l_start,start,r_start]))
+        else: 
+            d_start = min(map(lambda x: abs(cutmap[entry.reference_name][x] - entry.reference_start), [0,1]))
+        end = bisect.bisect_left(cutmap[entry.reference_name], entry.reference_end)
+        l_end = max(0,end - 1)
+        end = min( end, len(cutmap[entry.reference_name]) - 1)
+        r_end = min(len(cutmap[entry.reference_name]) - 1 , end +1)
+        if len(cutmap[entry.reference_name]) > 2:
+            try:
+                d_end = min(map(lambda x: abs(cutmap[entry.reference_name][x] - entry.reference_end), [l_end,end,r_end]))
+            except:
+                print('oops:',[l_end,end,r_end],cutmap[entry.reference_name][x])
+        else:
+            d_start = min(map(lambda x: abs(cutmap[entry.reference_name][x] - entry.reference_end), [0,1]))
+
+        if not last_readname or last_readname != entry.query_name:
+            idx = 0
+        else:
+            idx += 1
+
+        f_out.write(entry_template.format(read_id = entry.query_name, frag_num = idx, 
+                                          startpoint_d_to_motif = d_start,
+                                          endpoint_d_to_motif = d_end)
+                    )
+
+
+        last_readname = entry.query_name
+        
+
+        
+                
