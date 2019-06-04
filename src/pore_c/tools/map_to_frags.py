@@ -132,15 +132,28 @@ class ReadToFragments(object):
             name=self.read_name, mappings = " ".join(mappings), quals= " ".join(quals)
         )
 
-    def stats(self):
+    def stats(self, fragment_map: FragmentMap):
 
         #percent of read mapped can be calculated once this table is combined with
         #   the fastq summary table, which contains the length of each read.
         tot_overlap = sum([_.total_overlap for _ in self.fragment_assignments])
 
-        return "{name},{contact_count},{num_aligned_bases},{num_nonadj_frags}\n".format(
+        #intra:inter calculation
+        intra = 0
+        inter = 0
+        for x1 in range(len(self.fragment_assignments) -1 ):
+            for x2 in range( x1, len(self.fragment_assignments)):
+                if self.fragment_assignments[x1].chrom == self.fragment_assignments[x2].chrom:
+                    intra += 1
+                else:
+                    inter += 1
+
+        uniqs = set([x.chrom for x in self.fragment_assignments])
+
+        return "{name},{contact_count},{num_aligned_bases},{num_nonadj_frags},{uniq_chrs},{intra},{inter},{pct_intra},{intra_ratio}\n".format(
             name = self.read_name, contact_count = self.num_frags,
-            num_aligned_bases = tot_overlap, num_nonadj_frags = self.num_nonadj_frags)
+            num_aligned_bases = tot_overlap, num_nonadj_frags = self.num_nonadj_frags, uniq_chrs = uniqs,
+            intra = intra, inter = inter, pct_intra = intra / float(intra + inter), intra_ratio = intra / float(inter))
 
 
     def groupBy(self):
@@ -271,18 +284,18 @@ class ReadAlignments(object):
 
 
 
-def map_to_fragments(input_bam: str, bed_file: str, output_file: str, method: str, stats_file: str) -> None:
+def map_to_fragments(input_bam: str, bed_file: str, output_file: str, method: str, stats_file: Optional[str] = None) -> None:
     fm = FragmentMap.from_bed_file(bed_file)
     f_out = open(output_file, 'w')
-    if stats_file:
+    if stats_file != None:
         stats_out = open(stats_file, 'w')
-        stats_out.write("read_id,contact_count,num_aligned_bases,num_nonadj_frags\n")
+        stats_out.write("read_id,contact_count,num_aligned_bases,num_nonadj_frags,uniq_chrs,intra,inter,pct_intra,intra_ratio\n")
     for read_alignments in ReadAlignments.iter_bed(input_bam):
         frag_mapping = ReadToFragments.from_read_alignments(read_alignments, fm)
         #do not print out entries to a .poreC file for a single monomer. An entry must be at least a pairwise contact.
         if frag_mapping.length() > 1:
             f_out.write(frag_mapping.to_HiC_str())
-        if stats_file:
+        if stats_file != None:
             stats_out.write(frag_mapping.stats())
 
 
