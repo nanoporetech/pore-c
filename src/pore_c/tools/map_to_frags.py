@@ -1,4 +1,4 @@
-from typing import Pattern, List, NamedTuple, Iterator, Union, Dict, Tuple
+from typing import Pattern, List, NamedTuple, Iterator, Union, Dict, Tuple, Optional
 from pysam import AlignmentFile, AlignedSegment
 import bisect
 import sys
@@ -91,7 +91,7 @@ class AlignedSegmentToFragment(object):
             align.mapping_quality
         )
 
-    
+
 
 @dataclass
 class ReadToFragmentAssignment(object):
@@ -165,8 +165,8 @@ class ReadToFragments(object):
     @classmethod
     def from_read_alignments(cls, read_aligns: 'ReadAlignments', fragment_map: FragmentMap):
         frag_overlaps = defaultdict(list)
-        for idx, align in enumerate(read_aligns.aligns):  #read_aligns.aligns is now a list of BedHits, which have been selected from overlapping reads already 
-#            align.assign_to_fragment(fragment_map)       #    ...so this line is no longer necessary. 
+        for idx, align in enumerate(read_aligns.aligns):  #read_aligns.aligns is now a list of BedHits, which have been selected from overlapping reads already
+#            align.assign_to_fragment(fragment_map)       #    ...so this line is no longer necessary.
             frag_overlaps[align.frag_id].append(align)
         num_frags = len(frag_overlaps)
         if num_frags > 1:
@@ -230,7 +230,7 @@ class ReadAlignments(object):
     """Holds the aligned segments for a single read"""
     read_name: str
     aligns: List[AlignedSegmentToFragment]
-#    aligns: Dict #keyed on query_start, value of a list of BedHit objects, sorted by 
+#    aligns: Dict #keyed on query_start, value of a list of BedHit objects, sorted by
 
     @staticmethod
     def iter_bam(input_bam: str) -> Iterator['ReadAlignments']:

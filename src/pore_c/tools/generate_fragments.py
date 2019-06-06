@@ -3,6 +3,7 @@ from typing import Pattern, List, NamedTuple, Iterator
 import re
 
 from pore_c.model import SeqDigest, FragmentMap
+from pore_c.utils import kmg_bases_to_int
 
 # complement translation table with support for regex punctuation
 COMPLEMENT_TRANS = str.maketrans(
@@ -71,17 +72,26 @@ def find_site_positions(regex_or_enzyme: str, seq: str) -> List[int]:
     if regex_or_enzyme.startswith('regex:'):
         regex = create_regex(regex_or_enzyme.split('regex:', 1)[1])
         return find_site_positions_regex(regex, seq)
+    elif regex_or_enzyme.startswith('bin:'):
+        bin_width = kmg_bases_to_int(regex_or_enzyme.split("bin:", 1)[1])
+        return find_site_positions_bins(bin_width, seq)
     else:
         return find_site_positions_biopython(regex_or_enzyme, seq)
+
+
+def find_site_positions_bins(bin_width, seq: str) -> List[int]:
+    """Mimic a fixed-width sequence digest by returning the positions of fixed-width bin boundaries"""
+    if len(seq) < bin_width:
+        return []
+    else:
+        positions = list(range(bin_width, len(seq), bin_width))
+        return positions
 
 
 def find_site_positions_regex(regex: Pattern, seq: str) -> List[int]:
     """Finds the start positions of all matches of the regex in the sequence"""
     positions =  [m.start() for m in regex.finditer(seq.upper())]
-    if len(positions) == 0:
-        return [0]
-    else:
-        return positions
+    return positions
 
 
 def find_site_positions_biopython(enzyme: str, seq:str) -> List[int]:
@@ -95,10 +105,7 @@ def find_site_positions_biopython(enzyme: str, seq:str) -> List[int]:
     #print("{} cut site: {}".format(enz, enz.elucidate()))
     s = Seq(seq, IUPACAmbiguousDNA())
     positions = [_ -1 for _ in enz.search(s)]
-    if len(positions) == 0:
-        return [0]
-    else:
-        return positions
+    return positions
 
 
 def fragment_generator(reference_fasta: str, restriction_pattern: str) -> Iterator[SeqDigest]:
@@ -134,6 +141,6 @@ def create_bin_file(reference_fai: str, bedfile_out: str,  bin_size: int) -> Non
         for idx, entry in enumerate( frags ) :
             f_out.write('{ch}\t{st}\t{en}\t{num}\n'.format(ch = l[0] , st = entry[0], en = entry[1], num = idx + frag_num))
         frag_num += len(frags)
-        
+
 
 
