@@ -1,4 +1,4 @@
-from typing import Pattern, List, NamedTuple, Iterator, Union, Dict, Tuple
+from typing import Pattern, List, NamedTuple, Iterator, Union, Dict, Tuple, Optional
 from pysam import AlignmentFile, AlignedSegment
 import bisect
 import sys
@@ -132,7 +132,7 @@ class ReadToFragments(object):
             name=self.read_name, mappings = " ".join(mappings), quals= " ".join(quals)
         )
 
-    def stats(self, fragment_map: FragmentMap):
+    def stats(self):
 
         #percent of read mapped can be calculated once this table is combined with
         #   the fastq summary table, which contains the length of each read.
@@ -152,8 +152,8 @@ class ReadToFragments(object):
 
         return "{name},{contact_count},{num_aligned_bases},{num_nonadj_frags},{uniq_chrs},{intra},{inter},{pct_intra},{intra_ratio}\n".format(
             name = self.read_name, contact_count = self.num_frags,
-            num_aligned_bases = tot_overlap, num_nonadj_frags = self.num_nonadj_frags, uniq_chrs = uniqs,
-            intra = intra, inter = inter, pct_intra = intra / float(intra + inter), intra_ratio = intra / float(inter))
+            num_aligned_bases = tot_overlap, num_nonadj_frags = self.num_nonadj_frags, uniq_chrs = len(uniqs),
+            intra = intra, inter = inter, pct_intra = intra / float(intra + inter) if intra + inter > 0 else "NaN", intra_ratio = intra / float(inter) if inter > 0 else "NaN")
 
 
     def groupBy(self):
