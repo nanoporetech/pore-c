@@ -295,6 +295,7 @@ def fragDAG_filter(input_bam: str, keep_bam: str, discard_bam: str, mapping_qual
         #address unmapped reads
         if _read_aligns[0].is_unmapped:
             if stats != None:
+                align = _read_aligns[0] 
                 alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = 0, filter_retained = -1, q_start = 0, q_end = 0, mapq = align.mapq))
             continue
 
