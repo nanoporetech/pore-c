@@ -139,13 +139,9 @@ def plot_contact_map(matrix_file_in: str,ref_bin_file: str, heat_map_file_out: s
 
     matrix = np.zeros((size+1,size+1))
     for entry in map(Matrix_Entry.from_string, open(matrix_file_in)):
-        if entry.bin1 == entry.bin2:
-            #the diagonal is never informative and only serves to scale down the rest of the data in the colorspace
-            continue
-        else:
-            return "{bin1} {bin2} {raw_counts}\n".format(bin1 = self.bin1,
-                                                       bin2 = self.bin2,
-                                                       raw_counts = self.raw_counts)
+        return "{bin1} {bin2} {raw_counts}\n".format(bin1 = self.bin1,
+                                                     bin2 = self.bin2,
+                                                     raw_counts = self.raw_counts)
 
         if matrix_type == "corrected":
             matrix[entry.bin1,entry.bin2] = entry.corrected_counts
@@ -285,10 +281,6 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
 
     upper_sum = 0
     for entry in map(Matrix_Entry.from_string, open(matrix1_file_in)):
-        if entry.bin1 == entry.bin2:
-            #the diagonal is never informative and only serves to scale down the rest of the data in the colorspace
-            continue 
-
         if chr_file != "None":
             if entry.bin1 in bin_mappings and entry.bin2 in bin_mappings:
                 x = bin_mappings[entry.bin1]
@@ -313,9 +305,6 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
 
     lower_sum = 0
     for entry in map(Matrix_Entry.from_string, open(matrix2_file_in)):
-        if entry.bin1 == entry.bin2:
-            #the diagonal is never informative and only serves to scale down the rest of the data in the colorspace
-            continue 
         if chr_file != "None":
             if entry.bin1 in bin_mappings and entry.bin2 in bin_mappings:
                 x = bin_mappings[entry.bin1]
@@ -335,15 +324,6 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
             elif matrix_type == "raw":
                 matrix[entry.bin2,entry.bin1] = entry.raw_counts
                 lower_sum += entry.raw_counts
-    
-    #cheat section
-    for x in range(size-1):
-        for y in range(x+1, size):
-            if matrix[x,y] == 0:
-                if matrix[y,x] > 0:
-                    matrix[x,y] = 0.1
-                
-                
 
     if normalise:
 
@@ -368,7 +348,10 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
                     if not flag:
                         matrix[x,y] = matrix[x,y] / factor
 
-
+    #save numpy matrix before setting diagonal to zero in order to preserve
+    # self contacts of small molecules
+    np.save(heat_map_file_out.replace('.png','.npy'),matrix)                        
+    
     fig, ax = plt.subplots(1,figsize= (12,12), dpi = 1000)
 
 #    plt.imshow(matrix,norm=colors.LogNorm(vmin=1, vmax=matrix.max()), cmap="viridis")
@@ -403,7 +386,7 @@ def comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_fil
 #    plt.colorbar()
     plt.savefig(heat_map_file_out)
 
-    np.save(heat_map_file_out.replace('.png','.npy'),matrix)
+
 
 #this is done on corrected values
 def cis_trans_analysis(EC_matrix_file_in: str, ref_bin_file: str, data_file_out:str, results_file_out: str, scatter_map_file_out: str ) -> None:
