@@ -1,19 +1,22 @@
-from typing import Pattern, List, NamedTuple, Iterator, Union, Dict, Tuple, Set
-from pybedtools import BedTool
 from collections import defaultdict
 from dataclasses import dataclass
+from typing import Dict, Iterator, List, NamedTuple, Pattern, Set, Tuple, Union
+
+from pybedtools import BedTool
+
 
 class SeqDigest(NamedTuple):
     """Holds the results of a digestion"""
+
     seq_name: str
     positions: List[int]
     seq_length: int
 
 
-
 @dataclass
 class BedToolsOverlap(object):
     """Datastructure to hold the results of a bedtools intersect command"""
+
     query_chrom: str
     query_start: int
     query_end: int
@@ -33,22 +36,30 @@ class BedToolsOverlap(object):
         self.overlap = int(self.overlap)
 
 
-
 class FragmentMap(object):
     """Represents the fragments created by a restriction digestion"""
-    def __init__(self, bedtool: BedTool, chrom_lengths: Dict[str, int] = None, Terminal_Fragments: Set = None):
-        self.bt = bedtool #bedtool.saveas().tabix(is_sorted=True)
+
+    def __init__(
+        self,
+        bedtool: BedTool,
+        chrom_lengths: Dict[str, int] = None,
+        Terminal_Fragments: Set = None,
+    ):
+        self.bt = bedtool  # bedtool.saveas().tabix(is_sorted=True)
         self.chrom_lengths = chrom_lengths
 
-        #this will store a list of fragment_ids which, while adjacent in number space,
+        # this will store a list of fragment_ids which, while adjacent in number space,
         # are not physically adjacent, e.g. q-telomere of chr1 and p-telomere of chr2.
         self.terminal_fragments = Terminal_Fragments
 
-
     @staticmethod
-    def endpoints_to_intervals(chrom, positions, id_offset, chrom_length=None) -> List[Tuple[str, int, int, int]]:
-        if len(positions) == 0: #if there's no cut sites on a sequence then we return the whole sequence
-            assert(chrom_length is not None)
+    def endpoints_to_intervals(
+        chrom, positions, id_offset, chrom_length=None
+    ) -> List[Tuple[str, int, int, int]]:
+        if (
+            len(positions) == 0
+        ):  # if there's no cut sites on a sequence then we return the whole sequence
+            assert chrom_length is not None
             positions = [0, chrom_length]
         else:
             if not positions[0] == 0:
@@ -63,7 +74,9 @@ class FragmentMap(object):
     def save_to_bed(self, path):
         if not path.endswith(".bed.gz"):
             raise ValueError("Must end with .bed.gz: {}".format(path))
-        self.bt.saveas(path.rsplit(".gz")[0]).tabix(in_place=True, is_sorted=True, force=True)
+        self.bt.saveas(path.rsplit(".gz")[0]).tabix(
+            in_place=True, is_sorted=True, force=True
+        )
 
     def save_to_HiCRef(self, path):
         chrom_to_endpoints = defaultdict(list)
@@ -102,7 +115,9 @@ class FragmentMap(object):
                 fields = line.strip().split()
                 chrom = fields[0]
                 endpoints = list(map(int, fields[1:]))
-                intervals.extend(cls.endpoints_to_intervals(chrom, endpoints, id_offset))
+                intervals.extend(
+                    cls.endpoints_to_intervals(chrom, endpoints, id_offset)
+                )
                 chrom_lengths[chrom] = endpoints[-1]
                 id_offset += len(endpoints)
         bt = BedTool(intervals)
@@ -117,12 +132,14 @@ class FragmentMap(object):
         for digest in i:
             chrom = digest.seq_name
             endpoints = digest.positions
-            new_intervals = cls.endpoints_to_intervals(chrom, endpoints, id_offset, chrom_length=digest.seq_length)
+            new_intervals = cls.endpoints_to_intervals(
+                chrom, endpoints, id_offset, chrom_length=digest.seq_length
+            )
             intervals.extend(new_intervals)
             chrom_lengths[chrom] = digest.seq_length
             id_offset += len(endpoints)
             if id_offset != 0:
-                terminal_fragments.add((id_offset,id_offset+1))
+                terminal_fragments.add((id_offset, id_offset + 1))
 
         bt = BedTool(intervals)
         return cls(bt, chrom_lengths, terminal_fragments)
@@ -132,8 +149,9 @@ class FragmentMap(object):
             if len(t) == 3:
                 return (t[0], t[1], t[2], str(id_offset))
             else:
-                assert(len(t) == 4)
+                assert len(t) == 4
                 return t
+
         if isinstance(query, tuple):
             intervals = [_interval_from_tuple(query)]
         else:
@@ -142,8 +160,10 @@ class FragmentMap(object):
 
     def iter_overlaps(self, query, min_overlap=0):
         query_bt = self._query_to_bedtool(query)
-        for overlap in (BedToolsOverlap(*i.fields) for i in query_bt.intersect(self.bt, sorted=True, wo=True)):
+        for overlap in (
+            BedToolsOverlap(*i.fields)
+            for i in query_bt.intersect(self.bt, sorted=True, wo=True)
+        ):
             if overlap.overlap <= min_overlap:
                 continue
             yield overlap
-

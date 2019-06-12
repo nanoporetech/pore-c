@@ -20,6 +20,9 @@ dependencies:
   - bedtools==2.27.1
   - pybedtools
   - pip
+  - pylama
+  - pylint
+  - black
   - pip:
     - click-log
     - sklearn

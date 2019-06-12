@@ -1,31 +1,29 @@
-from typing import Pattern, List, NamedTuple, Iterator, Union, Dict, Tuple, Optional
-from pysam import AlignmentFile, AlignedSegment
 import bisect
-import sys
 import gzip
-import numpy as np
-from collections import defaultdict
-
 import os
-
-from enum import Enum, unique
-
-
-from collections import namedtuple, Counter
+import sys
+from collections import Counter, defaultdict, namedtuple
 from dataclasses import dataclass
+from enum import Enum, unique
+from typing import (Dict, Iterator, List, NamedTuple, Optional, Pattern, Tuple,
+                    Union)
+
+import numpy as np
+from pysam import AlignedSegment, AlignmentFile
 
 from pore_c.model import FragmentMap
 
 
 @unique
 class AlignedSegmentMappingType(Enum):
-    simple = 'simple'
-    multi_frag = 'multi_frag'
+    simple = "simple"
+    multi_frag = "multi_frag"
 
 
 @dataclass
 class AlignedSegmentToFragment(object):
     """Represents a subset of the data in a pysam.AlignedSegment along with an assignment to a fragment"""
+
     chrom: str
     start: int
     end: int
@@ -34,7 +32,6 @@ class AlignedSegmentToFragment(object):
     read_start: int
     read_end: int
     mapping_quality: int
-
 
     frag_id: int = -1
     frag_end: int = -1
@@ -47,7 +44,7 @@ class AlignedSegmentToFragment(object):
         self.frag_overlap = frag_overlap
         self.mapping_type = mapping_type
 
-    def assign_to_fragment(self, frag_map: 'FragmentMap') -> None:
+    def assign_to_fragment(self, frag_map: "FragmentMap") -> None:
         """Find overlapping fragments and assign this segment to a single fragment.
 
         If an aligned segment overlaps multiple fragments then we take the longest overlap as
@@ -57,11 +54,13 @@ class AlignedSegmentToFragment(object):
         overlaps = list(frag_map.iter_overlaps((self.chrom, self.start, self.end)))
         num_overlaps = len(overlaps)
         if num_overlaps == 0:
-            raise ValueError("No overlap found, is input formatted correctly?. {}".format(self))
+            raise ValueError(
+                "No overlap found, is input formatted correctly?. {}".format(self)
+            )
 
         idx, mapping_type = None, None
         if num_overlaps == 1:
-            #simple overlap
+            # simple overlap
             mapping_type = AlignedSegmentMappingType.simple
         else:
             # case of multiple overlaps, take longest
@@ -71,12 +70,13 @@ class AlignedSegmentToFragment(object):
                 # shouldn't have multiple overlaps to a single fragment
                 raise ValueError(self)
             else:
-                #alignment crosses fragment boundary, pick longest overlap as fragment
+                # alignment crosses fragment boundary, pick longest overlap as fragment
                 mapping_type = AlignedSegmentMappingType.multi_frag
         best_hit = overlaps[0]
-#        print('from overlaps: {}\nThis overlap was chosen: {}'.format(overlaps, best_hit))
-        self.set_fragment(best_hit.frag_id, best_hit.frag_end, best_hit.overlap, mapping_type)
-
+        #        print('from overlaps: {}\nThis overlap was chosen: {}'.format(overlaps, best_hit))
+        self.set_fragment(
+            best_hit.frag_id, best_hit.frag_end, best_hit.overlap, mapping_type
+        )
 
     @classmethod
     def from_pysam(cls, align):
@@ -88,14 +88,14 @@ class AlignedSegmentToFragment(object):
             align.query_name,
             align.query_alignment_start,
             align.query_alignment_end,
-            align.mapping_quality
+            align.mapping_quality,
         )
-
 
 
 @dataclass
 class ReadToFragmentAssignment(object):
     """Holds data about how well a read maps to a single fragment"""
+
     frag_id: int
     frag_endpoint: int
     chrom: str
@@ -107,14 +107,17 @@ class ReadToFragmentAssignment(object):
 
     def to_HiC_str(self):
         return "{strand} {chrom} {frag_endpoint} {frag_id}".format(
-            strand = '16' if self.strand else '0',
-            chrom = self.chrom, frag_endpoint = self.frag_endpoint, frag_id=self.frag_id
+            strand="16" if self.strand else "0",
+            chrom=self.chrom,
+            frag_endpoint=self.frag_endpoint,
+            frag_id=self.frag_id,
         )
 
 
 @dataclass
 class ReadToFragments(object):
     """Holds the fragment assignments for a single read"""
+
     read_name: str
     num_frags: int
     num_nonadj_frags: int
@@ -124,26 +127,31 @@ class ReadToFragments(object):
         return len(self.fragment_assignments)
 
     def to_HiC_str(self):
-        quals, mappings = zip(*[
-            (str(_.max_mapping_quality), _.to_HiC_str())
-            for _ in self.fragment_assignments
-        ])
+        quals, mappings = zip(
+            *[
+                (str(_.max_mapping_quality), _.to_HiC_str())
+                for _ in self.fragment_assignments
+            ]
+        )
         return "{name} {mappings} {quals}\n".format(
-            name=self.read_name, mappings = " ".join(mappings), quals= " ".join(quals)
+            name=self.read_name, mappings=" ".join(mappings), quals=" ".join(quals)
         )
 
     def stats(self):
 
-        #percent of read mapped can be calculated once this table is combined with
+        # percent of read mapped can be calculated once this table is combined with
         #   the fastq summary table, which contains the length of each read.
         tot_overlap = sum([_.total_overlap for _ in self.fragment_assignments])
 
-        #intra:inter calculation
+        # intra:inter calculation
         intra = 0
         inter = 0
-        for x1 in range(len(self.fragment_assignments) -1 ):
-            for x2 in range( x1, len(self.fragment_assignments)):
-                if self.fragment_assignments[x1].chrom == self.fragment_assignments[x2].chrom:
+        for x1 in range(len(self.fragment_assignments) - 1):
+            for x2 in range(x1, len(self.fragment_assignments)):
+                if (
+                    self.fragment_assignments[x1].chrom
+                    == self.fragment_assignments[x2].chrom
+                ):
                     intra += 1
                 else:
                     inter += 1
@@ -151,34 +159,45 @@ class ReadToFragments(object):
         uniqs = set([x.chrom for x in self.fragment_assignments])
 
         return "{name},{contact_count},{num_aligned_bases},{num_nonadj_frags},{uniq_chrs},{intra},{inter},{pct_intra},{intra_ratio}\n".format(
-            name = self.read_name, contact_count = self.num_frags,
-            num_aligned_bases = tot_overlap, num_nonadj_frags = self.num_nonadj_frags, uniq_chrs = len(uniqs),
-            intra = intra, inter = inter, pct_intra = intra / float(intra + inter) if intra + inter > 0 else "NaN", intra_ratio = intra / float(inter) if inter > 0 else "NaN")
-
+            name=self.read_name,
+            contact_count=self.num_frags,
+            num_aligned_bases=tot_overlap,
+            num_nonadj_frags=self.num_nonadj_frags,
+            uniq_chrs=len(uniqs),
+            intra=intra,
+            inter=inter,
+            pct_intra=intra / float(intra + inter) if intra + inter > 0 else "NaN",
+            intra_ratio=intra / float(inter) if inter > 0 else "NaN",
+        )
 
     def groupBy(self):
         self.overlaps = defaultdict(list)
         for align in self.fragment_assignments:
-            self.overlaps[(align.read_name,align.read_start)].append(align)
-
+            self.overlaps[(align.read_name, align.read_start)].append(align)
 
     @classmethod
-    def from_read_alignments(cls, read_aligns: 'ReadAlignments', fragment_map: FragmentMap):
+    def from_read_alignments(
+        cls, read_aligns: "ReadAlignments", fragment_map: FragmentMap
+    ):
         frag_overlaps = defaultdict(list)
-        for idx, align in enumerate(read_aligns.aligns):  #read_aligns.aligns is now a list of BedHits, which have been selected from overlapping reads already
-#            align.assign_to_fragment(fragment_map)       #    ...so this line is no longer necessary.
+        for idx, align in enumerate(
+            read_aligns.aligns
+        ):  # read_aligns.aligns is now a list of BedHits, which have been selected from overlapping reads already
+            #            align.assign_to_fragment(fragment_map)       #    ...so this line is no longer necessary.
             frag_overlaps[align.frag_id].append(align)
         num_frags = len(frag_overlaps)
         if num_frags > 1:
             ####THE BELOW CODE EVALUATES THE CASE OF ADB AS A CASE OF A PAIR OF ADJACENT FRAGMENTS
             ####EVEN THOUGH A AND B ARE SEPARATED BY A THIRD FRAGMENT. NOT SURE IF THIS IS THE B
             ####BEST BEHAVIOUR.
-#            frag_ids = sorted(frag_overlaps.keys()) two fragments can be non-adjacent if they're interjected with a third, also non-adjacent fragment. Sorting the list before traversing it masks this structure though.
+            #            frag_ids = sorted(frag_overlaps.keys()) two fragments can be non-adjacent if they're interjected with a third, also non-adjacent fragment. Sorting the list before traversing it masks this structure though.
             frag_ids = list(frag_overlaps.keys())
-            #FIXME: edge case where telomeric fragments from different chromosomes considered adjacent
-            #n.b.: this is the number of non-adjacent pairs. in a concat a b c d e, i.e., there
+            # FIXME: edge case where telomeric fragments from different chromosomes considered adjacent
+            # n.b.: this is the number of non-adjacent pairs. in a concat a b c d e, i.e., there
             #      should be at most (a,b),(b,c),(c,d),(d,e): 4 pairs of potentially non-adjacent monomers
-            num_nonadj_frags = sum(([(b - a > 1) for a, b in zip(frag_ids[:-1], frag_ids[1:])]))
+            num_nonadj_frags = sum(
+                ([(b - a > 1) for a, b in zip(frag_ids[:-1], frag_ids[1:])])
+            )
             ###the appropriate behaviour here would be if a pair of fragments are adjacent, one of the fragments should be removed
         else:
             num_nonadj_frags = 0
@@ -195,14 +214,17 @@ class ReadToFragments(object):
                 len(aligns),
                 best_hit.mapping_quality,
                 best_hit.frag_overlap,
-                sum(overlap_lengths)
+                sum(overlap_lengths),
             )
             fragment_assignments.append(r)
-        return cls(read_aligns.read_name, num_frags, num_nonadj_frags, fragment_assignments)
+        return cls(
+            read_aligns.read_name, num_frags, num_nonadj_frags, fragment_assignments
+        )
+
 
 @dataclass
 class BedHit(object):
-    #format: {ch}\t{t_st}\t{t_en}\t{strand}\t{read_id}\t{q_st}\t{q_en}\t{mapq}\t{frag_ch}\t{frag_st}\t{frag_en}\t{frag_id}\t{overlap}
+    # format: {ch}\t{t_st}\t{t_en}\t{strand}\t{read_id}\t{q_st}\t{q_en}\t{mapq}\t{frag_ch}\t{frag_st}\t{frag_en}\t{frag_id}\t{overlap}
     chrom: str
     start: int
     end: int
@@ -220,7 +242,7 @@ class BedHit(object):
     @classmethod
     def from_bedformat(cls, align):
         l = align.strip().split()
-        for field in [1,2,3,5,6,7,9,10,11,12]:
+        for field in [1, 2, 3, 5, 6, 7, 9, 10, 11, 12]:
             l[field] = int(l[field])
         return cls(*l)
 
@@ -228,12 +250,13 @@ class BedHit(object):
 @dataclass
 class ReadAlignments(object):
     """Holds the aligned segments for a single read"""
+
     read_name: str
     aligns: List[AlignedSegmentToFragment]
-#    aligns: Dict #keyed on query_start, value of a list of BedHit objects, sorted by
+    #    aligns: Dict #keyed on query_start, value of a list of BedHit objects, sorted by
 
     @staticmethod
-    def iter_bam(input_bam: str) -> Iterator['ReadAlignments']:
+    def iter_bam(input_bam: str) -> Iterator["ReadAlignments"]:
         """Iterate over a namesorted Bam and extract all of the aligments for a given read"""
         aligns = []
         current_read_name = None
@@ -246,23 +269,31 @@ class ReadAlignments(object):
                 aligns.append(align)
             else:
                 if align.read_name in reads_seen:
-                    raise IOError("Seen this read already, is the BAM namesorted?: {}".format(align.read_name))
-                yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
+                    raise IOError(
+                        "Seen this read already, is the BAM namesorted?: {}".format(
+                            align.read_name
+                        )
+                    )
+                yield ReadAlignments(
+                    current_read_name, sorted(aligns, key=lambda x: x.read_start)
+                )
                 reads_seen.add(current_read_name)
                 aligns = [align]
                 current_read_name = align.read_name
-        yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
+        yield ReadAlignments(
+            current_read_name, sorted(aligns, key=lambda x: x.read_start)
+        )
 
     @staticmethod
-    def iter_bed(input_bed: str) -> Iterator['ReadAlignments']:
+    def iter_bed(input_bed: str) -> Iterator["ReadAlignments"]:
         """Iterate over a namesorted Bam and extract all of the aligments for a given read"""
         pre_aligns = defaultdict(list)
         aligns = []
         current_read_name = None
         reads_seen = set([])
         for align in map(BedHit.from_bedformat, open(input_bed)):
-#            print("read name:",align.read_name)
-            #format: {ch}\t{t_st}\t{t_en}\t{strand}\t{read_id}\t{q_st}\t{q_en}\t{mapq}\t{frag_ch}\t{frag_st}\t{frag_en}\t{frag_id}\t{overlap}
+            #            print("read name:",align.read_name)
+            # format: {ch}\t{t_st}\t{t_en}\t{strand}\t{read_id}\t{q_st}\t{q_en}\t{mapq}\t{frag_ch}\t{frag_st}\t{frag_en}\t{frag_id}\t{overlap}
             if current_read_name is None:
                 current_read_name = align.read_name
                 pre_aligns[align.read_start].append(align)
@@ -270,34 +301,48 @@ class ReadAlignments(object):
                 pre_aligns[align.read_start].append(align)
             else:
                 if align.read_name in reads_seen:
-                    raise IOError("Seen this read already in set {}, is the BAM namesorted?: {}".format(reads_seen,align.read_name))
+                    raise IOError(
+                        "Seen this read already in set {}, is the BAM namesorted?: {}".format(
+                            reads_seen, align.read_name
+                        )
+                    )
                 aligns = []
                 for overlaps in pre_aligns.values():
                     sorted_overlaps = sorted(overlaps, key=lambda x: x.frag_overlap)
                     aligns.append(sorted_overlaps[-1])
-                yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
+                yield ReadAlignments(
+                    current_read_name, sorted(aligns, key=lambda x: x.read_start)
+                )
                 reads_seen.add(current_read_name)
                 pre_aligns = defaultdict(list)
                 pre_aligns[align.read_start].append(align)
                 current_read_name = align.read_name
-        yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
+        yield ReadAlignments(
+            current_read_name, sorted(aligns, key=lambda x: x.read_start)
+        )
 
 
-
-def map_to_fragments(input_bam: str, bed_file: str, output_file: str, method: str, stats_file: Optional[str] = None) -> None:
+def map_to_fragments(
+    input_bam: str,
+    bed_file: str,
+    output_file: str,
+    method: str,
+    stats_file: Optional[str] = None,
+) -> None:
     fm = FragmentMap.from_bed_file(bed_file)
-    f_out = open(output_file, 'w')
+    f_out = open(output_file, "w")
     if stats_file != None:
-        stats_out = open(stats_file, 'w')
-        stats_out.write("read_id,contact_count,num_aligned_bases,num_nonadj_frags,uniq_chrs,intra,inter,pct_intra,intra_ratio\n")
+        stats_out = open(stats_file, "w")
+        stats_out.write(
+            "read_id,contact_count,num_aligned_bases,num_nonadj_frags,uniq_chrs,intra,inter,pct_intra,intra_ratio\n"
+        )
     for read_alignments in ReadAlignments.iter_bed(input_bam):
         frag_mapping = ReadToFragments.from_read_alignments(read_alignments, fm)
-        #do not print out entries to a .poreC file for a single monomer. An entry must be at least a pairwise contact.
+        # do not print out entries to a .poreC file for a single monomer. An entry must be at least a pairwise contact.
         if frag_mapping.length() > 1:
             f_out.write(frag_mapping.to_HiC_str())
         if stats_file != None:
             stats_out.write(frag_mapping.stats())
-
 
     f_out.close()
     if stats_file:
