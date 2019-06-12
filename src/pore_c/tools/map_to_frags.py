@@ -53,8 +53,8 @@ class AlignedSegmentToFragment(object):
         If an aligned segment overlaps multiple fragments then we take the longest overlap as
         the canonical one [TODO: should we take the one with highest MQ?]
         """
-### this line needs to be replaced with something simpler, as the fragment assignments are already calculated:
-###        overlaps = list(frag_map.iter_overlaps((self.chrom, self.start, self.end)))
+        ###TODO: this line needs to be replaced with something simpler, as the fragment assignments are already calculated:
+        overlaps = list(frag_map.iter_overlaps((self.chrom, self.start, self.end)))
         num_overlaps = len(overlaps)
         if num_overlaps == 0:
             raise ValueError("No overlap found, is input formatted correctly?. {}".format(self))
@@ -91,7 +91,7 @@ class AlignedSegmentToFragment(object):
             align.mapping_quality
         )
 
-    
+
 
 @dataclass
 class ReadToFragmentAssignment(object):
@@ -165,8 +165,8 @@ class ReadToFragments(object):
     @classmethod
     def from_read_alignments(cls, read_aligns: 'ReadAlignments', fragment_map: FragmentMap):
         frag_overlaps = defaultdict(list)
-        for idx, align in enumerate(read_aligns.aligns):  #read_aligns.aligns is now a list of BedHits, which have been selected from overlapping reads already 
-#            align.assign_to_fragment(fragment_map)       #    ...so this line is no longer necessary. 
+        for idx, align in enumerate(read_aligns.aligns):  #read_aligns.aligns is now a list of BedHits, which have been selected from overlapping reads already
+#            align.assign_to_fragment(fragment_map)       #    ...so this line is no longer necessary.
             frag_overlaps[align.frag_id].append(align)
         num_frags = len(frag_overlaps)
         if num_frags > 1:
@@ -230,7 +230,7 @@ class ReadAlignments(object):
     """Holds the aligned segments for a single read"""
     read_name: str
     aligns: List[AlignedSegmentToFragment]
-#    aligns: Dict #keyed on query_start, value of a list of BedHit objects, sorted by 
+#    aligns: Dict #keyed on query_start, value of a list of BedHit objects, sorted by
 
     @staticmethod
     def iter_bam(input_bam: str) -> Iterator['ReadAlignments']:

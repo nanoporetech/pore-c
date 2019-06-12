@@ -47,10 +47,14 @@ class FragmentMap(object):
 
     @staticmethod
     def endpoints_to_intervals(chrom, positions, id_offset, chrom_length=None) -> List[Tuple[str, int, int, int]]:
-        if not positions[0] == 0:
-            positions = [0] + positions
-        if chrom_length and positions[-1] != chrom_length:
-            positions = positions + [chrom_length]
+        if len(positions) == 0: #if there's no cut sites on a sequence then we return the whole sequence
+            assert(chrom_length is not None)
+            positions = [0, chrom_length]
+        else:
+            if not positions[0] == 0:
+                positions = [0] + positions
+            if chrom_length and positions[-1] != chrom_length:
+                positions = positions + [chrom_length]
         return [
             (chrom, start, end, str(x + id_offset))
             for x, (start, end) in enumerate(zip(positions[:-1], positions[1:]))
@@ -113,12 +117,12 @@ class FragmentMap(object):
         for digest in i:
             chrom = digest.seq_name
             endpoints = digest.positions
-            intervals.extend(cls.endpoints_to_intervals(chrom, endpoints, id_offset, chrom_length=digest.seq_length))
+            new_intervals = cls.endpoints_to_intervals(chrom, endpoints, id_offset, chrom_length=digest.seq_length)
+            intervals.extend(new_intervals)
             chrom_lengths[chrom] = digest.seq_length
             id_offset += len(endpoints)
             if id_offset != 0:
                 terminal_fragments.add((id_offset,id_offset+1))
-                id_offset += 1
 
         bt = BedTool(intervals)
         return cls(bt, chrom_lengths, terminal_fragments)

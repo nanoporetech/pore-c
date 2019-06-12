@@ -273,7 +273,7 @@ def fragDAG(aligns, aligner = "minimap2", params = "default"):
             edge_values[(x,y)] = (GP,AS) #store this data for diagnosis
             G.add_edge(x,y, weight = GP - AS)
 
-    #returns a list of the path through the graph as well as the 
+    #returns a list of the path through the graph as well as the
     return nx.single_source_bellman_ford(G,"IN", "OUT")[1], edge_values # including this as output enables reconstruction of the DAG that ended up filtering reads out. useful for diagnostic purposes
 
 def fragDAG_filter(input_bam: str, keep_bam: str, discard_bam: str, mapping_quality_cutoff: int, aligner: str, aligner_params: Optional[str] = None, stats: Optional[str] = None, graph: Optional[str] = None):
@@ -295,16 +295,17 @@ def fragDAG_filter(input_bam: str, keep_bam: str, discard_bam: str, mapping_qual
         #address unmapped reads
         if _read_aligns[0].is_unmapped:
             if stats != None:
-                align = _read_aligns[0] 
+                align = _read_aligns[0]
                 alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = 0, filter_retained = -1, q_start = 0, q_end = 0, mapq = align.mapq))
             continue
 
-        #filter on quality score, writing out anything that doesn't pass 
+        #filter on quality score, writing out anything that doesn't pass
         read_aligns = []
         for entry in _read_aligns:
             if entry.mapq < mapping_quality_cutoff:
                 bam_discard.write(entry)
                 if stats != None:
+                    align = entry #FIXME
                     alignment_stats_out.write('{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n'.format(read_id = align.query_name, mapping_id = idx, filter_retained = 0, q_start = align.query_alignment_start, q_end = align.query_alignment_end, mapq = align.mapq))
             else:
                 read_aligns.append(entry)
@@ -322,7 +323,7 @@ def fragDAG_filter(input_bam: str, keep_bam: str, discard_bam: str, mapping_qual
 
         else:
             if graph != None:
-                graph_stats_out.write("{}|{}\n".format(read_aligns[0].query_name,str(graph_data))) 
+                graph_stats_out.write("{}|{}\n".format(read_aligns[0].query_name,str(graph_data)))
             for idx, align in enumerate(read_aligns):
                 if idx in keep:
                     bam_keep.write(read_aligns[idx])

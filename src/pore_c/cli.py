@@ -61,16 +61,19 @@ def generate_fragments(reference_fasta, restriction_pattern, bedfile, hicref):
     """
     Carry out a virtual digestion of RESTRICTION_PATTERN on REFERENCE_FASTA writing results to BEDFILE and HICREF.
 
-    The RESTRICTION_PATTERN can be specified using either the name of a restriction enzyme as available in the
-    Biopython Restriction package (eg. HindIII, case sensitive) or as a python regular expression prefixed
-    by 'regex:'. Note that the positions returned by these two methods will differ as the biopython method
-    will return fragments delimited by the actual cut site, whereas the regular expression will return
-    the positions of the recognition patterns.
+    The RESTRICTION_PATTERN can be specified using either i) the name of a
+    restriction enzyme as available in the Biopython Restriction package (eg.
+    HindIII, case sensitive) ii) as a fixed with bin prefixed by 'bin:', or
+    iii) as a python regular expression prefixed by 'regex:'. Note that the
+    positions returned by these two methods will differ as the biopython method
+    will return fragments delimited by the actual cut site, whereas the regular
+    expression will return the positions of the recognition patterns.
 
     Some sample RESTRICTION_PATTERNs:
 
     \b
       - an enzyme name, note case sensitive: "HindIII"
+      - a fixed width bin: "bin:50k"
       - a single site (HindIII): "regex:AAGCTT"
       - two sites (ecoRI and NotI): "regex:(GAATTC|GCGGCCGC)"
       - degenerate site (BglI): "regex:GCCNNNNNGGC"
@@ -112,7 +115,7 @@ def generate_fragments(reference_fasta, restriction_pattern, bedfile, hicref):
 @click.option("--trim", default=20, type=int, help="The number of bases to ignore at the end of each aligned segment when calculating overlaps.")
 @click.option("--mapping_quality_cutoff", default=0, type=int, help="The minimum mapping quality for a alignment segment to be kept")
 @click.option('--alignment_stats', default = None, type=click.Path(exists=False), help="A filename for storing logged data about fragment assignment on a per-alignment basis.")
-@click.option("--contained", is_flag=True, help="If the contained flag is raised, cluster-filtering is not done, but instead alignments are removed based on whether they are fully contained in another alignment.") 
+@click.option("--contained", is_flag=True, help="If the contained flag is raised, cluster-filtering is not done, but instead alignments are removed based on whether they are fully contained in another alignment.")
 def cluster_reads(input_bam, keep_bam, discard_bam, trim, contained, mapping_quality_cutoff, alignment_stats):
     if contained:
         if alignment_stats is not None:
@@ -152,7 +155,7 @@ def map_to_fragments(input_bed, fragment_bed_file, output_porec, method, stats):
     map_to_fragments_tool(input_bed,fragment_bed_file, output_porec, method, stats)
 
 
-@cli.command(short_help="In each sequencing read, this tool measures the overlap intervals between all pairs of alignments (for diagnosing alignment filtering).") 
+@cli.command(short_help="In each sequencing read, this tool measures the overlap intervals between all pairs of alignments (for diagnosing alignment filtering).")
 @click.argument('input_bam', type=click.Path(exists=True))
 @click.argument('output_table', type=click.Path(exists=False))
 @click.option('--no_zero', is_flag = True, help="for pairs of alignments that do not overlap, do not include a table entry. This cuts down the table size dramatically.")
@@ -197,7 +200,7 @@ def bin_hic_data(hictxt,output_bin_matrix, frag_bins):
 @cli.command(short_help = "Splits hictxt file into a set of per-chromosome intrachromosomal contacts for normalisation, and an inter-chromosomal contacts dump file. This enables intrachromosomal correction at higher resolutions than are practically capable at a whole-genome scale, due to memory constraints.")
 @click.argument('input_hictxt',type=click.Path(exists=True))
 @click.argument('output_hictxt_prefix', type=click.Path(exists=False)) #this won't exist since it's just a prefix
-@click.argument('output_inter_hictxt',type=click.Path(exists=False)) 
+@click.argument('output_inter_hictxt',type=click.Path(exists=False))
 def split_hic_data(input_hictxt, output_hictxt_prefix, output_inter_hictxt):
     fragment_bin_assignments_tool(fragment_reference,bin_reference,mapping_file_out)
 
@@ -265,7 +268,7 @@ def cis_trans_analysis(ec_matrix_file_in, ref_bin_file, results_file_out, data_f
 @click.option('--max_iter', default=1000, type=int, help="The maximum iterations of correction allowed on the sample.")
 @click.option('--epsilon', default=0.0001, type=float, help="The correction-tolerance that indicates successful correction.")
 @click.option('--eigen', is_flag = True, default = False,  help="Calculates the first two eigenvectors for the matrix and includes them in the .matrix file.")
-def compute_contact_probabilities(matrix_file_in, bin_ref, corrected_matrix_file_out, correction_method, ci, mask_zeros, epsilon, max_iter, eigen):   
+def compute_contact_probabilities(matrix_file_in, bin_ref, corrected_matrix_file_out, correction_method, ci, mask_zeros, epsilon, max_iter, eigen):
     compute_contact_probabilities_tool(matrix_file_in, bin_ref, corrected_matrix_file_out, correction_method, ci, mask_zeros, epsilon, max_iter, eigen)
 
 
