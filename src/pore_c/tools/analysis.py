@@ -171,7 +171,6 @@ def plot_contact_map(
 
     fig, ax = plt.subplots(1, figsize=(12, 6), dpi=500)
 
-    matrix[matrix < 2] = 0.1
 
     #    plt.imshow(matrix,norm=colors.LogNorm(vmin=.1, vmax=matrix.max()), cmap="gist_heat_r")
     plt.imshow(matrix, norm=colors.LogNorm(vmin=0.1, vmax=matrix.max()), cmap="viridis")
@@ -463,16 +462,17 @@ def cis_trans_analysis(
 
     shared = sorted(list(set(intra.keys()).union(set(inter.keys()))))
 
-    print("data sizes:")
-    print("intra:", len(intra))
-    print("inter:", len(inter))
-    print("shared data coordinates:", len(shared))
+    #print("data sizes:")
+    #print("intra:", len(intra))
+    #print("inter:", len(inter))
+    #print("shared data coordinates:", len(shared))
     fig, ax = plt.subplots(1, figsize=(12, 6))
     intra_values = np.array([intra[x] if x in intra else 0.0 for x in shared])
     inter_values = np.array([inter[x] if x in inter else 1.0 for x in shared])
 
-    print("max intra:", max(intra_values))
-    print("max inter:", max(inter_values))
+    #print("max intra:", max(intra_values))
+    #print("max inter:", max(inter_values))
+
     ratios = intra_values / inter_values
     plt.hexbin(intra_values, inter_values, gridsize=(100, 100))
 
@@ -484,7 +484,7 @@ def cis_trans_analysis(
     ax.set_xlim(left=0, right=500)
 
     plt.savefig(scatter_map_file_out)
-
+    
     f_out = open(data_file_out, "w")
     for idx, val in enumerate(shared):
         f_out.write("{}\t{}\n".format(val, ratios[idx]))

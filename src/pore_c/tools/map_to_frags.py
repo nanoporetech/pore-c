@@ -147,7 +147,7 @@ class ReadToFragments(object):
         intra = 0
         inter = 0
         for x1 in range(len(self.fragment_assignments) - 1):
-            for x2 in range(x1, len(self.fragment_assignments)):
+            for x2 in range(x1 + 1, len(self.fragment_assignments)):
                 if (
                     self.fragment_assignments[x1].chrom
                     == self.fragment_assignments[x2].chrom
