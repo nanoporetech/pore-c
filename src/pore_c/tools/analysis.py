@@ -173,7 +173,7 @@ def plot_contact_map(
 
 
     #    plt.imshow(matrix,norm=colors.LogNorm(vmin=.1, vmax=matrix.max()), cmap="gist_heat_r")
-    plt.imshow(matrix, norm=colors.LogNorm(vmin=0.1, vmax=matrix.max()), cmap="viridis")
+    plt.imshow(matrix, norm=colors.LogNorm(vmin=0.1, vmax=matrix.max()), cmap="viridis", rasterized=True)
 
     null_markers = [""] * len(markers)
     ax.set_yticks(markers)
