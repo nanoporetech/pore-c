@@ -138,19 +138,19 @@ def plot_contact_map(
         if not lastChr:
             lastChr = l[0]
         if lastChr != l[0]:
-            markers.append(idx - 1 - 0.5)
+            markers.append(idx - 0.5)
             names.append(lastChr)
 
         lastChr = l[0]
 
     # tail entry
-    size = idx
+    size = idx + 2
     markers.append(idx - 0.5)
     _markers = [0] + markers
     minor_markers = [(x + y) / 2 for x, y in zip(_markers[:-1], _markers[1:])]
     names.append(l[0])
 
-    matrix = np.zeros((size + 1, size + 1))
+    matrix = np.zeros((size - 1, size - 1))
     for entry in map(Matrix_Entry.from_string, open(matrix_file_in)):
         return "{bin1} {bin2} {raw_counts}\n".format(
             bin1=self.bin1, bin2=self.bin2, raw_counts=self.raw_counts
