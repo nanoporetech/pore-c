@@ -121,6 +121,7 @@ class ReadToFragments(object):
     read_name: str
     num_frags: int
     num_nonadj_frags: int
+    nonadj_vector: List[int]
     fragment_assignments: List[ReadToFragmentAssignment]
 
     def length(self):
@@ -146,8 +147,15 @@ class ReadToFragments(object):
         # intra:inter calculation
         intra = 0
         inter = 0
-        for x1 in range(len(self.fragment_assignments) - 1):
-            for x2 in range(x1 + 1, len(self.fragment_assignments)):
+
+        for x1 in range(self.num_frags - 1):
+            #skip a contact if the fragment wasn't adjacent to preceding fragment
+            if not self.nonadj_vector[x1]:
+                continue
+            for x2 in range(x1 + 1, self.num_frags):
+                #skip a contact if the fragment wasn't adjacent to preceding fragment
+                if not self.nonadj_vector[x2]:
+                    continue
                 if (
                     self.fragment_assignments[x1].chrom
                     == self.fragment_assignments[x2].chrom
@@ -156,7 +164,30 @@ class ReadToFragments(object):
                 else:
                     inter += 1
 
-        uniqs = set([x.chrom for x in self.fragment_assignments])
+#        print(self.read_name, self.nonadj_vector, [self.fragment_assignments[x].chrom for x in range(self.num_frags)], intra, inter)
+
+#        print('frag number:', self.num_frags)
+#        print([self.fragment_assignments[x].chrom for x in range(self.num_frags)])
+#        print([self.fragment_assignments[x].frag_id for x in range(self.num_frags)])
+#        print("nonindexed:",self.nonadj_vector, len(self.nonadj_vector), self.num_frags)
+#        print([self.nonadj_vector[x] for x in range(self.num_frags)])
+        uniqs = set([self.fragment_assignments[x].chrom if self.nonadj_vector[x] else "NonUniqueFragment" for x in range(self.num_frags)])
+#        print("uniqs:",uniqs)
+
+        uniqs.discard("NonUniqueFragment")
+#        print("uniqs:",uniqs)
+
+        if intra > 0 and inter > 0:
+            intra_ratio = intra / float(inter)
+
+        #all contacts are intra (inter == 0 is implied)
+        elif intra > 0:
+            intra_ratio = "Inf"
+        elif inter > 0:
+            intra_ratio = 0.0
+        #no contacts at all
+        else: 
+            intra_ratio = "NaN"
 
         return "{name},{contact_count},{num_aligned_bases},{num_nonadj_frags},{uniq_chrs},{intra},{inter},{pct_intra},{intra_ratio}\n".format(
             name=self.read_name,
@@ -167,7 +198,7 @@ class ReadToFragments(object):
             intra=intra,
             inter=inter,
             pct_intra=intra / float(intra + inter) if intra + inter > 0 else "NaN",
-            intra_ratio=intra / float(inter) if inter > 0 else "NaN",
+            intra_ratio=intra_ratio
         )
 
     def groupBy(self):
@@ -195,12 +226,15 @@ class ReadToFragments(object):
             # FIXME: edge case where telomeric fragments from different chromosomes considered adjacent
             # n.b.: this is the number of non-adjacent pairs. in a concat a b c d e, i.e., there
             #      should be at most (a,b),(b,c),(c,d),(d,e): 4 pairs of potentially non-adjacent monomers
-            num_nonadj_frags = sum(
-                ([(b - a > 1) for a, b in zip(frag_ids[:-1], frag_ids[1:])])
-            )
+            #change this so that the nonadj vector is a boolean of whether a frag is to be included 
+            # in uniqueness calcs such as cis:trans. First frag always included, everything subsequent
+            # is identical to the old non-adjacency list that was formerly being summed.
+            nonadj_vector = [True] + [(abs(b - a) > 1) for a, b in zip(frag_ids[:-1], frag_ids[1:])]
+            num_nonadj_frags = sum(nonadj_vector) - 1
             ###the appropriate behaviour here would be if a pair of fragments are adjacent, one of the fragments should be removed
         else:
             num_nonadj_frags = 0
+            nonadj_vector = [True]
         fragment_assignments = []
         for frag_id, aligns in frag_overlaps.items():
             aligns.sort(key=lambda x: x.mapping_quality, reverse=True)
@@ -218,7 +252,7 @@ class ReadToFragments(object):
             )
             fragment_assignments.append(r)
         return cls(
-            read_aligns.read_name, num_frags, num_nonadj_frags, fragment_assignments
+            read_aligns.read_name, num_frags, num_nonadj_frags, nonadj_vector, fragment_assignments
         )
 
 
