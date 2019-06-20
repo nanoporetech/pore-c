@@ -236,7 +236,8 @@ class ReadToFragments(object):
             num_nonadj_frags = 0
             nonadj_vector = [True]
         fragment_assignments = []
-        for frag_id, aligns in frag_overlaps.items():
+        for idx, data in enumerate( frag_overlaps.items()):
+            frag_id, aligns = data
             aligns.sort(key=lambda x: x.mapping_quality, reverse=True)
             best_hit = aligns[0]
             overlap_lengths = [_.frag_overlap for _ in aligns]
@@ -250,7 +251,8 @@ class ReadToFragments(object):
                 best_hit.frag_overlap,
                 sum(overlap_lengths),
             )
-            fragment_assignments.append(r)
+            if nonadj_vector[idx]:
+                fragment_assignments.append(r)
         return cls(
             read_aligns.read_name, num_frags, num_nonadj_frags, nonadj_vector, fragment_assignments
         )
