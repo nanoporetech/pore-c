@@ -164,18 +164,11 @@ class ReadToFragments(object):
                 else:
                     inter += 1
 
-#        print(self.read_name, self.nonadj_vector, [self.fragment_assignments[x].chrom for x in range(self.num_frags)], intra, inter)
 
-#        print('frag number:', self.num_frags)
-#        print([self.fragment_assignments[x].chrom for x in range(self.num_frags)])
-#        print([self.fragment_assignments[x].frag_id for x in range(self.num_frags)])
-#        print("nonindexed:",self.nonadj_vector, len(self.nonadj_vector), self.num_frags)
-#        print([self.nonadj_vector[x] for x in range(self.num_frags)])
         uniqs = set([self.fragment_assignments[x].chrom if self.nonadj_vector[x] else "NonUniqueFragment" for x in range(self.num_frags)])
-#        print("uniqs:",uniqs)
 
         uniqs.discard("NonUniqueFragment")
-#        print("uniqs:",uniqs)
+
 
         if intra > 0 and inter > 0:
             intra_ratio = intra / float(inter)
@@ -210,19 +203,22 @@ class ReadToFragments(object):
     def from_read_alignments(
         cls, read_aligns: "ReadAlignments", fragment_map: FragmentMap
     ):
+        #fragment ordering in the read isn't preserved by dictionary
+        frag_overlap_order = []
         frag_overlaps = defaultdict(list)
-        for idx, align in enumerate(
-            read_aligns.aligns
-        ):  # read_aligns.aligns is now a list of BedHits, which have been selected from overlapping reads already
-            #            align.assign_to_fragment(fragment_map)       #    ...so this line is no longer necessary.
+        # read_aligns.aligns is now a list of BedHits, which have been selected from overlapping reads already
+        for idx, align in enumerate( read_aligns.aligns ):
+            if align.frag_id not in frag_overlaps:
+                frag_overlap_order.append(align.frag_id)
             frag_overlaps[align.frag_id].append(align)
+          
         num_frags = len(frag_overlaps)
+        print('boop!')
+        assert num_frags == len(frag_overlap_order)
         if num_frags > 1:
-            ####THE BELOW CODE EVALUATES THE CASE OF ADB AS A CASE OF A PAIR OF ADJACENT FRAGMENTS
-            ####EVEN THOUGH A AND B ARE SEPARATED BY A THIRD FRAGMENT. NOT SURE IF THIS IS THE B
-            ####BEST BEHAVIOUR.
-            #            frag_ids = sorted(frag_overlaps.keys()) two fragments can be non-adjacent if they're interjected with a third, also non-adjacent fragment. Sorting the list before traversing it masks this structure though.
-            frag_ids = list(frag_overlaps.keys())
+            #this list preserves the order of observation within the read.
+            frag_ids = frag_overlap_order
+#            frag_ids = list(frag_overlaps.keys())
             # FIXME: edge case where telomeric fragments from different chromosomes considered adjacent
             # n.b.: this is the number of non-adjacent pairs. in a concat a b c d e, i.e., there
             #      should be at most (a,b),(b,c),(c,d),(d,e): 4 pairs of potentially non-adjacent monomers
@@ -253,6 +249,7 @@ class ReadToFragments(object):
             )
             if nonadj_vector[idx]:
                 fragment_assignments.append(r)
+        num_frags = sum(nonadj_vector)
         return cls(
             read_aligns.read_name, num_frags, num_nonadj_frags, nonadj_vector, fragment_assignments
         )
