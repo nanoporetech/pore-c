@@ -15,9 +15,6 @@ matplotlib.use("agg")
 matplotlib.rcParams["pdf.fonttype"] = 42
 matplotlib.rcParams["ps.fonttype"] = 42
 
-
-
-
 @dataclass
 class Matrix_Entry:
     bin1: int
@@ -123,6 +120,20 @@ def plot_contact_distances(
     fig.savefig(graph_file_out)
 
 
+#the comparison tool has been more fully developed, but simple individual plotting of a matrix file
+#  is a simplified version of that, so re-using the code by invoking it under the hood makes good sense
+#  ...I think.
+
+#def plot_contact_map(
+#    matrix_file_in: str,
+#    ref_bin_file: str,
+#    heat_map_file_out: str,
+#    matrix_type: Optional[str] = "raw",
+#) -> None:
+#
+#    comparison_contact_map(matrix_file_in,matrix_file_in,ref_bin_file,heat_map_file_out,matrix_type)
+
+deprecated = """
 def plot_contact_map(
     matrix_file_in: str,
     ref_bin_file: str,
@@ -209,7 +220,7 @@ def plot_contact_map(
 
     plt.colorbar()
     plt.savefig(heat_map_file_out)
-
+"""
 
 def comparison_contact_map(
     matrix1_file_in: str,
@@ -217,7 +228,7 @@ def comparison_contact_map(
     ref_bin_file: str,
     heat_map_file_out: str,
     matrix_type: Optional[str] = "raw",
-    normalise: Optional[bool] = True,
+    normalise: Optional[bool] = False,
     chr_file: Optional[str] = "None",
 ) -> None:
 
@@ -468,6 +479,7 @@ def cis_trans_analysis(
     #print("shared data coordinates:", len(shared))
     fig, ax = plt.subplots(1, figsize=(12, 6))
     intra_values = np.array([intra[x] if x in intra else 0.0 for x in shared])
+    #a trans contact pseudo-count is included here to avoid DVZ error
     inter_values = np.array([inter[x] if x in inter else 1.0 for x in shared])
 
     #print("max intra:", max(intra_values))
@@ -548,13 +560,14 @@ def matrix_correlation(
     f_out.close()
 
     r, p = pearsonr(shared_matrix1, shared_matrix2)
-    fig, ax = plt.subplots(1, figsize=(12, 6))
+    fig, ax = plt.subplots(1, figsize=(10, 10))
 
     plt.plot(shared_matrix1, shared_matrix2, "b,")
     ax.set_yscale("log")
     ax.set_xscale("log")
     ax.set_xlabel("{} distances (bp)".format(matrix1_file_in))
     ax.set_ylabel("{} distances (bp)".format(matrix2_file_in))
+    ax.set_aspect(1.0)
     plt.savefig(plot_out)
 
     f_out = open(result_out, "w")

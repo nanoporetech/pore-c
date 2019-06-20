@@ -10,7 +10,7 @@ from pore_c.tools.analysis import \
 from pore_c.tools.analysis import matrix_correlation as matrix_correlation_tool
 from pore_c.tools.analysis import \
     plot_contact_distances as plot_contact_distances_tool
-from pore_c.tools.analysis import plot_contact_map as plot_contact_map_tool
+#from pore_c.tools.analysis import plot_contact_map as plot_contact_map_tool
 from pore_c.tools.cluster_reads import cluster_reads as cluster_reads_tool
 from pore_c.tools.cluster_reads import fragDAG_filter as fragDAG_filter_tool
 from pore_c.tools.cluster_reads import \
@@ -378,8 +378,13 @@ def plot_contact_distances(ref_bin_file, graph_file_out, ec_matrix_files_in):
     default="raw",
     type=click.Choice(["corrected", "raw", "compare", "contactprobability"]),
 )
-def plot_contact_map(matrix_file_in, ref_bin_file, graph_file_out, matrix_type):
-    plot_contact_map_tool(matrix_file_in, ref_bin_file, graph_file_out, matrix_type)
+@click.option("--chr_file", default="None", type=str)
+def plot_contact_map(matrix_file_in, ref_bin_file, graph_file_out, matrix_type, chr_file):
+    normalise = None #since a single data set doesn't have two triangles that can wash each other out, single matrix plotting sets this to None
+    if chr_file == "None":
+        comparison_contact_map_tool(matrix_file_in, matrix_file_in, ref_bin_file, graph_file_out, matrix_type, normalise)
+    else:
+        comparison_contact_map_tool(matrix_file_in, matrix_file_in, ref_bin_file, graph_file_out, matrix_type, normalise, chr_file)
 
 
 # comparison_contact_map(matrix1_file_in: str,matrix2_file_in: str,ref_bin_file: str, heat_map_file_out: str, matrix_type: Optional[str] = "raw") -> None:
