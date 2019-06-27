@@ -1,5 +1,6 @@
 import logging
 import os.path
+from pathlib import Path
 import pandas as pd
 
 import click
@@ -24,6 +25,73 @@ class NaturalOrderGroup(click.Group):
 def cli():
     """Pore-C tools"""
     pass
+
+@cli.command(short_help="Create a catalog file for the reference genome.")
+@click.argument("reference_fasta", type=click.Path(exists=True))
+@click.argument("output_prefix")
+def add_refgenome(reference_fasta, output_prefix):
+    """Preprocess a reference genome for use by pore_c tools
+    """
+    from pore_c.datasources import IndexedFasta
+    from intake.catalog.local import YAMLFileCatalog
+    import pandas as pd
+    import yaml
+
+
+    logger.info("Adding reference genome under prefix: {}".format(output_prefix))
+    fasta = Path(str(reference_fasta))
+    try:
+        stem, fasta_ext, compression_ext = fasta.name.split('.', 2)
+    except:
+        raise ValueError("Fasta file should be gzip compressed and should be in form {file_stem}.(fa|fasta|fna).gz")
+
+    faidx_file = (fasta.parent / stem).with_suffix(".{}.{}.fai".format(fasta_ext, compression_ext))
+    if not faidx_file.exists():
+        raise IOError(
+            "Faidx file doesn't exist, please run 'samtools faidx {}'".format(
+                reference_fasta
+            )
+        )
+    output_prefix = Path(output_prefix)
+    catalog_path = output_prefix.with_suffix(".refgenome.catalog.yaml")
+    if catalog_path.exists():
+        raise IOError("Catalog file exists: {}".format(catalog_path))
+
+    ref_source = IndexedFasta(fasta)
+    ref_source.discover()
+    chrom_df = (
+        pd.DataFrame(ref_source.metadata['chroms'])[['chrom', 'length']]
+        .assign(
+            organism="UNKNOWN",
+            molecule_type="chromosome|plasmid",
+        )
+    )
+    metadata_csv = output_prefix.with_suffix(".metadata.csv")
+    chrom_df.to_csv(metadata_csv, index=False)
+
+    catalog_data = {
+        'name': 'pore_c_reference_genome',
+        'description': 'A reference genome for use with pore-c tools',
+        'sources': {
+            'fasta': {
+                'driver': 'pore_c.datasources.IndexedFasta',
+                'args': {
+                    'urlpath': '{}'.format(fasta.resolve())
+                }
+            },
+            'chrom_metadata': {
+                'driver': 'csv',
+                'args': {
+                    'urlpath': '{{ CATALOG_DIR }}/' + str(metadata_csv.name),
+                }
+            }
+        }
+    }
+    with catalog_path.open("w") as fh:
+        fh.write(yaml.dump(catalog_data))
+    cat = YAMLFileCatalog(str(catalog_path))
+    print(cat)
+
 
 
 @cli.command(short_help="Virtual digest of reference genome.")
@@ -71,8 +139,6 @@ def generate_fragments(reference_fasta, restriction_pattern, output_prefix):
 
     """
     from pore_c.analyses.reference import create_fragment_map
-    import dask.dataframe as dd
-    from pathlib import Path
     logger.info(
         "Creating fragments from reference genome: {} and digestion pattern {}".format(
             reference_fasta, restriction_pattern
@@ -142,41 +208,56 @@ def filter_alignments(input_bam, output_prefix, save_fail_bam, save_align_table,
     "filter_catalog", type=click.Path(exists=True)
 )
 @click.argument(
-    "fragment_bed_file", type=click.Path(exists=True)
+    "fragment_map_catalog", type=click.Path(exists=True)
 )
-def map_to_fragments(filter_catalog, fragment_bed_file):
+def map_to_fragments(filter_catalog, fragment_map_catalog):
     from intake import open_catalog
     from pore_c.datasources import IndexedBedFile
     from ncls import NCLS
+    import numpy as np
 
-    catalog = open_catalog(filter_catalog)
+    filter_cat = open_catalog(filter_catalog)
+    fragment_cat = open_catalog(fragment_map_catalog)
 
-    bf = IndexedBedFile(fragment_bed_file, metadata={})
-    fragments = bf.read().astype({'name': int}).set_index("name", drop=False)
-    print(fragments[fragments['name'].diff() != 1.0])
-    assert(fragments.index.is_monotonic_increasing)
+    fragment_df = fragment_cat.fragment_df.read().set_index(['fragment_id']) #.sort_values(['chrom', 'start'])
     fragment_intervals = {}
-    for chrom, chrom_df in bf.read().groupby("chrom"):
-        fragment_intervals[chrom] = NCLS(chrom_df.start.values, chrom_df.end.values, chrom_df['name'].astype(int).values)
+    for chrom, chrom_df in fragment_df.groupby("chrom"):
+        if chrom == 'NULL':
+            continue
+        fragment_intervals[chrom] = NCLS(
+            chrom_df.start.values,
+            chrom_df.end.values,
+            chrom_df.index.values
+        )
 
-    for chunk in catalog.align_table.read_chunked():
-        print(chunk.head())
+    for chunk in filter_cat.align_table.read_chunked():
         for chrom, chrom_df in chunk.groupby("chrom"):
             if chrom in fragment_intervals:
-                frag_indices, chunk_indices = fragment_intervals[chrom].all_overlaps_both(
+                chunk_indices, frag_indices = fragment_intervals[chrom].all_overlaps_both(
                     chrom_df.start.astype(int).values,
                     chrom_df.end.astype(int).values,
                     chrom_df.index.astype(int).values
                 )
-                overlap_df = pd.DataFrame({
-                    'hit_idx': chunk_indices,
-                    'hit_start': chunk['start'].take(chunk_indices),
-                    'hit_end': chunk['end'].take(chunk_indices),
-                    'frag_idx': frag_indices,
-                    'frag_start': fragments['start'].take(frag_indices),
-                    'frag_end': fragments['end'].take(frag_indices)
-                })
+                if len(chunk_indices) == 0:
+                    continue
+                df_a = chrom_df.reindex(chunk_indices).reset_index().rename(columns={'index': 'hit_idx'})
+                df_b = (
+                    fragment_df
+                    .reindex(frag_indices)
+                    .reset_index()
+                    .rename(columns={'index': 'fragment_id', 'start': 'fragment_start', 'end': 'fragment_end'})
+                    .loc[:, ['fragment_start', 'fragment_end', 'fragment_id']]
+                )
+                overlap_df = (
+                    df_a
+                    .join(df_b)
+                    .assign(
+                        overlap_start = lambda x: np.where(x.fragment_start > x.start, x.fragment_start, x.start).astype(int),
+                        overlap_end = lambda x: np.where(x.fragment_end < x.end, x.fragment_end, x.end).astype(int),
+                    ).eval("overlap_length = overlap_end - overlap_start")
+                )
+
                 print(overlap_df.head())
         break
-    raise ValueError(catalog)
+    raise ValueError(filter_cat)
     map_to_fragments_tool(input_bed, fragment_bed_file, output_porec, method, stats)

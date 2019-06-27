@@ -168,6 +168,7 @@ def create_fragment_map_dataframe(reference_fasta: str, restriction_pattern: str
             .compute()
         )
         .astype({'chrom': chrom_dtype})
+        .sort_values(['chrom', 'start'])
         .assign(fragment_id = lambda x: np.arange(len(x), dtype=int))
         .loc[:, ['chrom', 'start', 'end', 'fragment_id', 'fragment_length']]
     )
@@ -190,7 +191,7 @@ def create_fragment_map(reference_fasta: str, restriction_pattern: str, output_p
             npartitions=1
         )
     )
-    fragment_df.to_parquet(str(parquet_path), partition_on=['chrom'])
+    fragment_df.to_parquet(str(parquet_path))
 
     catalog_data = {
         'name': 'pore_c_fragment_map',

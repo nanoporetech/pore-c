@@ -186,7 +186,7 @@ class ReadToFragments(object):
         elif inter > 0:
             intra_ratio = 0.0
         #no contacts at all
-        else: 
+        else:
             intra_ratio = "NaN"
 
         return "{name},{contact_count},{num_aligned_bases},{num_nonadj_frags},{uniq_chrs},{intra},{inter},{pct_intra},{intra_ratio}\n".format(
@@ -226,7 +226,7 @@ class ReadToFragments(object):
             # FIXME: edge case where telomeric fragments from different chromosomes considered adjacent
             # n.b.: this is the number of non-adjacent pairs. in a concat a b c d e, i.e., there
             #      should be at most (a,b),(b,c),(c,d),(d,e): 4 pairs of potentially non-adjacent monomers
-            #change this so that the nonadj vector is a boolean of whether a frag is to be included 
+            #change this so that the nonadj vector is a boolean of whether a frag is to be included
             # in uniqueness calcs such as cis:trans. First frag always included, everything subsequent
             # is identical to the old non-adjacency list that was formerly being summed.
             nonadj_vector = [True] + [(abs(b - a) > 1) for a, b in zip(frag_ids[:-1], frag_ids[1:])]

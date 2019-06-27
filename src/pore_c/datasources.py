@@ -28,11 +28,12 @@ class IndexedFasta(DataSource):
         if self._dataset is None:
             self._open_dataset()
         self._chroms = list(self._dataset.references)
+        chrom_lengths = [{'chrom': t[0], 'length': t[1]} for t in zip(self._dataset.references, self._dataset.lengths)]
         return Schema(datashape=None,
                       dtype=None,
                       shape=None,
                       npartitions=len(self._chroms),
-                      extra_metadata={})
+                      extra_metadata={'chroms': chrom_lengths})
 
 
     def _get_partition(self, i):
