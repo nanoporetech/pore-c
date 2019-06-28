@@ -16,8 +16,6 @@ matplotlib.rcParams["pdf.fonttype"] = 42
 matplotlib.rcParams["ps.fonttype"] = 42
 
 
-
-
 @dataclass
 class Matrix_Entry:
     bin1: int
@@ -58,9 +56,7 @@ class Matrix_Entry:
             )
 
 
-def plot_contact_distances(
-    ref_bin_file: str, graph_file_out: str, *EC_matrix_files_in
-) -> None:
+def plot_contact_distances(ref_bin_file: str, graph_file_out: str, *EC_matrix_files_in) -> None:
 
     chr_sizes = {}
 
@@ -171,9 +167,10 @@ def plot_contact_map(
 
     fig, ax = plt.subplots(1, figsize=(12, 6), dpi=500)
 
-
     #    plt.imshow(matrix,norm=colors.LogNorm(vmin=.1, vmax=matrix.max()), cmap="gist_heat_r")
-    plt.imshow(matrix, norm=colors.LogNorm(vmin=0.1, vmax=matrix.max()), cmap="viridis", rasterized=True)
+    plt.imshow(
+        matrix, norm=colors.LogNorm(vmin=0.1, vmax=matrix.max()), cmap="viridis", rasterized=True
+    )
 
     null_markers = [""] * len(markers)
     ax.set_yticks(markers)
@@ -195,12 +192,8 @@ def plot_contact_map(
     #    print("names:",names)
     #    print("size:",size)
 
-    ax.vlines(
-        markers, 0, size, linestyle=":", linewidth=0.5, alpha=0.4, color="#357BA1"
-    )
-    ax.hlines(
-        markers, 0, size, linestyle=":", linewidth=0.5, alpha=0.4, color="#357BA1"
-    )
+    ax.vlines(markers, 0, size, linestyle=":", linewidth=0.5, alpha=0.4, color="#357BA1")
+    ax.hlines(markers, 0, size, linestyle=":", linewidth=0.5, alpha=0.4, color="#357BA1")
 
     if matrix_type == "compare":
         ax.set_xlabel("corrected counts")
@@ -267,8 +260,7 @@ def comparison_contact_map(
 
             if chr_strands[entry] == "+":
                 for x1, x2 in zip(
-                    list(range(*absolute_binranges[entry])),
-                    list(range(pos + start, pos + stop)),
+                    list(range(*absolute_binranges[entry])), list(range(pos + start, pos + stop))
                 ):
                     bin_mappings[x1] = x2
             else:
@@ -381,9 +373,7 @@ def comparison_contact_map(
     fig, ax = plt.subplots(1, figsize=(12, 12), dpi=1000)
 
     #    plt.imshow(matrix,norm=colors.LogNorm(vmin=1, vmax=matrix.max()), cmap="viridis")
-    plt.imshow(
-        matrix, norm=colors.LogNorm(vmin=1, vmax=matrix.max()), cmap="gist_heat_r"
-    )
+    plt.imshow(matrix, norm=colors.LogNorm(vmin=1, vmax=matrix.max()), cmap="gist_heat_r")
     #    plt.imshow(matrix, cmap="gist_heat_r")
 
     null_markers = [""] * len(markers)
@@ -403,24 +393,8 @@ def comparison_contact_map(
     ax.tick_params(axis="both", which="minor", labelsize="xx-small", length=0)
     ax.tick_params(axis="both", which="major", labelsize="xx-small", length=3)
 
-    ax.vlines(
-        markers,
-        -0.5,
-        size - 1,
-        linestyle=":",
-        linewidth=0.5,
-        alpha=0.4,
-        color="#357BA1",
-    )
-    ax.hlines(
-        markers,
-        -0.5,
-        size - 1,
-        linestyle=":",
-        linewidth=0.5,
-        alpha=0.4,
-        color="#357BA1",
-    )
+    ax.vlines(markers, -0.5, size - 1, linestyle=":", linewidth=0.5, alpha=0.4, color="#357BA1")
+    ax.hlines(markers, -0.5, size - 1, linestyle=":", linewidth=0.5, alpha=0.4, color="#357BA1")
 
     ax.set_xlim(right=size - 1.5, left=-0.5)
     ax.set_ylim(bottom=size - 1.5, top=-0.5)
@@ -462,16 +436,16 @@ def cis_trans_analysis(
 
     shared = sorted(list(set(intra.keys()).union(set(inter.keys()))))
 
-    #print("data sizes:")
-    #print("intra:", len(intra))
-    #print("inter:", len(inter))
-    #print("shared data coordinates:", len(shared))
+    # print("data sizes:")
+    # print("intra:", len(intra))
+    # print("inter:", len(inter))
+    # print("shared data coordinates:", len(shared))
     fig, ax = plt.subplots(1, figsize=(12, 6))
     intra_values = np.array([intra[x] if x in intra else 0.0 for x in shared])
     inter_values = np.array([inter[x] if x in inter else 1.0 for x in shared])
 
-    #print("max intra:", max(intra_values))
-    #print("max inter:", max(inter_values))
+    # print("max intra:", max(intra_values))
+    # print("max inter:", max(inter_values))
 
     ratios = intra_values / inter_values
     plt.hexbin(intra_values, inter_values, gridsize=(100, 100))
@@ -484,7 +458,7 @@ def cis_trans_analysis(
     ax.set_xlim(left=0, right=500)
 
     plt.savefig(scatter_map_file_out)
-    
+
     f_out = open(data_file_out, "w")
     for idx, val in enumerate(shared):
         f_out.write("{}\t{}\n".format(val, ratios[idx]))
@@ -538,10 +512,7 @@ def matrix_correlation(
         bin1, bin2 = entry
         f_out.write(
             "{bin1},{bin2},{val1},{val2}\n".format(
-                bin1=bin1,
-                bin2=bin2,
-                val1=matrix1_data[bin1, bin2],
-                val2=matrix2_data[bin1, bin2],
+                bin1=bin1, bin2=bin2, val1=matrix1_data[bin1, bin2], val2=matrix2_data[bin1, bin2]
             )
         )
 

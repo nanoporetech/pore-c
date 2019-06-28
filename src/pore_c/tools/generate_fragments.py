@@ -48,11 +48,7 @@ def create_regex(pattern: str) -> Pattern:
     ###
 
     site_raw = (
-        pattern.replace("(", " ")
-        .replace(")", " ")
-        .replace(" ", "")
-        .replace("|", " ")
-        .split()
+        pattern.replace("(", " ").replace(")", " ").replace(" ", "").replace("|", " ").split()
     )
     sites_raw = []
     for entry in sites_raw:
@@ -119,9 +115,7 @@ def find_site_positions_biopython(enzyme: str, seq: str) -> List[int]:
     return positions
 
 
-def fragment_generator(
-    reference_fasta: str, restriction_pattern: str
-) -> Iterator[SeqDigest]:
+def fragment_generator(reference_fasta: str, restriction_pattern: str) -> Iterator[SeqDigest]:
     """Iterate over the sequences in a fasta file and find the match positions for the restriction fragment"""
     fasta_file = FastaFile(reference_fasta)
 

@@ -54,9 +54,7 @@ class AlignedSegmentToFragment(object):
         overlaps = list(frag_map.iter_overlaps((self.chrom, self.start, self.end)))
         num_overlaps = len(overlaps)
         if num_overlaps == 0:
-            raise ValueError(
-                "No overlap found, is input formatted correctly?. {}".format(self)
-            )
+            raise ValueError("No overlap found, is input formatted correctly?. {}".format(self))
 
         idx, mapping_type = None, None
         if num_overlaps == 1:
@@ -74,9 +72,7 @@ class AlignedSegmentToFragment(object):
                 mapping_type = AlignedSegmentMappingType.multi_frag
         best_hit = overlaps[0]
         #        print('from overlaps: {}\nThis overlap was chosen: {}'.format(overlaps, best_hit))
-        self.set_fragment(
-            best_hit.frag_id, best_hit.frag_end, best_hit.overlap, mapping_type
-        )
+        self.set_fragment(best_hit.frag_id, best_hit.frag_end, best_hit.overlap, mapping_type)
 
     @classmethod
     def from_pysam(cls, align):
@@ -129,10 +125,7 @@ class ReadToFragments(object):
 
     def to_HiC_str(self):
         quals, mappings = zip(
-            *[
-                (str(_.max_mapping_quality), _.to_HiC_str())
-                for _ in self.fragment_assignments
-            ]
+            *[(str(_.max_mapping_quality), _.to_HiC_str()) for _ in self.fragment_assignments]
         )
         return "{name} {mappings} {quals}\n".format(
             name=self.read_name, mappings=" ".join(mappings), quals=" ".join(quals)
@@ -149,43 +142,45 @@ class ReadToFragments(object):
         inter = 0
 
         for x1 in range(self.num_frags - 1):
-            #skip a contact if the fragment wasn't adjacent to preceding fragment
+            # skip a contact if the fragment wasn't adjacent to preceding fragment
             if not self.nonadj_vector[x1]:
                 continue
             for x2 in range(x1 + 1, self.num_frags):
-                #skip a contact if the fragment wasn't adjacent to preceding fragment
+                # skip a contact if the fragment wasn't adjacent to preceding fragment
                 if not self.nonadj_vector[x2]:
                     continue
-                if (
-                    self.fragment_assignments[x1].chrom
-                    == self.fragment_assignments[x2].chrom
-                ):
+                if self.fragment_assignments[x1].chrom == self.fragment_assignments[x2].chrom:
                     intra += 1
                 else:
                     inter += 1
 
-#        print(self.read_name, self.nonadj_vector, [self.fragment_assignments[x].chrom for x in range(self.num_frags)], intra, inter)
+        #        print(self.read_name, self.nonadj_vector, [self.fragment_assignments[x].chrom for x in range(self.num_frags)], intra, inter)
 
-#        print('frag number:', self.num_frags)
-#        print([self.fragment_assignments[x].chrom for x in range(self.num_frags)])
-#        print([self.fragment_assignments[x].frag_id for x in range(self.num_frags)])
-#        print("nonindexed:",self.nonadj_vector, len(self.nonadj_vector), self.num_frags)
-#        print([self.nonadj_vector[x] for x in range(self.num_frags)])
-        uniqs = set([self.fragment_assignments[x].chrom if self.nonadj_vector[x] else "NonUniqueFragment" for x in range(self.num_frags)])
-#        print("uniqs:",uniqs)
+        #        print('frag number:', self.num_frags)
+        #        print([self.fragment_assignments[x].chrom for x in range(self.num_frags)])
+        #        print([self.fragment_assignments[x].frag_id for x in range(self.num_frags)])
+        #        print("nonindexed:",self.nonadj_vector, len(self.nonadj_vector), self.num_frags)
+        #        print([self.nonadj_vector[x] for x in range(self.num_frags)])
+        uniqs = set(
+            [
+                self.fragment_assignments[x].chrom if self.nonadj_vector[x] else "NonUniqueFragment"
+                for x in range(self.num_frags)
+            ]
+        )
+        #        print("uniqs:",uniqs)
 
         uniqs.discard("NonUniqueFragment")
-#        print("uniqs:",uniqs)
+        #        print("uniqs:",uniqs)
 
         if intra > 0 and inter > 0:
             intra_ratio = intra / float(inter)
 
-        #all contacts are intra (inter == 0 is implied)
+        # all contacts are intra (inter == 0 is implied)
         elif intra > 0:
             intra_ratio = "Inf"
         elif inter > 0:
             intra_ratio = 0.0
-        #no contacts at all
+        # no contacts at all
         else:
             intra_ratio = "NaN"
 
@@ -198,7 +193,7 @@ class ReadToFragments(object):
             intra=intra,
             inter=inter,
             pct_intra=intra / float(intra + inter) if intra + inter > 0 else "NaN",
-            intra_ratio=intra_ratio
+            intra_ratio=intra_ratio,
         )
 
     def groupBy(self):
@@ -207,9 +202,7 @@ class ReadToFragments(object):
             self.overlaps[(align.read_name, align.read_start)].append(align)
 
     @classmethod
-    def from_read_alignments(
-        cls, read_aligns: "ReadAlignments", fragment_map: FragmentMap
-    ):
+    def from_read_alignments(cls, read_aligns: "ReadAlignments", fragment_map: FragmentMap):
         frag_overlaps = defaultdict(list)
         for idx, align in enumerate(
             read_aligns.aligns
@@ -226,7 +219,7 @@ class ReadToFragments(object):
             # FIXME: edge case where telomeric fragments from different chromosomes considered adjacent
             # n.b.: this is the number of non-adjacent pairs. in a concat a b c d e, i.e., there
             #      should be at most (a,b),(b,c),(c,d),(d,e): 4 pairs of potentially non-adjacent monomers
-            #change this so that the nonadj vector is a boolean of whether a frag is to be included
+            # change this so that the nonadj vector is a boolean of whether a frag is to be included
             # in uniqueness calcs such as cis:trans. First frag always included, everything subsequent
             # is identical to the old non-adjacency list that was formerly being summed.
             nonadj_vector = [True] + [(abs(b - a) > 1) for a, b in zip(frag_ids[:-1], frag_ids[1:])]
@@ -304,19 +297,13 @@ class ReadAlignments(object):
             else:
                 if align.read_name in reads_seen:
                     raise IOError(
-                        "Seen this read already, is the BAM namesorted?: {}".format(
-                            align.read_name
-                        )
+                        "Seen this read already, is the BAM namesorted?: {}".format(align.read_name)
                     )
-                yield ReadAlignments(
-                    current_read_name, sorted(aligns, key=lambda x: x.read_start)
-                )
+                yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
                 reads_seen.add(current_read_name)
                 aligns = [align]
                 current_read_name = align.read_name
-        yield ReadAlignments(
-            current_read_name, sorted(aligns, key=lambda x: x.read_start)
-        )
+        yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
 
     @staticmethod
     def iter_bed(input_bed: str) -> Iterator["ReadAlignments"]:
@@ -344,24 +331,16 @@ class ReadAlignments(object):
                 for overlaps in pre_aligns.values():
                     sorted_overlaps = sorted(overlaps, key=lambda x: x.frag_overlap)
                     aligns.append(sorted_overlaps[-1])
-                yield ReadAlignments(
-                    current_read_name, sorted(aligns, key=lambda x: x.read_start)
-                )
+                yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
                 reads_seen.add(current_read_name)
                 pre_aligns = defaultdict(list)
                 pre_aligns[align.read_start].append(align)
                 current_read_name = align.read_name
-        yield ReadAlignments(
-            current_read_name, sorted(aligns, key=lambda x: x.read_start)
-        )
+        yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
 
 
 def map_to_fragments(
-    input_bam: str,
-    bed_file: str,
-    output_file: str,
-    method: str,
-    stats_file: Optional[str] = None,
+    input_bam: str, bed_file: str, output_file: str, method: str, stats_file: Optional[str] = None
 ) -> None:
     fm = FragmentMap.from_bed_file(bed_file)
     f_out = open(output_file, "w")

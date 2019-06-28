@@ -46,12 +46,8 @@ class HicContact(object):
         data_template = "{ch}\t{st}\t{en}\t{read_id}\n"
 
         return (
-            data_template.format(
-                ch=ref_ch1, st=midpoint1, en=midpoint1 + 1, read_id=self.read_id
-            ),
-            data_template.format(
-                ch=ref_ch2, st=midpoint2, en=midpoint2 + 1, read_id=self.read_id
-            ),
+            data_template.format(ch=ref_ch1, st=midpoint1, en=midpoint1 + 1, read_id=self.read_id),
+            data_template.format(ch=ref_ch2, st=midpoint2, en=midpoint2 + 1, read_id=self.read_id),
         )
 
     def __str__(self):
@@ -86,9 +82,7 @@ def fragment_bin_assignments(
             l = entry.decode("utf-8").strip().split()
             start = (int(l[1]) + int(l[2])) // 2
             frag_midpoint_reference.append(
-                "{ch}\t{st}\t{en}\t{frag_id}".format(
-                    ch=l[0], st=start, en=start + 1, frag_id=l[3]
-                )
+                "{ch}\t{st}\t{en}\t{frag_id}".format(ch=l[0], st=start, en=start + 1, frag_id=l[3])
             )
 
     midpoints = BedTool("\n".join(frag_midpoint_reference), from_string=True)
@@ -108,9 +102,7 @@ def fragment_bin_assignments(
             print("frag {} has already been seen".format(l[3]))
 
 
-def bin_hic_data(
-    input_hictxt: str, output_bin_matrix: str, frag_bin_reference: str
-) -> None:
+def bin_hic_data(input_hictxt: str, output_bin_matrix: str, frag_bin_reference: str) -> None:
     frag_to_bin = {}
     for entry in open(frag_bin_reference):
         l = entry.strip().split()

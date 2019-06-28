@@ -40,10 +40,7 @@ class FragmentMap(object):
     """Represents the fragments created by a restriction digestion"""
 
     def __init__(
-        self,
-        bedtool: BedTool,
-        chrom_lengths: Dict[str, int] = None,
-        Terminal_Fragments: Set = None,
+        self, bedtool: BedTool, chrom_lengths: Dict[str, int] = None, Terminal_Fragments: Set = None
     ):
         self.bt = bedtool  # bedtool.saveas().tabix(is_sorted=True)
         self.chrom_lengths = chrom_lengths
@@ -74,9 +71,7 @@ class FragmentMap(object):
     def save_to_bed(self, path):
         if not path.endswith(".bed.gz"):
             raise ValueError("Must end with .bed.gz: {}".format(path))
-        self.bt.saveas(path.rsplit(".gz")[0]).tabix(
-            in_place=True, is_sorted=True, force=True
-        )
+        self.bt.saveas(path.rsplit(".gz")[0]).tabix(in_place=True, is_sorted=True, force=True)
 
     def save_to_HiCRef(self, path):
         chrom_to_endpoints = defaultdict(list)
@@ -115,9 +110,7 @@ class FragmentMap(object):
                 fields = line.strip().split()
                 chrom = fields[0]
                 endpoints = list(map(int, fields[1:]))
-                intervals.extend(
-                    cls.endpoints_to_intervals(chrom, endpoints, id_offset)
-                )
+                intervals.extend(cls.endpoints_to_intervals(chrom, endpoints, id_offset))
                 chrom_lengths[chrom] = endpoints[-1]
                 id_offset += len(endpoints)
         bt = BedTool(intervals)
@@ -161,8 +154,7 @@ class FragmentMap(object):
     def iter_overlaps(self, query, min_overlap=0):
         query_bt = self._query_to_bedtool(query)
         for overlap in (
-            BedToolsOverlap(*i.fields)
-            for i in query_bt.intersect(self.bt, sorted=True, wo=True)
+            BedToolsOverlap(*i.fields) for i in query_bt.intersect(self.bt, sorted=True, wo=True)
         ):
             if overlap.overlap <= min_overlap:
                 continue

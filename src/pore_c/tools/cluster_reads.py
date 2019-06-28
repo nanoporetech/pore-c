@@ -151,10 +151,7 @@ def measure_overlaps(input_bam: str, output_table: str, no_zero):
                     continue
                 f_out.write(
                     "{read_id},{align1},{align2},{overlap}\n".format(
-                        read_id=read_aligns[x].query_name,
-                        align1=x,
-                        align2=y,
-                        overlap=olap,
+                        read_id=read_aligns[x].query_name, align1=x, align2=y, overlap=olap
                     )
                 )
 
@@ -173,14 +170,10 @@ def remove_contained_segments(
 
     if alignment_stats != None:
         alignment_stats_out = open(alignment_stats, "w")
-        alignment_stats_out.write(
-            "read_id,mapping_id,filter_retained,query_start,query_end,mapq\n"
-        )
+        alignment_stats_out.write("read_id,mapping_id,filter_retained,query_start,query_end,mapq\n")
 
     for read_aligns in read_mappings_iter(bam_in):
-        keep = contained_segments_filter(
-            read_aligns, mapping_quality_cutoff=mapping_quality_cutoff
-        )
+        keep = contained_segments_filter(read_aligns, mapping_quality_cutoff=mapping_quality_cutoff)
 
         if len(keep) == 0:
             for idx, align in enumerate(read_aligns):
@@ -242,9 +235,7 @@ def cluster_reads(
 
     if alignment_stats != None:
         alignment_stats_out = open(alignment_stats, "w")
-        alignment_stats_out.write(
-            "read_id,mapping_id,filter_retained,query_start,query_end,mapq\n"
-        )
+        alignment_stats_out.write("read_id,mapping_id,filter_retained,query_start,query_end,mapq\n")
 
     num_reads = 0
     num_reads_kept = 0
@@ -389,16 +380,12 @@ def fragDAG_filter(
 
     if stats != None:
         alignment_stats_out = open(stats, "w")
-        alignment_stats_out.write(
-            "read_id,mapping_id,filter_retained,query_start,query_end,mapq\n"
-        )
+        alignment_stats_out.write("read_id,mapping_id,filter_retained,query_start,query_end,mapq\n")
 
     if graph != None:
         graph_stats_out = open(graph, "w")
 
-    for _read_aligns in read_mappings_iter(
-        bam_in, sort_flag="end", unique_intervals=True
-    ):
+    for _read_aligns in read_mappings_iter(bam_in, sort_flag="end", unique_intervals=True):
 
         # address unmapped reads
         if _read_aligns[0].is_unmapped:
@@ -438,9 +425,7 @@ def fragDAG_filter(
 
         # this line returns two lists, the number of the reads that are part of the best scoring path, and the scores for that path based on the scoring function outlined
         if len(read_aligns) > 0:
-            keep, graph_data = fragDAG(
-                read_aligns, aligner=aligner, params=aligner_params
-            )
+            keep, graph_data = fragDAG(read_aligns, aligner=aligner, params=aligner_params)
 
         if len(keep) == 0:
             for idx, align in enumerate(read_aligns):
@@ -460,9 +445,7 @@ def fragDAG_filter(
 
         else:
             if graph != None:
-                graph_stats_out.write(
-                    "{}|{}\n".format(read_aligns[0].query_name, str(graph_data))
-                )
+                graph_stats_out.write("{}|{}\n".format(read_aligns[0].query_name, str(graph_data)))
             for idx, align in enumerate(read_aligns):
                 if idx in keep:
                     bam_keep.write(read_aligns[idx])

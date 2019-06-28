@@ -58,9 +58,7 @@ class joinable_HiCMap(object):
             if x > y:
                 continue  # makes the matrix non-redundant as the raw matrix was not properly made sparse
             else:
-                f_out.write(
-                    template.format(row=x, column=y, raw_counts=self.matrix[x, y])
-                )
+                f_out.write(template.format(row=x, column=y, raw_counts=self.matrix[x, y]))
         f_out.close()
 
 
@@ -143,9 +141,7 @@ class HiCMap(object):
                 "Raw contact matrix does not have total support, and may not converge.(2)"
             )
 
-        self.total_contacts = np.sum(
-            self.matrix
-        )  # for calculated adjusted contact counts later
+        self.total_contacts = np.sum(self.matrix)  # for calculated adjusted contact counts later
 
         print(self.matrix)
 
@@ -230,9 +226,7 @@ class HiCMap(object):
 
         self.cP = d1.dot(self.matrix).dot(d2)
 
-    def knight_ruiz_correction(
-        self, remove_zeros=True, min=1, max=10 ** 9, epsilon=10.0 ** -6
-    ):
+    def knight_ruiz_correction(self, remove_zeros=True, min=1, max=10 ** 9, epsilon=10.0 ** -6):
         """
         This protocol uses the Knight-Ruiz iterative correction algorithm
         to generate a double stochastic matrix from the raw contact count matrix.
@@ -256,10 +250,7 @@ class HiCMap(object):
         f_out = open(matrix_file_out, "w")
 
         nonzero_coords = zip(*np.nonzero(self.cP))
-        print(
-            "corrected:\n",
-            0.01 * np.array(np.array(10000 * self.cP, dtype=int), dtype=float),
-        )
+        print("corrected:\n", 0.01 * np.array(np.array(10000 * self.cP, dtype=int), dtype=float))
         per_bin_contacts = self.total_contacts / float(self.matrix.shape[0])
         for x, y in list(nonzero_coords):
             if x > y:
@@ -282,7 +273,9 @@ class HiCMap(object):
                         )
                     )
                 else:
-                    template = "{row} {column} {raw_counts} {contact_probability} {corrected_counts}\n"
+                    template = (
+                        "{row} {column} {raw_counts} {contact_probability} {corrected_counts}\n"
+                    )
                     f_out.write(
                         template.format(
                             row=x,
@@ -317,9 +310,7 @@ def compute_contact_probabilities(
 
     print("Thresholding data...")
     # 2. mask values higher and lower than the confidence interval
-    contact_matrix.set_thresholds(
-        matrix_file_out.replace(".corrected.matrix", ".png"), ci=ci
-    )
+    contact_matrix.set_thresholds(matrix_file_out.replace(".corrected.matrix", ".png"), ci=ci)
 
     print("performing correction...")
     # 4. write out corrected matrix file in the same sparse format as raw contact matrix
@@ -339,9 +330,7 @@ def compute_contact_probabilities(
 
 # takes in a set of contact matrix files and joins them together into a new .matrix file.
 # if they've been balanced, the resulting matrix can be balanced if specified.
-def join_contact_matrices(
-    bin_ref_file_in, matrix_file_out, *matrix_filenames, correction=False
-):
+def join_contact_matrices(bin_ref_file_in, matrix_file_out, *matrix_filenames, correction=False):
     print("Creating new matrix for storing collated data.")
     outputted_matrix = joinable_HiCMap(bin_ref_file_in)
     print("New matrix creation complete.")

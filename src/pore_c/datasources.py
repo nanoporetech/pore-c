@@ -1,16 +1,15 @@
-import pandas as pd
+import dask
 import numpy as np
-from pysam import AlignmentFile, TabixFile, asBed, asTuple, FastaFile
+import pandas as pd
 from intake.source.base import DataSource, Schema
 from pandas.api.types import CategoricalDtype
-import dask
-
+from pysam import AlignmentFile, FastaFile, TabixFile, asBed, asTuple
 
 
 class IndexedFasta(DataSource):
     name = "indexed_bedfile"
     version = "0.1.0"
-    container = 'python'
+    container = "python"
     partition_access = True
     description = "A bgzipped and indexed fasta file"
 
@@ -28,17 +27,21 @@ class IndexedFasta(DataSource):
         if self._dataset is None:
             self._open_dataset()
         self._chroms = list(self._dataset.references)
-        chrom_lengths = [{'chrom': t[0], 'length': t[1]} for t in zip(self._dataset.references, self._dataset.lengths)]
-        return Schema(datashape=None,
-                      dtype=None,
-                      shape=None,
-                      npartitions=len(self._chroms),
-                      extra_metadata={'chroms': chrom_lengths})
-
+        chrom_lengths = [
+            {"chrom": t[0], "length": t[1]}
+            for t in zip(self._dataset.references, self._dataset.lengths)
+        ]
+        return Schema(
+            datashape=None,
+            dtype=None,
+            shape=None,
+            npartitions=len(self._chroms),
+            extra_metadata={"chroms": chrom_lengths},
+        )
 
     def _get_partition(self, i):
         chrom = self._chroms[i]
-        return [{'seqid': chrom, 'seq': self._dataset.fetch(chrom)}]
+        return [{"seqid": chrom, "seq": self._dataset.fetch(chrom)}]
 
     def read_chunked(self):
         self._load_metadata()
@@ -47,8 +50,11 @@ class IndexedFasta(DataSource):
 
     def to_dask(self):
         from dask import bag as db
+
         self._load_metadata()
-        return db.from_delayed([dask.delayed(self._get_partition(i)) for i in range(self.npartitions)])
+        return db.from_delayed(
+            [dask.delayed(self._get_partition(i)) for i in range(self.npartitions)]
+        )
 
     def _close(self):
         # close any files, sockets, etc
@@ -56,12 +62,10 @@ class IndexedFasta(DataSource):
             self._dataset.close()
 
 
-
-
 class IndexedBedFile(DataSource):
     name = "indexed_bedfile"
     version = "0.1.0"
-    container = 'dataframe'
+    container = "dataframe"
     partition_access = False
     description = "A bgzipped and indexed bedfile"
 
@@ -86,32 +90,34 @@ class IndexedBedFile(DataSource):
 
         chrom_coord_dtype = np.int64
         dtypes = {
-            'chrom': pd.CategorialDtype(self._chroms + ['NULL'], ordered=True),
-            'start': chrom_coord_dtype,
-            'end':  chrom_coord_dtype,
-            'name': str,
-            'score': np.float32,
-            'strand': bool,
+            "chrom": pd.CategorialDtype(self._chroms + ["NULL"], ordered=True),
+            "start": chrom_coord_dtype,
+            "end": chrom_coord_dtype,
+            "name": str,
+            "score": np.float32,
+            "strand": bool,
         }
         self._dtype = {key: dtypes[key] for key in list(dtypes.keys())[:num_fields]}
-        return Schema(datashape=None,
-                      dtype=self._dtype,
-                      shape=(None, len(self._dtype)),
-                      npartitions=len(self._chroms),
-                      extra_metadata={})
-
+        return Schema(
+            datashape=None,
+            dtype=self._dtype,
+            shape=(None, len(self._dtype)),
+            npartitions=len(self._chroms),
+            extra_metadata={},
+        )
 
     def _get_partition(self, i):
         chrom = self._chroms[i]
         columns = list(self._dtype.keys())
         return pd.DataFrame(
-            list(self._dataset.fetch(chrom, parser=asTuple())),
-            columns=columns,
+            list(self._dataset.fetch(chrom, parser=asTuple())), columns=columns
         ).astype(self._dtype)
 
     def read(self):
         self._load_metadata()
-        return pd.concat([self.read_partition(i) for i in range(self.npartitions)], ignore_index=True)
+        return pd.concat(
+            [self.read_partition(i) for i in range(self.npartitions)], ignore_index=True
+        )
 
     def _close(self):
         # close any files, sockets, etc
@@ -119,11 +125,10 @@ class IndexedBedFile(DataSource):
             self._dataset.close()
 
 
-
 class NameSortedBamSource(DataSource):
-    name = 'name_sorted_bam'
-    version = '0.1.0'
-    container = 'dataframe'
+    name = "name_sorted_bam"
+    version = "0.1.0"
+    container = "dataframe"
     partition_access = False
     description = "Readname-sorted BAM of poreC alignments"
 
@@ -137,12 +142,11 @@ class NameSortedBamSource(DataSource):
     def _open_dataset(self):
         self._af = AlignmentFile(self._urlpath)
 
-
     def _get_schema(self):
         if self._af is None:
             self._open_dataset()
         chrom_names = list(self._af.references)
-        assert('NULL' not in chrom_names)
+        assert "NULL" not in chrom_names
         max_chrom_length = max(self._af.lengths)
         chrom_coord_dtype = None
         read_coord_dtype = None
@@ -156,25 +160,28 @@ class NameSortedBamSource(DataSource):
         if chrom_coord_dtype is None:
             raise ValueError(f"Max chromosome length is too long: {max_read_length}")
         dtypes = {
-            'mapping_type': pd.CategoricalDtype(['unmapped', 'primary', 'supplementary', 'secondary'], ordered=True),
-            'chrom': pd.CategoricalDtype(chrom_names + ['NULL'] , ordered=True),
-            'start': chrom_coord_dtype,
-            'end':  chrom_coord_dtype,
-            'strand': bool,
-            'read_name': object, #TODO: fixed width string
-            'read_length': read_coord_dtype,
-            'read_start': read_coord_dtype,
-            'read_end': read_coord_dtype,
-            'mapping_quality': np.uint8,
-            'score': np.uint32
+            "mapping_type": pd.CategoricalDtype(
+                ["unmapped", "primary", "supplementary", "secondary"], ordered=True
+            ),
+            "chrom": pd.CategoricalDtype(chrom_names + ["NULL"], ordered=True),
+            "start": chrom_coord_dtype,
+            "end": chrom_coord_dtype,
+            "strand": bool,
+            "read_name": object,  # TODO: fixed width string
+            "read_length": read_coord_dtype,
+            "read_start": read_coord_dtype,
+            "read_end": read_coord_dtype,
+            "mapping_quality": np.uint8,
+            "score": np.uint32,
         }
         self._dtype = dtypes
-        return Schema(datashape=None,
-                      dtype=dtypes,
-                      shape=(None, len(dtypes)),
-                      npartitions=None,
-                      extra_metadata={})
-
+        return Schema(
+            datashape=None,
+            dtype=dtypes,
+            shape=(None, len(dtypes)),
+            npartitions=None,
+            extra_metadata={},
+        )
 
     @staticmethod
     def _group_by_read(align_iter):
@@ -192,43 +199,44 @@ class NameSortedBamSource(DataSource):
                 aligns = [align]
         yield aligns
 
-
     def _align_to_tuple(self, align):
         if align.is_unmapped:
-            align_cat = 'unmapped'
-            chrom, start, end, align_score = 'NULL', 0, 0, 0
+            align_cat = "unmapped"
+            chrom, start, end, align_score = "NULL", 0, 0, 0
             read_length = align.query_length
         else:
             chrom, start, end = align.reference_name, align.reference_start, align.reference_end
             read_length = align.infer_read_length()
-            align_score = align.get_tag('AS')
+            align_score = align.get_tag("AS")
             if align.is_secondary:
-                align_cat = 'secondary'
+                align_cat = "secondary"
             elif align.is_supplementary:
-                align_cat = 'supplementary'
+                align_cat = "supplementary"
             else:
-                align_cat = 'primary'
+                align_cat = "primary"
         return (
             align_cat,
-            chrom, start, end,
+            chrom,
+            start,
+            end,
             not align.is_reverse,
             align.query_name,
             read_length,
             align.query_alignment_start,
             align.query_alignment_end,
             align.mapq,
-            align_score
+            align_score,
         )
 
     def read_chunked(self, chunksize=1000, yield_aligns=False):
         self._load_metadata()
         from toolz import partition_all
+
         align_iter = self._af.fetch(until_eof=self._include_unmapped)
         for chunk in partition_all(chunksize, self._group_by_read(align_iter)):
             aligns = [a for read_aligns in chunk for a in read_aligns]
             df = pd.DataFrame(
-                [self._align_to_tuple(a) for a in aligns],
-                columns = self._schema.dtype.keys(),
+                [self._align_to_tuple(a) for a in aligns], columns=self._schema.dtype.keys()
             )
             try:
                 df = df.astype(self._schema.dtype)
@@ -239,12 +247,8 @@ class NameSortedBamSource(DataSource):
             if yield_aligns:
                 yield (aligns, df)
             else:
-                yield(df)
-
+                yield (df)
 
     def _close(self):
         if self._af is not None:
             self._af.close()
-
-
-

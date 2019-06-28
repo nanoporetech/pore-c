@@ -22,9 +22,7 @@ class Contact:
         self.mapq = mapq
 
     def __str__(self):
-        return " ".join(
-            list(map(str, (self.ch, self.fragID, self.strand, self.poss, self.mapq)))
-        )
+        return " ".join(list(map(str, (self.ch, self.fragID, self.strand, self.poss, self.mapq))))
 
 
 class Cwalk:
@@ -118,9 +116,7 @@ class Cwalk:
 
         mapString = " ".join(mapString)
         quals = " ".join(list(map(str, mapqs)))
-        return "{name} {mappings} {quals}".format(
-            name=self.name, mappings=mapString, quals=quals
-        )
+        return "{name} {mappings} {quals}".format(name=self.name, mappings=mapString, quals=quals)
 
 
 # creates output filehandle
@@ -159,9 +155,7 @@ def flatten_multiway(file_in, file_out, size, sort=True, direct=False):
     f_out.close()
 
 
-def make_salsa_bedfile(
-    hictxt_file_in: str, bedfile_out: str, frag_bed_ref: str
-) -> None:
+def make_salsa_bedfile(hictxt_file_in: str, bedfile_out: str, frag_bed_ref: str) -> None:
     fragments = {}
     for entry in gzip.open(frag_bed_ref, "rt"):
         l = entry.strip().split()
@@ -234,9 +228,7 @@ def per_read_intra_inter(porec_file_in: str, csv_out: str, frag_bed_ref: str) ->
 
 
 def fragment_end_metrics(bam_file_in: str, csv_out: str, hicref: str):
-    entry_template = (
-        "{read_id},{frag_num},{startpoint_d_to_motif},{endpoint_d_to_motif}\n"
-    )
+    entry_template = "{read_id},{frag_num},{startpoint_d_to_motif},{endpoint_d_to_motif}\n"
     header = "read_id,frag_num,startpoint_d_to_motif,endpoint_d_to_motif\n"
 
     f_out = open(csv_out, "w")
@@ -257,20 +249,13 @@ def fragment_end_metrics(bam_file_in: str, csv_out: str, hicref: str):
         if len(cutmap[entry.reference_name]) > 3:
             d_start = min(
                 map(
-                    lambda x: abs(
-                        cutmap[entry.reference_name][x] - entry.reference_start
-                    ),
+                    lambda x: abs(cutmap[entry.reference_name][x] - entry.reference_start),
                     [l_start, start, r_start],
                 )
             )
         else:
             d_start = min(
-                map(
-                    lambda x: abs(
-                        cutmap[entry.reference_name][x] - entry.reference_start
-                    ),
-                    [0, 1],
-                )
+                map(lambda x: abs(cutmap[entry.reference_name][x] - entry.reference_start), [0, 1])
             )
         end = bisect.bisect_left(cutmap[entry.reference_name], entry.reference_end)
         l_end = max(0, end - 1)
@@ -280,9 +265,7 @@ def fragment_end_metrics(bam_file_in: str, csv_out: str, hicref: str):
             try:
                 d_end = min(
                     map(
-                        lambda x: abs(
-                            cutmap[entry.reference_name][x] - entry.reference_end
-                        ),
+                        lambda x: abs(cutmap[entry.reference_name][x] - entry.reference_end),
                         [l_end, end, r_end],
                     )
                 )
@@ -290,12 +273,7 @@ def fragment_end_metrics(bam_file_in: str, csv_out: str, hicref: str):
                 print("oops:", [l_end, end, r_end], cutmap[entry.reference_name][x])
         else:
             d_start = min(
-                map(
-                    lambda x: abs(
-                        cutmap[entry.reference_name][x] - entry.reference_end
-                    ),
-                    [0, 1],
-                )
+                map(lambda x: abs(cutmap[entry.reference_name][x] - entry.reference_end), [0, 1])
             )
 
         if not last_readname or last_readname != entry.query_name:
