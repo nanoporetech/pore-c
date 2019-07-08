@@ -27,10 +27,7 @@ class IndexedFasta(DataSource):
         if self._dataset is None:
             self._open_dataset()
         self._chroms = list(self._dataset.references)
-        chrom_lengths = [
-            {"chrom": t[0], "length": t[1]}
-            for t in zip(self._dataset.references, self._dataset.lengths)
-        ]
+        chrom_lengths = [{"chrom": t[0], "length": t[1]} for t in zip(self._dataset.references, self._dataset.lengths)]
         return Schema(
             datashape=None,
             dtype=None,
@@ -52,9 +49,7 @@ class IndexedFasta(DataSource):
         from dask import bag as db
 
         self._load_metadata()
-        return db.from_delayed(
-            [dask.delayed(self._get_partition(i)) for i in range(self.npartitions)]
-        )
+        return db.from_delayed([dask.delayed(self._get_partition(i)) for i in range(self.npartitions)])
 
     def _close(self):
         # close any files, sockets, etc
@@ -109,15 +104,11 @@ class IndexedBedFile(DataSource):
     def _get_partition(self, i):
         chrom = self._chroms[i]
         columns = list(self._dtype.keys())
-        return pd.DataFrame(
-            list(self._dataset.fetch(chrom, parser=asTuple())), columns=columns
-        ).astype(self._dtype)
+        return pd.DataFrame(list(self._dataset.fetch(chrom, parser=asTuple())), columns=columns).astype(self._dtype)
 
     def read(self):
         self._load_metadata()
-        return pd.concat(
-            [self.read_partition(i) for i in range(self.npartitions)], ignore_index=True
-        )
+        return pd.concat([self.read_partition(i) for i in range(self.npartitions)], ignore_index=True)
 
     def _close(self):
         # close any files, sockets, etc
@@ -140,6 +131,7 @@ class NameSortedBamSource(DataSource):
         super(NameSortedBamSource, self).__init__(metadata=metadata)
 
     def _open_dataset(self):
+        #TODO check that bam file has namesorted in header
         self._af = AlignmentFile(self._urlpath)
 
     def _get_schema(self):
@@ -160,9 +152,9 @@ class NameSortedBamSource(DataSource):
         if chrom_coord_dtype is None:
             raise ValueError(f"Max chromosome length is too long: {max_read_length}")
         dtypes = {
-            "mapping_type": pd.CategoricalDtype(
-                ["unmapped", "primary", "supplementary", "secondary"], ordered=True
-            ),
+            "read_idx": np.uint64,
+            "align_idx": np.uint64,
+            "mapping_type": pd.CategoricalDtype(["unmapped", "primary", "supplementary", "secondary"], ordered=True),
             "chrom": pd.CategoricalDtype(chrom_names + ["NULL"], ordered=True),
             "start": chrom_coord_dtype,
             "end": chrom_coord_dtype,
@@ -175,31 +167,28 @@ class NameSortedBamSource(DataSource):
             "score": np.uint32,
         }
         self._dtype = dtypes
-        return Schema(
-            datashape=None,
-            dtype=dtypes,
-            shape=(None, len(dtypes)),
-            npartitions=None,
-            extra_metadata={},
-        )
+        return Schema(datashape=None, dtype=dtypes, shape=(None, len(dtypes)), npartitions=None, extra_metadata={})
 
     @staticmethod
     def _group_by_read(align_iter):
         current_read_name = None
+        read_idx = 0
         aligns = []
         for align_idx, align in enumerate(align_iter):
             if current_read_name is None:
                 current_read_name = align.query_name
-                aligns.append(align)
+                aligns.append((read_idx, align_idx, align))
             elif current_read_name == align.query_name:
-                aligns.append(align)
+                aligns.append((read_idx, align_idx, align))
             else:
                 yield aligns
+                read_idx += 1
                 current_read_name = align.query_name
-                aligns = [align]
+                aligns = [(read_idx, align_idx, align)]
         yield aligns
 
-    def _align_to_tuple(self, align):
+    def _align_to_tuple(self, align_data):
+        read_idx, align_idx, align = align_data
         if align.is_unmapped:
             align_cat = "unmapped"
             chrom, start, end, align_score = "NULL", 0, 0, 0
@@ -215,6 +204,8 @@ class NameSortedBamSource(DataSource):
             else:
                 align_cat = "primary"
         return (
+            read_idx,
+            align_idx,
             align_cat,
             chrom,
             start,
@@ -228,26 +219,25 @@ class NameSortedBamSource(DataSource):
             align_score,
         )
 
-    def read_chunked(self, chunksize=1000, yield_aligns=False):
+    def read_chunked(self, chunksize=10000, yield_aligns=False, max_chunks=None):
+        """Read the bam into a dataframe in chunks
+
+
+        """
         self._load_metadata()
         from toolz import partition_all
 
         align_iter = self._af.fetch(until_eof=self._include_unmapped)
-        for chunk in partition_all(chunksize, self._group_by_read(align_iter)):
+        for chunk_idx, chunk in enumerate(partition_all(chunksize, self._group_by_read(align_iter))):
             aligns = [a for read_aligns in chunk for a in read_aligns]
-            df = pd.DataFrame(
-                [self._align_to_tuple(a) for a in aligns], columns=self._schema.dtype.keys()
-            )
-            try:
-                df = df.astype(self._schema.dtype)
-            except:
-                print(df.head())
-                raise
-
+            df = pd.DataFrame([self._align_to_tuple(a) for a in aligns], columns=self._schema.dtype.keys())
+            df = df.astype(self._schema.dtype)
             if yield_aligns:
                 yield (aligns, df)
             else:
                 yield (df)
+            if max_chunks and chunk_idx == max_chunks - 1:
+                break
 
     def _close(self):
         if self._af is not None:

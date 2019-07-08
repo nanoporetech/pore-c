@@ -39,12 +39,7 @@ class Matrix_Entry:
         return cls(*l)
 
     def to_string(self):
-        if (
-            self.contact_probability != 0.0
-            and self.corrected_counts != 0.0
-            and self.E1 != 0.0
-            and self.E2 != 0.0
-        ):
+        if self.contact_probability != 0.0 and self.corrected_counts != 0.0 and self.E1 != 0.0 and self.E2 != 0.0:
             return "{bin1} {bin2} {raw_counts} {contact_probability} {corrected_counts} {E1} {E2}\n".format(
                 bin1=self.bin1,
                 bin2=self.bin2,
@@ -120,10 +115,7 @@ def plot_contact_distances(ref_bin_file: str, graph_file_out: str, *EC_matrix_fi
 
 
 def plot_contact_map(
-    matrix_file_in: str,
-    ref_bin_file: str,
-    heat_map_file_out: str,
-    matrix_type: Optional[str] = "raw",
+    matrix_file_in: str, ref_bin_file: str, heat_map_file_out: str, matrix_type: Optional[str] = "raw"
 ) -> None:
 
     names = []
@@ -148,9 +140,7 @@ def plot_contact_map(
 
     matrix = np.zeros((size - 1, size - 1))
     for entry in map(Matrix_Entry.from_string, open(matrix_file_in)):
-        return "{bin1} {bin2} {raw_counts}\n".format(
-            bin1=self.bin1, bin2=self.bin2, raw_counts=self.raw_counts
-        )
+        return "{bin1} {bin2} {raw_counts}\n".format(bin1=self.bin1, bin2=self.bin2, raw_counts=self.raw_counts)
 
         if matrix_type == "corrected":
             matrix[entry.bin1, entry.bin2] = entry.corrected_counts
@@ -168,9 +158,7 @@ def plot_contact_map(
     fig, ax = plt.subplots(1, figsize=(12, 6), dpi=500)
 
     #    plt.imshow(matrix,norm=colors.LogNorm(vmin=.1, vmax=matrix.max()), cmap="gist_heat_r")
-    plt.imshow(
-        matrix, norm=colors.LogNorm(vmin=0.1, vmax=matrix.max()), cmap="viridis", rasterized=True
-    )
+    plt.imshow(matrix, norm=colors.LogNorm(vmin=0.1, vmax=matrix.max()), cmap="viridis", rasterized=True)
 
     null_markers = [""] * len(markers)
     ax.set_yticks(markers)
@@ -259,15 +247,10 @@ def comparison_contact_map(
             print(pos + start, pos + stop, abs_start, abs_stop)
 
             if chr_strands[entry] == "+":
-                for x1, x2 in zip(
-                    list(range(*absolute_binranges[entry])), list(range(pos + start, pos + stop))
-                ):
+                for x1, x2 in zip(list(range(*absolute_binranges[entry])), list(range(pos + start, pos + stop))):
                     bin_mappings[x1] = x2
             else:
-                for x1, x2 in zip(
-                    list(range(*absolute_binranges[entry])),
-                    list(range(pos + start, pos + stop))[::-1],
-                ):
+                for x1, x2 in zip(list(range(*absolute_binranges[entry])), list(range(pos + start, pos + stop))[::-1]):
                     bin_mappings[x1] = x2
             pos += sizes[entry]
 
@@ -405,11 +388,7 @@ def comparison_contact_map(
 
 # this is done on corrected values
 def cis_trans_analysis(
-    EC_matrix_file_in: str,
-    ref_bin_file: str,
-    data_file_out: str,
-    results_file_out: str,
-    scatter_map_file_out: str,
+    EC_matrix_file_in: str, ref_bin_file: str, data_file_out: str, results_file_out: str, scatter_map_file_out: str
 ) -> None:
 
     # coordinate the bins with their chromosomes based on the

@@ -73,9 +73,7 @@ class HicContact(object):
         )
 
 
-def fragment_bin_assignments(
-    fragment_reference: str, bin_reference: str, mapping_bed_out: str
-) -> None:
+def fragment_bin_assignments(fragment_reference: str, bin_reference: str, mapping_bed_out: str) -> None:
     frag_midpoint_reference = []
     with gzip.open(fragment_reference) as handle:
         for entry in handle:
@@ -108,9 +106,7 @@ def bin_hic_data(input_hictxt: str, output_bin_matrix: str, frag_bin_reference: 
         l = entry.strip().split()
         if l[0] in frag_to_bin:
             raise ValueError(
-                "fragment seen more than once. {} seen in bins {} and {}.".format(
-                    l[0], frag_to_bin[int(l[0])], l[1]
-                )
+                "fragment seen more than once. {} seen in bins {} and {}.".format(l[0], frag_to_bin[int(l[0])], l[1])
             )
         frag_to_bin[int(l[0])] = int(l[1])
 

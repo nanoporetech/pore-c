@@ -4,14 +4,11 @@ init:
 	conda env create
 
 reformat:
-	black src --target-version py37 --line-length 100
+	black src --target-version py37 --line-length 120
 	isort --recursive src
 
-lint:
-	pylint src
-
 check:
-	pylama  -o .pylama.ini src
+	pylama  -o pylama.ini src
 
 test:
 	python -m pytest -s tests --basetemp=test_output

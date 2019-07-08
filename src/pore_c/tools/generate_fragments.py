@@ -7,9 +7,7 @@ from pore_c.model import FragmentMap, SeqDigest
 from pore_c.utils import kmg_bases_to_int
 
 # complement translation table with support for regex punctuation
-COMPLEMENT_TRANS = str.maketrans(
-    "ACGTWSMKRYBDHVNacgtwsmkrybdhvn-)(][", "TGCAWSKMYRVHDBNtgcawskmyrvhdbn-()[]"
-)
+COMPLEMENT_TRANS = str.maketrans("ACGTWSMKRYBDHVNacgtwsmkrybdhvn-)(][", "TGCAWSKMYRVHDBNtgcawskmyrvhdbn-()[]")
 
 # translate degenerate bases to regex set
 DEGENERATE_TRANS = str.maketrans(
@@ -47,9 +45,7 @@ def create_regex(pattern: str) -> Pattern:
     regular expression object consisting of both forward and reverse complement versions of the pattern"""
     ###
 
-    site_raw = (
-        pattern.replace("(", " ").replace(")", " ").replace(" ", "").replace("|", " ").split()
-    )
+    site_raw = pattern.replace("(", " ").replace(")", " ").replace(" ", "").replace("|", " ").split()
     sites_raw = []
     for entry in sites_raw:
         sites_raw.append(revcomp(entry))
@@ -66,11 +62,7 @@ def create_regex(pattern: str) -> Pattern:
     try:
         regex = re.compile(fwd_rev_pattern)
     except:
-        raise ValueError(
-            "Error compiling regex for pattern {}, redundance form: {}".format(
-                pattern, fwd_rev_pattern
-            )
-        )
+        raise ValueError("Error compiling regex for pattern {}, redundance form: {}".format(pattern, fwd_rev_pattern))
     return regex
 
 
@@ -126,9 +118,7 @@ def fragment_generator(reference_fasta: str, restriction_pattern: str) -> Iterat
 
 def create_fragment_map(reference_fasta: str, restriction_pattern: str) -> FragmentMap:
     """Iterate over the sequences in a fasta file and find the match positions for the restriction fragment"""
-    frag_map = FragmentMap.from_digest_iter(
-        fragment_generator(reference_fasta, restriction_pattern)
-    )
+    frag_map = FragmentMap.from_digest_iter(fragment_generator(reference_fasta, restriction_pattern))
     return frag_map
 
 
@@ -148,9 +138,5 @@ def create_bin_file(reference_fai: str, bedfile_out: str, bin_size: int) -> None
         frags.append(tail_frag)
 
         for idx, entry in enumerate(frags):
-            f_out.write(
-                "{ch}\t{st}\t{en}\t{num}\n".format(
-                    ch=l[0], st=entry[0], en=entry[1], num=idx + frag_num
-                )
-            )
+            f_out.write("{ch}\t{st}\t{en}\t{num}\n".format(ch=l[0], st=entry[0], en=entry[1], num=idx + frag_num))
         frag_num += len(frags)

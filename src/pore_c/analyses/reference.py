@@ -16,9 +16,7 @@ from pore_c.model import FragmentMap, SeqDigest
 from pore_c.utils import kmg_bases_to_int
 
 # complement translation table with support for regex punctuation
-COMPLEMENT_TRANS = str.maketrans(
-    "ACGTWSMKRYBDHVNacgtwsmkrybdhvn-)(][", "TGCAWSKMYRVHDBNtgcawskmyrvhdbn-()[]"
-)
+COMPLEMENT_TRANS = str.maketrans("ACGTWSMKRYBDHVNacgtwsmkrybdhvn-)(][", "TGCAWSKMYRVHDBNtgcawskmyrvhdbn-()[]")
 
 # translate degenerate bases to regex set
 DEGENERATE_TRANS = str.maketrans(
@@ -56,9 +54,7 @@ def create_regex(pattern: str) -> Pattern:
     string and returns a regular expression object consisting of both forward
     and reverse complement versions of the pattern"""
 
-    site_raw = (
-        pattern.replace("(", " ").replace(")", " ").replace(" ", "").replace("|", " ").split()
-    )
+    site_raw = pattern.replace("(", " ").replace(")", " ").replace(" ", "").replace("|", " ").split()
     sites_raw = []
     for entry in sites_raw:
         sites_raw.append(revcomp(entry))
@@ -75,11 +71,7 @@ def create_regex(pattern: str) -> Pattern:
     try:
         regex = re.compile(fwd_rev_pattern)
     except:
-        raise ValueError(
-            "Error compiling regex for pattern {}, redundance form: {}".format(
-                pattern, fwd_rev_pattern
-            )
-        )
+        raise ValueError("Error compiling regex for pattern {}, redundance form: {}".format(pattern, fwd_rev_pattern))
     return regex
 
 
@@ -145,9 +137,7 @@ def create_fragment_dataframe(seqid: str, seq: str, restriction_pattern: str) ->
     return intervals
 
 
-def create_virtual_digest_dataframe(
-    reference_fasta: str, restriction_pattern: str = None
-) -> pd.DataFrame:
+def create_virtual_digest_dataframe(reference_fasta: str, restriction_pattern: str = None) -> pd.DataFrame:
     """Iterate over the sequences in a fasta file and find the match positions for the restriction fragment"""
 
     seq_bag = reference_fasta.to_dask()
@@ -167,9 +157,7 @@ def create_virtual_digest_dataframe(
     return fragment_df
 
 
-def create_virtual_digest(
-    reference_fasta: IndexedFasta, restriction_pattern: str, output_prefix: Path
-) -> pd.DataFrame:
+def create_virtual_digest(reference_fasta: IndexedFasta, restriction_pattern: str, output_prefix: Path) -> pd.DataFrame:
     """Iterate over the sequences in a fasta file and find the match positions for the restriction fragment"""
 
     catalog_path = output_prefix.with_suffix(".virtual_digest.catalog.yaml")
@@ -180,9 +168,7 @@ def create_virtual_digest(
         if path.exists():
             raise IOError("Output path exists, please delete: {}".format(path))
 
-    fragment_df = dd.from_pandas(
-        create_virtual_digest_dataframe(reference_fasta, restriction_pattern), npartitions=1
-    )
+    fragment_df = dd.from_pandas(create_virtual_digest_dataframe(reference_fasta, restriction_pattern), npartitions=1)
     fragment_df.to_parquet(str(parquet_path))
 
     summary_stats = (
@@ -199,14 +185,8 @@ def create_virtual_digest(
         "name": "pore_c_virtual_digest",
         "description": "Output files of a pore-c tools virtual digest",
         "sources": {
-            "fragment_df": {
-                "driver": "parquet",
-                "args": {"urlpath": "{{ CATALOG_DIR }}/" + str(parquet_path.name)},
-            },
-            "summary_stats": {
-                "driver": "csv",
-                "args": {"urlpath": "{{ CATALOG_DIR }}/" + str(summary_path.name)},
-            },
+            "fragment_df": {"driver": "parquet", "args": {"urlpath": "{{ CATALOG_DIR }}/" + str(parquet_path.name)}},
+            "summary_stats": {"driver": "csv", "args": {"urlpath": "{{ CATALOG_DIR }}/" + str(summary_path.name)}},
         },
     }
     with catalog_path.open("w") as fh:

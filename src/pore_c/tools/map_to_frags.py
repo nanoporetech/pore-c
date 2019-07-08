@@ -124,9 +124,7 @@ class ReadToFragments(object):
         return len(self.fragment_assignments)
 
     def to_HiC_str(self):
-        quals, mappings = zip(
-            *[(str(_.max_mapping_quality), _.to_HiC_str()) for _ in self.fragment_assignments]
-        )
+        quals, mappings = zip(*[(str(_.max_mapping_quality), _.to_HiC_str()) for _ in self.fragment_assignments])
         return "{name} {mappings} {quals}\n".format(
             name=self.read_name, mappings=" ".join(mappings), quals=" ".join(quals)
         )
@@ -244,9 +242,7 @@ class ReadToFragments(object):
                 sum(overlap_lengths),
             )
             fragment_assignments.append(r)
-        return cls(
-            read_aligns.read_name, num_frags, num_nonadj_frags, nonadj_vector, fragment_assignments
-        )
+        return cls(read_aligns.read_name, num_frags, num_nonadj_frags, nonadj_vector, fragment_assignments)
 
 
 @dataclass
@@ -296,9 +292,7 @@ class ReadAlignments(object):
                 aligns.append(align)
             else:
                 if align.read_name in reads_seen:
-                    raise IOError(
-                        "Seen this read already, is the BAM namesorted?: {}".format(align.read_name)
-                    )
+                    raise IOError("Seen this read already, is the BAM namesorted?: {}".format(align.read_name))
                 yield ReadAlignments(current_read_name, sorted(aligns, key=lambda x: x.read_start))
                 reads_seen.add(current_read_name)
                 aligns = [align]

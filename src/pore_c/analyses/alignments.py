@@ -12,13 +12,18 @@ from pyarrow import parquet as pq
 from pysam import AlignmentFile
 from tqdm import tqdm
 
+from pore_c.model import GenomeIntervalDf
 from pore_c.datasources import NameSortedBamSource
+from typing import NewType, Union, Dict
+
+
+
+
 
 logger = logging.getLogger(__name__)
 
 FILTER_REASON_DTYPE = pd.CategoricalDtype(
-    ["pass", "unmapped", "singleton", "low_mq", "overlap_on_read", "not_on_shortest_path"],
-    ordered=True,
+    ["pass", "unmapped", "singleton", "low_mq", "overlap_on_read", "not_on_shortest_path"], ordered=True
 )
 
 
@@ -26,26 +31,27 @@ class TableWriter(object):
     def __init__(self, path):
         self.path = path
         self._writer = None
+        self._schema = None
 
     def write(self, df):
-        table = pa.Table.from_pandas(df, preserve_index=False)
+        table = pa.Table.from_pandas(df, preserve_index=False, schema=self._schema)
         if self._writer is None:
             self._writer = pq.ParquetWriter(self.path, schema=table.schema)
-        self._writer.write_table(table)
+            self._schema = table.schema
+        try:
+            self._writer.write_table(table)
+        except:
+            print(df)
+            raise
+
+    def __call__(self, *args, **kwds):
+        return self.write(*args, **kwds)
 
     def close(self):
         self._writer.close()
 
 
-def filter_alignments(
-    input_bam: str,
-    pass_bam: str = None,
-    fail_bam: str = None,
-    align_table: str = None,
-    read_table: str = None,
-    catalog_file: str = None,
-    chunksize=50000,
-):
+def filter_alignments(input_bam: str, fragment_df: pd.DataFrame, align_table: str = None, read_table: str = None, overlap_table: str = None, catalog_file: str = None, chunksize=50000, n_workers=10):
     """Filter alignments to keep only alignments that contribute to contacts
 
     Parameters
@@ -57,61 +63,124 @@ def filter_alignments(
                 The alignments are batched for processing, this controls the batch size
 
     """
-    source_aligns = NameSortedBamSource(input_bam, metadata={})
+    from streamz import Stream
+    from time import sleep
+    from dask.distributed import Client, LocalCluster
+    from scipy.special import binom
 
-    pbar = tqdm(total=None, unit=" reads")
+    parallel = n_workers > 1
+    fragment_df = fragment_df.set_index(['fragment_id']).sort_index()#.rename_axis("index", axis=0)
+    if parallel:
+        cluster = LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=1)
+        client = Client(cluster)
+        fragment_df = client.scatter(fragment_df)
+
+
     writers = dict(
-        pass_align=AlignmentFile(pass_bam, "wb", template=AlignmentFile(input_bam))
-        if pass_bam
-        else None,
-        fail_align=AlignmentFile(fail_bam, "wb", template=AlignmentFile(input_bam))
-        if fail_bam
-        else None,
-        align_table=TableWriter(align_table) if align_table else None,
-        read_table=TableWriter(read_table) if read_table else None,
+        align_table=TableWriter(align_table),
+        read_table=TableWriter(read_table),
+        overlap_table=TableWriter(overlap_table)
     )
 
-    running_total = None
-    for chunk_idx, (aligns, align_df) in enumerate(
-        source_aligns.read_chunked(chunksize=chunksize, yield_aligns=True)
-    ):
+    batch_progress_bar = tqdm(total=None, desc="Alignments submitted: ", unit=" alignments", position=0)
+    perc_alignment_bar = tqdm(total=None, desc="Alignments processed: ", unit=" alignments", position=1)
+    perc_read_bar = tqdm(total=None, desc="Reads processed: ", unit=" reads", position=2)
 
-        # apply filters to the alignments
-        res = filter_read_alignments(align_df)
-
-        # calculate pre-read statistics on the result of the filtering
-        read_stats = calculate_read_stats(res)
-
-        if writers["pass_align"]:
-            [writers["pass_align"].write(aligns[x]) for x in res.index[res.pass_filter]]
-
-        if writers["fail_align"]:
-            [
-                writers["fail_align"].write(aligns[x])
-                for x in res.index[res.pass_filter == False].values
-            ]
-
-        if writers["align_table"]:
-            writers["align_table"].write(res)
-
-        if writers["read_table"]:
-            writers["read_table"].write(read_stats)
-
-        pass_stats = res["reason"].value_counts(dropna=False)
-        if chunk_idx == 0:
-            running_total = pass_stats
+    def alignment_progress(state, align_df, progress_bar=None):
+        pass_stats = align_df["reason"].value_counts(dropna=False)
+        if state is None:
+            state = pass_stats
         else:
-            running_total += pass_stats
-        counts = running_total.sort_index().to_frame().T
+            state += pass_stats
+        counts = state.sort_index().to_frame().T
         percents = (100.0 * counts).div(counts.sum(axis=1), axis=0)
-        pbar.set_postfix(percents.loc["reason", :].to_dict())
-        pbar.update(chunksize)
+        if progress_bar is not None:
+            progress_bar.update(len(align_df))
+            progress_bar.set_postfix(percents.loc["reason", :].to_dict())
+        return state, align_df
 
-        if chunk_idx == 1:
-            break
+    def read_progress(state, read_df, progress_bar=None):
+        have_contacts = read_df['num_pass_aligns'] >= 2
+        batch_stats = pd.Series({
+            'reads': len(read_df),
+            'Gb': read_df.read_length.sum() * 1e-9,
+            'reads_with_contacts': have_contacts.sum(),
+            #'pass_aligns': read_df['num_pass_aligns'].sum(),
+            'contacts': binom(read_df.loc[have_contacts, 'num_pass_aligns'].values, 2).sum(),
+            #'contacts': binom(read_df.loc[have_contacts, 'num_pass_aligns'].values, 2).sum(),
+        })
+        batch_stats['contacts_per_Gb'] = batch_stats['contacts'] / batch_stats['Gb']
+        if state is None:
+            state = batch_stats
+        else:
+            #print(state, batch_stats)
+            state += batch_stats
+        if progress_bar is not None:
+            progress_bar.update(len(read_df))
+            progress_bar.set_postfix(state.to_dict())
+        return state, align_df
 
-    cat = create_catalog_yaml(writers, catalog_file)
-    return cat
+    # stream that holds the raw alignment dfs
+    bam_stream = Stream()
+
+    # stream that holds the filtered/processed alignments
+    if parallel:
+        filtered_align_stream = (
+            bam_stream
+            .scatter()
+            .map(filter_read_alignments, fragment_df=fragment_df)
+            .buffer(n_workers)
+            .gather()
+        )
+    else:
+        filtered_align_stream = (
+            bam_stream
+            .map(filter_read_alignments, fragment_df=fragment_df)
+        )
+
+    # write the alignments using the table writer, updating progress bar as we go
+    align_sink = (
+        filtered_align_stream
+        .pluck("alignment_table")
+        .accumulate(alignment_progress, returns_state=True, start=None, progress_bar=perc_alignment_bar)
+        .sink(writers['align_table'])
+    )
+
+    read_sink = (
+        filtered_align_stream
+        .pluck("read_table")
+        .accumulate(read_progress, returns_state=True, start=None, progress_bar=perc_read_bar)
+        .sink(writers['read_table'])
+    )
+
+    overlap_sink = (
+        filtered_align_stream
+        .pluck("overlap_table")
+        .sink(writers['overlap_table'])
+    )
+
+    source_aligns = NameSortedBamSource(input_bam, metadata={})
+    for batch_idx, align_df in enumerate(source_aligns.read_chunked(chunksize=chunksize, max_chunks=30)):
+        bam_stream.emit(align_df)
+        batch_progress_bar.update(len(align_df))
+        batch_progress_bar.set_postfix({'batches': batch_idx})
+
+    if parallel:
+        while True:
+            processing = client.processing()
+            still_running  = [len(v) > 0 for k, v in processing.items()]
+            if any(still_running):
+                sleep(10)
+            else:
+                break
+        client.close()
+        cluster.close()
+
+    batch_progress_bar.close()
+    perc_alignment_bar.close()
+    perc_read_bar.close()
+
+    print('\nCompleted\n')
 
 
 def create_catalog_yaml(writers, catalog_file):
@@ -122,16 +191,14 @@ def create_catalog_yaml(writers, catalog_file):
     }
     for file_key, writer in writers.items():
         if not writer:
-            pass
+            continue
         entry = {"args": {}}
         writer.close()
         if isinstance(writer, TableWriter):
             entry["args"]["urlpath"] = "{{ CATALOG_DIR }}/" + str(writer.path.name)
             entry["driver"] = "parquet"
         elif isinstance(writer, AlignmentFile):
-            entry["args"]["urlpath"] = (
-                "{{ CATALOG_DIR }}/" + Path(writer.filename.decode("utf8")).name
-            )
+            entry["args"]["urlpath"] = "{{ CATALOG_DIR }}/" + Path(writer.filename.decode("utf8")).name
             entry["driver"] = "pore_c.datasources.NameSortedBamSource"
         catalog["sources"][file_key] = entry
 
@@ -146,13 +213,7 @@ def calculate_read_stats(read_df):
     num_aligns = (
         read_df.groupby(["read_name"])[["read_length"]]
         .max()
-        .join(
-            read_df.query("chrom != 'NULL'")
-            .groupby(["read_name"])
-            .size()
-            .rename("num_aligns")
-            .to_frame()
-        )
+        .join(read_df.query("chrom != 'NULL'").groupby(["read_name"]).size().rename("num_aligns").to_frame())
         .fillna(0)
         .astype({"num_aligns": np.uint8})
     )
@@ -198,18 +259,40 @@ def calculate_read_stats(read_df):
     res.loc[unmapped, "main_chrom_num_aligns"] = 0
     res.loc[unmapped, "main_chrom_perc_read_aligned"] = 0.0
     res = res.astype(
-        {
-            "num_aligns": np.uint8,
-            "num_chroms": np.uint8,
-            "num_pass_aligns": np.uint8,
-            "main_chrom_num_aligns": np.uint8,
-        }
+        {"num_aligns": np.uint8, "num_chroms": np.uint8, "num_pass_aligns": np.uint8, "main_chrom_num_aligns": np.uint8}
     )
     return res
 
 
-def filter_read_alignments(df, mapping_quality_cutoff=1):
-    res = df.assign(pass_filter=True, reason="pass").astype({"reason": FILTER_REASON_DTYPE})
+def filter_read_alignments(df, mapping_quality_cutoff: int = 1, fragment_df: GenomeIntervalDf = None):
+    # initialise everything as having passed filter
+    res = (
+        df
+        .assign(pass_filter=True, reason="pass")
+        .astype({"reason": FILTER_REASON_DTYPE})
+        .set_index("align_idx")
+    )
+
+    # calculate fragment overlaps
+    overlaps = (
+        res.ginterval.overlap(fragment_df)
+        .loc[:, ['align_idx', 'fragment_id', 'overlap_start', 'overlap_end', 'overlap_length', 'perc_of_self', 'perc_of_other']]
+        .rename(columns={'perc_of_self': "perc_of_alignment", 'perc_of_other': "perc_of_fragment"})
+        .sort_values(['overlap_length'], ascending=False)
+    )
+
+    # pick the longest overlap as the associate fragment
+    olg = overlaps.groupby("align_idx", as_index=True, sort=False)
+    overlap_summary = (
+        olg
+        .head(1) # take longest overlap as fragment assignment
+        .set_index(['align_idx'])
+        .join(
+            olg.size().rename("num_fragments")
+        )
+    )
+    res = res.join(overlap_summary)
+
     # apply alignment-level filters
     unmapped_mask = res.mapping_type == "unmapped"
     res.loc[unmapped_mask, "pass_filter"] = False
@@ -226,17 +309,17 @@ def filter_read_alignments(df, mapping_quality_cutoff=1):
 
     # for the remaining alignments filtering happens on a per-read basis
     by_read_res = (
-        res.query("pass_filter == True")
-        .groupby("read_name", sort=False, as_index=False)
-        .apply(apply_per_read_filters)
+        res.query("pass_filter == True").groupby("read_name", sort=False, as_index=False).apply(apply_per_read_filters)
     )
     res.update(by_read_res[["pass_filter", "reason"]])
-    return res.astype({"reason": FILTER_REASON_DTYPE})
+    res = res.astype({'reason': FILTER_REASON_DTYPE})
+    read_table = calculate_read_stats(res)
+
+    return {"alignment_table": res.reset_index(), "overlap_table": overlaps.reset_index(), 'read_table': read_table.reset_index()}
 
 
 def apply_per_read_filters(read_df):
     return read_df.pipe(filter_singleton).pipe(filter_overlap_on_query).pipe(filter_shortest_path)
-    return read_df
 
 
 def filter_singleton(read_df):
@@ -247,22 +330,13 @@ def filter_singleton(read_df):
 
 
 def filter_overlap_on_query(read_df):
-    overlaps_on_read = read_df.duplicated(subset=["read_start", "read_end"], keep=False)
-    if overlaps_on_read.any():
-        raise ValueError(read_df.loc[overlaps_on_read, :])
+    overlap_on_read = read_df.duplicated(subset=["read_start", "read_end"], keep=False)
+    if overlap_on_read.any():
+        best_align_idx = read_df.loc[overlap_on_read, :].groupby(['read_start', 'read_end'])['score'].idxmax()
+        overlap_on_read[best_align_idx.values] = False
+        read_df.loc[overlap_on_read, 'pass_filter'] = False
+        read_df.loc[overlap_on_read, 'reason'] = 'overlap_on_read'
     return read_df
-
-    query_endpoints = defaultdict(list)
-    for index, key in enumerate([(a.query_alignment_start, a.query_alignment_end) for a in aligns]):
-        query_endpoints[key].append(index)
-    results = np.zeros(len(aligns), dtype=bool)
-    for endpoints, indices in query_endpoints.items():
-        if len(indices) > 1:
-            tie_break = sorted([(aligns[i].get_tag("AS"), i) for i in indices], reverse=True)[0]
-            results[tie_break[1]] = True
-        else:
-            results[indices[0]] = True
-    return results
 
 
 def minimap_gapscore(length, o1=4, o2=24, e1=2, e2=1):
@@ -278,9 +352,7 @@ def bwa_gapscore(length, O=5, E=2):
 def create_align_graph(aligns, gap_fn):
     # we'll visit the alignments in order of increasing endpoint on the read, need to keep
     # the ids as the index in the original list of aligns for filtering later
-    aligns = (
-        aligns[["read_start", "read_end", "read_length", "score"]].copy().sort_values(["read_end"])
-    )
+    aligns = aligns[["read_start", "read_end", "read_length", "score"]].copy().sort_values(["read_end"])
     node_ids = list(aligns.index)
     graph = nx.DiGraph()
     # initialise graph with root and sink node, and one for each alignment

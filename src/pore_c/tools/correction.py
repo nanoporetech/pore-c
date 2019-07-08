@@ -129,17 +129,13 @@ class HiCMap(object):
         mdotr = self.matrix.dot(r)
         if not np.all(mdotr != 0):
             print(mdotr)
-            raise ValueError(
-                "Raw contact matrix does not have total support, and may not converge.(1)"
-            )
+            raise ValueError("Raw contact matrix does not have total support, and may not converge.(1)")
 
         c = 1 / mdotr
         mdotc = self.matrix.dot(c)
         if not np.all(mdotc != 0):
             print(mdotc)
-            raise ValueError(
-                "Raw contact matrix does not have total support, and may not converge.(2)"
-            )
+            raise ValueError("Raw contact matrix does not have total support, and may not converge.(2)")
 
         self.total_contacts = np.sum(self.matrix)  # for calculated adjusted contact counts later
 
@@ -197,17 +193,9 @@ class HiCMap(object):
                 print("####")
                 print("Iteration: {}".format(iterations))
                 delta = np.sum(self.cP, axis=1)
-                print(
-                    "x sums (lt emin, gt emax):",
-                    len(delta[delta < e_min]),
-                    len(delta[delta > e_max]),
-                )
+                print("x sums (lt emin, gt emax):", len(delta[delta < e_min]), len(delta[delta > e_max]))
                 delta = np.sum(self.cP, axis=0)
-                print(
-                    "y sums (lt emin, gt emax):",
-                    len(delta[delta < e_min]),
-                    len(delta[delta > e_max]),
-                )
+                print("y sums (lt emin, gt emax):", len(delta[delta < e_min]), len(delta[delta > e_max]))
 
             c = 1 / self.matrix.T.dot(r)
             r = 1 / self.matrix.dot(c)
@@ -273,9 +261,7 @@ class HiCMap(object):
                         )
                     )
                 else:
-                    template = (
-                        "{row} {column} {raw_counts} {contact_probability} {corrected_counts}\n"
-                    )
+                    template = "{row} {column} {raw_counts} {contact_probability} {corrected_counts}\n"
                     f_out.write(
                         template.format(
                             row=x,

@@ -157,11 +157,7 @@ def measure_overlaps(input_bam: str, output_table: str, no_zero):
 
 
 def remove_contained_segments(
-    input_bam: str,
-    keep_bam: str,
-    discard_bam: str,
-    mapping_quality_cutoff: int,
-    alignment_stats: Optional[str] = None,
+    input_bam: str, keep_bam: str, discard_bam: str, mapping_quality_cutoff: int, alignment_stats: Optional[str] = None
 ) -> Tuple[int, int, int, int]:
 
     bam_in = AlignmentFile(input_bam)
@@ -344,13 +340,9 @@ def fragDAG(aligns, aligner="minimap2", params="default"):
         for y in range(x + 1, L):
 
             if aligner == "minimap2":
-                GP = minimap_gapscore(
-                    abs(aligns[y].query_alignment_start - aligns[x].query_alignment_end)
-                )
+                GP = minimap_gapscore(abs(aligns[y].query_alignment_start - aligns[x].query_alignment_end))
             elif aligner == "bwa":
-                GP = bwa_gapscore(
-                    abs(aligns[y].query_alignment_start - aligns[x].query_alignment_end)
-                )
+                GP = bwa_gapscore(abs(aligns[y].query_alignment_start - aligns[x].query_alignment_end))
             AS = aligns[y].get_tag("AS")
             edge_values[(x, y)] = (GP, AS)  # store this data for diagnosis
             G.add_edge(x, y, weight=GP - AS)
@@ -393,12 +385,7 @@ def fragDAG_filter(
                 align = _read_aligns[0]
                 alignment_stats_out.write(
                     "{read_id},{mapping_id},{filter_retained},{q_start},{q_end},{mapq}\n".format(
-                        read_id=align.query_name,
-                        mapping_id=0,
-                        filter_retained=-1,
-                        q_start=0,
-                        q_end=0,
-                        mapq=align.mapq,
+                        read_id=align.query_name, mapping_id=0, filter_retained=-1, q_start=0, q_end=0, mapq=align.mapq
                     )
                 )
             continue
