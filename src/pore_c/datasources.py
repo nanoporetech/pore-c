@@ -131,7 +131,7 @@ class NameSortedBamSource(DataSource):
         super(NameSortedBamSource, self).__init__(metadata=metadata)
 
     def _open_dataset(self):
-        #TODO check that bam file has namesorted in header
+        # TODO check that bam file has namesorted in header
         self._af = AlignmentFile(self._urlpath)
 
     def _get_schema(self):

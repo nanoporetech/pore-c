@@ -1,30 +1,32 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, Iterator, List, NamedTuple, Pattern, Set, Tuple, Union, NewType
+from typing import (Dict, Iterator, List, NamedTuple, NewType, Pattern, Set,
+                    Tuple, Union)
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from ncls import NCLS
 from pybedtools import BedTool
 
+Chrom = NewType("Chrom", str)
 
-Chrom = NewType('Chrom', str)
 
 @pd.api.extensions.register_dataframe_accessor("ginterval")
 class GenomeIntervalDf(object):
     """An extension to handle dataframes containing genomic intervals"""
+
     def __init__(self, pandas_obj):
         self._validate(pandas_obj)
         self._obj = pandas_obj
 
     def _validate(self, obj):
-        for col in ['chrom', 'start', 'end']:
+        for col in ["chrom", "start", "end"]:
             if col not in obj.columns:
                 raise AttributeError("Must have columns 'chrom', 'start' and 'end'.")
-        self.index_name = 'index' if obj.index.name is None else obj.index.name
-        assert(obj.index.is_unique), "Must have a unique index"
-        assert(not isinstance(obj.index, pd.MultiIndex)), "Can't be multindex"
-        assert(np.issubdtype(obj.index.dtype, np.integer)), "Must have integer index: {}".format(obj.index.dtype)
+        self.index_name = "index" if obj.index.name is None else obj.index.name
+        assert obj.index.is_unique, "Must have a unique index"
+        assert not isinstance(obj.index, pd.MultiIndex), "Can't be multindex"
+        assert np.issubdtype(obj.index.dtype, np.integer), "Must have integer index: {}".format(obj.index.dtype)
 
     @property
     def is_valid(self):
@@ -32,14 +34,18 @@ class GenomeIntervalDf(object):
 
     def as_ncls_dict(self) -> Dict[Chrom, NCLS]:
         res = {}
-        for chrom, chrom_df in self._obj.groupby('chrom'):
-            res[chrom] = NCLS(chrom_df.start.values.astype(np.int64), chrom_df.end.values.astype(np.int64), chrom_df.index.values.astype(np.int64))
+        for chrom, chrom_df in self._obj.groupby("chrom"):
+            res[chrom] = NCLS(
+                chrom_df.start.values.astype(np.int64),
+                chrom_df.end.values.astype(np.int64),
+                chrom_df.index.values.astype(np.int64),
+            )
         return res
 
-    def overlap(self, other: 'GenomeIntervalDf', calculate_lengths: bool = True):
+    def overlap(self, other: "GenomeIntervalDf", calculate_lengths: bool = True):
         """Find all overlapping intervals between this dataframe and 'other'"""
-        self_cols = ['chrom', 'start', 'end', self.index_name]
-        other_cols = ['start', 'end', other.ginterval.index_name]
+        self_cols = ["chrom", "start", "end", self.index_name]
+        other_cols = ["start", "end", other.ginterval.index_name]
         other_rename = {"start": "other_start", "end": "other_end"}
         if self.index_name == other.ginterval.index_name:
             other_rename[other.ginterval.index_name] = "other_" + other.ginterval.index_name
@@ -47,34 +53,24 @@ class GenomeIntervalDf(object):
             other_rename[other.ginterval.index_name] = other.ginterval.index_name
         tgt = other.ginterval.as_ncls_dict()
         overlaps = []
-        for chrom, chrom_df in self._obj.groupby('chrom'):
+        for chrom, chrom_df in self._obj.groupby("chrom"):
             if chrom not in tgt:
                 continue
             self_indices, target_indices = tgt[chrom].all_overlaps_both(
                 chrom_df.start.values.astype(np.int64),
                 chrom_df.end.values.astype(np.int64),
-                chrom_df.index.values.astype(np.int64)
+                chrom_df.index.values.astype(np.int64),
             )
             overlap_df = (
-                (
-                    chrom_df
-                    .reindex(self_indices)
-                    .reset_index()
-                    #.rename(columns={'index': 'query_idx'})
-                    .loc[:, self_cols]
-                )
-                .join(
-                    other
-                    .reindex(target_indices)
-                    .reset_index()
-                    .rename(columns=other_rename)
-                    .loc[:, other_rename.values()],
-                )
+                chrom_df.reindex(self_indices).reset_index()
+                # .rename(columns={'index': 'query_idx'})
+                .loc[:, self_cols]
+            ).join(
+                other.reindex(target_indices).reset_index().rename(columns=other_rename).loc[:, other_rename.values()]
             )
             if calculate_lengths:
                 overlap_df = (
-                    overlap_df
-                    .assign(
+                    overlap_df.assign(
                         overlap_start=lambda x: np.where(x.other_start > x.start, x.other_start, x.start).astype(int),
                         overlap_end=lambda x: np.where(x.other_end < x.end, x.other_end, x.end).astype(int),
                     )

@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from typing import Dict, NewType, Union
 
 import intake
 import networkx as nx
@@ -12,13 +13,8 @@ from pyarrow import parquet as pq
 from pysam import AlignmentFile
 from tqdm import tqdm
 
-from pore_c.model import GenomeIntervalDf
 from pore_c.datasources import NameSortedBamSource
-from typing import NewType, Union, Dict
-
-
-
-
+from pore_c.model import GenomeIntervalDf
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +47,16 @@ class TableWriter(object):
         self._writer.close()
 
 
-def filter_alignments(input_bam: str, fragment_df: pd.DataFrame, align_table: str = None, read_table: str = None, overlap_table: str = None, catalog_file: str = None, chunksize=50000, n_workers=10):
+def filter_alignments(
+    input_bam: str,
+    fragment_df: pd.DataFrame,
+    align_table: str = None,
+    read_table: str = None,
+    overlap_table: str = None,
+    catalog_file: str = None,
+    chunksize=50000,
+    n_workers=10,
+):
     """Filter alignments to keep only alignments that contribute to contacts
 
     Parameters
@@ -69,17 +74,16 @@ def filter_alignments(input_bam: str, fragment_df: pd.DataFrame, align_table: st
     from scipy.special import binom
 
     parallel = n_workers > 1
-    fragment_df = fragment_df.set_index(['fragment_id']).sort_index()#.rename_axis("index", axis=0)
+    fragment_df = fragment_df.set_index(["fragment_id"]).sort_index()  # .rename_axis("index", axis=0)
     if parallel:
         cluster = LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=1)
         client = Client(cluster)
         fragment_df = client.scatter(fragment_df)
 
-
     writers = dict(
         align_table=TableWriter(align_table),
         read_table=TableWriter(read_table),
-        overlap_table=TableWriter(overlap_table)
+        overlap_table=TableWriter(overlap_table),
     )
 
     batch_progress_bar = tqdm(total=None, desc="Alignments submitted: ", unit=" alignments", position=0)
@@ -100,25 +104,27 @@ def filter_alignments(input_bam: str, fragment_df: pd.DataFrame, align_table: st
         return state, align_df
 
     def read_progress(state, read_df, progress_bar=None):
-        have_contacts = read_df['num_pass_aligns'] >= 2
-        batch_stats = pd.Series({
-            'reads': len(read_df),
-            'Gb': read_df.read_length.sum() * 1e-9,
-            'reads_with_contacts': have_contacts.sum(),
-            #'pass_aligns': read_df['num_pass_aligns'].sum(),
-            'contacts': binom(read_df.loc[have_contacts, 'num_pass_aligns'].values, 2).sum(),
-            #'contacts': binom(read_df.loc[have_contacts, 'num_pass_aligns'].values, 2).sum(),
-        })
-        batch_stats['contacts_per_Gb'] = batch_stats['contacts'] / batch_stats['Gb']
+        have_contacts = read_df["num_pass_aligns"] >= 2
+        batch_stats = pd.Series(
+            {
+                "reads": len(read_df),
+                "Gb": read_df.read_length.sum() * 1e-9,
+                "reads_with_contacts": have_contacts.sum(),
+                #'pass_aligns': read_df['num_pass_aligns'].sum(),
+                "contacts": binom(read_df.loc[have_contacts, "num_pass_aligns"].values, 2).sum(),
+                #'contacts': binom(read_df.loc[have_contacts, 'num_pass_aligns'].values, 2).sum(),
+            }
+        )
+        batch_stats["contacts_per_Gb"] = batch_stats["contacts"] / batch_stats["Gb"]
         if state is None:
             state = batch_stats
         else:
-            #print(state, batch_stats)
+            # print(state, batch_stats)
             state += batch_stats
         if progress_bar is not None:
             progress_bar.update(len(read_df))
             progress_bar.set_postfix(state.to_dict())
-        return state, align_df
+        return state, read_df
 
     # stream that holds the raw alignment dfs
     bam_stream = Stream()
@@ -126,49 +132,36 @@ def filter_alignments(input_bam: str, fragment_df: pd.DataFrame, align_table: st
     # stream that holds the filtered/processed alignments
     if parallel:
         filtered_align_stream = (
-            bam_stream
-            .scatter()
-            .map(filter_read_alignments, fragment_df=fragment_df)
-            .buffer(n_workers)
-            .gather()
+            bam_stream.scatter().map(filter_read_alignments, fragment_df=fragment_df).buffer(n_workers).gather()
         )
     else:
-        filtered_align_stream = (
-            bam_stream
-            .map(filter_read_alignments, fragment_df=fragment_df)
-        )
+        filtered_align_stream = bam_stream.map(filter_read_alignments, fragment_df=fragment_df)
 
     # write the alignments using the table writer, updating progress bar as we go
     align_sink = (
-        filtered_align_stream
-        .pluck("alignment_table")
+        filtered_align_stream.pluck("alignment_table")
         .accumulate(alignment_progress, returns_state=True, start=None, progress_bar=perc_alignment_bar)
-        .sink(writers['align_table'])
+        .sink(writers["align_table"])
     )
 
     read_sink = (
-        filtered_align_stream
-        .pluck("read_table")
+        filtered_align_stream.pluck("read_table")
         .accumulate(read_progress, returns_state=True, start=None, progress_bar=perc_read_bar)
-        .sink(writers['read_table'])
+        .sink(writers["read_table"])
     )
 
-    overlap_sink = (
-        filtered_align_stream
-        .pluck("overlap_table")
-        .sink(writers['overlap_table'])
-    )
+    overlap_sink = filtered_align_stream.pluck("overlap_table").sink(writers["overlap_table"])
 
     source_aligns = NameSortedBamSource(input_bam, metadata={})
     for batch_idx, align_df in enumerate(source_aligns.read_chunked(chunksize=chunksize, max_chunks=30)):
         bam_stream.emit(align_df)
         batch_progress_bar.update(len(align_df))
-        batch_progress_bar.set_postfix({'batches': batch_idx})
+        batch_progress_bar.set_postfix({"batches": batch_idx})
 
     if parallel:
         while True:
             processing = client.processing()
-            still_running  = [len(v) > 0 for k, v in processing.items()]
+            still_running = [len(v) > 0 for k, v in processing.items()]
             if any(still_running):
                 sleep(10)
             else:
@@ -179,8 +172,9 @@ def filter_alignments(input_bam: str, fragment_df: pd.DataFrame, align_table: st
     batch_progress_bar.close()
     perc_alignment_bar.close()
     perc_read_bar.close()
+    create_catalog_yaml(writers, catalog_file)
 
-    print('\nCompleted\n')
+    print("\nCompleted\n")
 
 
 def create_catalog_yaml(writers, catalog_file):
@@ -266,30 +260,33 @@ def calculate_read_stats(read_df):
 
 def filter_read_alignments(df, mapping_quality_cutoff: int = 1, fragment_df: GenomeIntervalDf = None):
     # initialise everything as having passed filter
-    res = (
-        df
-        .assign(pass_filter=True, reason="pass")
-        .astype({"reason": FILTER_REASON_DTYPE})
-        .set_index("align_idx")
-    )
+    res = df.assign(pass_filter=True, reason="pass").astype({"reason": FILTER_REASON_DTYPE}).set_index("align_idx")
 
     # calculate fragment overlaps
     overlaps = (
         res.ginterval.overlap(fragment_df)
-        .loc[:, ['align_idx', 'fragment_id', 'overlap_start', 'overlap_end', 'overlap_length', 'perc_of_self', 'perc_of_other']]
-        .rename(columns={'perc_of_self': "perc_of_alignment", 'perc_of_other': "perc_of_fragment"})
-        .sort_values(['overlap_length'], ascending=False)
+        .loc[
+            :,
+            [
+                "align_idx",
+                "fragment_id",
+                "overlap_start",
+                "overlap_end",
+                "overlap_length",
+                "perc_of_self",
+                "perc_of_other",
+            ],
+        ]
+        .rename(columns={"perc_of_self": "perc_of_alignment", "perc_of_other": "perc_of_fragment"})
+        .sort_values(["overlap_length"], ascending=False)
     )
 
     # pick the longest overlap as the associate fragment
     olg = overlaps.groupby("align_idx", as_index=True, sort=False)
     overlap_summary = (
-        olg
-        .head(1) # take longest overlap as fragment assignment
-        .set_index(['align_idx'])
-        .join(
-            olg.size().rename("num_fragments")
-        )
+        olg.head(1)  # take longest overlap as fragment assignment
+        .set_index(["align_idx"])
+        .join(olg.size().rename("num_fragments"))
     )
     res = res.join(overlap_summary)
 
@@ -312,10 +309,14 @@ def filter_read_alignments(df, mapping_quality_cutoff: int = 1, fragment_df: Gen
         res.query("pass_filter == True").groupby("read_name", sort=False, as_index=False).apply(apply_per_read_filters)
     )
     res.update(by_read_res[["pass_filter", "reason"]])
-    res = res.astype({'reason': FILTER_REASON_DTYPE})
+    res = res.astype({"reason": FILTER_REASON_DTYPE})
     read_table = calculate_read_stats(res)
 
-    return {"alignment_table": res.reset_index(), "overlap_table": overlaps.reset_index(), 'read_table': read_table.reset_index()}
+    return {
+        "alignment_table": res.reset_index(),
+        "overlap_table": overlaps.reset_index(),
+        "read_table": read_table.reset_index(),
+    }
 
 
 def apply_per_read_filters(read_df):
@@ -332,10 +333,10 @@ def filter_singleton(read_df):
 def filter_overlap_on_query(read_df):
     overlap_on_read = read_df.duplicated(subset=["read_start", "read_end"], keep=False)
     if overlap_on_read.any():
-        best_align_idx = read_df.loc[overlap_on_read, :].groupby(['read_start', 'read_end'])['score'].idxmax()
+        best_align_idx = read_df.loc[overlap_on_read, :].groupby(["read_start", "read_end"])["score"].idxmax()
         overlap_on_read[best_align_idx.values] = False
-        read_df.loc[overlap_on_read, 'pass_filter'] = False
-        read_df.loc[overlap_on_read, 'reason'] = 'overlap_on_read'
+        read_df.loc[overlap_on_read, "pass_filter"] = False
+        read_df.loc[overlap_on_read, "reason"] = "overlap_on_read"
     return read_df
 
 

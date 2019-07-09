@@ -155,6 +155,42 @@ def filter_alignments(input_bam, virtual_digest_catalog, output_prefix, n_worker
     )
     #logger.info(res)
 
+@cli.group(cls=NaturalOrderGroup, short_help="Dashboard")
+def dashboard():
+    pass
+
+
+@dashboard.command(help="Alignment dashboard", context_settings=dict(ignore_unknown_options=True))
+@click.argument("align_catalog", nargs=1, type=click.Path(exists=True))
+@click.argument("bokeh_serve_args", nargs=-1, type=click.UNPROCESSED)
+@click.pass_context
+def alignment(ctx, align_catalog, bokeh_serve_args):
+    import sys
+    import pore_c
+    #from pore_c.dashboard import main
+    from bokeh.__main__ import main as bokeh_entry_point
+
+    main_path = pore_c.__file__.rsplit("/", 1)[0] + "/dashboard/"
+    sys.argv = ['bokeh', 'serve'] + [main_path] + list(bokeh_serve_args) + ["--args", align_catalog]
+    bokeh_entry_point()
+
+
+    #from bokeh.server.server import Server
+    #from bokeh.command.util import build_single_handler_applications, die, report_server_init_errors
+    #from tornado.ioloop import IOLoop
+
+    #from pore_c.dashboard.main  import modify_doc
+    #with report_server_init_errors():
+    #    server = Server(
+    #        {'/': modify_doc},
+    #        io_loop = IOLoop(),
+    #        address = "localhost",
+    #        port = 8788
+    #    )
+    #    #server.start()
+    #    server.run_until_shutdown()
+    #    print(server)
+
 
 @cli.command(short_help="create a .poreC file from a namesorted alignment of poreC data")
 @click.argument("filter_catalog", type=click.Path(exists=True))
