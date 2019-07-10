@@ -3,6 +3,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass
 from typing import Optional
 
+import re
 import matplotlib
 import matplotlib.cm as cm
 import matplotlib.colors as colors
@@ -88,6 +89,7 @@ def plot_contact_distances(
 
     data_set = {}
 
+    ref_data = False
     for fn in EC_matrix_files_in:
         data = Counter()
         for entry in map(Matrix_Entry.from_string, open(fn)):
@@ -99,128 +101,44 @@ def plot_contact_distances(
                 # intrachromosomal
                 if bin2[3] - bin1[3] <= min_max_size:
                     data[bin_size * (bin2[3] - bin1[3])] += l[3]
-        data_set[fn] = data
+        if not ref_data:
+            ref_data = data
+        else:
+            data_set[fn] = data
 
     colors = cm.rainbow(np.linspace(0, 1, len(data_set)))
 
-    fig, ax = plt.subplots(1, figsize=(12, 6))
-    plt.title("Contact Distance Distribution")
+    fig, axes = plt.subplots(nrows = len(data_set) ,ncols = 1, figsize=(5,2*len(data_set)))
+    plt.title("Contact Distance Distributions *")
+
+    ref_distances,ref_counts = zip(*sorted(ref_data.items(), key=lambda x: x[0]))
+    ref_counts = np.array(ref_counts) / sum(ref_counts)
+    ref_distances_Mb = np.array(np.array(ref_distances) / 10 ** 6, dtype=int)
+
     for idx, d in enumerate(data_set.items()):
         name, data = d
+        name = re.search("(?P<id>201[89][0-9]+_[A-Z]{3}[0-9]+_SS_(HindIII|DpnII|NlaIII))",name).group("id")
         distances, counts = zip(*sorted(data.items(), key=lambda x: x[0]))
-        distances_Mb = np.array(np.array(distances) / 10 ** 6, dtype=int)
-        ax.plot(distances_Mb, counts, c=colors[idx])
+        counts = np.array(counts) / sum(counts)
+#        distances_Mb = np.array(np.array(distances) / 10 ** 6, dtype=int)
+#        axes[idx].plot(distances_Mb, counts, c=colors[idx], label = name)
+#        axes[idx].plot(ref_distances_Mb, ref_counts, "k:", label = name)
+        axes[idx].plot(distances, counts, c=colors[idx], label = name)
+        axes[idx].plot(ref_distances, ref_counts, "k:", label = name)
 
-    ax.set_xlabel("distance (Mbp)", fontsize="x-small")
-    ax.set_ylabel("Corrected counts", fontsize="x-small")
-    ax.set_yscale("log")
-    ax.set_xscale("log")
-    ax.set_xlim(1, min_max_size)
-    ax.set_ylim(1000, max(counts))
+        axes[idx].set_xlabel("distance (Mbp)", fontsize="x-small")
+        axes[idx].set_ylabel("Corrected counts", fontsize="x-small")
+#        axes[idx].set_yscale("log")
+        axes[idx].set_xscale("log")
+        axes[idx].set_xlim(10**6,  min_max_size * 10**6)
+#        axes[idx].set_ylim(1000, max(counts))
+        axes[idx].set_ylim(0,max(counts))
+        axes[idx].legend(fontsize = "x-small")
+    
     fig.savefig(graph_file_out)
 
 
-#the comparison tool has been more fully developed, but simple individual plotting of a matrix file
-#  is a simplified version of that, so re-using the code by invoking it under the hood makes good sense
-#  ...I think.
 
-#def plot_contact_map(
-#    matrix_file_in: str,
-#    ref_bin_file: str,
-#    heat_map_file_out: str,
-#    matrix_type: Optional[str] = "raw",
-#) -> None:
-#
-#    comparison_contact_map(matrix_file_in,matrix_file_in,ref_bin_file,heat_map_file_out,matrix_type)
-
-deprecated = """
-def plot_contact_map(
-    matrix_file_in: str,
-    ref_bin_file: str,
-    heat_map_file_out: str,
-    matrix_type: Optional[str] = "raw",
-) -> None:
-
-    names = []
-    markers = []
-    lastChr = False
-    for idx, entry in enumerate(gzip.open(ref_bin_file, "rt")):
-        l = entry.strip().split()
-        if not lastChr:
-            lastChr = l[0]
-        if lastChr != l[0]:
-            markers.append(idx - 0.5)
-            names.append(lastChr)
-
-        lastChr = l[0]
-
-    # tail entry
-    size = idx + 2
-    markers.append(idx - 0.5)
-    _markers = [0] + markers
-    minor_markers = [(x + y) / 2 for x, y in zip(_markers[:-1], _markers[1:])]
-    names.append(l[0])
-
-    matrix = np.zeros((size - 1, size - 1))
-    for entry in map(Matrix_Entry.from_string, open(matrix_file_in)):
-        return "{bin1} {bin2} {raw_counts}\n".format(
-            bin1=self.bin1, bin2=self.bin2, raw_counts=self.raw_counts
-        )
-
-        if matrix_type == "corrected":
-            matrix[entry.bin1, entry.bin2] = entry.corrected_counts
-            matrix[entry.bin2, entry.bin1] = entry.corrected_counts
-        elif matrix_type == "raw":
-            matrix[entry.bin1, entry.bin2] = entry.raw_counts
-            matrix[entry.bin2, entry.bin1] = entry.raw_counts
-        elif matrix_type == "compare":
-            matrix[entry.bin1, entry.bin2] = entry.raw_counts
-            matrix[entry.bin2, entry.bin1] = entry.corrected_counts
-        elif matrix_type == "contactprobability":
-            matrix[entry.bin1, entry.bin2] = entry.contact_probability
-            matrix[entry.bin2, entry.bin1] = entry.contact_probability
-
-    fig, ax = plt.subplots(1, figsize=(12, 6), dpi=500)
-
-
-    #    plt.imshow(matrix,norm=colors.LogNorm(vmin=.1, vmax=matrix.max()), cmap="gist_heat_r")
-    plt.imshow(matrix, norm=colors.LogNorm(vmin=0.1, vmax=matrix.max()), cmap="viridis", rasterized=True)
-
-    null_markers = [""] * len(markers)
-    ax.set_yticks(markers)
-    ax.set_yticks(minor_markers, minor=True)
-    ax.set_yticklabels(null_markers)
-    ax.set_yticklabels(names, minor=True)
-    ax.set_xticks(markers)
-    ax.set_xticklabels(null_markers)
-    ax.set_xticks(minor_markers, minor=True)
-    ax.set_xticklabels(names, minor=True, rotation=90)
-
-    ax.tick_params(axis="both", which="minor", labelsize="xx-small", length=0)
-    ax.tick_params(axis="both", which="major", labelsize="xx-small", length=3)
-
-    # TODO: chromosome names halfway between the major ticks
-
-    #    print("markers:",markers)
-    #    print("minor markers:",minor_markers)
-    #    print("names:",names)
-    #    print("size:",size)
-
-    ax.vlines(
-        markers, 0, size, linestyle=":", linewidth=0.5, alpha=0.4, color="#357BA1"
-    )
-    ax.hlines(
-        markers, 0, size, linestyle=":", linewidth=0.5, alpha=0.4, color="#357BA1"
-    )
-
-    if matrix_type == "compare":
-        ax.set_xlabel("corrected counts")
-        ax.set_ylabel("raw counts")
-        ax.yaxis.set_label_position("right")
-
-    plt.colorbar()
-    plt.savefig(heat_map_file_out)
-"""
 
 def comparison_contact_map(
     matrix1_file_in: str,

@@ -54,8 +54,6 @@ class Cwalk:
     def add(self, monomer):
         self.contacts.append(monomer)
 
-    #        self.fragIDs.add(monomer.fragID)
-
     def sort(self):
         self.contacts.sort(key=lambda c: c.fragID)
 
@@ -121,6 +119,106 @@ class Cwalk:
         return "{name} {mappings} {quals}".format(
             name=self.name, mappings=mapString, quals=quals
         )
+
+#file    format  type    num_seqs        sum_len min_len avg_len max_len Q1      Q2      Q3      sum_gap N50
+#calculates contact_N50, mean, median,  min, max, Q1, Q2, Q3, total_monomer_count, total_entries for a .poreC file
+def stats(poreC_file_in: str) -> str:
+    entries = []
+    contacts = []
+    for entry in open(poreC_file_in):
+        c = Cwalk("None")
+        c.from_entry(entry)
+        z = c.length()
+        entries.append(z)
+        contacts.append((z**2 - z) / 2)
+
+    #reverse sort for N50 calculation using a[::-1].sort()
+    entries = np.array(entries,dtype = float)
+    entries[::-1].sort()
+
+    contacts = np.array(contacts,dtype = float)
+    contacts[::-1].sort()
+
+    template = "{fn},{num_seqs},{total_monomer_count},{min_len},{mean_len},{median_len},{mode_len},{max_len},{Q1},{Q2},{Q3},{monomer_n50},{total_contact_count},{c_min_len},{c_mean_len},{c_median_len},{c_mode_len},{c_max_len},{c_Q1},{c_Q2},{c_Q3},{contact_n50}"
+    print(template.replace("{","").replace("}","")) #print a header
+
+    num_seqs = len(entries)
+    if num_seqs == 0:
+        print( template.format(fn = poreC_file_in,
+                               num_seqs = num_seqs,
+                               total_monomer_count = 0,
+                               min_len = 0,
+                               mean_len = 0,
+                               mode_len = 0,
+                               median_len = 0,
+                               max_len = 0,
+                               Q1 = 0,
+                               Q2 =0,
+                               Q3 =0,
+                               poreC_n50 = 0)
+               )
+        exit()
+
+    total_monomer_count = entries.sum()
+    max_len = entries.max()
+    min_len = entries.min()
+    mean_len = entries.mean()
+    median_len = np.median(entries)
+    half_sum = total_monomer_count / 2.0
+    temp_sum = 0
+    monomer_n50 = 0
+    while temp_sum < half_sum:
+        temp_sum += entries[monomer_n50]
+        monomer_n50 += 1
+
+    (_, idx, counts) = np.unique(entries, return_index=True, return_counts=True)
+    index = idx[np.argmax(counts)]
+    mode_len = entries[index]
+
+
+    total_contact_count = contacts.sum()
+    c_max_len = contacts.max()
+    c_min_len = contacts.min()
+    c_mean_len = contacts.mean()
+    c_median_len = np.median(contacts)
+    half_sum = total_contact_count / 2.0
+    temp_sum = 0
+
+    temp_sum = 0
+    contact_n50 = 0
+    while temp_sum < half_sum:
+        temp_sum += contacts[contact_n50]
+        contact_n50 += 1
+
+
+    (_, idx, counts) = np.unique(contacts, return_index=True, return_counts=True)
+    index = idx[np.argmax(counts)]
+    c_mode_len = contacts[index]
+
+    print( template.format(fn = poreC_file_in,
+                           num_seqs = num_seqs,
+                           total_monomer_count = total_monomer_count ,
+                           min_len = min_len,
+                           mean_len = mean_len,
+                           mode_len = mode_len,
+                           median_len = median_len,
+                           max_len = max_len,
+                           Q1 = np.percentile(entries,25),
+                           Q2 = np.percentile(entries,50),
+                           Q3 = np.percentile(entries,75),
+                           monomer_n50 = entries[monomer_n50],
+                           total_contact_count = total_contact_count ,
+                           c_min_len = c_min_len,
+                           c_mean_len = c_mean_len,
+                           c_mode_len = c_mode_len,
+                           c_median_len = c_median_len,
+                           c_max_len = c_max_len,
+                           c_Q1 = np.percentile(contacts,25),
+                           c_Q2 = np.percentile(contacts,50),
+                           c_Q3 = np.percentile(contacts,75),
+                           contact_n50 = contacts[contact_n50]))
+                                    
+
 
 
 # creates output filehandle
@@ -201,10 +299,9 @@ def make_salsa_bedfile(
     fOut.close()
 
 
-# decomoposes multiway contacts into a value of intra and inter chromosomal contacts
-# reports each of these values, along with the ratio between them.
-
-
+#this code was moved to the stats method of the map-to-frags tool.
+#There may be some use for a stand-alone tool at some point?
+deprecated = """
 def per_read_intra_inter(porec_file_in: str, csv_out: str, frag_bed_ref: str) -> None:
     entry_template = "{read_id},{intra},{inter},{ratio},{pct_intra}\n"
     header = "read_id,intra,inter,ratio,pct_intra\n"
@@ -231,6 +328,7 @@ def per_read_intra_inter(porec_file_in: str, csv_out: str, frag_bed_ref: str) ->
                 pct_intra=(intra / float(intra + inter)),
             )
         )
+"""
 
 
 def fragment_end_metrics(bam_file_in: str, csv_out: str, hicref: str):
@@ -313,3 +411,5 @@ def fragment_end_metrics(bam_file_in: str, csv_out: str, hicref: str):
         )
 
         last_readname = entry.query_name
+
+

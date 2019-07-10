@@ -30,6 +30,7 @@ from pore_c.tools.map_to_bins import \
 from pore_c.tools.map_to_frags import map_to_fragments as map_to_fragments_tool
 from pore_c.tools.poreC_flatten import \
     flatten_multiway as flatten_multiway_tool
+from pore_c.tools.poreC_flatten import stats as stats_tool
 from pore_c.tools.poreC_flatten import \
     fragment_end_metrics as fragment_end_metrics_tool
 from pore_c.tools.poreC_flatten import \
@@ -188,7 +189,12 @@ def cluster_reads(
             )
 
 
-@cli.command(short_help="Cluster mappings by read")
+@cli.command(short_help="Report stats about pore-c data.")
+@click.argument("input_pore_c", type=click.Path(exists=True))
+def stats(input_pore_c):
+    stats_tool(input_pore_c)
+
+@cli.command(short_help="Cluster mappings by read by generating an optimal scoring tiling path along the length of the read.")
 @click.argument("input_bam", type=click.Path(exists=True))
 @click.argument("keep_bam", type=click.Path(exists=False))
 @click.argument("discard_bam", type=click.Path(exists=False))
