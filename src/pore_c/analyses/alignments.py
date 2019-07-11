@@ -12,6 +12,7 @@ from intake.catalog.local import YAMLFileCatalog
 from pyarrow import parquet as pq
 from pysam import AlignmentFile
 from tqdm import tqdm
+from itertools import combinations
 
 from pore_c.datasources import NameSortedBamSource
 from pore_c.model import GenomeIntervalDf
@@ -153,7 +154,7 @@ def filter_alignments(
     overlap_sink = filtered_align_stream.pluck("overlap_table").sink(writers["overlap_table"])
 
     source_aligns = NameSortedBamSource(input_bam, metadata={})
-    for batch_idx, align_df in enumerate(source_aligns.read_chunked(chunksize=chunksize, max_chunks=30)):
+    for batch_idx, align_df in enumerate(source_aligns.read_chunked(chunksize=chunksize)):
         bam_stream.emit(align_df)
         batch_progress_bar.update(len(align_df))
         batch_progress_bar.set_postfix({"batches": batch_idx})
@@ -219,9 +220,15 @@ def calculate_read_stats(read_df):
 
     # how many alignments pass filtering and how many unique chromosomes
     # do they hit
+    def prop_cis(chroms):
+        if len(chroms) < 2:
+            return np.NaN
+        is_cis = np.array([chrom1 == chrom2 for (chrom1, chrom2) in combinations(chroms, 2)])
+        return is_cis.mean()
+
     read_stats = (
         pass_aligns.groupby(["read_name"])["chrom"]
-        .agg(["nunique", "size"])
+        .agg(["nunique", "size", prop_cis])
         .rename(columns={"nunique": "num_chroms", "size": "num_pass_aligns"})
     )
 
@@ -258,37 +265,41 @@ def calculate_read_stats(read_df):
     return res
 
 
-def filter_read_alignments(df, mapping_quality_cutoff: int = 1, fragment_df: GenomeIntervalDf = None):
+def filter_read_alignments(df, mapping_quality_cutoff: int = 1, fragment_df: GenomeIntervalDf = None, min_overlap_length: int = 10, containment_cutoff: float = 99.0):
     # initialise everything as having passed filter
     res = df.assign(pass_filter=True, reason="pass").astype({"reason": FILTER_REASON_DTYPE}).set_index("align_idx")
 
     # calculate fragment overlaps
     overlaps = (
         res.ginterval.overlap(fragment_df)
+        .query("overlap_length >= {}".format(min_overlap_length))
         .loc[
             :,
             [
                 "align_idx",
                 "fragment_id",
-                "overlap_start",
-                "overlap_end",
+                "other_start",
+                "other_end",
                 "overlap_length",
                 "perc_of_self",
                 "perc_of_other",
             ],
         ]
-        .rename(columns={"perc_of_self": "perc_of_alignment", "perc_of_other": "perc_of_fragment"})
+        .rename(columns={"perc_of_self": "perc_of_alignment", "perc_of_other": "perc_of_fragment", "other_start": "fragment_start", "other_end": "fragment_end"})
         .sort_values(["overlap_length"], ascending=False)
     )
+    overlaps = pd.merge(overlaps, res[['read_idx']], left_on="align_idx", right_index=True, how="left")
 
-    # pick the longest overlap as the associate fragment
+    contained_fragments = overlaps.query("perc_of_fragment >= {}".format(containment_cutoff)).groupby("align_idx", as_index=True, sort=False).size().rename("contained_fragments")
+
+    # pick the longest overlap as the associated fragment
     olg = overlaps.groupby("align_idx", as_index=True, sort=False)
     overlap_summary = (
         olg.head(1)  # take longest overlap as fragment assignment
         .set_index(["align_idx"])
-        .join(olg.size().rename("num_fragments"))
+        .join(contained_fragments)
     )
-    res = res.join(overlap_summary)
+    res = res.join(overlap_summary[['fragment_id', 'contained_fragments', 'fragment_start', 'fragment_end', "perc_of_alignment", "perc_of_fragment"]]).fillna({'fragment_id': -1, 'contained_fragments': 0, 'fragment_start': 0, 'fragment_end': 0})
 
     # apply alignment-level filters
     unmapped_mask = res.mapping_type == "unmapped"
@@ -301,15 +312,13 @@ def filter_read_alignments(df, mapping_quality_cutoff: int = 1, fragment_df: Gen
     res.loc[fail_mq_mask, "reason"] = "low_mq"
 
     # no need to do other checks if nothing left
-    if not res["pass_filter"].any():
-        return res
-
-    # for the remaining alignments filtering happens on a per-read basis
-    by_read_res = (
-        res.query("pass_filter == True").groupby("read_name", sort=False, as_index=False).apply(apply_per_read_filters)
-    )
-    res.update(by_read_res[["pass_filter", "reason"]])
-    res = res.astype({"reason": FILTER_REASON_DTYPE})
+    if res["pass_filter"].any():
+        # for the remaining alignments filtering happens on a per-read basis
+        by_read_res = (
+            res.query("pass_filter == True").groupby("read_name", sort=False, as_index=False).apply(apply_per_read_filters)
+        )
+        res.update(by_read_res[["pass_filter", "reason"]])
+        res = res.astype({"reason": FILTER_REASON_DTYPE})
     read_table = calculate_read_stats(res)
 
     return {

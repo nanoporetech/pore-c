@@ -118,25 +118,27 @@ def virtual_digest(reference_catalog, restriction_pattern, output_prefix):
 def filter_alignments(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize):
     """Filter the read-sorted alignments in INPUT_BAM and save the results under OUTPUT_PREFIX
 
-
-
-
     """
     from pore_c.analyses.alignments import filter_alignments as filt
     from pathlib import Path
 
-
-    output_prefix = Path(output_prefix)
-    align_table = output_prefix.with_suffix(".alignment.parquet")
-    read_table = output_prefix.with_suffix(".read.parquet")
-    overlap_table = output_prefix.with_suffix(".overlaps.parquet")
-    catalog_file = output_prefix.with_suffix(".catalog.yaml")
+    if output_prefix.endswith('.'):
+        output_prefix = output_prefix[:-1]
+    suffix_map = {
+        'catalog': '.catalog.yaml',
+        'alignment': '.alignment.parquet',
+        'read': '.read.parquet',
+        'overlap': '.overlap.parquet',
+    }
+    files = {key: Path(output_prefix + val) for key, val in suffix_map.items()}
 
     fail = False
-    for outfile in [catalog_file, align_table, read_table]:
+    for file_id, outfile in files.items():
         if outfile is not None and outfile.exists():
-            logger.error("Output file already exists: {}".format(outfile))
+            logger.error("Output file already exists for {}: {}".format(file_id, outfile))
             fail = True
+        else:
+            logger.info("Results will be written to: {}".format(outfile))
 
     if fail:
         raise click.ClickException("An error was encountered while setting up alignment filters")
@@ -146,14 +148,36 @@ def filter_alignments(input_bam, virtual_digest_catalog, output_prefix, n_worker
     res = filt(
         input_bam,
         fragment_df,
-        align_table=align_table,
-        read_table=read_table,
-        overlap_table=overlap_table,
-        catalog_file=catalog_file,
+        align_table=files['alignment'],
+        read_table=files['read'],
+        overlap_table=files['overlap'],
+        catalog_file=files['catalog'],
         n_workers=n_workers,
         chunksize=chunksize,
     )
     #logger.info(res)
+
+@cli.group(cls=NaturalOrderGroup, short_help="Convert between file formats")
+def convert():
+    pass
+
+
+@convert.command(help="Convert from an alignment table to pairs format")
+@click.argument("align_catalog", type=click.Path(exists=True))
+@click.argument("pairs_file", type=click.Path(exists=False))
+def align_table_to_pairs(align_catalog, pairs_file):
+
+    cat = open_catalog(align_catalog)
+    align_df = cat.align_table.to_dask()
+
+    def to_pairs(align_df):
+        for read_df in align_df.query("pass_filter == True").groupby("read_idx"):
+            print(read_df)
+            raise ValueError(read_df)
+        #print(align_df.mapping_type.value_counts())
+    print(align_df.map_partitions(to_pairs, meta ={'read_idx': int, 'chrom': str}).compute())
+    raise ValueError
+
 
 @cli.group(cls=NaturalOrderGroup, short_help="Dashboard")
 def dashboard():
