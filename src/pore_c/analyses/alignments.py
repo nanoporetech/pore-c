@@ -16,37 +16,13 @@ from itertools import combinations
 
 from pore_c.datasources import NameSortedBamSource
 from pore_c.model import GenomeIntervalDf
+from pore_c.io import TableWriter
 
 logger = logging.getLogger(__name__)
 
 FILTER_REASON_DTYPE = pd.CategoricalDtype(
     ["pass", "unmapped", "singleton", "low_mq", "overlap_on_read", "not_on_shortest_path"], ordered=True
 )
-
-
-class TableWriter(object):
-    def __init__(self, path):
-        self.path = path
-        self._writer = None
-        self._schema = None
-
-    def write(self, df):
-        table = pa.Table.from_pandas(df, preserve_index=False, schema=self._schema)
-        if self._writer is None:
-            self._writer = pq.ParquetWriter(self.path, schema=table.schema)
-            self._schema = table.schema
-        try:
-            self._writer.write_table(table)
-        except:
-            print(df)
-            raise
-
-    def __call__(self, *args, **kwds):
-        return self.write(*args, **kwds)
-
-    def close(self):
-        self._writer.close()
-
 
 def filter_alignments(
     input_bam: str,

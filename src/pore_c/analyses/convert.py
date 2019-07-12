@@ -1,67 +1,12 @@
 from itertools import combinations
 from typing import Dict, Union
-from pore_c.model import AlignDf, Chrom
+from pore_c.model import AlignDf, Chrom, PairDf
+from pore_c.io import PairFileWriter
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import sys
 
-
-
-@pd.api.extensions.register_dataframe_accessor("pairdf")
-class PairDf(object):
-    """An extension to handle dataframes containing pairfile data"""
-
-    DTYPE = {
-        'readID': str,
-        'chr1': str,
-        'pos1': np.uint32,
-        'chr2': str,
-        'pos2': np.uint32,
-        'strand1': pd.CategoricalDtype(['+','-']),
-        'strand2': pd.CategoricalDtype(['+','-']),
-        'pair_type': pd.CategoricalDtype(['DJ', 'IJ']), # DJ=direct_junction, IJ=indirect_junction
-        'frag1': np.uint32,
-        'frag2': np.uint32,
-        'align_idx1': np.uint32,
-        'align_idx2': np.uint32,
-        'distance_on_read': np.int32,
-    }
-
-    def __init__(self, pandas_obj):
-        self._validate(pandas_obj)
-        self._obj = pandas_obj
-
-    def _validate(self, obj):
-        assert(obj.dtype == PairDf.DTYPE)
-
-
-class PairFileWriter(object):
-    def __init__(self, output_path, chrom_sizes, genome_assembly, columns = None):
-        self._output_path = output_path
-        self._chrom_sizes = chrom_sizes
-        self._genome_assembly = genome_assembly
-        self._columns = columns
-        self._fh = None
-        self._string_template = "%s\n" % ("\t".join(["{}" for c in self._columns]))
-
-    def _write_header(self):
-        lines = [
-            "## pairs format 1.0",
-            "# genome_assembly {}".format(self._genome_assembly),
-            "# columns: {}".format(" ".join(self._columns))
-        ]
-        self._fh.write("{}\n".format("\n".join(lines)))
-
-    def __call__(self, pair_df):
-        assert(len(pair_df.columns) == len(self._columns))
-        if self._fh is None:
-            self._fh = open(self._output_path, 'w')
-            self._write_header()
-        pair_df.to_csv(self._fh, header=None, sep="\t", index=False)
-
-    def close(self):
-        self._fh.close()
 
 
 def convert_align_df_to_pairs(align_df: AlignDf, chrom_lengths: Dict[Chrom, int], genome_assembly: str, pair_file: str, n_workers: int = 1):
@@ -116,7 +61,7 @@ def convert_align_df_to_pairs(align_df: AlignDf, chrom_lengths: Dict[Chrom, int]
     use_cols = ['pass_filter', 'read_idx', 'read_name', 'read_start', 'read_end', 'chrom', 'start',  'strand', 'fragment_id', 'align_idx', 'fragment_start', 'fragment_end']
     for partition in range(align_df.npartitions):
         _df = align_df.partitions[partition].loc[:, use_cols]
-        df_stream.emit(_df.head(1000))
+        df_stream.emit(_df.compute()) #.head(1000))
         batch_progress_bar.update(1)
 
     if parallel:
@@ -133,8 +78,6 @@ def convert_align_df_to_pairs(align_df: AlignDf, chrom_lengths: Dict[Chrom, int]
     batch_progress_bar.close()
     pair_progress_bar.close()
     sys.stdout.write('\n\n')
-
-
 
 
 def to_pairs(df):
@@ -160,30 +103,33 @@ def to_pairs(df):
         for (pos1, pos2) in combinations(rows, 2):
             if pos1.align_idx == pos2.align_idx:
                 raise ValueError
-            switch_order = False
-            distance_on_read = pos2.read_start - pos1.read_end
-            direct_neighbors = (pos2.pos_on_read - pos1.pos_on_read) == 1
-            if pos1.chrom == pos2.chrom:
-                if pos1.fragment_midpoint > pos2.fragment_midpoint:
-                    switch_order = True
-            elif pos1.chrom > pos2.chrom:
-                switch_order = True
-            if switch_order:
-                pos1, pos2 = pos2, pos1
-            res.append(
-                (
-                 read_id,
-                 pos1.chrom,
-                 pos1.fragment_midpoint,
-                 pos2.chrom,
-                 pos2.fragment_midpoint,
-                 pos1.strand,
-                 pos2.strand,
-                 'DJ' if direct_neighbors else 'IJ',
-                 pos1.fragment_id,
-                 pos2.fragment_id,
-                 pos1.align_idx,
-                 pos2.align_idx,
-                 distance_on_read)
-            )
+            res.append(position_pair_to_tuple(pos1, pos2, read_id))
     return pd.DataFrame(res, columns=PairDf.DTYPE.keys()).astype(PairDf.DTYPE)
+
+
+def position_pair_to_tuple(pos1, pos2, read_id):
+    switch_order = False #reorder to make uppper triangle
+    distance_on_read = pos2.read_start - pos1.read_end
+    direct_neighbors = (pos2.pos_on_read - pos1.pos_on_read) == 1
+    if pos1.chrom == pos2.chrom:
+        if pos1.fragment_midpoint > pos2.fragment_midpoint:
+            switch_order = True
+    elif pos1.chrom > pos2.chrom:
+        switch_order = True
+    if switch_order:
+        pos1, pos2 = pos2, pos1
+    return (
+         read_id,
+         pos1.chrom,
+         pos1.fragment_midpoint,
+         pos2.chrom,
+         pos2.fragment_midpoint,
+         pos1.strand,
+         pos2.strand,
+         'DJ' if direct_neighbors else 'IJ',
+         pos1.fragment_id,
+         pos2.fragment_id,
+         pos1.align_idx,
+         pos2.align_idx,
+         distance_on_read
+    )

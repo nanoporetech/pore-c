@@ -10,6 +10,35 @@ from pybedtools import BedTool
 
 Chrom = NewType("Chrom", str)
 
+
+@pd.api.extensions.register_dataframe_accessor("pairdf")
+class PairDf(object):
+    """An extension to handle dataframes containing pairfile data"""
+    DTYPE = {
+        'readID': str,
+        'chr1': str,
+        'pos1': np.uint32,
+        'chr2': str,
+        'pos2': np.uint32,
+        'strand1': pd.CategoricalDtype(['+','-']),
+        'strand2': pd.CategoricalDtype(['+','-']),
+        'pair_type': pd.CategoricalDtype(['DJ', 'IJ']), # DJ=direct_junction, IJ=indirect_junction
+        'frag1': np.uint32,
+        'frag2': np.uint32,
+        'align_idx1': np.uint32,
+        'align_idx2': np.uint32,
+        'distance_on_read': np.int32,
+    }
+
+    def __init__(self, pandas_obj):
+        self._validate(pandas_obj)
+        self._obj = pandas_obj
+
+    def _validate(self, obj):
+        assert(obj.dtype == PairDf.DTYPE)
+
+
+
 @pd.api.extensions.register_dataframe_accessor("aligndf")
 class AlignDf(object):
     """An extension to handle dataframes containing alignment intervals"""
