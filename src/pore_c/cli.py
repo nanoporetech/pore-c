@@ -164,19 +164,18 @@ def convert():
 
 @convert.command(help="Convert from an alignment table to pairs format")
 @click.argument("align_catalog", type=click.Path(exists=True))
+@click.argument("reference_catalog", type=click.Path(exists=True))
 @click.argument("pairs_file", type=click.Path(exists=False))
-def align_table_to_pairs(align_catalog, pairs_file):
+@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
+def align_table_to_pairs(align_catalog, reference_catalog, pairs_file, n_workers):
+    from pore_c.analyses.convert import convert_align_df_to_pairs
 
-    cat = open_catalog(align_catalog)
-    align_df = cat.align_table.to_dask()
-
-    def to_pairs(align_df):
-        for read_df in align_df.query("pass_filter == True").groupby("read_idx"):
-            print(read_df)
-            raise ValueError(read_df)
-        #print(align_df.mapping_type.value_counts())
-    print(align_df.map_partitions(to_pairs, meta ={'read_idx': int, 'chrom': str}).compute())
-    raise ValueError
+    align_cat = open_catalog(align_catalog)
+    ref_cat = open_catalog(reference_catalog)
+    ref_metadata = ref_cat.chrom_metadata.read()
+    chrom_lengths = dict(ref_metadata[['chrom', 'length']].values)
+    align_df = align_cat.align_table.to_dask()
+    convert_align_df_to_pairs(align_df, chrom_lengths, Path(reference_catalog).name, pairs_file, n_workers=n_workers)
 
 
 @cli.group(cls=NaturalOrderGroup, short_help="Dashboard")

@@ -173,9 +173,8 @@ def filter_alignments(
     batch_progress_bar.close()
     perc_alignment_bar.close()
     perc_read_bar.close()
+    sys.stdout.write('\n\n')
     create_catalog_yaml(writers, catalog_file)
-
-    print("\nCompleted\n")
 
 
 def create_catalog_yaml(writers, catalog_file):

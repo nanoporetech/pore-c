@@ -10,6 +10,24 @@ from pybedtools import BedTool
 
 Chrom = NewType("Chrom", str)
 
+@pd.api.extensions.register_dataframe_accessor("aligndf")
+class AlignDf(object):
+    """An extension to handle dataframes containing alignment intervals"""
+
+    def __init__(self, pandas_obj):
+        self._validate(pandas_obj)
+        self._obj = pandas_obj
+
+    def _validate(self, obj):
+        for col in ["chrom", "start", "end"]:
+            if col not in obj.columns:
+                raise AttributeError("Must have columns 'chrom', 'start' and 'end'.")
+        self.index_name = "index" if obj.index.name is None else obj.index.name
+        assert obj.index.is_unique, "Must have a unique index"
+        assert not isinstance(obj.index, pd.MultiIndex), "Can't be multindex"
+        assert np.issubdtype(obj.index.dtype, np.integer), "Must have integer index: {}".format(obj.index.dtype)
+
+
 
 @pd.api.extensions.register_dataframe_accessor("ginterval")
 class GenomeIntervalDf(object):
