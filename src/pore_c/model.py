@@ -11,6 +11,84 @@ from pybedtools import BedTool
 Chrom = NewType("Chrom", str)
 
 
+
+#int8 	Byte (-128 to 127)
+#int16 	Integer (-32768 to 32767)
+#int32 	Integer (-2147483648 to 2147483647)
+#int64 	Integer (-9223372036854775808 to 9223372036854775807)
+#uint8 	Unsigned integer (0 to 255)
+#uint16 	Unsigned integer (0 to 65535)
+#uint32 	Unsigned integer (0 to 4294967295)
+#uint64 	Unsigned integer (0 to 18446744073709551615)
+
+
+GENOMIC_COORD_DTYPE = np.uint32  # should be fine as long as individual chromosomes are less than 4Gb
+READ_COORD_DTYPE = np.uint32
+STRAND_DTYPE = pd.CategoricalDtype(['+','-'], ordered=True)
+FRAG_IDX_DTYPE = np.uint32
+READ_IDX_DTYPE = np.uint32
+ALIGN_IDX_DTYPE = np.uint32
+
+
+class basePorecDf(object):
+    DTYPE = {}
+    NANS = {}
+    def __init__(self, pandas_obj):
+        self._obj = pandas_obj
+        self._validation_errors = {}
+        self._additional_columns = []
+        self._check(pandas_obj)
+
+    def _check(self, obj):
+        errors = {}
+        for key, value in self.DTYPE.items():
+            _dtype = obj.dtypes.get(key, None)
+            if _dtype is None:
+                errors[key] = 'Missing column'
+            elif value is None:
+                errors[key] = 'Unset datatype'
+            elif _dtype != value:
+                errors[key] = "Mismatched dtype ({}/{}) (expected/found)".format(_dtype, value)
+        self._validation_errors = errors
+        for column, dtype in obj.dtypes.items():
+            if column not in self.DTYPE:
+                self._additional_columns.append(column)
+
+    def assert_valid(self):
+        if self._validation_errors:
+            raise ValueError("Failed validation:\n{}\n".format('\n'.join(["{}: {}".format(*_) for _ in self._validation_errors.items()])))
+
+    @classmethod
+    def set_dtype(cls, key, value):
+        """If we don't know a datatype until execution time we can set it here"""
+        cls.DTYPE[key] = value
+
+    def cast(self, subset=False, fillna=False) -> pd.DataFrame:
+        cols = list(self.DTYPE.keys()) if subset else self._obj.columns
+        fillna_dict = self.NANS if fillna else {}
+        return self._obj.loc[:, cols].fillna(fillna_dict).astype(self.DTYPE)
+
+
+@pd.api.extensions.register_dataframe_accessor("fragmentdf")
+class FragmentDf(basePorecDf):
+    """An extension to handle dataframes containing pairfile data"""
+    DTYPE = {
+        'fragment_id': FRAG_IDX_DTYPE, # uid starting at 1
+        'chrom': None, # will be categorical but unknown until runtimei, use set_dtype
+        'start': GENOMIC_COORD_DTYPE,
+        'end': GENOMIC_COORD_DTYPE,
+        'fragment_length': GENOMIC_COORD_DTYPE,
+    }
+    def assert_valid(self):
+        if 'chrom' in self._validation_errors and self._validation_errors['chrom'].startswith('Mismatched dtype'):
+            self._validation_errors.pop('chrom')
+        super(FragmentDf, self).assert_valid()
+
+
+
+
+
+
 @pd.api.extensions.register_dataframe_accessor("pairdf")
 class PairDf(object):
     """An extension to handle dataframes containing pairfile data"""
@@ -36,6 +114,9 @@ class PairDf(object):
 
     def _validate(self, obj):
         assert(obj.dtype == PairDf.DTYPE)
+
+    def is_valid(self):
+        return True
 
 
 

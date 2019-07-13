@@ -2,6 +2,8 @@ import re
 from pathlib import Path
 from typing import Iterator, List, NamedTuple, Pattern
 
+from time import sleep
+
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
@@ -12,7 +14,7 @@ from pandas import DataFrame
 from pysam import FastaFile
 
 from pore_c.datasources import IndexedFasta
-from pore_c.model import FragmentMap, SeqDigest
+from pore_c.model import FragmentDf
 from pore_c.utils import kmg_bases_to_int
 
 # complement translation table with support for regex punctuation
@@ -37,6 +39,61 @@ DEGENERATE_TRANS = str.maketrans(
     )
 )
 
+def create_virtual_digest(reference_fasta: IndexedFasta, digest_type: str, digest_param: str, fragment_df_path: Path, summary_stats_path: Path, n_workers: int = 1) -> FragmentDf:
+    """Iterate over the sequences in a fasta file and find the match positions for the restriction fragment"""
+
+    parallel = n_workers > 1
+    if parallel:
+        from dask.distributed import Client, LocalCluster
+        cluster = LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=1)
+        client = Client(cluster)
+
+    # convert the sequences to a dask bag
+    seq_bag = reference_fasta.to_dask()
+    chrom_dtype = pd.CategoricalDtype(reference_fasta._chroms, ordered=True)
+    FragmentDf.set_dtype('chrom', chrom_dtype)
+
+
+    frag_df = (
+        pd.concat(
+            seq_bag.map(lambda x: (x["seqid"], x["seq"], digest_type, digest_param))
+            .starmap(create_fragment_dataframe)
+            .compute()
+        )
+        .astype({"chrom": chrom_dtype})
+        .sort_values(["chrom", "start"])
+        .assign(fragment_id=lambda x: np.arange(len(x), dtype=int) + 1)
+        .fragmentdf.cast(subset=True)
+    )
+
+    if parallel:
+        while True:
+            processing = client.processing()
+            still_running = [len(v) > 0 for k, v in processing.items()]
+            if any(still_running):
+                sleep(10)
+            else:
+                break
+        client.close()
+        cluster.close()
+
+
+    #use pandas accessor extension
+    frag_df.fragmentdf.assert_valid()
+
+    frag_df.to_parquet(str(fragment_df_path), index=False)
+
+    summary_stats = (
+        frag_df
+        .groupby("chrom")["fragment_length"]
+        .agg(["size", "mean", "median", "min", "max"])
+        .fillna(-1)
+        .astype({"size": int, "min": int, "max": int})
+        .rename(columns={"size": "num_fragments"})
+    )
+    summary_stats.to_csv(summary_stats_path)
+
+    return frag_df
 
 def revcomp(seq: str) -> str:
     """Return the reverse complement of a string:
@@ -75,16 +132,16 @@ def create_regex(pattern: str) -> Pattern:
     return regex
 
 
-def find_site_positions(regex_or_enzyme: str, seq: str) -> List[int]:
+def find_fragment_intervals(digest_type: str, digest_param: str, seq: str) -> List[int]:
     """Finds the start positions of all matches of the regex in the sequence"""
-    if regex_or_enzyme.startswith("regex:"):
-        regex = create_regex(regex_or_enzyme.split("regex:", 1)[1])
+    if digest_type == 'regex':
+        regex = create_regex(digest_param)
         positions = find_site_positions_regex(regex, seq)
-    elif regex_or_enzyme.startswith("bin:"):
-        bin_width = kmg_bases_to_int(regex_or_enzyme.split("bin:", 1)[1])
+    elif digest_type == 'bin':
+        bin_width = kmg_bases_to_int(digest_param)
         positions = find_site_positions_bins(bin_width, seq)
-    else:
-        positions = find_site_positions_biopython(regex_or_enzyme, seq)
+    elif digest_type == 'enzyme':
+        positions = find_site_positions_biopython(digest_param, seq)
     intervals = to_intervals(positions, len(seq))
     return intervals
 
@@ -127,68 +184,20 @@ def find_site_positions_biopython(enzyme: str, seq: str) -> List[int]:
     return positions
 
 
-def create_fragment_dataframe(seqid: str, seq: str, restriction_pattern: str) -> DataFrame:
+def create_fragment_dataframe(seqid: str, seq: str, digest_type: str, digest_param: str) -> DataFrame:
     """Iterate over the sequences in a fasta file and find the match positions for the restriction fragment"""
     intervals = (
-        DataFrame(find_site_positions(restriction_pattern, seq))
+        DataFrame(find_fragment_intervals(digest_type, digest_param, seq))
         .assign(chrom=seqid)
         .eval("fragment_length = end - start")
     )
     return intervals
 
 
-def create_virtual_digest_dataframe(reference_fasta: str, restriction_pattern: str = None) -> pd.DataFrame:
+def create_virtual_digest_dataframe(reference_fasta: str, digest_type: str, digest_param) -> pd.DataFrame:
     """Iterate over the sequences in a fasta file and find the match positions for the restriction fragment"""
 
-    seq_bag = reference_fasta.to_dask()
-    chrom_dtype = pd.CategoricalDtype(reference_fasta._chroms, ordered=True)
-
-    fragment_df = (
-        pd.concat(
-            seq_bag.map(lambda x: (x["seqid"], x["seq"], restriction_pattern))
-            .starmap(create_fragment_dataframe)
-            .compute()
-        )
-        .astype({"chrom": chrom_dtype})
-        .sort_values(["chrom", "start"])
-        .assign(fragment_id=lambda x: np.arange(len(x), dtype=int))
-        .loc[:, ["chrom", "start", "end", "fragment_id", "fragment_length"]]
-    )
     return fragment_df
 
 
-def create_virtual_digest(reference_fasta: IndexedFasta, restriction_pattern: str, output_prefix: Path) -> pd.DataFrame:
-    """Iterate over the sequences in a fasta file and find the match positions for the restriction fragment"""
 
-    catalog_path = output_prefix.with_suffix(".virtual_digest.catalog.yaml")
-    parquet_path = output_prefix.with_suffix(".virtual_digest.parquet")
-    summary_path = output_prefix.with_suffix(".virtual_digest.summary.csv")
-
-    for path in [catalog_path, parquet_path, summary_path]:
-        if path.exists():
-            raise IOError("Output path exists, please delete: {}".format(path))
-
-    fragment_df = dd.from_pandas(create_virtual_digest_dataframe(reference_fasta, restriction_pattern), npartitions=1)
-    fragment_df.to_parquet(str(parquet_path))
-
-    summary_stats = (
-        fragment_df.compute()
-        .groupby("chrom")["fragment_length"]
-        .agg(["size", "mean", "median", "min", "max"])
-        .fillna(-1)
-        .astype({"size": int, "min": int, "max": int})
-        .rename(columns={"size": "num_fragments"})
-    )
-    summary_stats.to_csv(summary_path)
-
-    catalog_data = {
-        "name": "pore_c_virtual_digest",
-        "description": "Output files of a pore-c tools virtual digest",
-        "sources": {
-            "fragment_df": {"driver": "parquet", "args": {"urlpath": "{{ CATALOG_DIR }}/" + str(parquet_path.name)}},
-            "summary_stats": {"driver": "csv", "args": {"urlpath": "{{ CATALOG_DIR }}/" + str(summary_path.name)}},
-        },
-    }
-    with catalog_path.open("w") as fh:
-        fh.write(yaml.dump(catalog_data))
-    return YAMLFileCatalog(str(catalog_path))
