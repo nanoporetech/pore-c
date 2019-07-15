@@ -28,6 +28,7 @@ STRAND_DTYPE = pd.CategoricalDtype(['+','-'], ordered=True)
 FRAG_IDX_DTYPE = np.uint32
 READ_IDX_DTYPE = np.uint32
 ALIGN_IDX_DTYPE = np.uint32
+PERCENTAGE_DTYPE = np.float32
 
 
 class basePorecDf(object):
@@ -47,7 +48,7 @@ class basePorecDf(object):
                 errors[key] = 'Missing column'
             elif value is None:
                 errors[key] = 'Unset datatype'
-            elif _dtype != value:
+            elif _dtype is not value:
                 errors[key] = "Mismatched dtype ({}/{}) (expected/found)".format(_dtype, value)
         self._validation_errors = errors
         for column, dtype in obj.dtypes.items():
@@ -64,9 +65,108 @@ class basePorecDf(object):
         cls.DTYPE[key] = value
 
     def cast(self, subset=False, fillna=False) -> pd.DataFrame:
-        cols = list(self.DTYPE.keys()) if subset else self._obj.columns
+        cols = list(self.DTYPE.keys())
+        obj_cols = list(self._obj.columns)
+        different_cols = set(cols).symmetric_difference(set(obj_cols))
+        if different_cols:
+            missing_cols = set(cols) - set(obj_cols)
+            extra_cols =  set(obj_cols) - set(cols)
+            if missing_cols:
+                raise ValueError("Columns missing from dataframe: {}".format(",".join(missing_cols)))
+            if extra_cols:
+                raise ValueError("Columns extrac in dataframe: {}".format(",".join(extra_cols)))
+        type_df = {key: val for key, val in self.DTYPE.items() if val is not None}
         fillna_dict = self.NANS if fillna else {}
-        return self._obj.loc[:, cols].fillna(fillna_dict).astype(self.DTYPE)
+
+        _df = self._obj.loc[:, cols]
+        _df = _df.fillna(fillna_dict)
+        _df = _df.astype(type_df)
+        return _df
+
+
+@pd.api.extensions.register_dataframe_accessor("bamdf")
+class BamEntryDf(basePorecDf):
+    """An extension to handle a dataframe derived from a BAM file"""
+    DTYPE = {
+        "read_idx": READ_IDX_DTYPE,
+        "align_idx": ALIGN_IDX_DTYPE,
+        "mapping_type": pd.CategoricalDtype(["unmapped", "primary", "supplementary", "secondary"], ordered=True),
+        "chrom": None,
+        "start": GENOMIC_COORD_DTYPE,
+        "end": GENOMIC_COORD_DTYPE,
+        "strand": bool,
+        "read_name": str,
+        "read_length": READ_COORD_DTYPE,
+        "read_start": READ_COORD_DTYPE,
+        "read_end": READ_COORD_DTYPE,
+        "mapping_quality": np.uint8,
+        "score": np.uint32,
+    }
+
+@pd.api.extensions.register_dataframe_accessor("porec_align")
+class PoreCAlignDf(basePorecDf):
+    """An extension to handle poreC-annotated alignments"""
+    DTYPE = {
+        "read_idx": READ_IDX_DTYPE,
+        "align_idx": ALIGN_IDX_DTYPE,
+        "mapping_type": pd.CategoricalDtype(["unmapped", "primary", "supplementary", "secondary"], ordered=True),
+        "chrom": str,
+        "start": GENOMIC_COORD_DTYPE,
+        "end": GENOMIC_COORD_DTYPE,
+        "strand": bool,
+        "read_name": str,
+        "read_length": READ_COORD_DTYPE,
+        "read_start": READ_COORD_DTYPE,
+        "read_end": READ_COORD_DTYPE,
+        "mapping_quality": np.uint8,
+        "score": np.uint32,
+        ## fields above come from BAM, below are calculated by pore-c tools
+        'pass_filter': bool,
+        'reason': pd.CategoricalDtype(
+                ["pass", "unmapped", "singleton", "low_mq", "overlap_on_read", "not_on_shortest_path"], ordered=True
+        ),
+        'fragment_id': FRAG_IDX_DTYPE,
+        'contained_fragments': np.uint32,
+        'fragment_start': GENOMIC_COORD_DTYPE,
+        'fragment_end': GENOMIC_COORD_DTYPE,
+        'perc_of_alignment': PERCENTAGE_DTYPE,
+        'perc_of_fragment': PERCENTAGE_DTYPE,
+    }
+    NANS = {
+        'fragment_id': 0,
+        'contained_fragments': 0,
+        'fragment_start': 0,
+        'fragment_end': 0,
+        'perc_of_alignment': -1.0,
+        'perc_of_fragment': -1.0,
+    }
+
+
+@pd.api.extensions.register_dataframe_accessor("porec_read")
+class PoreCReadDf(basePorecDf):
+    DTYPE = {
+        'read_idx': READ_IDX_DTYPE,
+        'read_name': str,
+        'read_length': READ_COORD_DTYPE,
+        'num_aligns': np.uint16,
+        'num_pass_aligns': np.uint16,
+        'unique_fragments_assigned': np.uint16,
+        'contained_fragments': np.uint16,
+        'num_contacts': np.uint32,
+        'num_cis_contacts': np.uint32,
+        'perc_read_assigned': PERCENTAGE_DTYPE,
+        'num_chroms_contacted': np.uint16,
+    }
+    NANS = {
+        'num_aligns': 0,
+        'num_pass_aligns': 0,
+        'unique_fragments_assigned': 0,
+        'contained_fragments': 0,
+        'num_contacts': 0,
+        'num_cis_contacts': 0,
+        'perc_read_assigned': -1.0,
+        'num_chroms_contacted': 0,
+    }
 
 
 @pd.api.extensions.register_dataframe_accessor("fragmentdf")

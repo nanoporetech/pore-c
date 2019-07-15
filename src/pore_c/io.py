@@ -1,3 +1,6 @@
+from pyarrow import parquet as pq
+import pyarrow as pa
+
 
 class PairFileWriter(object):
     def __init__(self, output_path, chrom_sizes, genome_assembly, columns = None):

@@ -1,9 +1,12 @@
 import dask
 import numpy as np
 import pandas as pd
+from typing import Iterator, List, Tuple
 from intake.source.base import DataSource, Schema
 from pandas.api.types import CategoricalDtype
-from pysam import AlignmentFile, FastaFile, TabixFile, asBed, asTuple
+from pysam import AlignmentFile, FastaFile, TabixFile, asBed, asTuple, AlignedSegment
+
+from pore_c.model import BamEntryDf
 
 
 class IndexedFasta(DataSource):
@@ -139,38 +142,18 @@ class NameSortedBamSource(DataSource):
             self._open_dataset()
         chrom_names = list(self._af.references)
         assert "NULL" not in chrom_names
-        max_chrom_length = max(self._af.lengths)
-        chrom_coord_dtype = None
-        read_coord_dtype = None
-        max_read_length = int(3e9)
-        for integer_type in [np.uint8, np.uint16, np.uint32, np.uint64]:
-            if np.iinfo(integer_type).max >= max_chrom_length:
-                chrom_coord_dtype = integer_type
-            if np.iinfo(integer_type).max >= max_read_length:
-                read_coord_dtype = integer_type
+        dtype = BamEntryDf.DTYPE.copy()
+        dtype['chrom'] = pd.CategoricalDtype(chrom_names + ["NULL"], ordered=True),
+        self._dtype = dtype
+        return Schema(datashape=None, dtype=dtype, shape=(None, len(dtype)), npartitions=None, extra_metadata={})
 
-        if chrom_coord_dtype is None:
-            raise ValueError(f"Max chromosome length is too long: {max_read_length}")
-        dtypes = {
-            "read_idx": np.uint64,
-            "align_idx": np.uint64,
-            "mapping_type": pd.CategoricalDtype(["unmapped", "primary", "supplementary", "secondary"], ordered=True),
-            "chrom": pd.CategoricalDtype(chrom_names + ["NULL"], ordered=True),
-            "start": chrom_coord_dtype,
-            "end": chrom_coord_dtype,
-            "strand": bool,
-            "read_name": object,  # TODO: fixed width string
-            "read_length": read_coord_dtype,
-            "read_start": read_coord_dtype,
-            "read_end": read_coord_dtype,
-            "mapping_quality": np.uint8,
-            "score": np.uint32,
-        }
-        self._dtype = dtypes
-        return Schema(datashape=None, dtype=dtypes, shape=(None, len(dtypes)), npartitions=None, extra_metadata={})
+
+    def get_chrom_dtype(self):
+        return self._schema.dtype['chrom']
 
     @staticmethod
-    def _group_by_read(align_iter):
+    def _group_by_read(align_iter: Iterator[AlignedSegment]) -> Iterator[List[Tuple[int, int, AlignedSegment]]]:
+        """Iterate over alignments in name-sorted bam file grouping by read"""
         current_read_name = None
         read_idx = 0
         aligns = []
@@ -220,18 +203,22 @@ class NameSortedBamSource(DataSource):
         )
 
     def read_chunked(self, chunksize=10000, yield_aligns=False, max_chunks=None):
-        """Read the bam into a dataframe in chunks
-
-
+        """Read the bam into a dataframe in chunks, yield those chunks
         """
         self._load_metadata()
         from toolz import partition_all
 
         align_iter = self._af.fetch(until_eof=self._include_unmapped)
+        columns = list(self._schema.dtype.keys())
         for chunk_idx, chunk in enumerate(partition_all(chunksize, self._group_by_read(align_iter))):
             aligns = [a for read_aligns in chunk for a in read_aligns]
-            df = pd.DataFrame([self._align_to_tuple(a) for a in aligns], columns=self._schema.dtype.keys())
-            df = df.astype(self._schema.dtype)
+            df = (
+                pd.DataFrame(
+                    [self._align_to_tuple(a) for a in aligns],
+                    columns=columns
+                )
+                .bamdf.cast(fillna=True, subset=True)
+            )
             if yield_aligns:
                 yield (aligns, df)
             else:

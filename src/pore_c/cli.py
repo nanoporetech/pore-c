@@ -119,54 +119,46 @@ def virtual_digest(reference_catalog, cut_on, output_prefix, n_workers):
     vd_cat = VirtualDigestCatalog.create(file_paths, Path(reference_catalog), digest_type, digest_param, len(frag_df))
     logger.debug("Created Virtual Digest catalog: {}".format(vd_cat))
 
+@cli.group(cls=NaturalOrderGroup, short_help="Analyse aligned porec reads")
+def alignments():
+    pass
 
-@cli.command(short_help="Filter alignments")
+
+@alignments.command(short_help="Parse a namesortd bam to pore-C alignment format")
 @click.argument("input_bam", type=click.Path(exists=True))
 @click.argument("virtual_digest_catalog", type=click.Path(exists=True))
 @click.argument("output_prefix")
 @click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
 @click.option("--chunksize", help="Number of reads per processing chunk", default=50000)
-def filter_alignments(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize):
+def parse(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize):
     """Filter the read-sorted alignments in INPUT_BAM and save the results under OUTPUT_PREFIX
 
     """
-    from pore_c.analyses.alignments import filter_alignments as filt
-    from pathlib import Path
+    from pore_c.catalogs import AlignmentDfCatalog, ReferenceGenomeCatalog, VirtualDigestCatalog
+    from pore_c.analyses.alignments import parse_alignment_bam
 
-    if output_prefix.endswith('.'):
-        output_prefix = output_prefix[:-1]
-    suffix_map = {
-        'catalog': '.catalog.yaml',
-        'alignment': '.alignment.parquet',
-        'read': '.read.parquet',
-        'overlap': '.overlap.parquet',
-    }
-    files = {key: Path(output_prefix + val) for key, val in suffix_map.items()}
+    file_paths, exists = AlignmentDfCatalog.generate_paths(output_prefix)
+    if exists:
+        for file_id in exists:
+            logger.error("Output file already exists for {}: {}".format(file_id, file_paths[file_id]))
+        raise IOError()
 
-    fail = False
-    for file_id, outfile in files.items():
-        if outfile is not None and outfile.exists():
-            logger.error("Output file already exists for {}: {}".format(file_id, outfile))
-            fail = True
-        else:
-            logger.info("Results will be written to: {}".format(outfile))
-
-    if fail:
-        raise click.ClickException("An error was encountered while setting up alignment filters")
-
-    digest_cat = open_catalog(str(virtual_digest_catalog))
-    fragment_df = digest_cat.fragment_df.read()
-    res = filt(
+    vd_cat = open_catalog(str(virtual_digest_catalog))
+    chrom_order = list(vd_cat.refgenome.metadata['chrom_lengths'].keys())
+    fragment_df = vd_cat.fragments.read()
+    final_stats = parse_alignment_bam(
         input_bam,
         fragment_df,
-        align_table=files['alignment'],
-        read_table=files['read'],
-        overlap_table=files['overlap'],
-        catalog_file=files['catalog'],
+        alignment_table=file_paths['alignment'],
+        read_table=file_paths['read'],
+        overlap_table=file_paths['overlap'],
+        alignment_summary=file_paths['alignment_summary'],
+        read_summary=file_paths['read_summary'],
         n_workers=n_workers,
         chunksize=chunksize,
     )
-    #logger.info(res)
+    adf_cat = AlignmentDfCatalog.create(file_paths, Path(input_bam), Path(virtual_digest_catalog), final_stats)
+    logger.info(str(adf_cat))
 
 @cli.group(cls=NaturalOrderGroup, short_help="Convert between file formats")
 def convert():

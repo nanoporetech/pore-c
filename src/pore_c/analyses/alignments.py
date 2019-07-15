@@ -1,6 +1,7 @@
 import logging
+import sys
 from pathlib import Path
-from typing import Dict, NewType, Union
+from typing import Dict, NewType, Union, List
 
 import intake
 import networkx as nx
@@ -15,24 +16,26 @@ from tqdm import tqdm
 from itertools import combinations
 
 from pore_c.datasources import NameSortedBamSource
-from pore_c.model import GenomeIntervalDf
+from pore_c.model import GenomeIntervalDf, FragmentDf, PoreCAlignDf, BamEntryDf
 from pore_c.io import TableWriter
+
+from scipy.special import binom
+from streamz import Stream
 
 logger = logging.getLogger(__name__)
 
-FILTER_REASON_DTYPE = pd.CategoricalDtype(
-    ["pass", "unmapped", "singleton", "low_mq", "overlap_on_read", "not_on_shortest_path"], ordered=True
-)
+FILTER_REASON_DTYPE = PoreCAlignDf.DTYPE['reason']
 
-def filter_alignments(
-    input_bam: str,
-    fragment_df: pd.DataFrame,
-    align_table: str = None,
-    read_table: str = None,
-    overlap_table: str = None,
-    catalog_file: str = None,
-    chunksize=50000,
-    n_workers=10,
+def parse_alignment_bam(
+        input_bam: Path,
+        fragment_df: FragmentDf,
+        alignment_table: Path = None,
+        read_table: Path = None,
+        overlap_table: Path = None,
+        alignment_summary: Path = None,
+        read_summary: Path = None,
+        chunksize: int = 50000,
+        n_workers: int = 1,
 ):
     """Filter alignments to keep only alignments that contribute to contacts
 
@@ -45,63 +48,30 @@ def filter_alignments(
                 The alignments are batched for processing, this controls the batch size
 
     """
-    from streamz import Stream
-    from time import sleep
-    from dask.distributed import Client, LocalCluster
-    from scipy.special import binom
+
+    source_aligns = NameSortedBamSource(input_bam, metadata={})
+    source_aligns.discover()
+    chrom_dtype = source_aligns.get_chrom_dtype()
 
     parallel = n_workers > 1
     fragment_df = fragment_df.set_index(["fragment_id"]).sort_index()  # .rename_axis("index", axis=0)
     if parallel:
+        from dask.distributed import Client, LocalCluster
+        from time import sleep
         cluster = LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=1)
         client = Client(cluster)
         fragment_df = client.scatter(fragment_df)
 
     writers = dict(
-        align_table=TableWriter(align_table),
+        alignment_table=TableWriter(alignment_table),
         read_table=TableWriter(read_table),
         overlap_table=TableWriter(overlap_table),
     )
 
     batch_progress_bar = tqdm(total=None, desc="Alignments submitted: ", unit=" alignments", position=0)
-    perc_alignment_bar = tqdm(total=None, desc="Alignments processed: ", unit=" alignments", position=1)
-    perc_read_bar = tqdm(total=None, desc="Reads processed: ", unit=" reads", position=2)
-
-    def alignment_progress(state, align_df, progress_bar=None):
-        pass_stats = align_df["reason"].value_counts(dropna=False)
-        if state is None:
-            state = pass_stats
-        else:
-            state += pass_stats
-        counts = state.sort_index().to_frame().T
-        percents = (100.0 * counts).div(counts.sum(axis=1), axis=0)
-        if progress_bar is not None:
-            progress_bar.update(len(align_df))
-            progress_bar.set_postfix(percents.loc["reason", :].to_dict())
-        return state, align_df
-
-    def read_progress(state, read_df, progress_bar=None):
-        have_contacts = read_df["num_pass_aligns"] >= 2
-        batch_stats = pd.Series(
-            {
-                "reads": len(read_df),
-                "Gb": read_df.read_length.sum() * 1e-9,
-                "reads_with_contacts": have_contacts.sum(),
-                #'pass_aligns': read_df['num_pass_aligns'].sum(),
-                "contacts": binom(read_df.loc[have_contacts, "num_pass_aligns"].values, 2).sum(),
-                #'contacts': binom(read_df.loc[have_contacts, 'num_pass_aligns'].values, 2).sum(),
-            }
-        )
-        batch_stats["contacts_per_Gb"] = batch_stats["contacts"] / batch_stats["Gb"]
-        if state is None:
-            state = batch_stats
-        else:
-            # print(state, batch_stats)
-            state += batch_stats
-        if progress_bar is not None:
-            progress_bar.update(len(read_df))
-            progress_bar.set_postfix(state.to_dict())
-        return state, read_df
+    alignment_progress = AlignmentProgress(position=1)
+    read_progress = ReadProgress(position=2)
+    #perc_alignment_bar = tqdm(total=None, desc="Alignments processed: ", unit=" alignments", position=1)
 
     # stream that holds the raw alignment dfs
     bam_stream = Stream()
@@ -117,19 +87,18 @@ def filter_alignments(
     # write the alignments using the table writer, updating progress bar as we go
     align_sink = (
         filtered_align_stream.pluck("alignment_table")
-        .accumulate(alignment_progress, returns_state=True, start=None, progress_bar=perc_alignment_bar)
-        .sink(writers["align_table"])
+        .accumulate(alignment_progress, returns_state=True, start=alignment_progress)
+        .sink(writers["alignment_table"])
     )
 
     read_sink = (
         filtered_align_stream.pluck("read_table")
-        .accumulate(read_progress, returns_state=True, start=None, progress_bar=perc_read_bar)
+        .accumulate(read_progress, returns_state=True, start=read_progress)
         .sink(writers["read_table"])
     )
 
     overlap_sink = filtered_align_stream.pluck("overlap_table").sink(writers["overlap_table"])
 
-    source_aligns = NameSortedBamSource(input_bam, metadata={})
     for batch_idx, align_df in enumerate(source_aligns.read_chunked(chunksize=chunksize)):
         bam_stream.emit(align_df)
         batch_progress_bar.update(len(align_df))
@@ -147,100 +116,74 @@ def filter_alignments(
         cluster.close()
 
     batch_progress_bar.close()
-    perc_alignment_bar.close()
-    perc_read_bar.close()
-    sys.stdout.write('\n\n')
-    create_catalog_yaml(writers, catalog_file)
+    alignment_progress.close()
+    alignment_progress.save(alignment_summary)
+    read_progress.close()
+    read_progress.save(read_summary)
+    sys.stderr.write('\n\n\n')
+    sys.stdout.write('\n')
+    return read_progress.final_stats()
 
 
-def create_catalog_yaml(writers, catalog_file):
-    catalog = {
-        "name": "pore_c_filtered_files",
-        "description": "Output files of pore-c tools alignment filtering",
-        "sources": {},
-    }
-    for file_key, writer in writers.items():
-        if not writer:
-            continue
-        entry = {"args": {}}
-        writer.close()
-        if isinstance(writer, TableWriter):
-            entry["args"]["urlpath"] = "{{ CATALOG_DIR }}/" + str(writer.path.name)
-            entry["driver"] = "parquet"
-        elif isinstance(writer, AlignmentFile):
-            entry["args"]["urlpath"] = "{{ CATALOG_DIR }}/" + Path(writer.filename.decode("utf8")).name
-            entry["driver"] = "pore_c.datasources.NameSortedBamSource"
-        catalog["sources"][file_key] = entry
 
-    with open(catalog_file, "w") as fh:
-        fh.write(yaml.dump(catalog))
-    return YAMLFileCatalog(str(catalog_file))
-
-
-def calculate_read_stats(read_df):
+def calculate_read_stats(align_df: PoreCAlignDf):
 
     # total number of reads and how many aligments per read
     num_aligns = (
-        read_df.groupby(["read_name"])[["read_length"]]
+        align_df.groupby(["read_idx"], sort=False)[["read_name", "read_length"]]
         .max()
-        .join(read_df.query("chrom != 'NULL'").groupby(["read_name"]).size().rename("num_aligns").to_frame())
+        .join(align_df.query("chrom != 'NULL'").groupby(["read_idx"]).size().rename("num_aligns").to_frame())
         .fillna(0)
         .astype({"num_aligns": np.uint8})
     )
 
     # subset of alignments that passed filters
-    pass_aligns = read_df.query("pass_filter == True").eval(
-        "perc_read_aligned = 100.0 * (read_end - read_start) / read_length"
+    pass_aligns = align_df.query("pass_filter == True").eval(
+        "perc_read_assigned = 100.0 * (read_end - read_start) / read_length"
     )
 
-    # how many alignments pass filtering and how many unique chromosomes
-    # do they hit
-    def prop_cis(chroms):
+    pass_stats = (
+        pass_aligns
+        .groupby(['read_idx'], sort=False)
+        .agg({'fragment_id': 'nunique', 'pass_filter': 'size', 'contained_fragments': 'sum', 'perc_read_assigned': 'sum'})
+        .rename(columns = {
+            'fragment_id': 'unique_fragments_assigned',
+            'pass_filter': 'num_pass_aligns',
+        })
+    )
+    def count_contacts(chroms: pd.Series):
+        """Take a list of chromosomes and calculate the total number of contacts (N choose 2) and the
+        number of those that are cis
+        """
         if len(chroms) < 2:
-            return np.NaN
-        is_cis = np.array([chrom1 == chrom2 for (chrom1, chrom2) in combinations(chroms, 2)])
-        return is_cis.mean()
+            res = {'num_contacts': 0, 'num_cis_contacts': 0}
+        else:
+            is_cis = np.array([chrom1 == chrom2 for (chrom1, chrom2) in combinations(chroms, 2)])
+            res = {'num_contacts': len(is_cis), 'num_cis_contacts': is_cis.sum()}
+        res['num_chroms_contacted'] = chroms.nunique()
+        return pd.DataFrame(res, index=[chroms.name])
 
-    read_stats = (
-        pass_aligns.groupby(["read_name"])["chrom"]
-        .agg(["nunique", "size", prop_cis])
-        .rename(columns={"nunique": "num_chroms", "size": "num_pass_aligns"})
-    )
 
-    # figure out what the "main" chromosome is and how much of the read hits there
-    main_chrom = (
-        pass_aligns.groupby(["read_name", "chrom"])
-        .agg({"perc_read_aligned": "sum", "read_end": "size"})
-        .sort_values("perc_read_aligned", ascending=False)
-        .groupby("read_name")
-        .head(1)
-        .reset_index()
-        .rename(
-            columns={
-                "chrom": "main_chrom",
-                "perc_read_aligned": "main_chrom_perc_read_aligned",
-                "read_end": "main_chrom_num_aligns",
-            }
-        )
-        .set_index(["read_name"])
+    def _check_index(_df):
+        level_0 = _df.index.get_level_values(0)
+        level_1 = _df.index.get_level_values(1)
+        assert((level_0 == level_1).all())
+        return _df
+
+
+    contact_stats = (
+        pass_aligns.groupby(["read_idx"], sort=False)["chrom"]
+        .apply(count_contacts)
+        .pipe(_check_index)
+        .droplevel(1)
     )
 
     # create a merged dataframe with one row per read
-    res = num_aligns.join(read_stats.join(main_chrom), how="outer")
-
-    unmapped = res["main_chrom"].isnull()
-    res.loc[unmapped, "main_chrom"] = "NULL"
-    res.loc[unmapped, "num_chroms"] = 0
-    res.loc[unmapped, "num_pass_aligns"] = 0
-    res.loc[unmapped, "main_chrom_num_aligns"] = 0
-    res.loc[unmapped, "main_chrom_perc_read_aligned"] = 0.0
-    res = res.astype(
-        {"num_aligns": np.uint8, "num_chroms": np.uint8, "num_pass_aligns": np.uint8, "main_chrom_num_aligns": np.uint8}
-    )
-    return res
+    res = num_aligns.join(pass_stats.join(contact_stats), how="outer")
+    return res.reset_index().porec_read.cast(subset=True, fillna=True)
 
 
-def filter_read_alignments(df, mapping_quality_cutoff: int = 1, fragment_df: GenomeIntervalDf = None, min_overlap_length: int = 10, containment_cutoff: float = 99.0):
+def filter_read_alignments(df: BamEntryDf, fragment_df: FragmentDf, mapping_quality_cutoff: int = 1,  min_overlap_length: int = 10, containment_cutoff: float = 99.0):
     # initialise everything as having passed filter
     res = df.assign(pass_filter=True, reason="pass").astype({"reason": FILTER_REASON_DTYPE}).set_index("align_idx")
 
@@ -294,6 +237,7 @@ def filter_read_alignments(df, mapping_quality_cutoff: int = 1, fragment_df: Gen
         )
         res.update(by_read_res[["pass_filter", "reason"]])
         res = res.astype({"reason": FILTER_REASON_DTYPE})
+    res = res.reset_index().porec_align.cast(subset=True, fillna=True)
     read_table = calculate_read_stats(res)
 
     return {
@@ -384,3 +328,91 @@ def filter_shortest_path(read_df, aligner="minimap2"):
             read_df.at[idx, "pass_filter"] = False
             read_df.at[idx, "reason"] = "not_on_shortest_path"
     return read_df
+
+
+
+class DataFrameProgress(object):
+    def __init__(self, **kwds):
+        self._bar = tqdm(**kwds)
+        self._data = None
+
+    def __call__(self, state, df):
+        self.update_data(df)
+        self.update_progress_bar(len(df))
+        return self, df
+
+    def update_data(self, df):
+        raise NotImplementedError
+
+    def update_progress_bar(self, num_rows):
+        self._bar.update(num_rows)
+        self._bar.set_postfix(self._data.to_dict())
+
+    def close(self):
+        #self._bar.flush()
+        self._bar.close()
+
+    def save(self, path):
+        self._data.to_csv(path, index=False)
+
+
+
+
+class AlignmentProgress(DataFrameProgress):
+    def __init__(self, **kwds):
+        kwds['desc'] = 'Alignments processed'
+        kwds['unit'] = ' alignments'
+        super(AlignmentProgress, self).__init__(**kwds)
+
+    def update_data(self, align_df):
+        pass_stats = align_df['reason'].value_counts(dropna=False).to_frame().T.reset_index(drop=True)
+        if self._data is None:
+            self._data = pass_stats
+        else:
+            self._data += pass_stats
+
+    def update_progress_bar(self, num_aligns):
+        percents = (100.0 * self._data).div(self._data.sum(axis=1), axis=0)
+        self._bar.update(num_aligns)
+        self._bar.set_postfix(percents.iloc[0, :].to_dict())
+
+
+class ReadProgress(DataFrameProgress):
+    def __init__(self, **kwds):
+        kwds['desc'] = 'Reads processed'
+        kwds['unit'] = ' reads'
+        super(ReadProgress, self).__init__(**kwds)
+        self._contact_histogram = None
+
+    def update_data(self, read_df):
+        count_cols = ['read_length', 'num_contacts', 'num_cis_contacts', 'num_aligns', 'num_pass_aligns']
+        counts = read_df.loc[:, count_cols].sum(axis=0)
+        counts['reads'] = len(read_df)
+        counts = counts.astype(int).to_frame().T
+
+        if self._data is None:
+            self._data = counts
+        else:
+            self._data += counts
+
+    @staticmethod
+    def summarize(df):
+        summary = (
+            df
+            .eval("Gb = read_length * 1e-9")
+            .eval('contacts_per_Gb = num_contacts/Gb')
+            .eval('percent_cis = 100 * (num_cis_contacts / num_contacts)')
+            .loc[:, ['reads', 'Gb', 'num_contacts', 'contacts_per_Gb', 'percent_cis']]
+        )
+        return summary
+
+    def update_progress_bar(self, num_aligns):
+        self._bar.update(num_aligns)
+        self._bar.set_postfix(self.summarize(self._data).iloc[0, :].to_dict())
+
+    def final_stats(self):
+        return self._data.join(self.summarize(self._data).drop(columns=['num_contacts', 'reads'])).iloc[0, :].to_dict()
+
+    def save(self, path):
+        df = self._data.join(self.summarize(self._data).drop(columns=['num_contacts', 'reads']))
+        df.to_csv(path, index=False)

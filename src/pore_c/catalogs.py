@@ -1,4 +1,5 @@
 from intake.catalog.local import YAMLFileCatalog
+
 from pathlib import Path
 import yaml
 
@@ -15,6 +16,62 @@ class basePoreCCatalog(YAMLFileCatalog):
             if res[key].exists():
                 exists.append(key)
         return res, exists
+
+
+class AlignmentDfCatalog(basePoreCCatalog):
+    name = 'pore_c_alignment_df'
+    description = "An intake catalog file for the annotated alignments dataframe"
+
+    _suffix_map = {
+        'catalog': '.catalog.yaml',
+        'alignment': '.alignment.parquet',
+        'read': '.read.parquet',
+        'overlap': '.overlap.parquet',
+        'alignment_summary': '.alignment_summary.csv',
+        'read_summary': '.read_summary.csv',
+    }
+
+    @classmethod
+    def create(cls, file_paths, input_bam, virtual_digest_catalog, final_stats):
+        catalog_path = file_paths.pop('catalog')
+        catalog_data = {
+            "name": "pore_c_parsed_alignment_files",
+            "description": "Output files of pore-c tools alignment filtering",
+            "sources": {
+                "virtual_digest": {
+                    "args": {"path": str(virtual_digest_catalog.resolve())},
+                    "driver": "intake.catalog.local.YAMLFileCatalog",
+                    "description": VirtualDigestCatalog.description,
+                },
+                "source_bam": {
+                    "args": {"urlpath": str(input_bam.resolve())},
+                    "driver": 'pore_c.datasources.NameSortedBamSource',
+                    "description": 'The input bam file',
+                }
+            },
+            "metadata": final_stats
+        }
+        for key, val in file_paths.items():
+            driver = val.suffix.replace('.', '')
+            assert(driver in ['parquet', 'csv'])
+            catalog_data['sources'][key] = {
+                'driver': driver,
+                'args': {'urlpath': str(val.resolve())}
+            }
+        with catalog_path.open("w") as fh:
+            fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
+        cat = cls(str(catalog_path))
+        return cat
+
+    def __str__(self):
+        return "<AlignmentDfCatalog>"
+        #={} digest_param:{} num_fragments:{} path:{}>".format(
+        #    self.metadata['digest_type'], self.metadata['digest_param'], self.metadata['num_fragments'], self.path
+        #)
+
+
+
+
 
 
 class VirtualDigestCatalog(basePoreCCatalog):
