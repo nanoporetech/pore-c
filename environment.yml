@@ -6,6 +6,8 @@ channels:
   - defaults
 dependencies:
   - snakemake
+  - pairtools
+  - pairix
   - python>=3.6
   - pysam
   - biopython

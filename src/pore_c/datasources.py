@@ -60,6 +60,71 @@ class IndexedFasta(DataSource):
             self._dataset.close()
 
 
+class IndexedPairFile(DataSource):
+    name = "indexed_pairfile"
+    version = "0.1.0"
+    container = "dataframe"
+    partition_access = False
+    description = "A bgzipped and indexed pairfile"
+
+    def __init__(self, urlpath, include_unmapped=True, metadata=None):
+        self._urlpath = urlpath
+        self._include_unmapped = include_unmapped
+        self._dataset = None
+        self._dtype = None
+        self._chroms = None
+        super(IndexedPairFile, self).__init__(metadata=metadata)
+
+    def _open_dataset(self):
+        raise NotImplementedError
+        self._dataset = TabixFile(self._urlpath)
+
+    def _get_schema(self):
+        raise NotImplementedError
+        if self._dataset is None:
+            self._open_dataset()
+        self._chroms = list(self._dataset.contigs)
+
+        rec = next(self._dataset.fetch(self._chroms[0], parser=asTuple()))
+        num_fields = len(rec)
+
+        chrom_coord_dtype = np.int64
+        dtypes = {
+            "chrom": pd.CategorialDtype(self._chroms + ["NULL"], ordered=True),
+            "start": chrom_coord_dtype,
+            "end": chrom_coord_dtype,
+            "name": str,
+            "score": np.float32,
+            "strand": bool,
+        }
+        self._dtype = {key: dtypes[key] for key in list(dtypes.keys())[:num_fields]}
+        return Schema(
+            datashape=None,
+            dtype=self._dtype,
+            shape=(None, len(self._dtype)),
+            npartitions=len(self._chroms),
+            extra_metadata={},
+        )
+
+    def _get_partition(self, i):
+        raise NotImplementedError
+        chrom = self._chroms[i]
+        columns = list(self._dtype.keys())
+        return pd.DataFrame(list(self._dataset.fetch(chrom, parser=asTuple())), columns=columns).astype(self._dtype)
+
+    def read(self):
+        raise NotImplementedError
+        self._load_metadata()
+        return pd.concat([self.read_partition(i) for i in range(self.npartitions)], ignore_index=True)
+
+    def _close(self):
+        # close any files, sockets, etc
+        if self._dataset is not None:
+            self._dataset.close()
+
+
+
+
 class IndexedBedFile(DataSource):
     name = "indexed_bedfile"
     version = "0.1.0"

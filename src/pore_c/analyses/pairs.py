@@ -2,45 +2,48 @@ from itertools import combinations
 from typing import Dict, Union
 from pore_c.model import AlignDf, Chrom, PairDf
 from pore_c.io import PairFileWriter
+from pore_c.utils import DataFrameProgress
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import sys
+from streamz import Stream
 
+
+
+class PairsProgress(DataFrameProgress):
+    def __init__(self, **kwds):
+        kwds['desc'] = 'Pairs processed'
+        kwds['unit'] = ' pairs'
+        super(PairsProgress, self).__init__(**kwds)
+
+    def update_data(self, pair_df):
+        stats = pair_df['pair_type'].value_counts(dropna=False).to_frame().T.reset_index(drop=True)
+        if self._data is None:
+            self._data = stats
+        else:
+            self._data += stats
+
+    def update_progress_bar(self, num_pairs):
+        self._bar.update(num_pairs)
+        self._bar.set_postfix(self._data.iloc[0,:].to_dict())
 
 
 def convert_align_df_to_pairs(align_df: AlignDf, chrom_lengths: Dict[Chrom, int], genome_assembly: str, pair_file: str, n_workers: int = 1):
-    from streamz import Stream
-    from time import sleep
-    from dask.distributed import Client, LocalCluster
-
     parallel = n_workers > 1
     if parallel:
+        from time import sleep
+        from dask.distributed import Client, LocalCluster
         cluster = LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=1)
         client = Client(cluster)
+
     writer = PairFileWriter(pair_file, chrom_lengths, genome_assembly, columns = list(PairDf.DTYPE.keys()))
 
-
-    def pairs_progress(state, pair_df, progress_bar=None):
-        pair_counts = pair_df.pair_type.value_counts().to_dict()
-        pair_counts['total'] = len(pair_df)
-        if state is None:
-            state = pair_counts
-        else:
-            # print(state, batch_stats)
-            for key, val in pair_counts.items():
-                state[key] += val
-        if progress_bar is not None:
-            progress_bar.update(len(pair_df))
-            progress_bar.set_postfix(state)
-        return state, pair_df
-
-
     batch_progress_bar = tqdm(total=align_df.npartitions, desc="Batches submitted: ", unit=" batches", position=0)
-    pair_progress_bar = tqdm(total=None, desc="Pairs written: ", unit=" pairs", position=1)
+    pairs_progress = PairsProgress()
 
-    df_stream = Stream()
     # stream that holds the filtered/processed alignments
+    df_stream = Stream()
     if parallel:
         pair_stream = (
             df_stream
@@ -54,14 +57,19 @@ def convert_align_df_to_pairs(align_df: AlignDf, chrom_lengths: Dict[Chrom, int]
 
     write_sink = (
         pair_stream
-        .accumulate(pairs_progress, returns_state=True, start=None, progress_bar=pair_progress_bar)
+        #.accumulate(pairs_progress, returns_state=True, start=pairs_progress)
         .sink(writer)
     )
 
     use_cols = ['pass_filter', 'read_idx', 'read_name', 'read_start', 'read_end', 'chrom', 'start',  'strand', 'fragment_id', 'align_idx', 'fragment_start', 'fragment_end']
     for partition in range(align_df.npartitions):
         _df = align_df.partitions[partition].loc[:, use_cols]
-        df_stream.emit(_df.compute()) #.head(1000))
+        if False:
+            df_stream.emit(_df.head(1000))
+            if partition > 2:
+                break
+        else:
+            df_stream.emit(_df.compute())
         batch_progress_bar.update(1)
 
     if parallel:
@@ -71,21 +79,24 @@ def convert_align_df_to_pairs(align_df: AlignDf, chrom_lengths: Dict[Chrom, int]
             if any(still_running):
                 sleep(10)
             else:
+                sleep(10)
                 break
         client.close()
         cluster.close()
 
+    writer.close()
+    pairs_progress.close()
     batch_progress_bar.close()
-    pair_progress_bar.close()
-    sys.stdout.write('\n\n')
+    sys.stderr.write('\n\n')
 
 
-def to_pairs(df):
+def to_pairs(df: AlignDf) -> PairDf:
     res = []
     keep_segments = (
         df.query("pass_filter == True")
         .replace({'strand': {True: '+', False: '-'}})
-        .astype({'strand': PairDf.DTYPE['strand1']})
+        # convert strand to +/- and chrom to string for lexographical sorting to get upper-triangle
+        .astype({'strand': PairDf.DTYPE['strand1'], 'chrom': str})
     )
     for x, (read_idx, read_df) in enumerate(keep_segments.groupby("read_idx", as_index=False)):
         if len(read_df) <= 1:

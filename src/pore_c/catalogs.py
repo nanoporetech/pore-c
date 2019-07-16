@@ -17,6 +17,45 @@ class basePoreCCatalog(YAMLFileCatalog):
                 exists.append(key)
         return res, exists
 
+class PairsFileCatalog(basePoreCCatalog):
+    name = 'pore_c_pairs'
+    description = "An intake catalog file for a pairs format file"
+
+    _suffix_map = {
+        'catalog': '.catalog.yaml',
+        'pairs': '.pairs.gz',
+    }
+    @classmethod
+    def create(cls, file_paths, alignment_df_catalog):
+        catalog_path = file_paths.pop('catalog')
+        catalog_data = {
+            "name": cls.name,
+            "description": cls.description,
+            "sources": {
+                "source_alignments": {
+                    "args": {"path": str(alignment_df_catalog.resolve())},
+                    "driver": "intake.catalog.local.YAMLFileCatalog",
+                    "description": AlignmentDfCatalog.description,
+                },
+            },
+        }
+        for key, val in file_paths.items():
+            if key == "pairs":
+                driver = "pore_c.datasources.IndexedPairFile"
+            else:
+                driver = val.suffix.replace('.', '')
+                assert(driver in ['parquet', 'csv'])
+            catalog_data['sources'][key] = {
+                'driver': driver,
+                'args': {'urlpath': str(val.resolve())}
+            }
+        with catalog_path.open("w") as fh:
+            fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
+        cat = cls(str(catalog_path))
+        return cat
+
+
+
 
 class AlignmentDfCatalog(basePoreCCatalog):
     name = 'pore_c_alignment_df'
@@ -123,21 +162,18 @@ class VirtualDigestCatalog(basePoreCCatalog):
         )
 
 
-
-
-
-
 class ReferenceGenomeCatalog(basePoreCCatalog):
     name = 'pore_c_reference_genome'
     description = "An intake catalog file for a reference genome"
 
     _suffix_map ={
             'catalog': '.catalog.yaml',
+            'chromsizes': ".chromsizes",
             'chrom_metadata': ".metadata.csv"
     }
 
     @classmethod
-    def create(cls, catalog_path, fasta_path, metadata_csv, chrom_lengths, genome_id):
+    def create(cls, catalog_path, fasta_path, metadata_csv, chrom_lengths, chromsizes, genome_id):
         catalog_data = {
             "name": cls.name,
             "description": cls.description,
@@ -149,6 +185,7 @@ class ReferenceGenomeCatalog(basePoreCCatalog):
             "sources": {
                 "fasta": {"driver": "pore_c.datasources.IndexedFasta", "args": {"urlpath": "{}".format(fasta_path.resolve())}},
                 "chrom_metadata": {"driver": "csv", "args": {"urlpath": "{{ CATALOG_DIR }}/" + str(metadata_csv.name)}},
+                "chromsizes": {"driver": "csv", "args": {"urlpath": "{{ CATALOG_DIR }}/" + str(chromsizes.name)}},
             },
         }
         with catalog_path.open("w") as fh:

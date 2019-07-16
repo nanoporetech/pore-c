@@ -1,10 +1,17 @@
 from pyarrow import parquet as pq
 import pyarrow as pa
+import subprocess as sp
 
 
 class PairFileWriter(object):
     def __init__(self, output_path, chrom_sizes, genome_assembly, columns = None):
         self._output_path = output_path
+        if self._output_path.suffix == '.gz':
+            self._raw_output_path = self._output_path.with_suffix('')
+            self._sort_and_compress = True
+        else:
+            self._raw_output_path = self._output_path
+            self._sort_and_compress = False
         self._chrom_sizes = chrom_sizes
         self._genome_assembly = genome_assembly
         self._columns = columns
@@ -26,12 +33,18 @@ class PairFileWriter(object):
     def __call__(self, pair_df):
         assert(len(pair_df.columns) == len(self._columns))
         if self._fh is None:
-            self._fh = open(self._output_path, 'w')
+            self._fh = open(self._raw_output_path, 'w')
             self._write_header()
         pair_df.to_csv(self._fh, header=None, sep="\t", index=False)
 
     def close(self):
         self._fh.close()
+        #TODO: this could all be cleaned up a bit
+        if self._sort_and_compress:
+            comd = "pairtools sort {} | bgzip > {}".format(self._raw_output_path, self._output_path)
+            sp.check_call(comd, shell=True)
+            sp.check_call(['pairix', str(self._output_path)])
+            sp.check_call(['rm', str(self._raw_output_path)])
 
 
 class TableWriter(object):

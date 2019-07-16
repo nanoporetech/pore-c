@@ -48,7 +48,7 @@ class basePorecDf(object):
                 errors[key] = 'Missing column'
             elif value is None:
                 errors[key] = 'Unset datatype'
-            elif _dtype is not value:
+            elif _dtype is not value and not _dtype == value:
                 errors[key] = "Mismatched dtype ({}/{}) (expected/found)".format(_dtype, value)
         self._validation_errors = errors
         for column, dtype in obj.dtypes.items():

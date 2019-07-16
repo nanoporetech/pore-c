@@ -69,8 +69,9 @@ def catalog(reference_fasta, output_prefix, genome_id=None):
     chrom_lengths = {c['chrom']: c['length'] for c in ref_source.metadata['chroms']}
     chrom_df = pd.DataFrame(ref_source.metadata["chroms"])[["chrom", "length"]]
     chrom_df.to_csv(file_paths['chrom_metadata'], index=False)
+    chrom_df.to_csv(file_paths['chromsizes'], sep="\t", header=None, index=False)
 
-    rg_cat = ReferenceGenomeCatalog.create(file_paths['catalog'], fasta, file_paths['chrom_metadata'], chrom_lengths, genome_id)
+    rg_cat = ReferenceGenomeCatalog.create(file_paths['catalog'], fasta, file_paths['chrom_metadata'], chrom_lengths, file_paths['chromsizes'], genome_id)
     logger.info("Added reference genome: {}".format(str(rg_cat)))
 
 @refgenome.command(short_help="Virtual digest of reference genome.")
@@ -160,26 +161,34 @@ def parse(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize
     adf_cat = AlignmentDfCatalog.create(file_paths, Path(input_bam), Path(virtual_digest_catalog), final_stats)
     logger.info(str(adf_cat))
 
-@cli.group(cls=NaturalOrderGroup, short_help="Convert between file formats")
-def convert():
+@cli.group(cls=NaturalOrderGroup, short_help="Create pairs files")
+def pairs():
     pass
 
 
-@convert.command(help="Convert from an alignment table to pairs format")
+@pairs.command(help="Convert from an alignment table to pairs format")
 @click.argument("align_catalog", type=click.Path(exists=True))
-@click.argument("reference_catalog", type=click.Path(exists=True))
-@click.argument("pairs_file", type=click.Path(exists=False))
+@click.argument("output_prefix")
 @click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
-def align_table_to_pairs(align_catalog, reference_catalog, pairs_file, n_workers):
-    from pore_c.analyses.convert import convert_align_df_to_pairs
+def from_alignment_table(align_catalog, output_prefix, n_workers):
+    from pore_c.analyses.pairs import convert_align_df_to_pairs
+    from pore_c.catalogs import PairsFileCatalog
 
-    align_cat = open_catalog(align_catalog)
-    ref_cat = open_catalog(reference_catalog)
-    ref_metadata = ref_cat.chrom_metadata.read()
-    chrom_lengths = dict(ref_metadata[['chrom', 'length']].values)
-    align_df = align_cat.align_table.to_dask()
-    convert_align_df_to_pairs(align_df, chrom_lengths, Path(reference_catalog).name, pairs_file, n_workers=n_workers)
+    file_paths, exists = PairsFileCatalog.generate_paths(output_prefix)
+    if exists:
+        for file_id in exists:
+            logger.error("Output file already exists for {}: {}".format(file_id, file_paths[file_id]))
+        raise IOError()
 
+    adf_cat = open_catalog(align_catalog)
+    rg_cat = adf_cat.virtual_digest.refgenome
+    chrom_lengths = rg_cat.metadata['chrom_lengths']
+    genome_id = rg_cat.metadata['genome_id']
+    align_df = adf_cat.alignment.to_dask()
+    convert_align_df_to_pairs(align_df, chrom_lengths, genome_id, file_paths['pairs'], n_workers=n_workers)
+
+    pair_cat = PairsFileCatalog.create(file_paths, Path(align_catalog))
+    logger.info(str(pair_cat))
 
 @cli.group(cls=NaturalOrderGroup, short_help="Dashboard")
 def dashboard():
