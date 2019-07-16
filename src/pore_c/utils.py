@@ -1,6 +1,6 @@
 import re
-from tqdm import tqdm
 
+from tqdm import tqdm
 
 
 class DataFrameProgress(object):
@@ -21,12 +21,11 @@ class DataFrameProgress(object):
         self._bar.set_postfix(self._data.to_dict())
 
     def close(self):
-        #self._bar.flush()
+        # self._bar.flush()
         self._bar.close()
 
     def save(self, path):
         self._data.to_csv(path, index=False)
-
 
 
 def kmg_bases_to_int(value: str) -> int:

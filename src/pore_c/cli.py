@@ -57,7 +57,6 @@ def catalog(reference_fasta, output_prefix, genome_id=None):
     if not faidx_file.exists():
         raise IOError("Faidx file doesn't exist, please run 'samtools faidx {}'".format(reference_fasta))
 
-
     file_paths, exists = ReferenceGenomeCatalog.generate_paths(output_prefix)
     if exists:
         for file_id in exists:
@@ -66,13 +65,16 @@ def catalog(reference_fasta, output_prefix, genome_id=None):
 
     ref_source = IndexedFasta(fasta)
     ref_source.discover()
-    chrom_lengths = {c['chrom']: c['length'] for c in ref_source.metadata['chroms']}
+    chrom_lengths = {c["chrom"]: c["length"] for c in ref_source.metadata["chroms"]}
     chrom_df = pd.DataFrame(ref_source.metadata["chroms"])[["chrom", "length"]]
-    chrom_df.to_csv(file_paths['chrom_metadata'], index=False)
-    chrom_df.to_csv(file_paths['chromsizes'], sep="\t", header=None, index=False)
+    chrom_df.to_csv(file_paths["chrom_metadata"], index=False)
+    chrom_df.to_csv(file_paths["chromsizes"], sep="\t", header=None, index=False)
 
-    rg_cat = ReferenceGenomeCatalog.create(file_paths['catalog'], fasta, file_paths['chrom_metadata'], chrom_lengths, file_paths['chromsizes'], genome_id)
+    rg_cat = ReferenceGenomeCatalog.create(
+        file_paths["catalog"], fasta, file_paths["chrom_metadata"], chrom_lengths, file_paths["chromsizes"], genome_id
+    )
     logger.info("Added reference genome: {}".format(str(rg_cat)))
+
 
 @refgenome.command(short_help="Virtual digest of reference genome.")
 @click.argument("reference_catalog", type=click.Path(exists=True))
@@ -100,8 +102,8 @@ def virtual_digest(reference_catalog, cut_on, output_prefix, n_workers):
     from pore_c.analyses.reference import create_virtual_digest
 
     rg_cat = ReferenceGenomeCatalog(reference_catalog)
-    digest_type, digest_param = cut_on.split(':')
-    assert(digest_type in ['bin', 'enzyme', 'regex'])
+    digest_type, digest_param = cut_on.split(":")
+    assert digest_type in ["bin", "enzyme", "regex"]
 
     file_paths, exists = VirtualDigestCatalog.generate_paths(output_prefix)
     if exists:
@@ -113,12 +115,13 @@ def virtual_digest(reference_catalog, cut_on, output_prefix, n_workers):
         rg_cat.fasta,
         digest_type,
         digest_param,
-        file_paths['fragments'],
-        file_paths['digest_stats'],
-        n_workers=n_workers
+        file_paths["fragments"],
+        file_paths["digest_stats"],
+        n_workers=n_workers,
     )
     vd_cat = VirtualDigestCatalog.create(file_paths, Path(reference_catalog), digest_type, digest_param, len(frag_df))
     logger.debug("Created Virtual Digest catalog: {}".format(vd_cat))
+
 
 @cli.group(cls=NaturalOrderGroup, short_help="Analyse aligned porec reads")
 def alignments():
@@ -145,21 +148,22 @@ def parse(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize
         raise IOError()
 
     vd_cat = open_catalog(str(virtual_digest_catalog))
-    chrom_order = list(vd_cat.refgenome.metadata['chrom_lengths'].keys())
+    chrom_order = list(vd_cat.refgenome.metadata["chrom_lengths"].keys())
     fragment_df = vd_cat.fragments.read()
     final_stats = parse_alignment_bam(
         input_bam,
         fragment_df,
-        alignment_table=file_paths['alignment'],
-        read_table=file_paths['read'],
-        overlap_table=file_paths['overlap'],
-        alignment_summary=file_paths['alignment_summary'],
-        read_summary=file_paths['read_summary'],
+        alignment_table=file_paths["alignment"],
+        read_table=file_paths["read"],
+        overlap_table=file_paths["overlap"],
+        alignment_summary=file_paths["alignment_summary"],
+        read_summary=file_paths["read_summary"],
         n_workers=n_workers,
         chunksize=chunksize,
     )
     adf_cat = AlignmentDfCatalog.create(file_paths, Path(input_bam), Path(virtual_digest_catalog), final_stats)
     logger.info(str(adf_cat))
+
 
 @cli.group(cls=NaturalOrderGroup, short_help="Create pairs files")
 def pairs():
@@ -182,13 +186,14 @@ def from_alignment_table(align_catalog, output_prefix, n_workers):
 
     adf_cat = open_catalog(align_catalog)
     rg_cat = adf_cat.virtual_digest.refgenome
-    chrom_lengths = rg_cat.metadata['chrom_lengths']
-    genome_id = rg_cat.metadata['genome_id']
+    chrom_lengths = rg_cat.metadata["chrom_lengths"]
+    genome_id = rg_cat.metadata["genome_id"]
     align_df = adf_cat.alignment.to_dask()
-    convert_align_df_to_pairs(align_df, chrom_lengths, genome_id, file_paths['pairs'], n_workers=n_workers)
+    convert_align_df_to_pairs(align_df, chrom_lengths, genome_id, file_paths["pairs"], n_workers=n_workers)
 
     pair_cat = PairsFileCatalog.create(file_paths, Path(align_catalog))
     logger.info(str(pair_cat))
+
 
 @cli.group(cls=NaturalOrderGroup, short_help="Dashboard")
 def dashboard():
@@ -202,20 +207,20 @@ def dashboard():
 def alignment(ctx, align_catalog, bokeh_serve_args):
     import sys
     import pore_c
-    #from pore_c.dashboard import main
+
+    # from pore_c.dashboard import main
     from bokeh.__main__ import main as bokeh_entry_point
 
     main_path = pore_c.__file__.rsplit("/", 1)[0] + "/dashboard/"
-    sys.argv = ['bokeh', 'serve'] + [main_path] + list(bokeh_serve_args) + ["--args", align_catalog]
+    sys.argv = ["bokeh", "serve"] + [main_path] + list(bokeh_serve_args) + ["--args", align_catalog]
     bokeh_entry_point()
 
+    # from bokeh.server.server import Server
+    # from bokeh.command.util import build_single_handler_applications, die, report_server_init_errors
+    # from tornado.ioloop import IOLoop
 
-    #from bokeh.server.server import Server
-    #from bokeh.command.util import build_single_handler_applications, die, report_server_init_errors
-    #from tornado.ioloop import IOLoop
-
-    #from pore_c.dashboard.main  import modify_doc
-    #with report_server_init_errors():
+    # from pore_c.dashboard.main  import modify_doc
+    # with report_server_init_errors():
     #    server = Server(
     #        {'/': modify_doc},
     #        io_loop = IOLoop(),

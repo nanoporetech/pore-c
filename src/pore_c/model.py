@@ -11,20 +11,19 @@ from pybedtools import BedTool
 Chrom = NewType("Chrom", str)
 
 
-
-#int8 	Byte (-128 to 127)
-#int16 	Integer (-32768 to 32767)
-#int32 	Integer (-2147483648 to 2147483647)
-#int64 	Integer (-9223372036854775808 to 9223372036854775807)
-#uint8 	Unsigned integer (0 to 255)
-#uint16 	Unsigned integer (0 to 65535)
-#uint32 	Unsigned integer (0 to 4294967295)
-#uint64 	Unsigned integer (0 to 18446744073709551615)
+# int8 	Byte (-128 to 127)
+# int16 	Integer (-32768 to 32767)
+# int32 	Integer (-2147483648 to 2147483647)
+# int64 	Integer (-9223372036854775808 to 9223372036854775807)
+# uint8 	Unsigned integer (0 to 255)
+# uint16 	Unsigned integer (0 to 65535)
+# uint32 	Unsigned integer (0 to 4294967295)
+# uint64 	Unsigned integer (0 to 18446744073709551615)
 
 
 GENOMIC_COORD_DTYPE = np.uint32  # should be fine as long as individual chromosomes are less than 4Gb
 READ_COORD_DTYPE = np.uint32
-STRAND_DTYPE = pd.CategoricalDtype(['+','-'], ordered=True)
+STRAND_DTYPE = pd.CategoricalDtype(["+", "-"], ordered=True)
 FRAG_IDX_DTYPE = np.uint32
 READ_IDX_DTYPE = np.uint32
 ALIGN_IDX_DTYPE = np.uint32
@@ -34,6 +33,7 @@ PERCENTAGE_DTYPE = np.float32
 class basePorecDf(object):
     DTYPE = {}
     NANS = {}
+
     def __init__(self, pandas_obj):
         self._obj = pandas_obj
         self._validation_errors = {}
@@ -45,9 +45,9 @@ class basePorecDf(object):
         for key, value in self.DTYPE.items():
             _dtype = obj.dtypes.get(key, None)
             if _dtype is None:
-                errors[key] = 'Missing column'
+                errors[key] = "Missing column"
             elif value is None:
-                errors[key] = 'Unset datatype'
+                errors[key] = "Unset datatype"
             elif _dtype is not value and not _dtype == value:
                 errors[key] = "Mismatched dtype ({}/{}) (expected/found)".format(_dtype, value)
         self._validation_errors = errors
@@ -57,7 +57,11 @@ class basePorecDf(object):
 
     def assert_valid(self):
         if self._validation_errors:
-            raise ValueError("Failed validation:\n{}\n".format('\n'.join(["{}: {}".format(*_) for _ in self._validation_errors.items()])))
+            raise ValueError(
+                "Failed validation:\n{}\n".format(
+                    "\n".join(["{}: {}".format(*_) for _ in self._validation_errors.items()])
+                )
+            )
 
     @classmethod
     def set_dtype(cls, key, value):
@@ -70,7 +74,7 @@ class basePorecDf(object):
         different_cols = set(cols).symmetric_difference(set(obj_cols))
         if different_cols:
             missing_cols = set(cols) - set(obj_cols)
-            extra_cols =  set(obj_cols) - set(cols)
+            extra_cols = set(obj_cols) - set(cols)
             if missing_cols:
                 raise ValueError("Columns missing from dataframe: {}".format(",".join(missing_cols)))
             if extra_cols:
@@ -87,6 +91,7 @@ class basePorecDf(object):
 @pd.api.extensions.register_dataframe_accessor("bamdf")
 class BamEntryDf(basePorecDf):
     """An extension to handle a dataframe derived from a BAM file"""
+
     DTYPE = {
         "read_idx": READ_IDX_DTYPE,
         "align_idx": ALIGN_IDX_DTYPE,
@@ -103,9 +108,11 @@ class BamEntryDf(basePorecDf):
         "score": np.uint32,
     }
 
+
 @pd.api.extensions.register_dataframe_accessor("porec_align")
 class PoreCAlignDf(basePorecDf):
     """An extension to handle poreC-annotated alignments"""
+
     DTYPE = {
         "read_idx": READ_IDX_DTYPE,
         "align_idx": ALIGN_IDX_DTYPE,
@@ -121,91 +128,90 @@ class PoreCAlignDf(basePorecDf):
         "mapping_quality": np.uint8,
         "score": np.uint32,
         ## fields above come from BAM, below are calculated by pore-c tools
-        'pass_filter': bool,
-        'reason': pd.CategoricalDtype(
-                ["pass", "unmapped", "singleton", "low_mq", "overlap_on_read", "not_on_shortest_path"], ordered=True
+        "pass_filter": bool,
+        "reason": pd.CategoricalDtype(
+            ["pass", "unmapped", "singleton", "low_mq", "overlap_on_read", "not_on_shortest_path"], ordered=True
         ),
-        'fragment_id': FRAG_IDX_DTYPE,
-        'contained_fragments': np.uint32,
-        'fragment_start': GENOMIC_COORD_DTYPE,
-        'fragment_end': GENOMIC_COORD_DTYPE,
-        'perc_of_alignment': PERCENTAGE_DTYPE,
-        'perc_of_fragment': PERCENTAGE_DTYPE,
+        "fragment_id": FRAG_IDX_DTYPE,
+        "contained_fragments": np.uint32,
+        "fragment_start": GENOMIC_COORD_DTYPE,
+        "fragment_end": GENOMIC_COORD_DTYPE,
+        "perc_of_alignment": PERCENTAGE_DTYPE,
+        "perc_of_fragment": PERCENTAGE_DTYPE,
     }
     NANS = {
-        'fragment_id': 0,
-        'contained_fragments': 0,
-        'fragment_start': 0,
-        'fragment_end': 0,
-        'perc_of_alignment': -1.0,
-        'perc_of_fragment': -1.0,
+        "fragment_id": 0,
+        "contained_fragments": 0,
+        "fragment_start": 0,
+        "fragment_end": 0,
+        "perc_of_alignment": -1.0,
+        "perc_of_fragment": -1.0,
     }
 
 
 @pd.api.extensions.register_dataframe_accessor("porec_read")
 class PoreCReadDf(basePorecDf):
     DTYPE = {
-        'read_idx': READ_IDX_DTYPE,
-        'read_name': str,
-        'read_length': READ_COORD_DTYPE,
-        'num_aligns': np.uint16,
-        'num_pass_aligns': np.uint16,
-        'unique_fragments_assigned': np.uint16,
-        'contained_fragments': np.uint16,
-        'num_contacts': np.uint32,
-        'num_cis_contacts': np.uint32,
-        'perc_read_assigned': PERCENTAGE_DTYPE,
-        'num_chroms_contacted': np.uint16,
+        "read_idx": READ_IDX_DTYPE,
+        "read_name": str,
+        "read_length": READ_COORD_DTYPE,
+        "num_aligns": np.uint16,
+        "num_pass_aligns": np.uint16,
+        "unique_fragments_assigned": np.uint16,
+        "contained_fragments": np.uint16,
+        "num_contacts": np.uint32,
+        "num_cis_contacts": np.uint32,
+        "perc_read_assigned": PERCENTAGE_DTYPE,
+        "num_chroms_contacted": np.uint16,
     }
     NANS = {
-        'num_aligns': 0,
-        'num_pass_aligns': 0,
-        'unique_fragments_assigned': 0,
-        'contained_fragments': 0,
-        'num_contacts': 0,
-        'num_cis_contacts': 0,
-        'perc_read_assigned': -1.0,
-        'num_chroms_contacted': 0,
+        "num_aligns": 0,
+        "num_pass_aligns": 0,
+        "unique_fragments_assigned": 0,
+        "contained_fragments": 0,
+        "num_contacts": 0,
+        "num_cis_contacts": 0,
+        "perc_read_assigned": -1.0,
+        "num_chroms_contacted": 0,
     }
 
 
 @pd.api.extensions.register_dataframe_accessor("fragmentdf")
 class FragmentDf(basePorecDf):
     """An extension to handle dataframes containing pairfile data"""
+
     DTYPE = {
-        'fragment_id': FRAG_IDX_DTYPE, # uid starting at 1
-        'chrom': None, # will be categorical but unknown until runtimei, use set_dtype
-        'start': GENOMIC_COORD_DTYPE,
-        'end': GENOMIC_COORD_DTYPE,
-        'fragment_length': GENOMIC_COORD_DTYPE,
+        "fragment_id": FRAG_IDX_DTYPE,  # uid starting at 1
+        "chrom": None,  # will be categorical but unknown until runtimei, use set_dtype
+        "start": GENOMIC_COORD_DTYPE,
+        "end": GENOMIC_COORD_DTYPE,
+        "fragment_length": GENOMIC_COORD_DTYPE,
     }
+
     def assert_valid(self):
-        if 'chrom' in self._validation_errors and self._validation_errors['chrom'].startswith('Mismatched dtype'):
-            self._validation_errors.pop('chrom')
+        if "chrom" in self._validation_errors and self._validation_errors["chrom"].startswith("Mismatched dtype"):
+            self._validation_errors.pop("chrom")
         super(FragmentDf, self).assert_valid()
-
-
-
-
 
 
 @pd.api.extensions.register_dataframe_accessor("pairdf")
 class PairDf(object):
     """An extension to handle dataframes containing pairfile data"""
+
     DTYPE = {
-        'readID': str,
-        'chr1': str,
-        'pos1': np.uint32,
-        'chr2': str,
-        'pos2': np.uint32,
-        'strand1': pd.CategoricalDtype(['+','-']),
-        'strand2': pd.CategoricalDtype(['+','-']),
-        'pair_type': pd.CategoricalDtype(['DJ', 'IJ']), # DJ=direct_junction, IJ=indirect_junction
-        'frag1': np.uint32,
-        'frag2': np.uint32,
-        'align_idx1': np.uint32,
-        'align_idx2': np.uint32,
-        'distance_on_read': np.int32,
+        "readID": str,
+        "chr1": str,
+        "pos1": np.uint32,
+        "chr2": str,
+        "pos2": np.uint32,
+        "strand1": pd.CategoricalDtype(["+", "-"]),
+        "strand2": pd.CategoricalDtype(["+", "-"]),
+        "pair_type": pd.CategoricalDtype(["DJ", "IJ"]),  # DJ=direct_junction, IJ=indirect_junction
+        "frag1": np.uint32,
+        "frag2": np.uint32,
+        "align_idx1": np.uint32,
+        "align_idx2": np.uint32,
+        "distance_on_read": np.int32,
     }
 
     def __init__(self, pandas_obj):
@@ -213,11 +219,10 @@ class PairDf(object):
         self._obj = pandas_obj
 
     def _validate(self, obj):
-        assert(obj.dtype == PairDf.DTYPE)
+        assert obj.dtype == PairDf.DTYPE
 
     def is_valid(self):
         return True
-
 
 
 @pd.api.extensions.register_dataframe_accessor("aligndf")
@@ -236,7 +241,6 @@ class AlignDf(object):
         assert obj.index.is_unique, "Must have a unique index"
         assert not isinstance(obj.index, pd.MultiIndex), "Can't be multindex"
         assert np.issubdtype(obj.index.dtype, np.integer), "Must have integer index: {}".format(obj.index.dtype)
-
 
 
 @pd.api.extensions.register_dataframe_accessor("ginterval")

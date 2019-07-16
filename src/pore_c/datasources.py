@@ -1,10 +1,12 @@
+from typing import Iterator, List, Tuple
+
 import dask
 import numpy as np
 import pandas as pd
-from typing import Iterator, List, Tuple
 from intake.source.base import DataSource, Schema
 from pandas.api.types import CategoricalDtype
-from pysam import AlignmentFile, FastaFile, TabixFile, asBed, asTuple, AlignedSegment
+from pysam import (AlignedSegment, AlignmentFile, FastaFile, TabixFile, asBed,
+                   asTuple)
 
 from pore_c.model import BamEntryDf
 
@@ -123,8 +125,6 @@ class IndexedPairFile(DataSource):
             self._dataset.close()
 
 
-
-
 class IndexedBedFile(DataSource):
     name = "indexed_bedfile"
     version = "0.1.0"
@@ -208,13 +208,12 @@ class NameSortedBamSource(DataSource):
         chrom_names = list(self._af.references)
         assert "NULL" not in chrom_names
         dtype = BamEntryDf.DTYPE.copy()
-        dtype['chrom'] = pd.CategoricalDtype(chrom_names + ["NULL"], ordered=True),
+        dtype["chrom"] = (pd.CategoricalDtype(chrom_names + ["NULL"], ordered=True),)
         self._dtype = dtype
         return Schema(datashape=None, dtype=dtype, shape=(None, len(dtype)), npartitions=None, extra_metadata={})
 
-
     def get_chrom_dtype(self):
-        return self._schema.dtype['chrom']
+        return self._schema.dtype["chrom"]
 
     @staticmethod
     def _group_by_read(align_iter: Iterator[AlignedSegment]) -> Iterator[List[Tuple[int, int, AlignedSegment]]]:
@@ -277,12 +276,8 @@ class NameSortedBamSource(DataSource):
         columns = list(self._schema.dtype.keys())
         for chunk_idx, chunk in enumerate(partition_all(chunksize, self._group_by_read(align_iter))):
             aligns = [a for read_aligns in chunk for a in read_aligns]
-            df = (
-                pd.DataFrame(
-                    [self._align_to_tuple(a) for a in aligns],
-                    columns=columns
-                )
-                .bamdf.cast(fillna=True, subset=True)
+            df = pd.DataFrame([self._align_to_tuple(a) for a in aligns], columns=columns).bamdf.cast(
+                fillna=True, subset=True
             )
             if yield_aligns:
                 yield (aligns, df)

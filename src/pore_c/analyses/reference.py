@@ -1,8 +1,7 @@
 import re
 from pathlib import Path
-from typing import Iterator, List, NamedTuple, Pattern
-
 from time import sleep
+from typing import Iterator, List, NamedTuple, Pattern
 
 import dask.dataframe as dd
 import numpy as np
@@ -39,20 +38,28 @@ DEGENERATE_TRANS = str.maketrans(
     )
 )
 
-def create_virtual_digest(reference_fasta: IndexedFasta, digest_type: str, digest_param: str, fragment_df_path: Path, summary_stats_path: Path, n_workers: int = 1) -> FragmentDf:
+
+def create_virtual_digest(
+    reference_fasta: IndexedFasta,
+    digest_type: str,
+    digest_param: str,
+    fragment_df_path: Path,
+    summary_stats_path: Path,
+    n_workers: int = 1,
+) -> FragmentDf:
     """Iterate over the sequences in a fasta file and find the match positions for the restriction fragment"""
 
     parallel = n_workers > 1
     if parallel:
         from dask.distributed import Client, LocalCluster
+
         cluster = LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=1)
         client = Client(cluster)
 
     # convert the sequences to a dask bag
     seq_bag = reference_fasta.to_dask()
     chrom_dtype = pd.CategoricalDtype(reference_fasta._chroms, ordered=True)
-    FragmentDf.set_dtype('chrom', chrom_dtype)
-
+    FragmentDf.set_dtype("chrom", chrom_dtype)
 
     frag_df = (
         pd.concat(
@@ -77,15 +84,13 @@ def create_virtual_digest(reference_fasta: IndexedFasta, digest_type: str, diges
         client.close()
         cluster.close()
 
-
-    #use pandas accessor extension
+    # use pandas accessor extension
     frag_df.fragmentdf.assert_valid()
 
     frag_df.to_parquet(str(fragment_df_path), index=False)
 
     summary_stats = (
-        frag_df
-        .groupby("chrom")["fragment_length"]
+        frag_df.groupby("chrom")["fragment_length"]
         .agg(["size", "mean", "median", "min", "max"])
         .fillna(-1)
         .astype({"size": int, "min": int, "max": int})
@@ -94,6 +99,7 @@ def create_virtual_digest(reference_fasta: IndexedFasta, digest_type: str, diges
     summary_stats.to_csv(summary_stats_path)
 
     return frag_df
+
 
 def revcomp(seq: str) -> str:
     """Return the reverse complement of a string:
@@ -134,13 +140,13 @@ def create_regex(pattern: str) -> Pattern:
 
 def find_fragment_intervals(digest_type: str, digest_param: str, seq: str) -> List[int]:
     """Finds the start positions of all matches of the regex in the sequence"""
-    if digest_type == 'regex':
+    if digest_type == "regex":
         regex = create_regex(digest_param)
         positions = find_site_positions_regex(regex, seq)
-    elif digest_type == 'bin':
+    elif digest_type == "bin":
         bin_width = kmg_bases_to_int(digest_param)
         positions = find_site_positions_bins(bin_width, seq)
-    elif digest_type == 'enzyme':
+    elif digest_type == "enzyme":
         positions = find_site_positions_biopython(digest_param, seq)
     intervals = to_intervals(positions, len(seq))
     return intervals
@@ -198,6 +204,3 @@ def create_virtual_digest_dataframe(reference_fasta: str, digest_type: str, dige
     """Iterate over the sequences in a fasta file and find the match positions for the restriction fragment"""
 
     return fragment_df
-
-
-
