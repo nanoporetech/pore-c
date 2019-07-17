@@ -1,6 +1,6 @@
 import sys
 from itertools import combinations
-from typing import Dict, Union
+from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -53,7 +53,7 @@ def convert_align_df_to_pairs(
     else:
         pair_stream = df_stream.map(to_pairs)
 
-    write_sink = (
+    write_sink = (  # noqa: F841
         pair_stream
         # .accumulate(pairs_progress, returns_state=True, start=pairs_progress)
         .sink(writer)

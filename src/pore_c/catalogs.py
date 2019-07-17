@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import yaml
+import pandas as pd
 from intake.catalog.local import YAMLFileCatalog
 
 

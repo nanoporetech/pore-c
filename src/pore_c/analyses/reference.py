@@ -1,16 +1,11 @@
 import re
 from pathlib import Path
 from time import sleep
-from typing import Iterator, List, NamedTuple, Pattern
+from typing import List, Pattern
 
-import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-import yaml
-from intake import open_catalog
-from intake.catalog.local import YAMLFileCatalog
 from pandas import DataFrame
-from pysam import FastaFile
 
 from pore_c.datasources import IndexedFasta
 from pore_c.model import FragmentDf
@@ -133,8 +128,10 @@ def create_regex(pattern: str) -> Pattern:
 
     try:
         regex = re.compile(fwd_rev_pattern)
-    except:
-        raise ValueError("Error compiling regex for pattern {}, redundance form: {}".format(pattern, fwd_rev_pattern))
+    except Exception as exc:
+        raise ValueError(
+            "Error compiling regex for pattern {}, redundance form: {}\n{}".format(pattern, fwd_rev_pattern, exc)
+        )
     return regex
 
 
@@ -198,9 +195,3 @@ def create_fragment_dataframe(seqid: str, seq: str, digest_type: str, digest_par
         .eval("fragment_length = end - start")
     )
     return intervals
-
-
-def create_virtual_digest_dataframe(reference_fasta: str, digest_type: str, digest_param) -> pd.DataFrame:
-    """Iterate over the sequences in a fasta file and find the match positions for the restriction fragment"""
-
-    return fragment_df

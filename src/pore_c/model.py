@@ -1,12 +1,8 @@
-from collections import defaultdict
-from dataclasses import dataclass
-from typing import (Dict, Iterator, List, NamedTuple, NewType, Pattern, Set,
-                    Tuple, Union)
+from typing import (Dict, NewType)
 
 import numpy as np
 import pandas as pd
 from ncls import NCLS
-from pybedtools import BedTool
 
 Chrom = NewType("Chrom", str)
 
@@ -19,8 +15,6 @@ Chrom = NewType("Chrom", str)
 # uint16 	Unsigned integer (0 to 65535)
 # uint32 	Unsigned integer (0 to 4294967295)
 # uint64 	Unsigned integer (0 to 18446744073709551615)
-
-
 GENOMIC_COORD_DTYPE = np.uint32  # should be fine as long as individual chromosomes are less than 4Gb
 READ_COORD_DTYPE = np.uint32
 STRAND_DTYPE = pd.CategoricalDtype(["+", "-"], ordered=True)
@@ -41,15 +35,20 @@ class basePorecDf(object):
         self._check(pandas_obj)
 
     def _check(self, obj):
+        # FIXFIX: this is pretty broken, currently need to cast before check
+        # https://stackoverflow.com/questions/22697773/how-to-check-the-dtype-of-a-column-in-python-pandas
         errors = {}
         for key, value in self.DTYPE.items():
             _dtype = obj.dtypes.get(key, None)
-            if _dtype is None:
-                errors[key] = "Missing column"
-            elif value is None:
-                errors[key] = "Unset datatype"
-            elif _dtype is not value and not _dtype == value:
-                errors[key] = "Mismatched dtype ({}/{}) (expected/found)".format(_dtype, value)
+            try:
+                if _dtype is None:
+                    errors[key] = "Missing column"
+                elif value is None:
+                    errors[key] = "Unset datatype"
+                elif type(_dtype) is not type(value) and not isinstance(_dtype, value) and not _dtype == value:
+                    errors[key] = "Mismatched dtype ({}/{}) (expected/found)".format(_dtype, value)
+            except Exception as exp:
+                raise ValueError("{}: {} - {}\n{}".format(key, value, _dtype, exp))
         self._validation_errors = errors
         for column, dtype in obj.dtypes.items():
             if column not in self.DTYPE:
@@ -96,7 +95,7 @@ class BamEntryDf(basePorecDf):
         "read_idx": READ_IDX_DTYPE,
         "align_idx": ALIGN_IDX_DTYPE,
         "mapping_type": pd.CategoricalDtype(["unmapped", "primary", "supplementary", "secondary"], ordered=True),
-        "chrom": None,
+        "chrom": str,
         "start": GENOMIC_COORD_DTYPE,
         "end": GENOMIC_COORD_DTYPE,
         "strand": bool,
@@ -127,7 +126,7 @@ class PoreCAlignDf(basePorecDf):
         "read_end": READ_COORD_DTYPE,
         "mapping_quality": np.uint8,
         "score": np.uint32,
-        ## fields above come from BAM, below are calculated by pore-c tools
+        # fields above come from BAM, below are calculated by pore-c tools
         "pass_filter": bool,
         "reason": pd.CategoricalDtype(
             ["pass", "unmapped", "singleton", "low_mq", "overlap_on_read", "not_on_shortest_path"], ordered=True
@@ -277,7 +276,6 @@ class GenomeIntervalDf(object):
     def overlap(self, other: "GenomeIntervalDf", calculate_lengths: bool = True):
         """Find all overlapping intervals between this dataframe and 'other'"""
         self_cols = ["chrom", "start", "end", self.index_name]
-        other_cols = ["start", "end", other.ginterval.index_name]
         other_rename = {"start": "other_start", "end": "other_end"}
         if self.index_name == other.ginterval.index_name:
             other_rename[other.ginterval.index_name] = "other_" + other.ginterval.index_name
@@ -316,148 +314,3 @@ class GenomeIntervalDf(object):
         else:
             res = None
         return res
-
-
-class SeqDigest(NamedTuple):
-    """Holds the results of a digestion"""
-
-    seq_name: str
-    positions: List[int]
-    seq_length: int
-
-
-@dataclass
-class BedToolsOverlap(object):
-    """Datastructure to hold the results of a bedtools intersect command"""
-
-    query_chrom: str
-    query_start: int
-    query_end: int
-    query_id: str
-    frag_chrom: str
-    frag_start: int
-    frag_end: int
-    frag_id: int
-    overlap: int
-
-    def __post_init__(self):
-        self.query_start = int(self.query_start)
-        self.query_end = int(self.query_end)
-        self.frag_start = int(self.frag_start)
-        self.frag_end = int(self.frag_end)
-        self.frag_id = int(self.frag_id)
-        self.overlap = int(self.overlap)
-
-
-class FragmentMap(object):
-    """Represents the fragments created by a restriction digestion"""
-
-    def __init__(self, bedtool: BedTool, chrom_lengths: Dict[str, int] = None, Terminal_Fragments: Set = None):
-        self.bt = bedtool  # bedtool.saveas().tabix(is_sorted=True)
-        self.chrom_lengths = chrom_lengths
-
-        # this will store a list of fragment_ids which, while adjacent in number space,
-        # are not physically adjacent, e.g. q-telomere of chr1 and p-telomere of chr2.
-        self.terminal_fragments = Terminal_Fragments
-
-    @staticmethod
-    def endpoints_to_intervals(chrom, positions, id_offset, chrom_length=None) -> List[Tuple[str, int, int, int]]:
-        if len(positions) == 0:  # if there's no cut sites on a sequence then we return the whole sequence
-            assert chrom_length is not None
-            positions = [0, chrom_length]
-        else:
-            if not positions[0] == 0:
-                positions = [0] + positions
-            if chrom_length and positions[-1] != chrom_length:
-                positions = positions + [chrom_length]
-        return [
-            (chrom, start, end, str(x + id_offset)) for x, (start, end) in enumerate(zip(positions[:-1], positions[1:]))
-        ]
-
-    def save_to_bed(self, path):
-        if not path.endswith(".bed.gz"):
-            raise ValueError("Must end with .bed.gz: {}".format(path))
-        self.bt.saveas(path.rsplit(".gz")[0]).tabix(in_place=True, is_sorted=True, force=True)
-
-    def save_to_HiCRef(self, path):
-        chrom_to_endpoints = defaultdict(list)
-        for interval in self.bt:
-            chrom_to_endpoints[interval.chrom].append(interval.stop)
-        with open(path, "w") as fh:
-            for chrom, endpoints in chrom_to_endpoints.items():
-                fh.write("{} {}\n".format(chrom, " ".join(map(str, endpoints))))
-
-    @classmethod
-    def from_dict(cls, d: Dict[str, List[int]]):
-        """Create a fragment map from a dictionary mapping chromosomes to fragment endpoints (useful for testing)"""
-        intervals = []
-        chrom_lengths = {}
-        id_offset = 0
-        for chrom, endpoints in d.items():
-            intervals.extend(cls.endpoints_to_intervals(chrom, endpoints, id_offset))
-            chrom_lengths[chrom] = endpoints[-1]
-            id_offset += len(endpoints)
-        bt = BedTool(intervals)
-        return cls(bt, chrom_lengths)
-
-    @classmethod
-    def from_bed_file(cls, path):
-        if not path.endswith(".bed.gz"):
-            raise ValueError("Must end with .bed.gz: {}".format(path))
-        return cls(BedTool(path))
-
-    @classmethod
-    def from_HiCRef(cls, fname):
-        intervals = []
-        chrom_lengths = {}
-        id_offset = 0
-        with open(fname) as fh:
-            for line in fh:
-                fields = line.strip().split()
-                chrom = fields[0]
-                endpoints = list(map(int, fields[1:]))
-                intervals.extend(cls.endpoints_to_intervals(chrom, endpoints, id_offset))
-                chrom_lengths[chrom] = endpoints[-1]
-                id_offset += len(endpoints)
-        bt = BedTool(intervals)
-        return cls(bt, chrom_lengths, terminal_fragments)
-
-    @classmethod
-    def from_digest_iter(cls, i: Iterator[SeqDigest]):
-        intervals = []
-        chrom_lengths = {}
-        terminal_fragments = set()
-        id_offset = 0
-        for digest in i:
-            chrom = digest.seq_name
-            endpoints = digest.positions
-            new_intervals = cls.endpoints_to_intervals(chrom, endpoints, id_offset, chrom_length=digest.seq_length)
-            intervals.extend(new_intervals)
-            chrom_lengths[chrom] = digest.seq_length
-            id_offset += len(endpoints)
-            if id_offset != 0:
-                terminal_fragments.add((id_offset, id_offset + 1))
-
-        bt = BedTool(intervals)
-        return cls(bt, chrom_lengths, terminal_fragments)
-
-    def _query_to_bedtool(self, query):
-        def _interval_from_tuple(t, id_offset=0):
-            if len(t) == 3:
-                return (t[0], t[1], t[2], str(id_offset))
-            else:
-                assert len(t) == 4
-                return t
-
-        if isinstance(query, tuple):
-            intervals = [_interval_from_tuple(query)]
-        else:
-            raise NotImplementedError
-        return BedTool(intervals)
-
-    def iter_overlaps(self, query, min_overlap=0):
-        query_bt = self._query_to_bedtool(query)
-        for overlap in (BedToolsOverlap(*i.fields) for i in query_bt.intersect(self.bt, sorted=True, wo=True)):
-            if overlap.overlap <= min_overlap:
-                continue
-            yield overlap

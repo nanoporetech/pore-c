@@ -47,6 +47,7 @@ class TableWriter(object):
         self.path = path
         self._writer = None
         self._schema = None
+        self._counter = 0
 
     def write(self, df):
         table = pa.Table.from_pandas(df, preserve_index=False, schema=self._schema)
@@ -55,9 +56,9 @@ class TableWriter(object):
             self._schema = table.schema
         try:
             self._writer.write_table(table)
-        except:
-            print(df)
-            raise
+        except Exception as exc:
+            raise IOError("Error writing batch {} to {}:\n{}\n{}".format(self._counter, self.path, df.head(), exc))
+        self._counter += 1
 
     def __call__(self, *args, **kwds):
         return self.write(*args, **kwds)

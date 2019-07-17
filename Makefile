@@ -8,7 +8,7 @@ reformat:
 	isort --recursive src
 
 check:
-	pylama  -o pylama.ini src
+	flake8 src
 
 test:
 	python -m pytest -s tests --basetemp=test_output

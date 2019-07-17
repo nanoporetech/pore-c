@@ -2,24 +2,16 @@ import logging
 import sys
 from itertools import combinations
 from pathlib import Path
-from typing import Dict, List, NewType, Union
 
-import intake
 import networkx as nx
 import numpy as np
 import pandas as pd
-import pyarrow as pa
-import yaml
-from intake.catalog.local import YAMLFileCatalog
-from pyarrow import parquet as pq
-from pysam import AlignmentFile
-from scipy.special import binom
 from streamz import Stream
 from tqdm import tqdm
 
 from pore_c.datasources import NameSortedBamSource
 from pore_c.io import TableWriter
-from pore_c.model import (BamEntryDf, FragmentDf, GenomeIntervalDf,
+from pore_c.model import (BamEntryDf, FragmentDf,
                           PoreCAlignDf, PoreCReadDf)
 from pore_c.utils import DataFrameProgress
 
@@ -53,7 +45,6 @@ def parse_alignment_bam(
 
     source_aligns = NameSortedBamSource(input_bam, metadata={})
     source_aligns.discover()
-    chrom_dtype = source_aligns.get_chrom_dtype()
 
     parallel = n_workers > 1
     fragment_df = fragment_df.set_index(["fragment_id"]).sort_index()  # .rename_axis("index", axis=0)
@@ -88,19 +79,19 @@ def parse_alignment_bam(
         filtered_align_stream = bam_stream.map(filter_read_alignments, fragment_df=fragment_df)
 
     # write the alignments using the table writer, updating progress bar as we go
-    align_sink = (
+    align_sink = (  # noqa: F841
         filtered_align_stream.pluck("alignment_table")
         .accumulate(alignment_progress, returns_state=True, start=alignment_progress)
         .sink(writers["alignment_table"])
     )
 
-    read_sink = (
+    read_sink = (  # noqa: F841
         filtered_align_stream.pluck("read_table")
         .accumulate(read_progress, returns_state=True, start=read_progress)
         .sink(writers["read_table"])
     )
 
-    overlap_sink = filtered_align_stream.pluck("overlap_table").sink(writers["overlap_table"])
+    overlap_sink = filtered_align_stream.pluck("overlap_table").sink(writers["overlap_table"])  # noqa: F841
 
     for batch_idx, align_df in enumerate(source_aligns.read_chunked(chunksize=chunksize)):
         bam_stream.emit(align_df)
@@ -288,7 +279,7 @@ def minimap_gapscore(length, o1=4, o2=24, e1=2, e2=1):
     return min([o1 + int(length) * e1, o2 + int(length) * e2])
 
 
-def bwa_gapscore(length, O=5, E=2):
+def bwa_gapscore(length, O=5, E=2):  # noqa: E741
     # O=5 E=2 is default for bwa bwasw
     # O=6 E=1 is default for bwa mem
     return O + length * E
@@ -315,7 +306,7 @@ def create_align_graph(aligns, gap_fn):
     # for each pair of aligned segments add an edge
     for idx_a, align_idx_a in enumerate(node_ids[:-1]):
         align_a_end = aligns.at[align_idx_a, "read_end"]
-        for align_idx_b in node_ids[idx_a + 1 :]:
+        for align_idx_b in node_ids[idx_a + 1:]:
             align_b_score = aligns.at[align_idx_b, "score"]
             align_b_read_start = aligns.at[align_idx_b, "read_start"]
             gap_penalty = gap_fn(abs(int(align_b_read_start) - int(align_a_end)))

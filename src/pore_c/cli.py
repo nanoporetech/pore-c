@@ -1,10 +1,8 @@
 import logging
-import os.path
 from pathlib import Path
 
 import click
 import click_log
-import pandas as pd
 from intake import open_catalog
 
 logger = logging.getLogger(__name__)
@@ -42,7 +40,6 @@ def catalog(reference_fasta, output_prefix, genome_id=None):
     """
     from pore_c.datasources import IndexedFasta
     from pore_c.catalogs import ReferenceGenomeCatalog
-    from intake.catalog.local import YAMLFileCatalog
     import pandas as pd
 
     logger.info("Adding reference genome under prefix: {}".format(output_prefix))
@@ -51,8 +48,11 @@ def catalog(reference_fasta, output_prefix, genome_id=None):
         stem, fasta_ext, compression_ext = fasta.name.split(".", 2)
         if not genome_id:
             genome_id = stem
-    except:
-        raise ValueError("Fasta file should be gzip compressed and should be in form {file_stem}.(fa|fasta|fna).gz")
+    except Exception as e:
+        raise ValueError(
+            "Fasta file should be gzip compressed and should be in form {file_stem}.(fa|fasta|fna).gz\n{}"
+            .format(e)
+        )
     faidx_file = (fasta.parent / stem).with_suffix(".{}.{}.fai".format(fasta_ext, compression_ext))
     if not faidx_file.exists():
         raise IOError("Faidx file doesn't exist, please run 'samtools faidx {}'".format(reference_fasta))
@@ -138,7 +138,7 @@ def parse(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize
     """Filter the read-sorted alignments in INPUT_BAM and save the results under OUTPUT_PREFIX
 
     """
-    from pore_c.catalogs import AlignmentDfCatalog, ReferenceGenomeCatalog, VirtualDigestCatalog
+    from pore_c.catalogs import AlignmentDfCatalog
     from pore_c.analyses.alignments import parse_alignment_bam
 
     file_paths, exists = AlignmentDfCatalog.generate_paths(output_prefix)
@@ -148,7 +148,6 @@ def parse(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize
         raise IOError()
 
     vd_cat = open_catalog(str(virtual_digest_catalog))
-    chrom_order = list(vd_cat.refgenome.metadata["chrom_lengths"].keys())
     fragment_df = vd_cat.fragments.read()
     final_stats = parse_alignment_bam(
         input_bam,
@@ -214,72 +213,3 @@ def alignment(ctx, align_catalog, bokeh_serve_args):
     main_path = pore_c.__file__.rsplit("/", 1)[0] + "/dashboard/"
     sys.argv = ["bokeh", "serve"] + [main_path] + list(bokeh_serve_args) + ["--args", align_catalog]
     bokeh_entry_point()
-
-    # from bokeh.server.server import Server
-    # from bokeh.command.util import build_single_handler_applications, die, report_server_init_errors
-    # from tornado.ioloop import IOLoop
-
-    # from pore_c.dashboard.main  import modify_doc
-    # with report_server_init_errors():
-    #    server = Server(
-    #        {'/': modify_doc},
-    #        io_loop = IOLoop(),
-    #        address = "localhost",
-    #        port = 8788
-    #    )
-    #    #server.start()
-    #    server.run_until_shutdown()
-    #    print(server)
-
-
-@cli.command(short_help="create a .poreC file from a namesorted alignment of poreC data")
-@click.argument("filter_catalog", type=click.Path(exists=True))
-@click.argument("fragment_map_catalog", type=click.Path(exists=True))
-def map_to_fragments(filter_catalog, fragment_map_catalog):
-    from intake import open_catalog
-    from pore_c.datasources import IndexedBedFile
-    from ncls import NCLS
-    import numpy as np
-
-    filter_cat = open_catalog(filter_catalog)
-    fragment_cat = open_catalog(fragment_map_catalog)
-
-    fragment_df = fragment_cat.fragment_df.read().set_index(["fragment_id"])  # .sort_values(['chrom', 'start'])
-    fragment_intervals = {}
-    for chrom, chrom_df in fragment_df.groupby("chrom"):
-        if chrom == "NULL":
-            continue
-        fragment_intervals[chrom] = NCLS(chrom_df.start.values, chrom_df.end.values, chrom_df.index.values)
-
-    for chunk in filter_cat.align_table.read_chunked():
-        for chrom, chrom_df in chunk.groupby("chrom"):
-            if chrom in fragment_intervals:
-                chunk_indices, frag_indices = fragment_intervals[chrom].all_overlaps_both(
-                    chrom_df.start.astype(int).values,
-                    chrom_df.end.astype(int).values,
-                    chrom_df.index.astype(int).values,
-                )
-                if len(chunk_indices) == 0:
-                    continue
-                df_a = chrom_df.reindex(chunk_indices).reset_index().rename(columns={"index": "hit_idx"})
-                df_b = (
-                    fragment_df.reindex(frag_indices)
-                    .reset_index()
-                    .rename(columns={"index": "fragment_id", "start": "fragment_start", "end": "fragment_end"})
-                    .loc[:, ["fragment_start", "fragment_end", "fragment_id"]]
-                )
-                overlap_df = (
-                    df_a.join(df_b)
-                    .assign(
-                        overlap_start=lambda x: np.where(x.fragment_start > x.start, x.fragment_start, x.start).astype(
-                            int
-                        ),
-                        overlap_end=lambda x: np.where(x.fragment_end < x.end, x.fragment_end, x.end).astype(int),
-                    )
-                    .eval("overlap_length = overlap_end - overlap_start")
-                )
-
-                print(overlap_df.head())
-        break
-    raise ValueError(filter_cat)
-    map_to_fragments_tool(input_bed, fragment_bed_file, output_porec, method, stats)
