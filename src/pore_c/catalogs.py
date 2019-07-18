@@ -1,7 +1,7 @@
 from pathlib import Path
 
-import yaml
 import pandas as pd
+import yaml
 from intake.catalog.local import YAMLFileCatalog
 
 
@@ -17,6 +17,18 @@ class basePoreCCatalog(YAMLFileCatalog):
             if res[key].exists():
                 exists.append(key)
         return res, exists
+
+
+class RawReadCatalog(basePoreCCatalog):
+    name = "pore_c_raw_reads"
+    description = "A catalog of data associated with raw reads"
+
+    _suffix_map = {
+        "catalog": ".catalog.yaml",
+        "pass_reads": ".pass.fq.gz",
+        "fail_reads": ".fail.fq.gz",
+        "read_metadata": ".read_metadata.parquet",
+    }
 
 
 class PairsFileCatalog(basePoreCCatalog):
@@ -45,7 +57,10 @@ class PairsFileCatalog(basePoreCCatalog):
             else:
                 driver = val.suffix.replace(".", "")
                 assert driver in ["parquet", "csv"]
-            catalog_data["sources"][key] = {"driver": driver, "args": {"urlpath": str(val.resolve())}}
+            catalog_data["sources"][key] = {
+                "driver": driver,
+                "args": {"urlpath": str(val.resolve())},
+            }
         with catalog_path.open("w") as fh:
             fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
         cat = cls(str(catalog_path))
@@ -88,7 +103,10 @@ class AlignmentDfCatalog(basePoreCCatalog):
         for key, val in file_paths.items():
             driver = val.suffix.replace(".", "")
             assert driver in ["parquet", "csv"]
-            catalog_data["sources"][key] = {"driver": driver, "args": {"urlpath": str(val.resolve())}}
+            catalog_data["sources"][key] = {
+                "driver": driver,
+                "args": {"urlpath": str(val.resolve())},
+            }
         with catalog_path.open("w") as fh:
             fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
         cat = cls(str(catalog_path))
@@ -105,16 +123,26 @@ class VirtualDigestCatalog(basePoreCCatalog):
     name = "pore_c_virtual_digest"
     description = "An intake catalog file for a virtual digest of a reference genome"
 
-    _suffix_map = {"catalog": ".catalog.yaml", "fragments": ".fragments.parquet", "digest_stats": ".digest_stats.csv"}
+    _suffix_map = {
+        "catalog": ".catalog.yaml",
+        "fragments": ".fragments.parquet",
+        "digest_stats": ".digest_stats.csv",
+    }
 
     @classmethod
-    def create(cls, file_paths, refgenome_catalog, digest_type, digest_param, num_fragments):
+    def create(
+        cls, file_paths, refgenome_catalog, digest_type, digest_param, num_fragments
+    ):
         catalog_path = file_paths.pop("catalog")
         catalog_data = {
             "name": cls.name,
             "description": cls.description,
             "driver": "pore_c.catalogs.VirtualDigestCatalog",
-            "metadata": {"digest_type": digest_type, "digest_param": digest_param, "num_fragments": num_fragments},
+            "metadata": {
+                "digest_type": digest_type,
+                "digest_param": digest_param,
+                "num_fragments": num_fragments,
+            },
             "sources": {
                 "refgenome": {
                     "args": {"path": str(refgenome_catalog.resolve())},
@@ -127,7 +155,10 @@ class VirtualDigestCatalog(basePoreCCatalog):
         for key, val in file_paths.items():
             driver = val.suffix.replace(".", "")
             assert driver in ["parquet", "csv"]
-            catalog_data["sources"][key] = {"driver": driver, "args": {"urlpath": str(val.resolve())}}
+            catalog_data["sources"][key] = {
+                "driver": driver,
+                "args": {"urlpath": str(val.resolve())},
+            }
         with catalog_path.open("w") as fh:
             fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
         cat = cls(str(catalog_path))
@@ -135,7 +166,10 @@ class VirtualDigestCatalog(basePoreCCatalog):
 
     def __str__(self):
         return "<VirtualDigestCatalog digest_type={} digest_param:{} num_fragments:{} path:{}>".format(
-            self.metadata["digest_type"], self.metadata["digest_param"], self.metadata["num_fragments"], self.path
+            self.metadata["digest_type"],
+            self.metadata["digest_param"],
+            self.metadata["num_fragments"],
+            self.path,
         )
 
 
@@ -143,10 +177,22 @@ class ReferenceGenomeCatalog(basePoreCCatalog):
     name = "pore_c_reference_genome"
     description = "An intake catalog file for a reference genome"
 
-    _suffix_map = {"catalog": ".catalog.yaml", "chromsizes": ".chromsizes", "chrom_metadata": ".metadata.csv"}
+    _suffix_map = {
+        "catalog": ".catalog.yaml",
+        "chromsizes": ".chromsizes",
+        "chrom_metadata": ".metadata.csv",
+    }
 
     @classmethod
-    def create(cls, catalog_path, fasta_path, metadata_csv, chrom_lengths, chromsizes, genome_id):
+    def create(
+        cls,
+        catalog_path,
+        fasta_path,
+        metadata_csv,
+        chrom_lengths,
+        chromsizes,
+        genome_id,
+    ):
         catalog_data = {
             "name": cls.name,
             "description": cls.description,
@@ -157,8 +203,14 @@ class ReferenceGenomeCatalog(basePoreCCatalog):
                     "driver": "pore_c.datasources.IndexedFasta",
                     "args": {"urlpath": "{}".format(fasta_path.resolve())},
                 },
-                "chrom_metadata": {"driver": "csv", "args": {"urlpath": "{{ CATALOG_DIR }}/" + str(metadata_csv.name)}},
-                "chromsizes": {"driver": "csv", "args": {"urlpath": "{{ CATALOG_DIR }}/" + str(chromsizes.name)}},
+                "chrom_metadata": {
+                    "driver": "csv",
+                    "args": {"urlpath": "{{ CATALOG_DIR }}/" + str(metadata_csv.name)},
+                },
+                "chromsizes": {
+                    "driver": "csv",
+                    "args": {"urlpath": "{{ CATALOG_DIR }}/" + str(chromsizes.name)},
+                },
             },
         }
         with catalog_path.open("w") as fh:

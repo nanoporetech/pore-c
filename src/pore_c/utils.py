@@ -31,7 +31,7 @@ class DataFrameProgress(object):
 def kmg_bases_to_int(value: str) -> int:
     try:
         result = int(value)
-    except Exception as _:   # noqa
+    except Exception as _:  # noqa
         result = None
     if result is not None:
         return result

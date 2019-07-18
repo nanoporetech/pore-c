@@ -8,6 +8,7 @@ dependencies:
   - snakemake
   - pairtools
   - pairix
+  - tabix
   - python>=3.6
   - pysam
   - biopython
@@ -26,5 +27,4 @@ dependencies:
   - pylint
   - black
   - pip:
-    - click-log
     - sklearn

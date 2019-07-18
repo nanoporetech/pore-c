@@ -11,8 +11,7 @@ from tqdm import tqdm
 
 from pore_c.datasources import NameSortedBamSource
 from pore_c.io import TableWriter
-from pore_c.model import (BamEntryDf, FragmentDf,
-                          PoreCAlignDf, PoreCReadDf)
+from pore_c.model import BamEntryDf, FragmentDf, PoreCAlignDf, PoreCReadDf
 from pore_c.utils import DataFrameProgress
 
 logger = logging.getLogger(__name__)
@@ -306,7 +305,7 @@ def create_align_graph(aligns, gap_fn):
     # for each pair of aligned segments add an edge
     for idx_a, align_idx_a in enumerate(node_ids[:-1]):
         align_a_end = aligns.at[align_idx_a, "read_end"]
-        for align_idx_b in node_ids[idx_a + 1:]:
+        for align_idx_b in node_ids[idx_a + 1 :]:  # noqa: E203 black does this
             align_b_score = aligns.at[align_idx_b, "score"]
             align_b_read_start = aligns.at[align_idx_b, "read_start"]
             gap_penalty = gap_fn(abs(int(align_b_read_start) - int(align_a_end)))

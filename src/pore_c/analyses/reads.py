@@ -1,0 +1,145 @@
+import sys
+from logging import getLogger
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from pysam import FastxFile
+from streamz import Stream
+
+from pore_c.io import FastqWriter
+from pore_c.utils import DataFrameProgress
+
+logger = getLogger(__name__)
+
+
+def read_length_stats(lengths, percentiles=[25, 50, 75]):
+    if len(lengths) == 0:
+        return {}
+    sorted_lengths = np.sort(lengths.values)
+    cumsum = sorted_lengths.cumsum()
+    total_bases = cumsum[-1]
+    n50_idx = np.argmax(cumsum > (total_bases * 0.5))
+    n50 = sorted_lengths[n50_idx]
+    qdict = dict(
+        zip(
+            ["Q%d" % p for p in percentiles], np.percentile(sorted_lengths, percentiles)
+        )
+    )
+    return {
+        **{
+            "num_sequences": len(lengths),
+            "total_bases": total_bases,
+            "mean": total_bases / len(lengths),
+            "min": sorted_lengths[0],
+            "max": sorted_lengths[-1],
+            "N50": n50,
+            **qdict,
+        }
+    }
+
+
+def filter_fastq(
+    input_fastq: Path,
+    pass_fastq: Path,
+    fail_fastq: Path,
+    read_metadata: Path,
+    min_read_length: int = 50,
+    max_read_length: int = 5000000,
+    batch_size: int = 10000,
+):
+
+    fastq_stream = Stream()
+
+    filtered_stream = fastq_stream.partition(batch_size).map(
+        filter_records, min_read_length, max_read_length
+    )
+
+    pass_writer = FastqWriter(pass_fastq)
+    fail_writer = FastqWriter(fail_fastq)
+
+    read_prog = ReadFilterProgress()
+
+    df_sink = (
+        filtered_stream.pluck("metadata")
+        .accumulate(read_prog, returns_state=True, start=read_prog)
+        .sink_to_list()
+    )
+    pass_sink = filtered_stream.pluck("pass").sink(pass_writer)  # noqa: F841
+    fail_sink = filtered_stream.pluck("fail").sink(fail_writer)  # noqa: F841
+
+    for read_idx, record in enumerate(FastxFile(str(input_fastq))):
+        fastq_stream.emit(record)
+        if read_idx == 50000:
+            break
+    metadata_df = pd.concat(df_sink, ignore_index=True)
+    summary_stats = {
+        "all": read_length_stats(metadata_df["read_length"]),
+        "pass": read_length_stats(
+            metadata_df.query("pass_filter == True")["read_length"]
+        ),
+        "fail": read_length_stats(
+            metadata_df.query("pass_filter == False")["read_length"]
+        ),
+    }
+
+    pass_writer.close()
+    fail_writer.close()
+    read_prog.close()
+    sys.stderr.write("\n")
+    logger.debug("Finished processing reads")
+    assert (pass_writer._counter + fail_writer._counter) == summary_stats["all"][
+        "num_sequences"
+    ]
+    df = pd.DataFrame(summary_stats).T.astype(int)
+    logger.info("Finished processing {}:\n{}\n".format(input_fastq, str(df)))
+    return summary_stats
+
+
+def filter_records(list_of_records, min_read_length, max_read_length):
+
+    df = (
+        pd.DataFrame(
+            [(_.name, len(_.sequence)) for _ in list_of_records],
+            columns=["read_id", "read_length"],
+        )
+        .astype({"read_length": pd.np.uint32})
+        .eval("pass_filter = (@min_read_length <= read_length < @max_read_length)")
+    )
+    seq_strings = {True: [], False: []}
+    for seq, is_pass in zip(map(str, list_of_records), df["pass_filter"].values):
+        seq_strings[is_pass].append(seq)
+
+    return {"metadata": df, "pass": seq_strings[True], "fail": seq_strings[False]}
+
+
+class ReadFilterProgress(DataFrameProgress):
+    def __init__(self, **kwds):
+        kwds["desc"] = "Reads processed"
+        kwds["unit"] = " reads"
+        super(ReadFilterProgress, self).__init__(**kwds)
+
+    def update_data(self, read_df):
+        count_cols = ["read_length", "pass_filter"]
+        counts = read_df.loc[:, count_cols].sum(axis=0)
+        counts["reads"] = len(read_df)
+        counts = counts.astype(int).to_frame().T
+
+        if self._data is None:
+            self._data = counts
+        else:
+            self._data += counts
+
+    @staticmethod
+    def summarize(df):
+        summary = (
+            df.eval("Gb = read_length * 1e-9").eval(
+                "perc_pass = 100 * (pass_filter / reads)"
+            )
+            # .loc[:, ["reads", "Gb", "num_contacts", "contacts_per_Gb", "percent_cis"]]
+        )
+        return summary
+
+    def update_progress_bar(self, num_aligns):
+        self._bar.update(num_aligns)
+        self._bar.set_postfix(self.summarize(self._data).iloc[0, :].to_dict())
