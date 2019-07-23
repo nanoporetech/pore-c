@@ -120,19 +120,15 @@ def plot_contact_distances(
         name = re.search("(?P<id>201[89][0-9]+_[A-Z]{3}[0-9]+_SS_(HindIII|DpnII|NlaIII))",name).group("id")
         distances, counts = zip(*sorted(data.items(), key=lambda x: x[0]))
         counts = np.array(counts) / sum(counts)
-#        distances_Mb = np.array(np.array(distances) / 10 ** 6, dtype=int)
-#        axes[idx].plot(distances_Mb, counts, c=colors[idx], label = name)
-#        axes[idx].plot(ref_distances_Mb, ref_counts, "k:", label = name)
         axes[idx].plot(distances, counts, c=colors[idx], label = name)
         axes[idx].plot(ref_distances, ref_counts, "k:", label = name)
 
         axes[idx].set_xlabel("distance (Mbp)", fontsize="x-small")
         axes[idx].set_ylabel("Corrected counts", fontsize="x-small")
-#        axes[idx].set_yscale("log")
+        axes[idx].set_yscale("log")
         axes[idx].set_xscale("log")
         axes[idx].set_xlim(10**6,  min_max_size * 10**6)
-#        axes[idx].set_ylim(1000, max(counts))
-        axes[idx].set_ylim(0,max(counts))
+        axes[idx].set_ylim(0,max(max(counts),max(ref_counts)))
         axes[idx].legend(fontsize = "x-small")
     
     fig.savefig(graph_file_out)
@@ -503,3 +499,48 @@ def matrix_correlation(
         )
     )
     f_out.close()
+
+
+def dist_to_nearest_cutsite(bamfile: str, endpoint_dist_out: str,  hicREF: str) -> None:
+    #load hicREF file
+    re_sites = {}
+    for entry in open(hicREF):
+        l = entry.strip().split()
+        sites = np.array([0] + list(map(int,l[1:])), dtype = int)
+        re_sites[l[0]] = sites
+
+    fOut = open(endpoint_dist_out,"w")
+    template = "{read_id},{alignment_index},{q_start},{q_end},{left_nearest},{right_nearest},{left_dist},{right_dist}\n"
+    fOut.write(template.replace("{","").replace("}",""))
+
+    #traverse reads
+    idx = 0
+    lastRead = False
+    for entry in AlignmentFile(bamfile):
+        sites = re_sites[entry.reference_name]
+        start_left_site, end_left_site = np.searchsorted(sites, [entry.reference_start, entry.reference_end])
+
+        sample_l = max(0, start_left_site - 100)
+        sample_r= min(len(sites), end_left_site + 100)
+        sampling = sites[sample_l:sample_r]
+        start_dists = np.abs(entry.reference_start - sampling)
+        end_dists = np.abs(entry.reference_end - sampling)
+        start_idx = np.argmin(start_dists)
+        end_idx = np.argmin(end_dists)
+        if lastRead == False:
+            lastRead = entry.query_name
+        elif lastRead == entry.query_name:
+            idx += 1
+        else:
+            idx = 0
+            lastRead = entry.query_name
+
+        fOut.write(template.format(read_id = entry.query_name,
+                                   alignment_index = idx,
+                                   q_start = entry.query_alignment_start,
+                                   q_end = entry.query_alignment_end,
+                                   left_nearest = sampling[start_idx],
+                                   right_nearest = sampling[end_idx],
+                                   left_dist = start_dists[start_idx],
+                                   right_dist = end_dists[end_idx])
+                   )
