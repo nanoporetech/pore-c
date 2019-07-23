@@ -220,6 +220,19 @@ def stats(poreC_file_in: str) -> str:
                                     
 
 
+#Netha wanted to be able to take a .poreC and bucket it into length regimes
+# This tool enables that but hasn't been plugged into the click interface yet.
+def filter_poreC_by_size(file_in,file_out,min_size,max_size):
+
+    f_out = open(file_out,'w')
+
+    with open(file_in) as f:
+        for entry in f:
+            walk = Cwalk()
+            walk.from_entry(entry)
+            if walk.length() >= min_size and walk.length() <= max_size:
+                f_out.write(str(contact)+ "\n")
+
 
 # creates output filehandle
 # reads input file
