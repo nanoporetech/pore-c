@@ -38,8 +38,8 @@ def create_virtual_digest(
     reference_fasta: IndexedFasta,
     digest_type: str,
     digest_param: str,
-    fragment_df_path: Path,
-    summary_stats_path: Path,
+    fragments: Path = None,
+    digest_stats: Path = None,
     n_workers: int = 1,
 ) -> FragmentDf:
     """Iterate over the sequences in a fasta file and find the match positions for the restriction fragment"""
@@ -82,16 +82,16 @@ def create_virtual_digest(
     # use pandas accessor extension
     frag_df.fragmentdf.assert_valid()
 
-    frag_df.to_parquet(str(fragment_df_path), index=False)
+    frag_df.to_parquet(str(fragments), index=False)
 
-    summary_stats = (
+    summary_stats_df = (
         frag_df.groupby("chrom")["fragment_length"]
         .agg(["size", "mean", "median", "min", "max"])
         .fillna(-1)
         .astype({"size": int, "min": int, "max": int})
         .rename(columns={"size": "num_fragments"})
     )
-    summary_stats.to_csv(summary_stats_path)
+    summary_stats_df.to_csv(digest_stats)
 
     return frag_df
 

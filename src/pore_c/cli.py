@@ -79,11 +79,8 @@ def catalog(reference_fasta, output_prefix, genome_id=None):
     if not faidx_file.exists():
         raise IOError("Faidx file doesn't exist, please run 'samtools faidx {}'".format(reference_fasta))
 
-    file_paths, exists = ReferenceGenomeCatalog.generate_paths(output_prefix)
-    if exists:
-        for file_id in exists:
-            logger.error("Output file already exists for {}: {}".format(file_id, file_paths[file_id]))
-        raise IOError()
+    file_paths = ReferenceGenomeCatalog.generate_paths(output_prefix)
+    path_kwds = {key: val for key, val in file_paths.items() if key != 'catalog'}
 
     ref_source = IndexedFasta(fasta)
     ref_source.discover()
@@ -91,10 +88,9 @@ def catalog(reference_fasta, output_prefix, genome_id=None):
     chrom_df = pd.DataFrame(ref_source.metadata["chroms"])[["chrom", "length"]]
     chrom_df.to_csv(file_paths["chrom_metadata"], index=False)
     chrom_df.to_csv(file_paths["chromsizes"], sep="\t", header=None, index=False)
-
-    rg_cat = ReferenceGenomeCatalog.create(
-        file_paths["catalog"], fasta, file_paths["chrom_metadata"], chrom_lengths, file_paths["chromsizes"], genome_id
-    )
+    metadata = {'chrom_lengths': chrom_lengths, 'genome_id': genome_id}
+    file_paths['fasta'] = fasta
+    rg_cat = ReferenceGenomeCatalog.create(file_paths, metadata, {})
     logger.info("Added reference genome: {}".format(str(rg_cat)))
 
 
@@ -127,21 +123,24 @@ def virtual_digest(reference_catalog, cut_on, output_prefix, n_workers):
     digest_type, digest_param = cut_on.split(":")
     assert digest_type in ["bin", "enzyme", "regex"]
 
-    file_paths, exists = VirtualDigestCatalog.generate_paths(output_prefix)
-    if exists:
-        for file_id in exists:
-            logger.error("Output file already exists for {}: {}".format(file_id, file_paths[file_id]))
-        raise IOError()
+    file_paths = VirtualDigestCatalog.generate_paths(output_prefix)
+    path_kwds = {key: val for key, val in file_paths.items() if key != 'catalog'}
 
     frag_df = create_virtual_digest(
         rg_cat.fasta,
         digest_type,
         digest_param,
-        file_paths["fragments"],
-        file_paths["digest_stats"],
         n_workers=n_workers,
+        **path_kwds,
     )
-    vd_cat = VirtualDigestCatalog.create(file_paths, Path(reference_catalog), digest_type, digest_param, len(frag_df))
+
+    metadata = {
+        'digest_type': digest_type,
+        'digest_param': digest_param,
+        'num_fragments': len(frag_df),
+    }
+    file_paths['refgenome_catalog'] = Path(reference_catalog)
+    vd_cat = VirtualDigestCatalog.create(file_paths, metadata, {})
     logger.debug("Created Virtual Digest catalog: {}".format(vd_cat))
 
 

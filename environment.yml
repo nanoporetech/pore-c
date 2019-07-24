@@ -5,11 +5,15 @@ channels:
   - r
   - defaults
 dependencies:
+  - python>=3.6
   - snakemake
   - pairtools
   - pairix
   - tabix
-  - python>=3.6
+  - intake
+  - intake-parquet
+  - ncls
+  - tqdm
   - pysam
   - biopython
   - click
