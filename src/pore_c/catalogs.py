@@ -1,8 +1,19 @@
+from logging import getLogger
 from pathlib import Path
 
 import pandas as pd
 import yaml
 from intake.catalog.local import YAMLFileCatalog
+
+__all__ = [
+    "RawReadCatalog",
+    "PairsFileCatalog",
+    "AlignmentDfCatalog",
+    "VirtualDigestCatalog",
+    "ReferenceGenomeCatalog",
+]
+
+logger = getLogger(__name__)
 
 
 class basePoreCCatalog(YAMLFileCatalog):
@@ -14,9 +25,75 @@ class basePoreCCatalog(YAMLFileCatalog):
         exists = []
         for key, val in cls._suffix_map.items():
             res[key] = Path(prefix + val)
+            logger.debug(
+                "Data for {} {} will be saved to: {}".format(cls.__name__, key, val)
+            )
             if res[key].exists():
                 exists.append(key)
-        return res, exists
+        if exists:
+            for file_id in exists:
+                logger.error(
+                    "Output file already exists for {}: {}".format(
+                        file_id, res[file_id]
+                    )
+                )
+            raise IOError("Please remove output files before continuing")
+        return res
+
+    @property
+    def user_metadata(self):
+        return self.metadata.get("user_metadata", {})
+
+    @property
+    def porec_metadata(self):
+        md = self.metadata.copy()
+        if "user_metadata" in md:
+            md.pop("user_metadata")
+        return md
+
+    @staticmethod
+    def create_catalog_dict(klass, file_paths, metadata, user_metadata):
+        if not metadata:
+            metadata = {}
+        if user_metadata:
+            metadata["user_metadata"] = user_metadata
+        catalog_data = {
+            "name": klass.name,
+            "description": klass.description,
+            "driver": "pore_c.catalogs.{}".format(klass.__name__),
+            "metadata": metadata,
+            "sources": {},
+        }
+        driver_lookup = {
+            ".csv": "csv",
+            ".parquet": "parquet",
+            ".fq.gz": "pore_c.datasources.Fastq",
+            ".fq": "pore_c.datasources.Fastq",
+            ".pairs.gz": "pore_c.datasources.IndexedPairFile",
+        }
+        catalog_path = file_paths["catalog"]
+        for key, val in file_paths.items():
+            if key == "catalog":
+                pass
+            driver = None
+            for suffix, _driver in driver_lookup.items():
+                if val.name.endswith(suffix):
+                    driver = _driver
+                    break
+            if driver is None:
+                logger.debug(f"No driver found found for {key}: {val}, skipping.")
+                continue
+            try:
+                urlpath = "{{ CATALOG_DIR }}/" + str(
+                    val.relative_to(catalog_path.parent)
+                )
+            except ValueError:
+                urlpath = str(val.resolve())
+            catalog_data["sources"][key] = {
+                "driver": driver,
+                "args": {"urlpath": urlpath},
+            }
+        return catalog_data
 
 
 class RawReadCatalog(basePoreCCatalog):
@@ -25,10 +102,27 @@ class RawReadCatalog(basePoreCCatalog):
 
     _suffix_map = {
         "catalog": ".catalog.yaml",
-        "pass_reads": ".pass.fq.gz",
-        "fail_reads": ".fail.fq.gz",
+        "pass_fastq": ".pass.fq.gz",
+        "fail_fastq": ".fail.fq.gz",
         "read_metadata": ".read_metadata.parquet",
+        "summary": ".summary.csv",
     }
+
+    @classmethod
+    def create(cls, file_paths, *args, **kwds):
+        catalog_data = basePoreCCatalog.create_catalog_dict(
+            cls, file_paths, *args, **kwds
+        )
+        catalog_path = file_paths["catalog"]
+        with catalog_path.open("w") as fh:
+            fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
+        cat = cls(str(catalog_path))
+        return cat
+
+    def __str__(self):
+        return "<RawReadCatalog reads={num_sequences} bases={total_bases:,}>".format(
+            **self.metadata["pass"]
+        )
 
 
 class PairsFileCatalog(basePoreCCatalog):

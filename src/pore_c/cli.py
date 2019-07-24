@@ -1,12 +1,12 @@
+import json
 import logging
-import sys
 from pathlib import Path
-from .settings import setup_logging
 
 import click
-import click_log
 from intake import open_catalog
 
+from .settings import setup_logging
+import  pore_c.catalogs as catalogs
 
 logger = setup_logging()
 logger.warning("here")
@@ -22,8 +22,18 @@ class NaturalOrderGroup(click.Group):
         return self.commands.keys()
 
 
+def command_line_json(ctx, param, value):
+    # TODO: add support for json from file
+    try:
+        res = json.loads(value)
+    except Exception as exc:  # noqa: F841
+        logger.exception("Not valid json")
+        raise
+    return res
+
+
 @click.group(cls=NaturalOrderGroup)
-@click.option("-v", "--verbosity", count=True, help="Set level of verbosity")
+@click.option("-v", "--verbosity", count=True, help="Increase level of logging information, eg. -vvv")
 @click.option("--quiet", is_flag=True, help="Turn off all logging")
 def cli(verbosity, quiet):
     """Pore-C tools"""
@@ -32,16 +42,14 @@ def cli(verbosity, quiet):
     elif verbosity > 0:
         LOG_LEVELS = [logging.CRITICAL, logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG]
         offset = 2
-        idx = min(len(LOG_LEVELS)-1, offset + verbosity)
+        idx = min(len(LOG_LEVELS) - 1, offset + verbosity)
         logger.setLevel(LOG_LEVELS[idx])
     else:
         pass
     logger.debug("Logger set up")
 
 
-@cli.group(
-    cls=NaturalOrderGroup, short_help="Operations on the reference genome sequence"
-)
+@cli.group(cls=NaturalOrderGroup, short_help="Operations on the reference genome sequence")
 def refgenome():
     pass
 
@@ -65,28 +73,16 @@ def catalog(reference_fasta, output_prefix, genome_id=None):
             genome_id = stem
     except Exception as e:
         raise ValueError(
-            "Fasta file should be gzip compressed and should be in form {file_stem}.(fa|fasta|fna).gz\n{}".format(
-                e
-            )
+            "Fasta file should be gzip compressed and should be in form {file_stem}.(fa|fasta|fna).gz\n{}".format(e)
         )
-    faidx_file = (fasta.parent / stem).with_suffix(
-        ".{}.{}.fai".format(fasta_ext, compression_ext)
-    )
+    faidx_file = (fasta.parent / stem).with_suffix(".{}.{}.fai".format(fasta_ext, compression_ext))
     if not faidx_file.exists():
-        raise IOError(
-            "Faidx file doesn't exist, please run 'samtools faidx {}'".format(
-                reference_fasta
-            )
-        )
+        raise IOError("Faidx file doesn't exist, please run 'samtools faidx {}'".format(reference_fasta))
 
     file_paths, exists = ReferenceGenomeCatalog.generate_paths(output_prefix)
     if exists:
         for file_id in exists:
-            logger.error(
-                "Output file already exists for {}: {}".format(
-                    file_id, file_paths[file_id]
-                )
-            )
+            logger.error("Output file already exists for {}: {}".format(file_id, file_paths[file_id]))
         raise IOError()
 
     ref_source = IndexedFasta(fasta)
@@ -97,12 +93,7 @@ def catalog(reference_fasta, output_prefix, genome_id=None):
     chrom_df.to_csv(file_paths["chromsizes"], sep="\t", header=None, index=False)
 
     rg_cat = ReferenceGenomeCatalog.create(
-        file_paths["catalog"],
-        fasta,
-        file_paths["chrom_metadata"],
-        chrom_lengths,
-        file_paths["chromsizes"],
-        genome_id,
+        file_paths["catalog"], fasta, file_paths["chrom_metadata"], chrom_lengths, file_paths["chromsizes"], genome_id
     )
     logger.info("Added reference genome: {}".format(str(rg_cat)))
 
@@ -139,11 +130,7 @@ def virtual_digest(reference_catalog, cut_on, output_prefix, n_workers):
     file_paths, exists = VirtualDigestCatalog.generate_paths(output_prefix)
     if exists:
         for file_id in exists:
-            logger.error(
-                "Output file already exists for {}: {}".format(
-                    file_id, file_paths[file_id]
-                )
-            )
+            logger.error("Output file already exists for {}: {}".format(file_id, file_paths[file_id]))
         raise IOError()
 
     frag_df = create_virtual_digest(
@@ -154,9 +141,7 @@ def virtual_digest(reference_catalog, cut_on, output_prefix, n_workers):
         file_paths["digest_stats"],
         n_workers=n_workers,
     )
-    vd_cat = VirtualDigestCatalog.create(
-        file_paths, Path(reference_catalog), digest_type, digest_param, len(frag_df)
-    )
+    vd_cat = VirtualDigestCatalog.create(file_paths, Path(reference_catalog), digest_type, digest_param, len(frag_df))
     logger.debug("Created Virtual Digest catalog: {}".format(vd_cat))
 
 
@@ -165,45 +150,35 @@ def reads():
     pass
 
 
-@reads.command(short_help="Create a catalog file for a set of reads")
+@reads.command(short_help="Create a catalog file for a set of reads")  # noqa: F811
 @click.argument("fastq", type=click.Path(exists=True))
 @click.argument("output_prefix")
-@click.option(
-    "--min-read-length", help="The minimum length read to run through porec", default=1
-)
+@click.option("--min-read-length", help="The minimum length read to run through porec", default=1)
 @click.option(
     "--max-read-length",
     help="The maximum length read to run through porec. Note that bwa mem can crash on very long reads",
     default=500000,
 )
-def catalog(fastq, output_prefix, min_read_length, max_read_length):
+@click.option("--user-metadata", callback=command_line_json, help="Additional user metadata to associate with this run")
+def catalog(fastq, output_prefix, min_read_length, max_read_length, user_metadata):
     """Preprocess a reference genome for use by pore_c tools
     """
-    from pore_c.catalogs import RawReadCatalog
     from pore_c.analyses.reads import filter_fastq
-    import pandas as pd
 
-    file_paths, exists = RawReadCatalog.generate_paths(output_prefix)
-    if exists:
-        for file_id in exists:
-            logger.error(
-                "Output file already exists for {}: {}".format(
-                    file_id, file_paths[file_id]
-                )
-            )
-        raise IOError()
-
-    for key, val in file_paths.items():
-        logger.info("Data will be written to: {}".format(val))
-
+    file_paths = catalogs.RawReadCatalog.generate_paths(output_prefix)
+    path_kwds = {key: val for key, val in file_paths.items() if key != 'catalog'}
     metadata = filter_fastq(
         input_fastq=fastq,
-        pass_fastq=file_paths["pass_reads"],
-        fail_fastq=file_paths["fail_reads"],
-        read_metadata=file_paths["read_metadata"],
         min_read_length=min_read_length,
         max_read_length=max_read_length,
+        **path_kwds
     )
+
+    catalog = catalogs.RawReadCatalog.create(file_paths, metadata, user_metadata)
+    logger.info("Created catalog for results: {}".format(catalog))
+
+    c1 = open_catalog(str(file_paths['catalog']))
+    logger.info(c1)
     # ref_source = IndexedFasta(fasta)
     # ref_source.discover()
     # chrom_lengths = {c["chrom"]: c["length"] for c in ref_source.metadata["chroms"]}
@@ -238,11 +213,7 @@ def parse(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize
     file_paths, exists = AlignmentDfCatalog.generate_paths(output_prefix)
     if exists:
         for file_id in exists:
-            logger.error(
-                "Output file already exists for {}: {}".format(
-                    file_id, file_paths[file_id]
-                )
-            )
+            logger.error("Output file already exists for {}: {}".format(file_id, file_paths[file_id]))
         raise IOError()
 
     vd_cat = open_catalog(str(virtual_digest_catalog))
@@ -258,9 +229,7 @@ def parse(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize
         n_workers=n_workers,
         chunksize=chunksize,
     )
-    adf_cat = AlignmentDfCatalog.create(
-        file_paths, Path(input_bam), Path(virtual_digest_catalog), final_stats
-    )
+    adf_cat = AlignmentDfCatalog.create(file_paths, Path(input_bam), Path(virtual_digest_catalog), final_stats)
     logger.info(str(adf_cat))
 
 
@@ -280,11 +249,7 @@ def from_alignment_table(align_catalog, output_prefix, n_workers):
     file_paths, exists = PairsFileCatalog.generate_paths(output_prefix)
     if exists:
         for file_id in exists:
-            logger.error(
-                "Output file already exists for {}: {}".format(
-                    file_id, file_paths[file_id]
-                )
-            )
+            logger.error("Output file already exists for {}: {}".format(file_id, file_paths[file_id]))
         raise IOError()
 
     adf_cat = open_catalog(align_catalog)
@@ -292,9 +257,7 @@ def from_alignment_table(align_catalog, output_prefix, n_workers):
     chrom_lengths = rg_cat.metadata["chrom_lengths"]
     genome_id = rg_cat.metadata["genome_id"]
     align_df = adf_cat.alignment.to_dask()
-    convert_align_df_to_pairs(
-        align_df, chrom_lengths, genome_id, file_paths["pairs"], n_workers=n_workers
-    )
+    convert_align_df_to_pairs(align_df, chrom_lengths, genome_id, file_paths["pairs"], n_workers=n_workers)
 
     pair_cat = PairsFileCatalog.create(file_paths, Path(align_catalog))
     logger.info(str(pair_cat))
@@ -305,9 +268,7 @@ def dashboard():
     pass
 
 
-@dashboard.command(
-    help="Alignment dashboard", context_settings=dict(ignore_unknown_options=True)
-)
+@dashboard.command(help="Alignment dashboard", context_settings=dict(ignore_unknown_options=True))
 @click.argument("align_catalog", nargs=1, type=click.Path(exists=True))
 @click.argument("bokeh_serve_args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
@@ -319,10 +280,5 @@ def alignment(ctx, align_catalog, bokeh_serve_args):
     from bokeh.__main__ import main as bokeh_entry_point
 
     main_path = pore_c.__file__.rsplit("/", 1)[0] + "/dashboard/"
-    sys.argv = (
-        ["bokeh", "serve"]
-        + [main_path]
-        + list(bokeh_serve_args)
-        + ["--args", align_catalog]
-    )
+    sys.argv = ["bokeh", "serve"] + [main_path] + list(bokeh_serve_args) + ["--args", align_catalog]
     bokeh_entry_point()

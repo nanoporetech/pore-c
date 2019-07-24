@@ -6,6 +6,7 @@ from pyarrow import parquet as pq
 
 logger = getLogger(__name__)
 
+
 class PairFileWriter(object):
     def __init__(self, output_path, chrom_sizes, genome_assembly, columns=None):
         self._output_path = output_path
@@ -22,14 +23,8 @@ class PairFileWriter(object):
         self._string_template = "%s\n" % ("\t".join(["{}" for c in self._columns]))
 
     def _write_header(self):
-        lines = [
-            "## pairs format 1.0",
-            "#shape: upper triangle",
-            "#genome_assembly {}".format(self._genome_assembly),
-        ]
-        lines.extend(
-            ["#chromsize: {} {}".format(*_) for _ in self._chrom_sizes.items()]
-        )
+        lines = ["## pairs format 1.0", "#shape: upper triangle", "#genome_assembly {}".format(self._genome_assembly)]
+        lines.extend(["#chromsize: {} {}".format(*_) for _ in self._chrom_sizes.items()])
         lines.append("#columns: {}".format(" ".join(self._columns)))
         self._fh.write("{}\n".format("\n".join(lines)))
 
@@ -45,13 +40,11 @@ class PairFileWriter(object):
         # TODO: this could all be cleaned up a bit
         if self._sort_and_compress:
             logger.info("Sorting and compressing: {}".format(self._output_path))
-            comd = "pairtools sort {} | bgzip > {}".format(
-                self._raw_output_path, self._output_path
-            )
-            logger.debug('Running command: {}'.format(comd))
+            comd = "pairtools sort {} | bgzip > {}".format(self._raw_output_path, self._output_path)
+            logger.debug("Running command: {}".format(comd))
             sp.check_call(comd, shell=True)
             sp.check_call(["pairix", str(self._output_path)])
-            logger.debug('Removing temp file: {}'.format(self._raw_output_path))
+            logger.debug("Removing temp file: {}".format(self._raw_output_path))
             sp.check_call(["rm", str(self._raw_output_path)])
 
 
@@ -102,11 +95,7 @@ class TableWriter(object):
         try:
             self._writer.write_table(table)
         except Exception as exc:
-            raise IOError(
-                "Error writing batch {} to {}:\n{}\n{}".format(
-                    self._counter, self.path, df.head(), exc
-                )
-            )
+            raise IOError("Error writing batch {} to {}:\n{}\n{}".format(self._counter, self.path, df.head(), exc))
         self._counter += 1
 
     def __call__(self, *args, **kwds):
