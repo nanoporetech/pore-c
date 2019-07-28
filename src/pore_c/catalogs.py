@@ -133,7 +133,7 @@ class RawReadCatalog(basePoreCCatalog):
 
     def __str__(self):
         return "<RawReadCatalog reads={num_sequences} bases={total_bases:,}>".format(
-            **self.metadata["pass"]
+            **self.metadata['summary_stats']["pass"]
         )
 
 

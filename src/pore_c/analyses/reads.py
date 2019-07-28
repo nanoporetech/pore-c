@@ -81,7 +81,7 @@ def filter_fastq(
     sys.stderr.write("\n")
     logger.debug("Finished processing reads")
     assert (pass_writer._counter + fail_writer._counter) == summary_stats["all"]["num_sequences"]
-    df = pd.DataFrame(summary_stats).T.astype(int)
+    df = pd.DataFrame([v for v in summary_stats.values() if v], index=[k for k,v in summary_stats.items() if v])
     df.index.name = 'read_subset'
     logger.info("Finished processing {}:\n{}\n".format(input_fastq, str(df)))
     df.to_csv(summary)

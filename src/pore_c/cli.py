@@ -166,30 +166,18 @@ def catalog(fastq, output_prefix, min_read_length, max_read_length, user_metadat
 
     file_paths = catalogs.RawReadCatalog.generate_paths(output_prefix)
     path_kwds = {key: val for key, val in file_paths.items() if key != 'catalog'}
-    metadata = filter_fastq(
+    summary = filter_fastq(
         input_fastq=fastq,
         min_read_length=min_read_length,
         max_read_length=max_read_length,
         **path_kwds
     )
 
-    catalog = catalogs.RawReadCatalog.create(file_paths, metadata, user_metadata)
+    catalog = catalogs.RawReadCatalog.create(file_paths, {'summary_stats': summary}, user_metadata)
     logger.info("Created catalog for results: {}".format(catalog))
 
     c1 = open_catalog(str(file_paths['catalog']))
     logger.info(c1)
-    # ref_source = IndexedFasta(fasta)
-    # ref_source.discover()
-    # chrom_lengths = {c["chrom"]: c["length"] for c in ref_source.metadata["chroms"]}
-    # chrom_df = pd.DataFrame(ref_source.metadata["chroms"])[["chrom", "length"]]
-    # chrom_df.to_csv(file_paths["chrom_metadata"], index=False)
-    # chrom_df.to_csv(file_paths["chromsizes"], sep="\t", header=None, index=False)
-
-    # rg_cat = ReferenceGenomeCatalog.create(
-    #    file_paths["catalog"], fasta, file_paths["chrom_metadata"], chrom_lengths, file_paths["chromsizes"], genome_id
-    # )
-    # logger.info("Added reference genome: {}".format(str(rg_cat)))
-
 
 @cli.group(cls=NaturalOrderGroup, short_help="Analyse aligned porec reads")
 def alignments():

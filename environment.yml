@@ -12,6 +12,8 @@ dependencies:
   - tabix
   - intake
   - intake-parquet
+  - streamz
+  - pyarrow
   - ncls
   - tqdm
   - pysam
