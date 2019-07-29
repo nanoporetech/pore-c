@@ -187,32 +187,11 @@ class AlignmentDfCatalog(basePoreCCatalog):
     }
 
     @classmethod
-    def create(cls, file_paths, input_bam, virtual_digest_catalog, final_stats):
-        catalog_path = file_paths.pop("catalog")
-        catalog_data = {
-            "name": "pore_c_parsed_alignment_files",
-            "description": "Output files of pore-c tools alignment filtering",
-            "sources": {
-                "virtual_digest": {
-                    "args": {"path": str(virtual_digest_catalog.resolve())},
-                    "driver": "intake.catalog.local.YAMLFileCatalog",
-                    "description": VirtualDigestCatalog.description,
-                },
-                "source_bam": {
-                    "args": {"urlpath": str(input_bam.resolve())},
-                    "driver": "pore_c.datasources.NameSortedBamSource",
-                    "description": "The input bam file",
-                },
-            },
-            "metadata": final_stats,
-        }
-        for key, val in file_paths.items():
-            driver = val.suffix.replace(".", "")
-            assert driver in ["parquet", "csv"]
-            catalog_data["sources"][key] = {
-                "driver": driver,
-                "args": {"urlpath": str(val.resolve())},
-            }
+    def create(cls, file_paths, *args, **kwds):
+        catalog_data = basePoreCCatalog.create_catalog_dict(
+            cls, file_paths, *args, **kwds
+        )
+        catalog_path = file_paths["catalog"]
         with catalog_path.open("w") as fh:
             fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
         cat = cls(str(catalog_path))
@@ -244,37 +223,6 @@ class VirtualDigestCatalog(basePoreCCatalog):
         with catalog_path.open("w") as fh:
             fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
         cat = cls(str(catalog_path))
-
-        #catalog_path = file_paths.pop("catalog")
-        #catalog_data = {
-        #    "name": cls.name,
-        #    "description": cls.description,
-        #    "driver": "pore_c.catalogs.VirtualDigestCatalog",
-        #    "metadata": {
-        #        "digest_type": digest_type,
-        #        "digest_param": digest_param,
-        #        "num_fragments": num_fragments,
-        #    },
-        #    "sources": {
-        #        "refgenome": {
-        #            "args": {"path": str(refgenome_catalog.resolve())},
-        #            "driver": "intake.catalog.local.YAMLFileCatalog",
-        #            "description": ReferenceGenomeCatalog.description,
-        #        }
-        #    },
-        #}
-
-        #for key, val in file_paths.items():
-        #    driver = val.suffix.replace(".", "")
-        #    assert driver in ["parquet", "csv"]
-        #    catalog_data["sources"][key] = {
-        #        "driver": driver,
-        #        "args": {"urlpath": str(val.resolve())},
-        #    }
-        #with catalog_path.open("w") as fh:
-        #    fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
-        #cat = cls(str(catalog_path))
-        #return cat
 
     def __str__(self):
         return "<VirtualDigestCatalog digest_type={} digest_param:{} num_fragments:{} path:{}>".format(

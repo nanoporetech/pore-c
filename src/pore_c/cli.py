@@ -194,14 +194,9 @@ def parse(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize
     """Filter the read-sorted alignments in INPUT_BAM and save the results under OUTPUT_PREFIX
 
     """
-    from pore_c.catalogs import AlignmentDfCatalog
     from pore_c.analyses.alignments import parse_alignment_bam
 
-    file_paths, exists = AlignmentDfCatalog.generate_paths(output_prefix)
-    if exists:
-        for file_id in exists:
-            logger.error("Output file already exists for {}: {}".format(file_id, file_paths[file_id]))
-        raise IOError()
+    file_paths = catalogs.AlignmentDfCatalog.generate_paths(output_prefix)
 
     vd_cat = open_catalog(str(virtual_digest_catalog))
     fragment_df = vd_cat.fragments.read()
@@ -216,7 +211,10 @@ def parse(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize
         n_workers=n_workers,
         chunksize=chunksize,
     )
-    adf_cat = AlignmentDfCatalog.create(file_paths, Path(input_bam), Path(virtual_digest_catalog), final_stats)
+    metadata = {'final_stats': final_stats}
+    file_paths['virtual_digest'] = Path(virtual_digest_catalog)
+    file_paths['input_bam'] = Path(input_bam)
+    adf_cat = catalogs.AlignmentDfCatalog.create(file_paths, metadata, {})
     logger.info(str(adf_cat))
 
 
