@@ -99,9 +99,13 @@ class basePoreCCatalog(YAMLFileCatalog):
                     )
                 except ValueError:
                     urlpath = str(val.resolve())
+                if driver == 'intake.catalog.local.YAMLFileCatalog':
+                    path_key = 'path'
+                else:
+                    path_key = 'urlpath'
                 catalog_data["sources"][key] = {
                     "driver": driver,
-                    "args": {"urlpath": urlpath},
+                    "args": {path_key: urlpath},
                 }
             else:
                 raise ValueError(val)

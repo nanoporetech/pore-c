@@ -229,22 +229,18 @@ def pairs():
 @click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
 def from_alignment_table(align_catalog, output_prefix, n_workers):
     from pore_c.analyses.pairs import convert_align_df_to_pairs
-    from pore_c.catalogs import PairsFileCatalog
 
-    file_paths, exists = PairsFileCatalog.generate_paths(output_prefix)
-    if exists:
-        for file_id in exists:
-            logger.error("Output file already exists for {}: {}".format(file_id, file_paths[file_id]))
-        raise IOError()
+    file_paths = catalogs.PairsFileCatalog.generate_paths(output_prefix)
 
-    adf_cat = open_catalog(align_catalog)
+    adf_cat = open_catalog(str(align_catalog))
     rg_cat = adf_cat.virtual_digest.refgenome
     chrom_lengths = rg_cat.metadata["chrom_lengths"]
     genome_id = rg_cat.metadata["genome_id"]
     align_df = adf_cat.alignment.to_dask()
     convert_align_df_to_pairs(align_df, chrom_lengths, genome_id, file_paths["pairs"], n_workers=n_workers)
 
-    pair_cat = PairsFileCatalog.create(file_paths, Path(align_catalog))
+    file_paths['aligmentdf_cat'] = Path(align_catalog)
+    pair_cat = catalogs.PairsFileCatalog.create(file_paths, {}, {})
     logger.info(str(pair_cat))
 
 
