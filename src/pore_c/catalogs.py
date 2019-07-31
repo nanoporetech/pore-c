@@ -148,34 +148,15 @@ class PairsFileCatalog(basePoreCCatalog):
     _suffix_map = {"catalog": ".catalog.yaml", "pairs": ".pairs.gz"}
 
     @classmethod
-    def create(cls, file_paths, alignment_df_catalog):
-        catalog_path = file_paths.pop("catalog")
-        catalog_data = {
-            "name": cls.name,
-            "description": cls.description,
-            "sources": {
-                "source_alignments": {
-                    "args": {"path": str(alignment_df_catalog.resolve())},
-                    "driver": "intake.catalog.local.YAMLFileCatalog",
-                    "description": AlignmentDfCatalog.description,
-                }
-            },
-        }
-        for key, val in file_paths.items():
-            if key == "pairs":
-                driver = "pore_c.datasources.IndexedPairFile"
-            else:
-                driver = val.suffix.replace(".", "")
-                assert driver in ["parquet", "csv"]
-            catalog_data["sources"][key] = {
-                "driver": driver,
-                "args": {"urlpath": str(val.resolve())},
-            }
+    def create(cls, file_paths, *args, **kwds):
+        catalog_data = basePoreCCatalog.create_catalog_dict(
+            cls, file_paths, *args, **kwds
+        )
+        catalog_path = file_paths["catalog"]
         with catalog_path.open("w") as fh:
             fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
         cat = cls(str(catalog_path))
         return cat
-
 
 class AlignmentDfCatalog(basePoreCCatalog):
     name = "pore_c_alignment_df"
