@@ -10,7 +10,7 @@ from pore_c.tools.analysis import \
 from pore_c.tools.analysis import matrix_correlation as matrix_correlation_tool
 from pore_c.tools.analysis import \
     plot_contact_distances as plot_contact_distances_tool
-#from pore_c.tools.analysis import plot_contact_map as plot_contact_map_tool
+
 from pore_c.tools.cluster_reads import cluster_reads as cluster_reads_tool
 from pore_c.tools.cluster_reads import fragDAG_filter as fragDAG_filter_tool
 from pore_c.tools.cluster_reads import \
@@ -32,6 +32,9 @@ from pore_c.tools.poreC_flatten import \
     flatten_multiway as flatten_multiway_tool
 from pore_c.tools.poreC_flatten import \
     fragment_end_metrics as fragment_end_metrics_tool
+
+from pore_c.tools.poreC_flatten import stats as stats_tool
+
 from pore_c.tools.poreC_flatten import \
     make_salsa_bedfile as make_salsa_bedfile_tool
 
@@ -188,6 +191,12 @@ def cluster_reads(
             )
 
 
+@cli.command(short_help="Report stats about pore-c data.")
+@click.argument("input_pore_c", type=click.Path(exists=True))
+def stats(input_pore_c):
+        stats_tool(input_pore_c)
+
+            
 @cli.command(short_help="Cluster mappings by read")
 @click.argument("input_bam", type=click.Path(exists=True))
 @click.argument("keep_bam", type=click.Path(exists=False))
