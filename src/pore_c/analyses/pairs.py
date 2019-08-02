@@ -2,6 +2,7 @@ import sys
 from itertools import combinations
 from typing import Dict
 from pathlib import Path
+from logging import getLogger
 
 import numpy as np
 import pandas as pd
@@ -13,7 +14,7 @@ from pore_c.model import AlignDf, Chrom, PairDf, GenomeIntervalDf
 from pore_c.utils import DataFrameProgress
 from pore_c.datasources import IndexedPairFile
 
-
+logger = getLogger(__name__)
 
 class PairsProgress(DataFrameProgress):
     def __init__(self, **kwds):
@@ -52,10 +53,10 @@ class MatrixAccumlator(DataFrameProgress):
     def get_summary(self):
         summary = {
             "num_pixels": len(self._data),
-            "max_count": self._data['count'].max(),
-            "median_count": self._data['count'].median(),
-            "total_contacts": self._data['count'].sum(),
-            "diagonal_contacts": self._data.query("bin1_id == bin2_id")['count'].sum()
+            "max_count": int(self._data['count'].max()),
+            "median_count": int(self._data['count'].median()),
+            "total_contacts": int(self._data['count'].sum()),
+            "diagonal_contacts": int(self._data.query("bin1_id == bin2_id")['count'].sum()),
         }
         return summary
 
@@ -123,9 +124,9 @@ def convert_pairs_to_matrix(pairs_datasource: IndexedPairFile, resolution:int, c
         coo_stream = (
             df_stream
             .scatter()
+            .buffer(n_workers)
             .map(overlap_count, bin_df=bin_df)
             #.accumulate(matrix, returns_state=True, start=matrix)
-            .buffer(n_workers)
             .gather()
         )
     else:
@@ -145,7 +146,7 @@ def convert_pairs_to_matrix(pairs_datasource: IndexedPairFile, resolution:int, c
         _df = ds._get_partition(partition, usecols=['chr1', 'pos1', 'chr2', 'pos2'])
         if False:
             df_stream.emit(_df)
-            if partition > 2:
+            if partition > 5:
                 break
         else:
             df_stream.emit(_df)
