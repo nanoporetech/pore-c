@@ -255,7 +255,9 @@ class GenomeIntervalDf(object):
             if col not in obj.columns:
                 raise AttributeError("Must have columns 'chrom', 'start' and 'end'.")
         self.index_name = "index" if obj.index.name is None else obj.index.name
-        assert obj.index.is_unique, "Must have a unique index"
+        dupes = obj.index.duplicated(keep=False)
+        if dupes.any():
+            raise ValueError("Must have a unique index: {}".format(obj[dupes]))
         assert not isinstance(obj.index, pd.MultiIndex), "Can't be multindex"
         assert np.issubdtype(obj.index.dtype, np.integer), "Must have integer index: {}".format(obj.index.dtype)
 
@@ -272,6 +274,27 @@ class GenomeIntervalDf(object):
                 chrom_df.index.values.astype(np.int64),
             )
         return res
+
+    def assign(self, other: "GenomeIntervalDf"):
+        """Assign intervals in this dataframe to the first overlapping interval in other"""
+        tgt = other.ginterval.as_ncls_dict()
+        overlaps = []
+        for chrom, chrom_df in self._obj.groupby("chrom"):
+            if chrom not in tgt:
+                continue
+            self_indices, target_indices = tgt[chrom].first_overlap_both(
+                chrom_df.start.values.astype(np.int64),
+                chrom_df.end.values.astype(np.int64),
+                chrom_df.index.values.astype(np.int64),
+            )
+            if len(self_indices) == 0:
+                continue
+            overlaps.append(pd.DataFrame({'self': self_indices, 'other': target_indices}))
+        overlaps = pd.concat(overlaps, ignore_index=True).set_index('self')
+        if overlaps.index.duplicated().any():
+            raise ValueError(overlaps[overlaps.index.duplicated(keep="both")])
+        return overlaps.reindex(index=self._obj.index)
+
 
     def overlap(self, other: "GenomeIntervalDf", calculate_lengths: bool = True):
         """Find all overlapping intervals between this dataframe and 'other'"""
@@ -314,3 +337,24 @@ class GenomeIntervalDf(object):
         else:
             res = None
         return res
+
+
+    @classmethod
+    def fixed_width_bins(cls, chrom_lengths, bin_width):
+        dfs = []
+        for chrom_id, chrom_length in chrom_lengths.items():
+            bin_edges = list(range(0, chrom_length, bin_width))
+            if bin_edges[-1] != chrom_length:
+                bin_edges.append(chrom_length)
+            _df = (
+                pd.DataFrame(
+                    {'start': bin_edges[:-1], "end": bin_edges[1:]}
+                )
+                .astype(GENOMIC_COORD_DTYPE)
+                .assign(chrom=chrom_id)
+            )
+            dfs.append(_df)
+        df = pd.concat(dfs, ignore_index=True).reset_index().rename(columns={'index': "bin_id"})
+        return df[['chrom', 'start', 'end', 'bin_id']]
+
+

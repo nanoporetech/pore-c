@@ -237,11 +237,32 @@ def from_alignment_table(align_catalog, output_prefix, n_workers):
     chrom_lengths = rg_cat.metadata["chrom_lengths"]
     genome_id = rg_cat.metadata["genome_id"]
     align_df = adf_cat.alignment.to_dask()
-    convert_align_df_to_pairs(align_df, chrom_lengths, genome_id, file_paths["pairs"], n_workers=n_workers)
+    #TODO: return number of pairs written
+    metadata = convert_align_df_to_pairs(align_df, chrom_lengths, genome_id, ["pairs"], n_workers=n_workers)
 
     file_paths['aligmentdf_cat'] = Path(align_catalog)
-    pair_cat = catalogs.PairsFileCatalog.create(file_paths, {}, {})
+    pair_cat = catalogs.PairsFileCatalog.create(file_paths, metadata, {})
     logger.info(str(pair_cat))
+
+
+@pairs.command(help="Convert from an alignment table to pairs format")
+@click.argument("pairs_catalog", type=click.Path(exists=True))
+@click.argument("output_prefix")
+@click.option("-r", "--resolution", help="The bin width of the resulting matrix", default=1000)
+@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
+def to_matrix(pairs_catalog, output_prefix, resolution, n_workers):
+    from pore_c.analyses.pairs import convert_pairs_to_matrix
+
+    file_paths = catalogs.MatrixCatalog.generate_paths(output_prefix)
+    pairs_cat = open_catalog(str(pairs_catalog))
+
+    ds = pairs_cat.pairs
+    metadata = convert_pairs_to_matrix(ds, resolution=resolution, n_workers=n_workers, coo=file_paths['coo'])
+    metadata['resolution'] = resolution
+
+    matrix_cat = catalogs.MatrixCatalog.create(file_paths, metadata, {})
+    logger.info(str(matrix_cat))
+
 
 
 @cli.group(cls=NaturalOrderGroup, short_help="Dashboard")

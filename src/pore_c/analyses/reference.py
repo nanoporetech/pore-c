@@ -164,7 +164,7 @@ def find_site_positions_bins(bin_width, seq: str) -> List[int]:
     if len(seq) < bin_width:
         return []
     else:
-        positions = list(range(bin_width, len(seq), bin_width))
+        positions = list(range(0, len(seq), bin_width))
         return positions
 
 

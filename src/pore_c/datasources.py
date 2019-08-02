@@ -13,7 +13,7 @@ from pysam import (
     asTuple,
 )
 
-from pore_c.model import BamEntryDf
+from pore_c.model import BamEntryDf, PairDf, GenomeIntervalDf
 
 
 class Fastq(DataSource):
@@ -110,52 +110,57 @@ class IndexedPairFile(DataSource):
     partition_access = False
     description = "A bgzipped and indexed pairfile"
 
-    def __init__(self, urlpath, include_unmapped=True, metadata=None):
+    def __init__(self, urlpath, bin_width = 10000000, metadata=None):
         self._urlpath = urlpath
-        self._include_unmapped = include_unmapped
         self._dataset = None
         self._dtype = None
         self._chroms = None
+        self._partition_ids = None
+        self._bin_width = bin_width
         super(IndexedPairFile, self).__init__(metadata=metadata)
 
     def _open_dataset(self):
-        raise NotImplementedError
-        self._dataset = TabixFile(self._urlpath)
+        import pypairix
+        self._dataset = pypairix.open(self._urlpath)
 
     def _get_schema(self):
-        raise NotImplementedError
+        from itertools import product
         if self._dataset is None:
             self._open_dataset()
-        self._chroms = list(self._dataset.contigs)
-
-        rec = next(self._dataset.fetch(self._chroms[0], parser=asTuple()))
-        num_fields = len(rec)
-
-        chrom_coord_dtype = np.int64
-        dtypes = {
-            "chrom": pd.CategorialDtype(self._chroms + ["NULL"], ordered=True),
-            "start": chrom_coord_dtype,
-            "end": chrom_coord_dtype,
-            "name": str,
-            "score": np.float32,
-            "strand": bool,
-        }
-        self._dtype = {key: dtypes[key] for key in list(dtypes.keys())[:num_fields]}
+        self._partition_ids = []
+        self._chroms = dict([(k, int(v)) for k, v in self._dataset.get_chromsize()])
+        bin_df = GenomeIntervalDf.fixed_width_bins(self._chroms, self._bin_width)
+        chrom_bins = [(t.chrom, t.start, t.end) for t in bin_df.itertuples()]
+        self._partition_ids = chrom_bins #[::-1]
+        #for (bin1, bin2) in product(chrom_bins, repeat=2):
+        #    self._partition_ids.append("{}|{}".format(bin1, bin2))
+        fields = [l for l in self._dataset.get_header() if l.startswith('#columns')][0].split(':', 1)[1].split()
+        assert(set(fields) == set(PairDf.DTYPE.keys()))
+        self._dtype = PairDf.DTYPE.copy()
         return Schema(
             datashape=None,
             dtype=self._dtype,
             shape=(None, len(self._dtype)),
-            npartitions=len(self._chroms),
+            npartitions=len(self._partition_ids),
             extra_metadata={},
         )
 
-    def _get_partition(self, i):
-        raise NotImplementedError
-        chrom = self._chroms[i]
+    def _get_partition(self, i, usecols=None):
+        pid = self._partition_ids[i]
         columns = list(self._dtype.keys())
-        return pd.DataFrame(
-            list(self._dataset.fetch(chrom, parser=asTuple())), columns=columns
-        ).astype(self._dtype)
+        it = self._dataset.querys2D("{}:{}-{}|*".format(*pid), 1)
+        df =  pd.DataFrame(list(it), columns=columns).astype(self._dtype)
+        if usecols:
+            return df.loc[:, usecols].copy()
+        else:
+            return df
+
+    def to_dask(self, *args, **kwds):
+        from dask import dataframe as dd
+        self._load_metadata()
+        return dd.from_delayed(
+            [dask.delayed(self._get_partition(i, *args, **kwds)) for i in range(self.npartitions)]
+        )
 
     def read(self):
         raise NotImplementedError

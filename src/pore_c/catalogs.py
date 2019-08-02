@@ -12,6 +12,7 @@ __all__ = [
     "AlignmentDfCatalog",
     "VirtualDigestCatalog",
     "ReferenceGenomeCatalog",
+    "MatrixCatalog",
 ]
 
 logger = getLogger(__name__)
@@ -188,6 +189,27 @@ class AlignmentDfCatalog(basePoreCCatalog):
         #    self.metadata['digest_type'], self.metadata['digest_param'], self.metadata['num_fragments'], self.path
         # )
 
+class MatrixCatalog(basePoreCCatalog):
+    name = "pore_c_matrix"
+    description = "An intake catalog file for a contact matrix"
+
+    _suffix_map = {
+        "catalog": ".catalog.yaml",
+        "coo": ".coo.csv.gz",
+        #"bg2": ".bg2.bed.gz",
+    }
+
+    @classmethod
+    def create(cls, file_paths, *args, **kwds):
+        catalog_data = basePoreCCatalog.create_catalog_dict(
+            cls, file_paths, *args, **kwds
+        )
+        catalog_path = file_paths["catalog"]
+        with catalog_path.open("w") as fh:
+            fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
+        cat = cls(str(catalog_path))
+
+
 
 class VirtualDigestCatalog(basePoreCCatalog):
     name = "pore_c_virtual_digest"
@@ -208,6 +230,7 @@ class VirtualDigestCatalog(basePoreCCatalog):
         with catalog_path.open("w") as fh:
             fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
         cat = cls(str(catalog_path))
+        return cat
 
     def __str__(self):
         return "<VirtualDigestCatalog digest_type={} digest_param:{} num_fragments:{} path:{}>".format(
