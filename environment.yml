@@ -32,5 +32,7 @@ dependencies:
   - pylama
   - pylint
   - black
+  - sphinx
+  - sphinx-autodoc-typehints
   - pip:
     - sklearn
