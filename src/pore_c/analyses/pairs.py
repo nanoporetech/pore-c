@@ -11,6 +11,7 @@ from tqdm import tqdm
 
 from pore_c.io import PairFileWriter
 from pore_c.model import AlignDf, Chrom, PairDf, GenomeIntervalDf
+from pore_c.model import FRAG_IDX_DTYPE
 from pore_c.utils import DataFrameProgress
 from pore_c.datasources import IndexedPairFile
 
@@ -30,7 +31,7 @@ class PairsProgress(DataFrameProgress):
             self._data += stats
 
     def get_summary(self):
-        return self._data.iloc[0, :].to_dict()
+        return {key: int(val) for key, val in self._data.iloc[0, :].to_dict().items()}
 
     def update_progress_bar(self, num_pairs):
         self._bar.update(num_pairs)
@@ -65,6 +66,8 @@ class MatrixAccumlator(DataFrameProgress):
         self._bar.set_postfix(self.get_summary())
 
     def save_coo(self, path):
+        if self._data is None:
+            raise ValueError(f"No data to write to {path}")
         self._data.to_csv(path, sep="\t", header=None)
 
     def save_bedgraph(self, path, bin_df):
@@ -74,17 +77,33 @@ class MatrixAccumlator(DataFrameProgress):
 def assign_to_bins(pair_df, bin_df, sort_bins=True):
     _dfs = []
     for pos in ["1", "2"]:
-        _df = pair_df.loc[:, [f'chr{pos}', f'pos{pos}']].rename(columns={f'chr{pos}': "chrom", f'pos{pos}': "start"}).assign(end=lambda x: x.start)
+        _df = (
+            pair_df
+            .loc[:, [f'chr{pos}', f'pos{pos}']]
+            .rename(columns={f'chr{pos}': "chrom", f'pos{pos}': "start"})
+            .assign(
+                end=lambda x: x.start + 1
+            )
+            #.assign(start = lambda x: x.start - 1)
+        )
         bins = _df.ginterval.assign(bin_df).rename(columns={"other": f"bin{pos}_id"})
-        assert(len(bins) == len(_df))
         _dfs.append(bins)
-    overlaps = pd.concat(_dfs, axis=1)
+    overlaps = pd.concat(_dfs, axis=1)#.astype(FRAG_IDX_DTYPE)
+    has_nulls = overlaps.isna().any(axis=1)
+    if has_nulls.any():
+        raise ValueError("Some fragments missing overlaps: {}".format(pair_df[has_nulls]))
+    overlaps = overlaps.astype(FRAG_IDX_DTYPE)
     if sort_bins:
+        # pairs files are in lexographic order, matrxi is in fasta order
         switch_bins = overlaps['bin1_id'] > overlaps['bin2_id']
         if switch_bins.any():
-            logger.warning("Switching")
-            overlaps = overlaps.where(switch_bins, overlaps.rename(lambda x: x.replace('1','2') if '1' in x else x.replace('2', '1')))
+            logger.warning("Reordering bins")
+            overlaps = pd.DataFrame({"bin1_id": overlaps.min(axis=1), "bin2_id": overlaps.max(axis=1)}, index=overlaps.index, dtype=FRAG_IDX_DTYPE)
+            #switched = overlaps.rename(columns={"bin1_id": "A", "bin2_id": "B"}).rename(columns={"A": "bin2_id", "B": "bin1_id"}).loc[:, ["bin1_id", "bin2_id"]]
+            #print(overlaps[switch_bins], switched[switch_bins])
+            #overlaps = overlaps.where(switch_bins, switched) #[["bin1_id", "bin2_id", "count"]])
             switch_bins = overlaps['bin1_id'] > overlaps['bin2_id']
+            #print(overlaps[switch_bins], switched[switch_bins])
             assert(not switch_bins.any())
     return overlaps
 
@@ -142,14 +161,17 @@ def convert_pairs_to_matrix(pairs_datasource: IndexedPairFile, resolution:int, c
         .sink(lambda x: x)
     )
 
-    for partition in range(ds.npartitions):
+    if False:
+        partition_range = range(327, ds.npartitions)
+    else:
+        partition_range = range(ds.npartitions)
+
+    for partition in partition_range:
         _df = ds._get_partition(partition, usecols=['chr1', 'pos1', 'chr2', 'pos2'])
-        if False:
+        if not _df.empty:
             df_stream.emit(_df)
-            if partition > 5:
-                break
         else:
-            df_stream.emit(_df)
+            logger.debug(f"Empty partition {partition}")
         batch_progress_bar.update(1)
 
     if parallel:
@@ -168,6 +190,7 @@ def convert_pairs_to_matrix(pairs_datasource: IndexedPairFile, resolution:int, c
     matrix.close()
     sys.stderr.write("\n\n")
     if coo:
+        logger.info(f"Writing COO to {coo}")
         matrix.save_coo(coo)
 
     return matrix.get_summary()
@@ -200,7 +223,7 @@ def convert_align_df_to_pairs(
 
     write_sink = (  # noqa: F841
         pair_stream
-        # .accumulate(pairs_progress, returns_state=True, start=pairs_progress)
+        .accumulate(pairs_progress, returns_state=True, start=pairs_progress)
         .sink(writer)
     )
 
@@ -244,7 +267,7 @@ def convert_align_df_to_pairs(
     pairs_progress.close()
     batch_progress_bar.close()
     sys.stderr.write("\n\n")
-    return pairs_progress.get_summary()
+    return {"contact_types": pairs_progress.get_summary()}
 
 
 def to_pairs(df: AlignDf) -> PairDf:

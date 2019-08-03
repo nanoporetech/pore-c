@@ -259,7 +259,8 @@ class GenomeIntervalDf(object):
         if dupes.any():
             raise ValueError("Must have a unique index: {}".format(obj[dupes]))
         assert not isinstance(obj.index, pd.MultiIndex), "Can't be multindex"
-        assert np.issubdtype(obj.index.dtype, np.integer), "Must have integer index: {}".format(obj.index.dtype)
+        if not np.issubdtype(obj.index.dtype, np.integer):
+            raise ValueError("Must have integer index: {}\n{}".format(obj.index.dtype, obj))
 
     @property
     def is_valid(self):

@@ -9,7 +9,6 @@ from .settings import setup_logging
 import  pore_c.catalogs as catalogs
 
 logger = setup_logging()
-logger.warning("here")
 
 
 class NaturalOrderGroup(click.Group):
@@ -238,7 +237,7 @@ def from_alignment_table(align_catalog, output_prefix, n_workers):
     genome_id = rg_cat.metadata["genome_id"]
     align_df = adf_cat.alignment.to_dask()
     #TODO: return number of pairs written
-    metadata = convert_align_df_to_pairs(align_df, chrom_lengths, genome_id, ["pairs"], n_workers=n_workers)
+    metadata = convert_align_df_to_pairs(align_df, chrom_lengths, genome_id, file_paths["pairs"], n_workers=n_workers)
 
     file_paths['aligmentdf_cat'] = Path(align_catalog)
     pair_cat = catalogs.PairsFileCatalog.create(file_paths, metadata, {})
