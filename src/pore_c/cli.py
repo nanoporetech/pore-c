@@ -12,6 +12,9 @@ from pore_c.tools.analysis import \
     plot_contact_distances as plot_contact_distances_tool
 from pore_c.tools.analysis import dist_to_nearest_cutsite as dist_to_nearest_cutsite_tool
 
+from pore_c.tools.analysis import \
+    hubness_analysis as hubness_analysis_tool
+
 from pore_c.tools.cluster_reads import cluster_reads as cluster_reads_tool
 from pore_c.tools.cluster_reads import fragDAG_filter as fragDAG_filter_tool
 from pore_c.tools.cluster_reads import \
@@ -31,7 +34,14 @@ from pore_c.tools.map_to_bins import \
 from pore_c.tools.map_to_frags import map_to_fragments as map_to_fragments_tool
 from pore_c.tools.poreC_flatten import \
     flatten_multiway as flatten_multiway_tool
-from pore_c.tools.poreC_flatten import stats as stats_tool
+
+#from pore_c.tools.poreC_flatten import stats as stats_tool
+
+from pore_c.tools.poreC_flatten import \
+    fragment_end_metrics as fragment_end_metrics_tool
+
+from pore_c.tools.analysis import stats as stats_tool
+
 from pore_c.tools.poreC_flatten import \
     make_salsa_bedfile as make_salsa_bedfile_tool
 
@@ -581,3 +591,25 @@ def join_contact_matrices(ref_bin_file, matrix_file_out, matrix_files_in):
 @click.argument("frag_bed_ref", type=click.Path(exists=True))
 def make_salsa_bedfile(hictxt_file_in, bedfile_out, frag_bed_ref):
     make_salsa_bedfile_tool(hictxt_file_in, bedfile_out, frag_bed_ref)
+
+@cli.command(
+    short_help="calculates distances from the start and end of each alignment to the nearest reference restriction fragment."
+)
+@click.argument("bam_file_in", type=click.Path(exists=True))
+@click.argument("csv_out", type=click.Path(exists=False))
+@click.argument("hicref", type=click.Path(exists=True))
+def fragment_end_metrics(bam_file_in, csv_out, hicref):
+    fragment_end_metrics_tool(bam_file_in, csv_out, hicref)
+
+
+@cli.command(
+    short_help="Identifies fragments that are participating in chromatin hubs beyond statistical expectations. \
+    The test takes a distribution of all poreC concatemer lengths (i.e. monomer counts per poreC read) and for \
+    each fragment, it identifies the length distribution of poreC reads containing that fragment. It then runs \
+    a 2 sample KS test for the two distributions and outputs a csv containing per-fragment pval and KS score."
+)
+@click.argument("porec_file_in", type=click.Path(exists=True))
+@click.argument("ref_digest", type=click.Path(exists=True))
+@click.argument("data_out", type=click.Path(exists=False))
+def hubness_analysis(porec_file_in, ref_digest, data_out):
+    hubness_analysis_tool(porec_file_in, ref_digest, data_out)

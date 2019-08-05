@@ -10,11 +10,15 @@ import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import pearsonr
-
+from scipy.stats import ks_2samp
+    
 matplotlib.use("agg")
 
 matplotlib.rcParams["pdf.fonttype"] = 42
 matplotlib.rcParams["ps.fonttype"] = 42
+
+import pandas as pd
+from pore_c.tools.poreC_flatten import Cwalk
 
 @dataclass
 class Matrix_Entry:
@@ -133,7 +137,49 @@ def plot_contact_distances(
     
     fig.savefig(graph_file_out)
 
+    
+def hubness_analysis(poreC_file: str, ref_digest: str, data_out: str) -> None:
+    cols = ["ch","start","stop","frag_id"]
+    dtypes = dict(zip(cols,[str,int,int,int]))
+    digest_df = pd.read_csv(ref_digest, names = cols, sep = "\t", dtype = dtypes)
+    digest_df.set_index("frag_id", drop = False)
+    digest_df['midpoint'] = digest_df[["start","stop"]].mean(axis=1)
 
+    #set default values to worst possible scores
+    digest_df["ks_pval"] = 1.0
+    digest_df["ks_statistic"] = 0.0
+
+    #first, determine the aggregate distribution of concatemer lengths measured in monomer counts
+    #     while also calculating the distribution of lengths of concatemers containing each fragment
+    cum_distr = []
+    digest_vals = defaultdict(list)
+
+    print("loading poreC data")
+    for entry in open(poreC_file):
+        l = entry.strip().split()
+        walk = Cwalk(l[0])
+        walk.from_entry(entry)
+        L = walk.length()
+        cum_distr.append(L)
+
+        for mon in walk.contacts:
+            digest_vals[mon.fragID].append(L)
+
+    print("apply 2 sample KS test")
+            
+    for frag_id, counts in digest_vals.items():
+        z = ks_2samp(cum_distr,counts)
+        digest_df.loc[digest_df["frag_id"] == frag_id, "ks_pval"] = 1 - np.log(z.pvalue + np.finfo(float).eps)
+        digest_df.loc[digest_df["frag_id"] == frag_id,"ks_statistic"] = z.statistic
+        
+    #save the data,but only the results. no need to re-save the whole bedfile
+    digest_df[["frag_id","ks_pval","ks_statistic"]].save(data_out)
+
+#    #generate per-chromosome plots of the p-values
+#    for ch in set(digest_df.ch):
+##        fig, ax = pyplot.subplots(1,figsize = (50,10), dpi = 200)
+#       ax = sns.scatterplot(data=dpn.loc[digest_df["ch"] == ch ],x = "start", y = "ks_pval", hue = "ks_statistic")
+#        fig.savefig("{}_{}.png".format(basename, ch))
 
 
 def comparison_contact_map(
@@ -501,6 +547,7 @@ def matrix_correlation(
     f_out.close()
 
 
+
 def dist_to_nearest_cutsite(bamfile: str, endpoint_dist_out: str,  hicREF: str) -> None:
     #load hicREF file
     re_sites = {}
@@ -544,3 +591,100 @@ def dist_to_nearest_cutsite(bamfile: str, endpoint_dist_out: str,  hicREF: str) 
                                    left_dist = start_dists[start_idx],
                                    right_dist = end_dists[end_idx])
                    )
+
+        
+#file    format  type    num_seqs        sum_len min_len avg_len max_len Q1      Q2      Q3      sum_gap N50
+#calculates contact_N50, mean, median,  min, max, Q1, Q2, Q3, total_monomer_count, total_entries for a .poreC file
+def stats(poreC_file_in: str) -> str:
+    entries = []
+    contacts = []
+    for entry in open(poreC_file_in):
+        c = Cwalk("None")
+        c.from_entry(entry)
+        z = c.length()
+        entries.append(z)
+        contacts.append((z**2 - z) / 2)
+        
+    #reverse sort for N50 calculation using a[::-1].sort()
+    entries = np.array(entries,dtype = float)
+    entries[::-1].sort()
+    
+    contacts = np.array(contacts,dtype = float)
+    contacts[::-1].sort()
+    
+    template = "{fn},{num_seqs},{total_monomer_count},{min_len},{mean_len},{median_len},{mode_len},{max_len},{Q1},{Q2},{Q3},{monomer_n50},{total_contact_count},{c_min_len},{c_mean_len},{c_median_len},{c_mode_len},{c_max_len},{c_Q1},{c_Q2},{c_Q3},{contact_n50}"
+    print(template.replace("{","").replace("}","")) #print a header
+    
+    num_seqs = len(entries)
+    if num_seqs == 0:
+        print( template.format(fn = poreC_file_in,
+                               num_seqs = num_seqs,
+                               total_monomer_count = 0,
+                               min_len = 0,
+                               mean_len = 0,
+                               mode_len = 0,
+                               median_len = 0,
+                               max_len = 0,
+                               Q1 = 0,
+                               Q2 =0,
+                               Q3 =0,
+                               poreC_n50 = 0)
+        )
+        exit()
+
+    total_monomer_count = entries.sum()
+    max_len = entries.max()
+    min_len = entries.min()
+    mean_len = entries.mean()
+    median_len = np.median(entries)
+    half_sum = total_monomer_count / 2.0
+    temp_sum = 0
+    monomer_n50 = 0
+    while temp_sum < half_sum:
+        temp_sum += entries[monomer_n50]
+        monomer_n50 += 1
+        
+    (_, idx, counts) = np.unique(entries, return_index=True, return_counts=True)
+    index = idx[np.argmax(counts)]
+    mode_len = entries[index]
+    
+    
+    total_contact_count = contacts.sum()
+    c_max_len = contacts.max()
+    c_min_len = contacts.min()
+    c_mean_len = contacts.mean()
+    c_median_len = np.median(contacts)
+    half_sum = total_contact_count / 2.0
+    temp_sum = 0
+    contact_n50 = 0
+    while temp_sum < half_sum:
+        temp_sum += contacts[contact_n50]
+        contact_n50 += 1
+        
+        
+    (_, idx, counts) = np.unique(contacts, return_index=True, return_counts=True)
+    index = idx[np.argmax(counts)]
+    c_mode_len = contacts[index]
+        
+    print( template.format(fn = poreC_file_in,
+                           num_seqs = num_seqs,
+                           total_monomer_count = total_monomer_count ,
+                           min_len = min_len,
+                           mean_len = mean_len,
+                           mode_len = mode_len,
+                           median_len = median_len,
+                           max_len = max_len,
+                           Q1 = np.percentile(entries,25),
+                           Q2 = np.percentile(entries,50),
+                           Q3 = np.percentile(entries,75),
+                           monomer_n50 = entries[monomer_n50],
+                           total_contact_count = total_contact_count ,
+                           c_min_len = c_min_len,
+                           c_mean_len = c_mean_len,
+                           c_mode_len = c_mode_len,
+                           c_median_len = c_median_len,
+                           c_max_len = c_max_len,
+                           c_Q1 = np.percentile(contacts,25),
+                           c_Q2 = np.percentile(contacts,50),
+                           c_Q3 = np.percentile(contacts,75),
+                           contact_n50 = contacts[contact_n50]))

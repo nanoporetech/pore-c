@@ -24,5 +24,9 @@ dependencies:
   - pylint
   - black
   - pip:
-    - click-log
+    - click_log
     - sklearn
+    - networkx
+    - dataclasses
+    - intervaltree
+    - pybedtools

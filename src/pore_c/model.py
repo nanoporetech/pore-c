@@ -137,7 +137,7 @@ class FragmentMap(object):
             )
             intervals.extend(new_intervals)
             chrom_lengths[chrom] = digest.seq_length
-            id_offset += len(endpoints)
+            id_offset += len(endpoints) + 1
             if id_offset != 0:
                 terminal_fragments.add((id_offset, id_offset + 1))
 
