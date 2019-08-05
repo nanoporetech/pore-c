@@ -3,6 +3,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass
 from typing import Optional
 
+import re
 import matplotlib
 import matplotlib.cm as cm
 import matplotlib.colors as colors
@@ -92,6 +93,7 @@ def plot_contact_distances(
 
     data_set = {}
 
+    ref_data = False
     for fn in EC_matrix_files_in:
         data = Counter()
         for entry in map(Matrix_Entry.from_string, open(fn)):
@@ -103,28 +105,39 @@ def plot_contact_distances(
                 # intrachromosomal
                 if bin2[3] - bin1[3] <= min_max_size:
                     data[bin_size * (bin2[3] - bin1[3])] += l[3]
-        data_set[fn] = data
+        if not ref_data:
+            ref_data = data
+        else:
+            data_set[fn] = data
 
     colors = cm.rainbow(np.linspace(0, 1, len(data_set)))
 
-    fig, ax = plt.subplots(1, figsize=(12, 6))
-    plt.title("Contact Distance Distribution")
+    fig, axes = plt.subplots(nrows = len(data_set) ,ncols = 1, figsize=(5,2*len(data_set)))
+    plt.title("Contact Distance Distributions *")
+
+    ref_distances,ref_counts = zip(*sorted(ref_data.items(), key=lambda x: x[0]))
+    ref_counts = np.array(ref_counts) / sum(ref_counts)
+    ref_distances_Mb = np.array(np.array(ref_distances) / 10 ** 6, dtype=int)
+
     for idx, d in enumerate(data_set.items()):
         name, data = d
+        name = re.search("(?P<id>201[89][0-9]+_[A-Z]{3}[0-9]+_SS_(HindIII|DpnII|NlaIII))",name).group("id")
         distances, counts = zip(*sorted(data.items(), key=lambda x: x[0]))
-        distances_Mb = np.array(np.array(distances) / 10 ** 6, dtype=int)
-        ax.plot(distances_Mb, counts, c=colors[idx])
+        counts = np.array(counts) / sum(counts)
+        axes[idx].plot(distances, counts, c=colors[idx], label = name)
+        axes[idx].plot(ref_distances, ref_counts, "k:", label = name)
 
-    ax.set_xlabel("distance (Mbp)", fontsize="x-small")
-    ax.set_ylabel("Corrected counts", fontsize="x-small")
-    ax.set_yscale("log")
-    ax.set_xscale("log")
-    ax.set_xlim(1, min_max_size)
-    ax.set_ylim(1000, max(counts))
+        axes[idx].set_xlabel("distance (Mbp)", fontsize="x-small")
+        axes[idx].set_ylabel("Corrected counts", fontsize="x-small")
+        axes[idx].set_yscale("log")
+        axes[idx].set_xscale("log")
+        axes[idx].set_xlim(10**6,  min_max_size * 10**6)
+        axes[idx].set_ylim(0,max(max(counts),max(ref_counts)))
+        axes[idx].legend(fontsize = "x-small")
+    
     fig.savefig(graph_file_out)
 
-#######
-
+    
 def hubness_analysis(poreC_file: str, ref_digest: str, data_out: str) -> None:
     cols = ["ch","start","stop","frag_id"]
     dtypes = dict(zip(cols,[str,int,int,int]))
@@ -168,8 +181,6 @@ def hubness_analysis(poreC_file: str, ref_digest: str, data_out: str) -> None:
 #       ax = sns.scatterplot(data=dpn.loc[digest_df["ch"] == ch ],x = "start", y = "ks_pval", hue = "ks_statistic")
 #        fig.savefig("{}_{}.png".format(basename, ch))
 
-
-############
 
 def comparison_contact_map(
     matrix1_file_in: str,
@@ -536,6 +547,52 @@ def matrix_correlation(
     f_out.close()
 
 
+
+def dist_to_nearest_cutsite(bamfile: str, endpoint_dist_out: str,  hicREF: str) -> None:
+    #load hicREF file
+    re_sites = {}
+    for entry in open(hicREF):
+        l = entry.strip().split()
+        sites = np.array([0] + list(map(int,l[1:])), dtype = int)
+        re_sites[l[0]] = sites
+
+    fOut = open(endpoint_dist_out,"w")
+    template = "{read_id},{alignment_index},{q_start},{q_end},{left_nearest},{right_nearest},{left_dist},{right_dist}\n"
+    fOut.write(template.replace("{","").replace("}",""))
+
+    #traverse reads
+    idx = 0
+    lastRead = False
+    for entry in AlignmentFile(bamfile):
+        sites = re_sites[entry.reference_name]
+        start_left_site, end_left_site = np.searchsorted(sites, [entry.reference_start, entry.reference_end])
+
+        sample_l = max(0, start_left_site - 100)
+        sample_r= min(len(sites), end_left_site + 100)
+        sampling = sites[sample_l:sample_r]
+        start_dists = np.abs(entry.reference_start - sampling)
+        end_dists = np.abs(entry.reference_end - sampling)
+        start_idx = np.argmin(start_dists)
+        end_idx = np.argmin(end_dists)
+        if lastRead == False:
+            lastRead = entry.query_name
+        elif lastRead == entry.query_name:
+            idx += 1
+        else:
+            idx = 0
+            lastRead = entry.query_name
+
+        fOut.write(template.format(read_id = entry.query_name,
+                                   alignment_index = idx,
+                                   q_start = entry.query_alignment_start,
+                                   q_end = entry.query_alignment_end,
+                                   left_nearest = sampling[start_idx],
+                                   right_nearest = sampling[end_idx],
+                                   left_dist = start_dists[start_idx],
+                                   right_dist = end_dists[end_idx])
+                   )
+
+        
 #file    format  type    num_seqs        sum_len min_len avg_len max_len Q1      Q2      Q3      sum_gap N50
 #calculates contact_N50, mean, median,  min, max, Q1, Q2, Q3, total_monomer_count, total_entries for a .poreC file
 def stats(poreC_file_in: str) -> str:

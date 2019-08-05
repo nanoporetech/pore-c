@@ -213,7 +213,7 @@ class ReadToFragments(object):
             frag_overlaps[align.frag_id].append(align)
           
         num_frags = len(frag_overlaps)
-        print('boop!')
+        print(frag_overlaps.keys(), frag_overlap_order)
         assert num_frags == len(frag_overlap_order)
         if num_frags > 1:
             #this list preserves the order of observation within the read.

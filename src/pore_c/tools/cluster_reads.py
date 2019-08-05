@@ -7,7 +7,6 @@ import numpy as np
 from intervaltree import IntervalTree
 from pysam import AlignmentFile
 
-
 def read_mappings_iter(bam, sort_flag=False, unique_intervals=False):
     try:
         assert sort_flag in ["start", "end", False]
