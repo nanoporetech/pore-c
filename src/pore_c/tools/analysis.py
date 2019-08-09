@@ -138,7 +138,7 @@ def plot_contact_distances(
     fig.savefig(graph_file_out)
 
     
-def hubness_analysis(poreC_file: str, ref_digest: str, data_out: str) -> None:
+def hubness_analysis(poreC_file: str, ref_digest: str, data_out: str, threadCount: Optional[int] = 1 ) -> None:
     cols = ["ch","start","stop","frag_id"]
     dtypes = dict(zip(cols,[str,int,int,int]))
     digest_df = pd.read_csv(ref_digest, names = cols, sep = "\t", dtype = dtypes)
@@ -165,12 +165,37 @@ def hubness_analysis(poreC_file: str, ref_digest: str, data_out: str) -> None:
         for mon in walk.contacts:
             digest_vals[mon.fragID].append(L)
 
-    print("apply 2 sample KS test")
-            
-    for frag_id, counts in digest_vals.items():
-        z = ks_2samp(cum_distr,counts)
-        digest_df.loc[digest_df["frag_id"] == frag_id, "ks_pval"] = 1 - np.log(z.pvalue + np.finfo(float).eps)
-        digest_df.loc[digest_df["frag_id"] == frag_id,"ks_statistic"] = z.statistic
+    print("apply 2 sample KS test using {} processes.".format(threadCount))
+
+    if threadCount == 1:
+        for frag_id, counts in digest_vals.items():
+            z = ks_2samp(cum_distr,counts)
+            digest_df.loc[digest_df["frag_id"] == frag_id, "ks_pval"] = 1 - np.log(z.pvalue + np.finfo(float).eps)
+            digest_df.loc[digest_df["frag_id"] == frag_id,"ks_statistic"] = z.statistic
+
+    else:
+        from multiprocessing import Pool
+        from functools import partial
+        from contextlib import contextmanager
+        
+        frag_ids, per_frag_data = zip(*digest_vals.items())
+        
+        @contextmanager
+        def poolcontext(*args, **kwargs):
+            pool = Pool(*args, **kwargs)
+            yield pool
+            pool.terminate()
+
+        with poolcontext(processes = threadCount) as pool:
+            results = pool.map(partial(ks_2samp, data2=cum_distr), per_frag_data)
+
+        for loc in range(len(results)):
+            digest_df.loc[digest_df["frag_id"] == frag_ids[loc], "ks_pval"] = 1 - np.log(results[loc].pvalue + np.finfo(float).eps)
+            digest_df.loc[digest_df["frag_id"] == frag_ids[loc],"ks_statistic"] = results[loc].statistic            
+        
+
+
+
         
     #save the data,but only the results. no need to re-save the whole bedfile
     digest_df[["frag_id","ks_pval","ks_statistic"]].save(data_out)

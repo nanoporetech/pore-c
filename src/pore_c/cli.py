@@ -460,7 +460,7 @@ def comparison_contact_map(
 
 
 @cli.command(
-    short_help="Takes in a pair of corrected matrix files, and calculates the pearson coefficient of the individual matrix values that are non-zero. Generates a correlation plot for non-zero values."
+    short_help="Takes in a pair of raw (uncorrected) matrix files, and calculates the pearson coefficient of the individual matrix values that are non-zero. Generates a correlation plot for non-zero values."
 )
 @click.argument("matrix1_file_in", type=click.Path(exists=True))
 @click.argument("matrix2_file_in", type=click.Path(exists=True))
@@ -611,5 +611,9 @@ def fragment_end_metrics(bam_file_in, csv_out, hicref):
 @click.argument("porec_file_in", type=click.Path(exists=True))
 @click.argument("ref_digest", type=click.Path(exists=True))
 @click.argument("data_out", type=click.Path(exists=False))
-def hubness_analysis(porec_file_in, ref_digest, data_out):
-    hubness_analysis_tool(porec_file_in, ref_digest, data_out)
+@click.option(
+        "--threads",
+        default=1,
+        help="Split calculation across indicated number of threads.")
+def hubness_analysis(porec_file_in, ref_digest, data_out, threads):
+    hubness_analysis_tool(porec_file_in, ref_digest, data_out, threads)
