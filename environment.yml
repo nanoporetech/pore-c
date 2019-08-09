@@ -15,24 +15,17 @@ dependencies:
   - streamz
   - pyarrow
   - ncls
+  - cooler
   - tqdm
   - pysam
   - biopython
   - click
   - numpy
-  - scipy
-  - matplotlib
+  - pandas
   - pytest
-  - bwa
-  - intervaltree
-  - dataclasses
-  - bedtools==2.27.1
-  - pybedtools
   - pip
   - pylama
   - pylint
   - black
   - sphinx
   - sphinx-autodoc-typehints
-  - pip:
-    - sklearn

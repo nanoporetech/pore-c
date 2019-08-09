@@ -264,6 +264,50 @@ def to_matrix(pairs_catalog, output_prefix, resolution, n_workers):
 
 
 
+@cli.group(cls=NaturalOrderGroup, short_help="Operations on matrices")
+def matrix():
+    pass
+
+
+@matrix.command(help="Calculate correlations coefficient between a pair of matrices")
+@click.argument("x_mcool", type=click.Path(exists=True))
+@click.argument("y_mcool", type=click.Path(exists=True))
+@click.argument("output_prefix")
+@click.option("-r", "--resolution", help="The resolution to do the correlation at.", default=1000000)
+def correlate(x_mcool, y_mcool, output_prefix, resolution):
+    from pore_c.analyses.matrix import correlate
+    from cooler import Cooler
+
+    file_paths = catalogs.MatrixCorrelationCatalog.generate_paths(output_prefix)
+
+    x_cool = Cooler(str(x_mcool) + f"::/resolutions/{resolution}")
+    y_cool = Cooler(str(y_mcool) + f"::/resolutions/{resolution}")
+
+    x_chrom_names = set(x_cool.chromnames)
+    y_chrom_names = set(y_cool.chromnames)
+
+    if x_chrom_names != y_chrom_names:
+        x_not_y = x_chrom_names - y_chrom_names
+        y_not_x = y_chrom_names - x_chrom_names
+        if x_not_y and y_not_x:
+            raise ValueError(f"Chromosomes are not sub/supersets x:{x_not_y}, y:{y_not_x}")
+        elif x_not_y:
+            logger.warning(f"Extra chromosomes in x, will not be included in calculations: {x_not_y}")
+        else:
+            logger.warning(f"Extra chromosomes in y, will not be included in calculations: {y_not_x}")
+
+    metadata = correlate(x_cool, y_cool, xy_path=file_paths['xy'], coefficients_path=file_paths['coefficients'], resolution=resolution)
+    metadata['resolution'] = resolution
+    metadata['x']['path'] = str(x_mcool)
+    metadata['y']['path'] = str(y_mcool)
+
+    matrix_cat = catalogs.MatrixCorrelationCatalog.create(file_paths, metadata, {})
+    logger.info(str(matrix_cat))
+
+
+
+
+
 @cli.group(cls=NaturalOrderGroup, short_help="Dashboard")
 def dashboard():
     pass
