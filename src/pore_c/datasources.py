@@ -4,16 +4,10 @@ import dask
 import numpy as np
 import pandas as pd
 from intake.source.base import DataSource, Schema
-from pysam import (
-    AlignedSegment,
-    AlignmentFile,
-    FastaFile,
-    FastxFile,
-    TabixFile,
-    asTuple,
-)
+from pysam import (AlignedSegment, AlignmentFile, FastaFile, FastxFile,
+                   TabixFile, asTuple)
 
-from pore_c.model import BamEntryDf, PairDf, GenomeIntervalDf
+from pore_c.model import BamEntryDf, GenomeIntervalDf, PairDf
 
 
 class Fastq(DataSource):
@@ -31,9 +25,7 @@ class Fastq(DataSource):
         return FastxFile(self._urlpath)
 
     def _get_schema(self):
-        return Schema(
-            datashape=None, dtype=None, shape=None, npartitions=None, extra_metadata={}
-        )
+        return Schema(datashape=None, dtype=None, shape=None, npartitions=None, extra_metadata={})
 
     def read_chunked(self, chunksize=10000):
         self._load_metadata()
@@ -68,10 +60,7 @@ class IndexedFasta(DataSource):
         if self._dataset is None:
             self._open_dataset()
         self._chroms = list(self._dataset.references)
-        chrom_lengths = [
-            {"chrom": t[0], "length": t[1]}
-            for t in zip(self._dataset.references, self._dataset.lengths)
-        ]
+        chrom_lengths = [{"chrom": t[0], "length": t[1]} for t in zip(self._dataset.references, self._dataset.lengths)]
         return Schema(
             datashape=None,
             dtype=None,
@@ -93,9 +82,7 @@ class IndexedFasta(DataSource):
         from dask import bag as db
 
         self._load_metadata()
-        return db.from_delayed(
-            [dask.delayed(self._get_partition(i)) for i in range(self.npartitions)]
-        )
+        return db.from_delayed([dask.delayed(self._get_partition(i)) for i in range(self.npartitions)])
 
     def _close(self):
         # close any files, sockets, etc
@@ -110,7 +97,7 @@ class IndexedPairFile(DataSource):
     partition_access = False
     description = "A bgzipped and indexed pairfile"
 
-    def __init__(self, urlpath, bin_width = 10000000, metadata=None):
+    def __init__(self, urlpath, bin_width=10000000, metadata=None):
         self._urlpath = urlpath
         self._dataset = None
         self._dtype = None
@@ -121,21 +108,20 @@ class IndexedPairFile(DataSource):
 
     def _open_dataset(self):
         import pypairix
+
         self._dataset = pypairix.open(self._urlpath)
 
     def _get_schema(self):
-        from itertools import product
+
         if self._dataset is None:
             self._open_dataset()
         self._partition_ids = []
         self._chroms = dict([(k, int(v)) for k, v in self._dataset.get_chromsize()])
         bin_df = GenomeIntervalDf.fixed_width_bins(self._chroms, self._bin_width)
         chrom_bins = [(t.chrom, t.start, t.end) for t in bin_df.itertuples()]
-        self._partition_ids = chrom_bins #[::-1]
-        #for (bin1, bin2) in product(chrom_bins, repeat=2):
-        #    self._partition_ids.append("{}|{}".format(bin1, bin2))
-        fields = [l for l in self._dataset.get_header() if l.startswith('#columns')][0].split(':', 1)[1].split()
-        assert(set(fields) == set(PairDf.DTYPE.keys()))
+        self._partition_ids = chrom_bins  # [::-1]
+        fields = [l for l in self._dataset.get_header() if l.startswith("#columns")][0].split(":", 1)[1].split()
+        assert set(fields) == set(PairDf.DTYPE.keys())
         self._dtype = PairDf.DTYPE.copy()
         return Schema(
             datashape=None,
@@ -149,7 +135,7 @@ class IndexedPairFile(DataSource):
         pid = self._partition_ids[i]
         columns = list(self._dtype.keys())
         it = self._dataset.querys2D("{}:{}-{}|*".format(*pid), 1)
-        df =  pd.DataFrame(list(it), columns=columns).astype(self._dtype)
+        df = pd.DataFrame(list(it), columns=columns).astype(self._dtype)
         if usecols:
             return df.loc[:, usecols].copy()
         else:
@@ -157,17 +143,14 @@ class IndexedPairFile(DataSource):
 
     def to_dask(self, *args, **kwds):
         from dask import dataframe as dd
+
         self._load_metadata()
-        return dd.from_delayed(
-            [dask.delayed(self._get_partition(i, *args, **kwds)) for i in range(self.npartitions)]
-        )
+        return dd.from_delayed([dask.delayed(self._get_partition(i, *args, **kwds)) for i in range(self.npartitions)])
 
     def read(self):
         raise NotImplementedError
         self._load_metadata()
-        return pd.concat(
-            [self.read_partition(i) for i in range(self.npartitions)], ignore_index=True
-        )
+        return pd.concat([self.read_partition(i) for i in range(self.npartitions)], ignore_index=True)
 
     def _close(self):
         # close any files, sockets, etc
@@ -222,15 +205,11 @@ class IndexedBedFile(DataSource):
     def _get_partition(self, i):
         chrom = self._chroms[i]
         columns = list(self._dtype.keys())
-        return pd.DataFrame(
-            list(self._dataset.fetch(chrom, parser=asTuple())), columns=columns
-        ).astype(self._dtype)
+        return pd.DataFrame(list(self._dataset.fetch(chrom, parser=asTuple())), columns=columns).astype(self._dtype)
 
     def read(self):
         self._load_metadata()
-        return pd.concat(
-            [self.read_partition(i) for i in range(self.npartitions)], ignore_index=True
-        )
+        return pd.concat([self.read_partition(i) for i in range(self.npartitions)], ignore_index=True)
 
     def _close(self):
         # close any files, sockets, etc
@@ -264,21 +243,13 @@ class NameSortedBamSource(DataSource):
         dtype = BamEntryDf.DTYPE.copy()
         dtype["chrom"] = pd.CategoricalDtype(chrom_names + ["NULL"], ordered=True)
         self._dtype = dtype
-        return Schema(
-            datashape=None,
-            dtype=dtype,
-            shape=(None, len(dtype)),
-            npartitions=None,
-            extra_metadata={},
-        )
+        return Schema(datashape=None, dtype=dtype, shape=(None, len(dtype)), npartitions=None, extra_metadata={})
 
     def get_chrom_dtype(self):
         return self._schema.dtype["chrom"]
 
     @staticmethod
-    def _group_by_read(
-        align_iter: Iterator[AlignedSegment]
-    ) -> Iterator[List[Tuple[int, int, AlignedSegment]]]:
+    def _group_by_read(align_iter: Iterator[AlignedSegment]) -> Iterator[List[Tuple[int, int, AlignedSegment]]]:
         """Iterate over alignments in name-sorted bam file grouping by read"""
         current_read_name = None
         read_idx = 0
@@ -303,11 +274,7 @@ class NameSortedBamSource(DataSource):
             chrom, start, end, align_score = "NULL", 0, 0, 0
             read_length = align.query_length
         else:
-            chrom, start, end = (
-                align.reference_name,
-                align.reference_start,
-                align.reference_end,
-            )
+            chrom, start, end = (align.reference_name, align.reference_start, align.reference_end)
             read_length = align.infer_read_length()
             align_score = align.get_tag("AS")
             if align.is_secondary:
@@ -341,9 +308,7 @@ class NameSortedBamSource(DataSource):
         BamEntryDf.set_dtype("chrom", self.get_chrom_dtype())
         align_iter = self._af.fetch(until_eof=self._include_unmapped)
         columns = list(self._schema.dtype.keys())
-        for chunk_idx, chunk in enumerate(
-            partition_all(chunksize, self._group_by_read(align_iter))
-        ):
+        for chunk_idx, chunk in enumerate(partition_all(chunksize, self._group_by_read(align_iter))):
             aligns = [a for read_aligns in chunk for a in read_aligns]
             df = (
                 pd.DataFrame([self._align_to_tuple(a) for a in aligns], columns=columns)

@@ -4,13 +4,11 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from pysam import FastxFile
 from streamz import Stream
 
+from pore_c.datasources import Fastq
 from pore_c.io import FastqWriter
 from pore_c.utils import DataFrameProgress
-from pore_c.datasources import Fastq
-from toolz import partition_all
 
 logger = getLogger(__name__)
 
@@ -66,7 +64,7 @@ def filter_fastq(
     # split reads into chunks for processing
     for chunk_idx, records in enumerate(Fastq(input_fastq).read_chunked(chunksize)):
         fastq_stream.emit(records)
-        #if chunk_idx == 2:
+        # if chunk_idx == 2:
         #    break
     metadata_df = pd.concat(df_sink, ignore_index=True)
     metadata_df.to_parquet(read_metadata, index=False)
@@ -81,8 +79,8 @@ def filter_fastq(
     sys.stderr.write("\n")
     logger.debug("Finished processing reads")
     assert (pass_writer._counter + fail_writer._counter) == summary_stats["all"]["num_sequences"]
-    df = pd.DataFrame([v for v in summary_stats.values() if v], index=[k for k,v in summary_stats.items() if v])
-    df.index.name = 'read_subset'
+    df = pd.DataFrame([v for v in summary_stats.values() if v], index=[k for k, v in summary_stats.items() if v])
+    df.index.name = "read_subset"
     logger.info("Finished processing {}:\n{}\n".format(input_fastq, str(df)))
     df.to_csv(summary)
     return summary_stats

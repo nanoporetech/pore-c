@@ -1,21 +1,22 @@
 import sys
 from itertools import combinations
-from typing import Dict
-from pathlib import Path
 from logging import getLogger
+from pathlib import Path
+from typing import Dict
 
 import numpy as np
 import pandas as pd
 from streamz import Stream
 from tqdm import tqdm
 
-from pore_c.io import PairFileWriter
-from pore_c.model import AlignDf, Chrom, PairDf, GenomeIntervalDf
-from pore_c.model import FRAG_IDX_DTYPE
-from pore_c.utils import DataFrameProgress
 from pore_c.datasources import IndexedPairFile
+from pore_c.io import PairFileWriter
+from pore_c.model import (FRAG_IDX_DTYPE, AlignDf, Chrom, GenomeIntervalDf,
+                          PairDf)
+from pore_c.utils import DataFrameProgress
 
 logger = getLogger(__name__)
+
 
 class PairsProgress(DataFrameProgress):
     def __init__(self, **kwds):
@@ -40,12 +41,12 @@ class PairsProgress(DataFrameProgress):
 
 class MatrixAccumlator(DataFrameProgress):
     def __init__(self, **kwds):
-        kwds['desc'] = "Batches processed"
-        kwds['unit'] = " batches"
+        kwds["desc"] = "Batches processed"
+        kwds["unit"] = " batches"
         super(MatrixAccumlator, self).__init__(**kwds)
 
     def update_data(self, df):
-        _df = df.set_index(['bin1_id', 'bin2_id']).sort_index()
+        _df = df.set_index(["bin1_id", "bin2_id"]).sort_index()
         if self._data is None:
             self._data = _df
         else:
@@ -54,10 +55,10 @@ class MatrixAccumlator(DataFrameProgress):
     def get_summary(self):
         summary = {
             "num_pixels": len(self._data),
-            "max_count": int(self._data['count'].max()),
-            "median_count": int(self._data['count'].median()),
-            "total_contacts": int(self._data['count'].sum()),
-            "diagonal_contacts": int(self._data.query("bin1_id == bin2_id")['count'].sum()),
+            "max_count": int(self._data["count"].max()),
+            "median_count": int(self._data["count"].median()),
+            "total_contacts": int(self._data["count"].sum()),
+            "diagonal_contacts": int(self._data.query("bin1_id == bin2_id")["count"].sum()),
         }
         return summary
 
@@ -78,50 +79,47 @@ def assign_to_bins(pair_df, bin_df, sort_bins=True):
     _dfs = []
     for pos in ["1", "2"]:
         _df = (
-            pair_df
-            .loc[:, [f'chr{pos}', f'pos{pos}']]
-            .rename(columns={f'chr{pos}': "chrom", f'pos{pos}': "start"})
-            .assign(
-                end=lambda x: x.start + 1
-            )
-            #.assign(start = lambda x: x.start - 1)
+            pair_df.loc[:, [f"chr{pos}", f"pos{pos}"]]
+            .rename(columns={f"chr{pos}": "chrom", f"pos{pos}": "start"})
+            .assign(end=lambda x: x.start + 1)
+            # .assign(start = lambda x: x.start - 1)
         )
         bins = _df.ginterval.assign(bin_df).rename(columns={"other": f"bin{pos}_id"})
         _dfs.append(bins)
-    overlaps = pd.concat(_dfs, axis=1)#.astype(FRAG_IDX_DTYPE)
+    overlaps = pd.concat(_dfs, axis=1)  # .astype(FRAG_IDX_DTYPE)
     has_nulls = overlaps.isna().any(axis=1)
     if has_nulls.any():
         raise ValueError("Some fragments missing overlaps: {}".format(pair_df[has_nulls]))
     overlaps = overlaps.astype(FRAG_IDX_DTYPE)
     if sort_bins:
         # pairs files are in lexographic order, matrxi is in fasta order
-        switch_bins = overlaps['bin1_id'] > overlaps['bin2_id']
+        switch_bins = overlaps["bin1_id"] > overlaps["bin2_id"]
         if switch_bins.any():
             logger.warning("Reordering bins")
-            overlaps = pd.DataFrame({"bin1_id": overlaps.min(axis=1), "bin2_id": overlaps.max(axis=1)}, index=overlaps.index, dtype=FRAG_IDX_DTYPE)
-            #switched = overlaps.rename(columns={"bin1_id": "A", "bin2_id": "B"}).rename(columns={"A": "bin2_id", "B": "bin1_id"}).loc[:, ["bin1_id", "bin2_id"]]
-            #print(overlaps[switch_bins], switched[switch_bins])
-            #overlaps = overlaps.where(switch_bins, switched) #[["bin1_id", "bin2_id", "count"]])
-            switch_bins = overlaps['bin1_id'] > overlaps['bin2_id']
-            #print(overlaps[switch_bins], switched[switch_bins])
-            assert(not switch_bins.any())
+            overlaps = pd.DataFrame(
+                {"bin1_id": overlaps.min(axis=1), "bin2_id": overlaps.max(axis=1)},
+                index=overlaps.index,
+                dtype=FRAG_IDX_DTYPE,
+            )
+            switch_bins = overlaps["bin1_id"] > overlaps["bin2_id"]
+            assert not switch_bins.any()
     return overlaps
+
 
 def overlap_count(pair_df, bin_df=None):
     df = (
         assign_to_bins(pair_df, bin_df)
-        .groupby(['bin1_id', 'bin2_id'])
+        .groupby(["bin1_id", "bin2_id"])
         .size()
         .rename("count")
         .to_frame()
         .reset_index()
-        .astype({'bin1_id': int, "bin2_id": int})
+        .astype({"bin1_id": int, "bin2_id": int})
     )
     return df
 
 
-
-def convert_pairs_to_matrix(pairs_datasource: IndexedPairFile, resolution:int, coo: Path = None, n_workers:int = 1):
+def convert_pairs_to_matrix(pairs_datasource: IndexedPairFile, resolution: int, coo: Path = None, n_workers: int = 1):
     ds = pairs_datasource
     ds.discover()
     chrom_lengths = ds._chroms
@@ -141,25 +139,19 @@ def convert_pairs_to_matrix(pairs_datasource: IndexedPairFile, resolution:int, c
     df_stream = Stream()
     if parallel:
         coo_stream = (
-            df_stream
-            .scatter()
+            df_stream.scatter()
             .buffer(n_workers)
             .map(overlap_count, bin_df=bin_df)
-            #.accumulate(matrix, returns_state=True, start=matrix)
+            # .accumulate(matrix, returns_state=True, start=matrix)
             .gather()
         )
     else:
         coo_stream = (
-            df_stream
-            .map(overlap_count, bin_df=bin_df)
-            #.accumulate(matrix, returns_state=True, start=matrix)
+            df_stream.map(overlap_count, bin_df=bin_df)
+            # .accumulate(matrix, returns_state=True, start=matrix)
         )
 
-    write_sink = (  # noqa: F841
-        coo_stream
-        .accumulate(matrix, returns_state=True, start=matrix)
-        .sink(lambda x: x)
-    )
+    write_sink = coo_stream.accumulate(matrix, returns_state=True, start=matrix).sink(lambda x: x)  # noqa: F841
 
     if False:
         partition_range = range(327, ds.npartitions)
@@ -167,7 +159,7 @@ def convert_pairs_to_matrix(pairs_datasource: IndexedPairFile, resolution:int, c
         partition_range = range(ds.npartitions)
 
     for partition in partition_range:
-        _df = ds._get_partition(partition, usecols=['chr1', 'pos1', 'chr2', 'pos2'])
+        _df = ds._get_partition(partition, usecols=["chr1", "pos1", "chr2", "pos2"])
         if not _df.empty:
             df_stream.emit(_df)
         else:
@@ -196,8 +188,6 @@ def convert_pairs_to_matrix(pairs_datasource: IndexedPairFile, resolution:int, c
     return matrix.get_summary()
 
 
-
-
 def convert_align_df_to_pairs(
     align_df: AlignDf, chrom_lengths: Dict[Chrom, int], genome_assembly: str, pair_file: str, n_workers: int = 1
 ):
@@ -221,10 +211,8 @@ def convert_align_df_to_pairs(
     else:
         pair_stream = df_stream.map(to_pairs)
 
-    write_sink = (  # noqa: F841
-        pair_stream
-        .accumulate(pairs_progress, returns_state=True, start=pairs_progress)
-        .sink(writer)
+    write_sink = pair_stream.accumulate(pairs_progress, returns_state=True, start=pairs_progress).sink(  # noqa: F841
+        writer
     )
 
     use_cols = [

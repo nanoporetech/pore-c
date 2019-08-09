@@ -5,8 +5,9 @@ from pathlib import Path
 import click
 from intake import open_catalog
 
+import pore_c.catalogs as catalogs
+
 from .settings import setup_logging
-import  pore_c.catalogs as catalogs
 
 logger = setup_logging()
 
@@ -79,7 +80,6 @@ def catalog(reference_fasta, output_prefix, genome_id=None):
         raise IOError("Faidx file doesn't exist, please run 'samtools faidx {}'".format(reference_fasta))
 
     file_paths = ReferenceGenomeCatalog.generate_paths(output_prefix)
-    path_kwds = {key: val for key, val in file_paths.items() if key != 'catalog'}
 
     ref_source = IndexedFasta(fasta)
     ref_source.discover()
@@ -87,8 +87,8 @@ def catalog(reference_fasta, output_prefix, genome_id=None):
     chrom_df = pd.DataFrame(ref_source.metadata["chroms"])[["chrom", "length"]]
     chrom_df.to_csv(file_paths["chrom_metadata"], index=False)
     chrom_df.to_csv(file_paths["chromsizes"], sep="\t", header=None, index=False)
-    metadata = {'chrom_lengths': chrom_lengths, 'genome_id': genome_id}
-    file_paths['fasta'] = fasta
+    metadata = {"chrom_lengths": chrom_lengths, "genome_id": genome_id}
+    file_paths["fasta"] = fasta
     rg_cat = ReferenceGenomeCatalog.create(file_paths, metadata, {})
     logger.info("Added reference genome: {}".format(str(rg_cat)))
 
@@ -123,22 +123,12 @@ def virtual_digest(reference_catalog, cut_on, output_prefix, n_workers):
     assert digest_type in ["bin", "enzyme", "regex"]
 
     file_paths = VirtualDigestCatalog.generate_paths(output_prefix)
-    path_kwds = {key: val for key, val in file_paths.items() if key != 'catalog'}
+    path_kwds = {key: val for key, val in file_paths.items() if key != "catalog"}
 
-    frag_df = create_virtual_digest(
-        rg_cat.fasta,
-        digest_type,
-        digest_param,
-        n_workers=n_workers,
-        **path_kwds,
-    )
+    frag_df = create_virtual_digest(rg_cat.fasta, digest_type, digest_param, n_workers=n_workers, **path_kwds)
 
-    metadata = {
-        'digest_type': digest_type,
-        'digest_param': digest_param,
-        'num_fragments': len(frag_df),
-    }
-    file_paths['refgenome_catalog'] = Path(reference_catalog)
+    metadata = {"digest_type": digest_type, "digest_param": digest_param, "num_fragments": len(frag_df)}
+    file_paths["refgenome_catalog"] = Path(reference_catalog)
     vd_cat = VirtualDigestCatalog.create(file_paths, metadata, {})
     logger.debug("Created Virtual Digest catalog: {}".format(vd_cat))
 
@@ -164,19 +154,17 @@ def catalog(fastq, output_prefix, min_read_length, max_read_length, user_metadat
     from pore_c.analyses.reads import filter_fastq
 
     file_paths = catalogs.RawReadCatalog.generate_paths(output_prefix)
-    path_kwds = {key: val for key, val in file_paths.items() if key != 'catalog'}
+    path_kwds = {key: val for key, val in file_paths.items() if key != "catalog"}
     summary = filter_fastq(
-        input_fastq=fastq,
-        min_read_length=min_read_length,
-        max_read_length=max_read_length,
-        **path_kwds
+        input_fastq=fastq, min_read_length=min_read_length, max_read_length=max_read_length, **path_kwds
     )
 
-    catalog = catalogs.RawReadCatalog.create(file_paths, {'summary_stats': summary}, user_metadata)
+    catalog = catalogs.RawReadCatalog.create(file_paths, {"summary_stats": summary}, user_metadata)
     logger.info("Created catalog for results: {}".format(catalog))
 
-    c1 = open_catalog(str(file_paths['catalog']))
+    c1 = open_catalog(str(file_paths["catalog"]))
     logger.info(c1)
+
 
 @cli.group(cls=NaturalOrderGroup, short_help="Analyse aligned porec reads")
 def alignments():
@@ -210,9 +198,9 @@ def parse(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize
         n_workers=n_workers,
         chunksize=chunksize,
     )
-    metadata = {'final_stats': final_stats}
-    file_paths['virtual_digest'] = Path(virtual_digest_catalog)
-    file_paths['input_bam'] = Path(input_bam)
+    metadata = {"final_stats": final_stats}
+    file_paths["virtual_digest"] = Path(virtual_digest_catalog)
+    file_paths["input_bam"] = Path(input_bam)
     adf_cat = catalogs.AlignmentDfCatalog.create(file_paths, metadata, {})
     logger.info(str(adf_cat))
 
@@ -236,10 +224,10 @@ def from_alignment_table(align_catalog, output_prefix, n_workers):
     chrom_lengths = rg_cat.metadata["chrom_lengths"]
     genome_id = rg_cat.metadata["genome_id"]
     align_df = adf_cat.alignment.to_dask()
-    #TODO: return number of pairs written
+    # TODO: return number of pairs written
     metadata = convert_align_df_to_pairs(align_df, chrom_lengths, genome_id, file_paths["pairs"], n_workers=n_workers)
 
-    file_paths['aligmentdf_cat'] = Path(align_catalog)
+    file_paths["aligmentdf_cat"] = Path(align_catalog)
     pair_cat = catalogs.PairsFileCatalog.create(file_paths, metadata, {})
     logger.info(str(pair_cat))
 
@@ -256,12 +244,11 @@ def to_matrix(pairs_catalog, output_prefix, resolution, n_workers):
     pairs_cat = open_catalog(str(pairs_catalog))
 
     ds = pairs_cat.pairs
-    metadata = convert_pairs_to_matrix(ds, resolution=resolution, n_workers=n_workers, coo=file_paths['coo'])
-    metadata['resolution'] = resolution
+    metadata = convert_pairs_to_matrix(ds, resolution=resolution, n_workers=n_workers, coo=file_paths["coo"])
+    metadata["resolution"] = resolution
 
     matrix_cat = catalogs.MatrixCatalog.create(file_paths, metadata, {})
     logger.info(str(matrix_cat))
-
 
 
 @cli.group(cls=NaturalOrderGroup, short_help="Operations on matrices")
@@ -296,16 +283,15 @@ def correlate(x_mcool, y_mcool, output_prefix, resolution):
         else:
             logger.warning(f"Extra chromosomes in y, will not be included in calculations: {y_not_x}")
 
-    metadata = correlate(x_cool, y_cool, xy_path=file_paths['xy'], coefficients_path=file_paths['coefficients'], resolution=resolution)
-    metadata['resolution'] = resolution
-    metadata['x']['path'] = str(x_mcool)
-    metadata['y']['path'] = str(y_mcool)
+    metadata = correlate(
+        x_cool, y_cool, xy_path=file_paths["xy"], coefficients_path=file_paths["coefficients"], resolution=resolution
+    )
+    metadata["resolution"] = resolution
+    metadata["x"]["path"] = str(x_mcool)
+    metadata["y"]["path"] = str(y_mcool)
 
     matrix_cat = catalogs.MatrixCorrelationCatalog.create(file_paths, metadata, {})
     logger.info(str(matrix_cat))
-
-
-
 
 
 @cli.group(cls=NaturalOrderGroup, short_help="Dashboard")

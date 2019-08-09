@@ -290,12 +290,11 @@ class GenomeIntervalDf(object):
             )
             if len(self_indices) == 0:
                 continue
-            overlaps.append(pd.DataFrame({'self': self_indices, 'other': target_indices}))
-        overlaps = pd.concat(overlaps, ignore_index=True).set_index('self')
+            overlaps.append(pd.DataFrame({"self": self_indices, "other": target_indices}))
+        overlaps = pd.concat(overlaps, ignore_index=True).set_index("self")
         if overlaps.index.duplicated().any():
             raise ValueError(overlaps[overlaps.index.duplicated(keep="both")])
         return overlaps.reindex(index=self._obj.index)
-
 
     def overlap(self, other: "GenomeIntervalDf", calculate_lengths: bool = True):
         """Find all overlapping intervals between this dataframe and 'other'"""
@@ -339,7 +338,6 @@ class GenomeIntervalDf(object):
             res = None
         return res
 
-
     @classmethod
     def fixed_width_bins(cls, chrom_lengths, bin_width):
         dfs = []
@@ -348,14 +346,10 @@ class GenomeIntervalDf(object):
             if bin_edges[-1] != chrom_length:
                 bin_edges.append(chrom_length)
             _df = (
-                pd.DataFrame(
-                    {'start': bin_edges[:-1], "end": bin_edges[1:]}
-                )
+                pd.DataFrame({"start": bin_edges[:-1], "end": bin_edges[1:]})
                 .astype(GENOMIC_COORD_DTYPE)
                 .assign(chrom=chrom_id)
             )
             dfs.append(_df)
-        df = pd.concat(dfs, ignore_index=True).reset_index().rename(columns={'index': "bin_id"})
-        return df[['chrom', 'start', 'end', 'bin_id']]
-
-
+        df = pd.concat(dfs, ignore_index=True).reset_index().rename(columns={"index": "bin_id"})
+        return df[["chrom", "start", "end", "bin_id"]]
