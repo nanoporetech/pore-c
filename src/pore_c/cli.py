@@ -611,9 +611,10 @@ def fragment_end_metrics(bam_file_in, csv_out, hicref):
 @click.argument("porec_file_in", type=click.Path(exists=True))
 @click.argument("ref_digest", type=click.Path(exists=True))
 @click.argument("data_out", type=click.Path(exists=False))
+@click.argument("plot_out", type=click.Path(exists=False))
 @click.option(
         "--threads",
         default=1,
         help="Split calculation across indicated number of threads.")
-def hubness_analysis(porec_file_in, ref_digest, data_out, threads):
-    hubness_analysis_tool(porec_file_in, ref_digest, data_out, threads)
+def hubness_analysis(porec_file_in, ref_digest, data_out, plot_out, threads):
+    hubness_analysis_tool(porec_file_in, ref_digest, data_out, plot_out,threads)

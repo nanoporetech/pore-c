@@ -3,11 +3,14 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass
 from typing import Optional
 
+from pysam import AlignmentFile
+
 import re
 import matplotlib
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
 from scipy.stats import pearsonr
 from scipy.stats import ks_2samp
@@ -136,18 +139,20 @@ def plot_contact_distances(
         axes[idx].legend(fontsize = "x-small")
     
     fig.savefig(graph_file_out)
-
     
-def hubness_analysis(poreC_file: str, ref_digest: str, data_out: str, threadCount: Optional[int] = 1 ) -> None:
+def hubness_analysis(poreC_file: str, ref_digest: str, data_out: str, plot_out: str, threadCount: Optional[int] = 1 ) -> None:
     cols = ["ch","start","stop","frag_id"]
     dtypes = dict(zip(cols,[str,int,int,int]))
-    digest_df = pd.read_csv(ref_digest, names = cols, sep = "\t", dtype = dtypes)
+    print("loading reference digest data")
+    if '.gz' in ref_digest:
+        import gzip
+        fIn = gzip.open(ref_digest,'rt')
+    else:
+        fIn = open(ref_digest)
+    digest_df = pd.read_csv(fIn, names = cols, sep = "\t", dtype = dtypes)
     digest_df.set_index("frag_id", drop = False)
     digest_df['midpoint'] = digest_df[["start","stop"]].mean(axis=1)
-
-    #set default values to worst possible scores
-    digest_df["ks_pval"] = 1.0
-    digest_df["ks_statistic"] = 0.0
+    digest_df["cum_pos"] = digest_df["midpoint"].cumsum()
 
     #first, determine the aggregate distribution of concatemer lengths measured in monomer counts
     #     while also calculating the distribution of lengths of concatemers containing each fragment
@@ -155,17 +160,22 @@ def hubness_analysis(poreC_file: str, ref_digest: str, data_out: str, threadCoun
     digest_vals = defaultdict(list)
 
     print("loading poreC data")
+    read_count = 0
+    monomer_count = 0
     for entry in open(poreC_file):
         l = entry.strip().split()
         walk = Cwalk(l[0])
         walk.from_entry(entry)
         L = walk.length()
+        monomer_count += L
+        read_count += 1
         cum_distr.append(L)
 
         for mon in walk.contacts:
             digest_vals[mon.fragID].append(L)
 
-    print("apply 2 sample KS test using {} processes.".format(threadCount))
+    print("loaded {} monomers in {} poreC entries.".format(monomer_count,read_count))
+    print("apply 2 sample KS test using {} processes across {} fragments in the genome.".format(threadCount, len(digest_vals)))
 
     if threadCount == 1:
         for frag_id, counts in digest_vals.items():
@@ -189,22 +199,24 @@ def hubness_analysis(poreC_file: str, ref_digest: str, data_out: str, threadCoun
         with poolcontext(processes = threadCount) as pool:
             results = pool.map(partial(ks_2samp, data2=cum_distr), per_frag_data)
 
-        for loc in range(len(results)):
-            digest_df.loc[digest_df["frag_id"] == frag_ids[loc], "ks_pval"] = 1 - np.log(results[loc].pvalue + np.finfo(float).eps)
-            digest_df.loc[digest_df["frag_id"] == frag_ids[loc],"ks_statistic"] = results[loc].statistic            
-        
+        print("done collecting {} results.".format(len(results)))
 
+        ks_pval, ks_statistic = zip(*list(map( lambda x: ( - np.log(x.pvalue + np.finfo(float).eps), x.statistic), results)))
+        print("Writing to dataframe.")
 
+        results_df = pd.DataFrame({"frag_id":frag_ids,"ks_pval": ks_pval,"ks_statistic":ks_statistic}).set_index("frag_id")
+        print("Joining to dataframe.")
 
-        
+        agg_df = digest_df.join(results_df, on = "frag_id" , lsuffix = "_result")
+
+    print("cutting down the bedfile to non-zero entries.")
+    print('writing {} entries out to file...'.format(len(agg_df)))
     #save the data,but only the results. no need to re-save the whole bedfile
-    digest_df[["frag_id","ks_pval","ks_statistic"]].save(data_out)
+    agg_df[["ch","start","stop","frag_id","ks_pval","ks_statistic","cum_pos"]].set_index('frag_id').to_csv(data_out)
 
-#    #generate per-chromosome plots of the p-values
-#    for ch in set(digest_df.ch):
-##        fig, ax = pyplot.subplots(1,figsize = (50,10), dpi = 200)
-#       ax = sns.scatterplot(data=dpn.loc[digest_df["ch"] == ch ],x = "start", y = "ks_pval", hue = "ks_statistic")
-#        fig.savefig("{}_{}.png".format(basename, ch))
+    fig, ax = plt.subplots(1,figsize = (50,10), dpi = 200)
+    ax = sns.scatterplot(data=agg_df,x = "cum_pos", y = "ks_pval", hue = "ch")
+    fig.savefig(plot_out)
 
 
 def comparison_contact_map(
