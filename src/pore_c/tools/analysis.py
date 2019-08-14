@@ -217,7 +217,7 @@ def hubness_analysis(poreC_file: str, ref_digest: str, data_out: str, plot_out: 
     filtered_agg_df.to_csv(data_out)
 
     fig, ax = plt.subplots(1,figsize = (50,10), dpi = 200)
-    ax = sns.scatterplot(data=agg_df.dropna(),x = "cum_pos", y = "ks_pval", hue = "ch", thickness =0.0)
+    ax = sns.scatterplot(data=agg_df.dropna(),x = "cum_pos", y = "ks_pval", hue = "ch")
     fig.savefig(plot_out)
 
 
