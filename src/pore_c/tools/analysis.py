@@ -180,7 +180,7 @@ def hubness_analysis(poreC_file: str, ref_digest: str, data_out: str, plot_out: 
     if threadCount == 1:
         for frag_id, counts in digest_vals.items():
             z = ks_2samp(cum_distr,counts)
-            digest_df.loc[digest_df["frag_id"] == frag_id, "ks_pval"] = 1 - np.log(z.pvalue + np.finfo(float).eps)
+            digest_df.loc[digest_df["frag_id"] == frag_id, "ks_pval"] = - np.log(z.pvalue + np.finfo(float).eps)
             digest_df.loc[digest_df["frag_id"] == frag_id,"ks_statistic"] = z.statistic
 
     else:
@@ -211,11 +211,13 @@ def hubness_analysis(poreC_file: str, ref_digest: str, data_out: str, plot_out: 
 
     print("cutting down the bedfile to non-zero entries.")
     print('writing {} entries out to file...'.format(len(agg_df)))
-    #save the data,but only the results. no need to re-save the whole bedfile
-    agg_df[["ch","start","stop","frag_id","ks_pval","ks_statistic","cum_pos"]].set_index('frag_id').to_csv(data_out)
+
+    #save the data,but only the results. no need to re-save the whole bedfile. no reason to save fragments that don't have scores
+    filtered_agg_df = agg_df[["ch","start","stop","frag_id","ks_pval","ks_statistic"]].set_index('frag_id', drop=False).dropna()
+    filtered_agg_df.to_csv(data_out)
 
     fig, ax = plt.subplots(1,figsize = (50,10), dpi = 200)
-    ax = sns.scatterplot(data=agg_df,x = "cum_pos", y = "ks_pval", hue = "ch")
+    ax = sns.scatterplot(data=agg_df.dropna(),x = "cum_pos", y = "ks_pval", hue = "ch", thickness =0.0)
     fig.savefig(plot_out)
 
 
