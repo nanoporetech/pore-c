@@ -20,13 +20,12 @@ install_requires = [
 	"intake",
 	"intake-parquet",
 	"ncls",
-	"pairix",
+	"pypairix",
 	"pairtools",
 	"pandas >=0.25",
 	"numpy >=1.16",
 	"pyarrow",
 	"pysam",
-	"tabix",
 	"tqdm",
 ]
 

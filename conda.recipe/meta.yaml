@@ -27,6 +27,8 @@ requirements:
     {% endfor %}
   run:
     - python {{ sdata['python_requires'] }}
+    - tabix
+    - pairix
     {% for dep in sdata.get('install_requires',{}) %}
     - {{ dep }}
     {% endfor %}
