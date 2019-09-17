@@ -20,7 +20,7 @@ install_requires = [
 	"intake",
 	"intake-parquet",
 	"ncls",
-	"pypairix",
+    # "pypairix",  FIXFIX: this is supplied by the pairix conda package which breaks the conda.recipe
 	"pairtools",
 	"pandas >=0.25",
 	"numpy >=1.16",
