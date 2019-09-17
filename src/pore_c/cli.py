@@ -24,6 +24,8 @@ class NaturalOrderGroup(click.Group):
 
 def command_line_json(ctx, param, value):
     # TODO: add support for json from file
+    if value is None:
+        return {}
     try:
         res = json.loads(value)
     except Exception as exc:  # noqa: F841
@@ -34,7 +36,7 @@ def command_line_json(ctx, param, value):
 
 @click.group(cls=NaturalOrderGroup)
 @click.option("-v", "--verbosity", count=True, help="Increase level of logging information, eg. -vvv")
-@click.option("--quiet", is_flag=True, help="Turn off all logging")
+@click.option("--quiet", is_flag=True, default=False, help="Turn off all logging")
 def cli(verbosity, quiet):
     """Pore-C tools"""
     if quiet:
@@ -45,7 +47,7 @@ def cli(verbosity, quiet):
         idx = min(len(LOG_LEVELS) - 1, offset + verbosity)
         logger.setLevel(LOG_LEVELS[idx])
     else:
-        pass
+        logger.setLevel(logging.INFO)
     logger.debug("Logger set up")
 
 
@@ -64,31 +66,46 @@ def catalog(reference_fasta, output_prefix, genome_id=None):
     from pore_c.datasources import IndexedFasta
     from pore_c.catalogs import ReferenceGenomeCatalog
     import pandas as pd
+    import re
+    import subprocess as sp
+    import pysam
+
+    fname_re = re.compile("(.+)\.(fasta|fa|fna)(\.gz)*")
 
     logger.info("Adding reference genome under prefix: {}".format(output_prefix))
-    fasta = Path(str(reference_fasta))
-    try:
-        stem, fasta_ext, compression_ext = fasta.name.split(".", 2)
-        if not genome_id:
-            genome_id = stem
-    except Exception as e:
-        raise ValueError(
-            "Fasta file should be gzip compressed and should be in form {file_stem}.(fa|fasta|fna).gz\n{}".format(e)
-        )
-    faidx_file = (fasta.parent / stem).with_suffix(".{}.{}.fai".format(fasta_ext, compression_ext))
-    if not faidx_file.exists():
-        raise IOError("Faidx file doesn't exist, please run 'samtools faidx {}'".format(reference_fasta))
-
     file_paths = ReferenceGenomeCatalog.generate_paths(output_prefix)
+    path_kwds = {key: val for key, val in file_paths.items() if key != "catalog"}
+    src_fasta = Path(str(reference_fasta))
+    dest_fasta = path_kwds['fasta']
 
-    ref_source = IndexedFasta(fasta)
+    parts_m = fname_re.match(src_fasta.name)
+    if not parts_m:
+        raise ValueError(
+            f"Fasta file should match regex {fname_re}: {src_fasta}"
+        )
+    stem, _, compression = parts_m.groups()
+
+    if compression == ".gz":
+        comd = f"gunzip -cd {src_fasta} | bgzip > {dest_fasta}"
+    else:
+        comd = f"cat {src_fasta} | bgzip > {dest_fasta}"
+    try:
+        logger.info(f"Creating bgzipped reference: {comd}")
+        sp.check_call(comd, shell=True)
+    except Exception as exc:  # noqa: F841
+        logger.exception(f"Error creating bgzipped reference: {dest_fasta}")
+        raise
+
+    logger.debug("Creating faidx file")
+    pysam.faidx(str(dest_fasta))
+
+    ref_source = IndexedFasta(dest_fasta)
     ref_source.discover()
     chrom_lengths = {c["chrom"]: c["length"] for c in ref_source.metadata["chroms"]}
     chrom_df = pd.DataFrame(ref_source.metadata["chroms"])[["chrom", "length"]]
     chrom_df.to_csv(file_paths["chrom_metadata"], index=False)
     chrom_df.to_csv(file_paths["chromsizes"], sep="\t", header=None, index=False)
     metadata = {"chrom_lengths": chrom_lengths, "genome_id": genome_id}
-    file_paths["fasta"] = fasta
     rg_cat = ReferenceGenomeCatalog.create(file_paths, metadata, {})
     logger.info("Added reference genome: {}".format(str(rg_cat)))
 
@@ -220,7 +237,7 @@ def from_alignment_table(align_catalog, output_prefix, n_workers):
     file_paths = catalogs.PairsFileCatalog.generate_paths(output_prefix)
 
     adf_cat = open_catalog(str(align_catalog))
-    rg_cat = adf_cat.virtual_digest.refgenome
+    rg_cat = adf_cat.virtual_digest.refgenome_catalog
     chrom_lengths = rg_cat.metadata["chrom_lengths"]
     genome_id = rg_cat.metadata["genome_id"]
     align_df = adf_cat.alignment.to_dask()

@@ -18,5 +18,5 @@ clean:
 	rm -rf build dist src/*.egg_info .pytest_cache
 	find . -name '__pycache__' -exec rm -rf '{}' \;
 
-conda-build:
+conda-package:
 	conda build conda.recipe
