@@ -70,19 +70,17 @@ def catalog(reference_fasta, output_prefix, genome_id=None):
     import subprocess as sp
     import pysam
 
-    fname_re = re.compile("(.+)\.(fasta|fa|fna)(\.gz)*")
+    fname_re = re.compile(r"(.+)\.(fasta|fa|fna)(\.gz)*")
 
     logger.info("Adding reference genome under prefix: {}".format(output_prefix))
     file_paths = ReferenceGenomeCatalog.generate_paths(output_prefix)
     path_kwds = {key: val for key, val in file_paths.items() if key != "catalog"}
     src_fasta = Path(str(reference_fasta))
-    dest_fasta = path_kwds['fasta']
+    dest_fasta = path_kwds["fasta"]
 
     parts_m = fname_re.match(src_fasta.name)
     if not parts_m:
-        raise ValueError(
-            f"Fasta file should match regex {fname_re}: {src_fasta}"
-        )
+        raise ValueError(f"Fasta file should match regex {fname_re}: {src_fasta}")
     stem, _, compression = parts_m.groups()
 
     if compression == ".gz":

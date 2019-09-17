@@ -68,7 +68,7 @@ class basePoreCCatalog(YAMLFileCatalog):
             ".fq.gz": "pore_c.datasources.Fastq",
             ".fasta.gz": "pore_c.datasources.IndexedFasta",
             ".fa.gz": "pore_c.datasources.IndexedFasta",
-            ".bam": "pore_c.datasources.NameSortedBamSource',
+            ".bam": "pore_c.datasources.NameSortedBamSource",
             ".fq": "pore_c.datasources.Fastq",
             ".pairs.gz": "pore_c.datasources.IndexedPairFile",
             ".catalog.yaml": "intake.catalog.local.YAMLFileCatalog",
@@ -221,7 +221,12 @@ class ReferenceGenomeCatalog(basePoreCCatalog):
     name = "pore_c_reference_genome"
     description = "An intake catalog file for a reference genome"
 
-    _suffix_map = {"catalog": ".catalog.yaml", "fasta": ".fa.gz", "chromsizes": ".chromsizes", "chrom_metadata": ".metadata.csv"}
+    _suffix_map = {
+        "catalog": ".catalog.yaml",
+        "fasta": ".fa.gz",
+        "chromsizes": ".chromsizes",
+        "chrom_metadata": ".metadata.csv",
+    }
 
     @classmethod
     def create(cls, file_paths, *args, **kwds):
