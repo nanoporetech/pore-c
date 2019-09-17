@@ -57,6 +57,6 @@ def test_overlaps(query, target, overlaps):
     if olap_df is None:
         res = set([])
     else:
-        res = set((tuple(v) for v in olap_df[['query_idx', 'target_idx', 'overlap_length']].values))
+        res = set((tuple(v) for v in olap_df[['index', 'other_index', 'overlap_length']].values))
     assert(res == set(overlaps))
 
