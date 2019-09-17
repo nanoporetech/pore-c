@@ -68,6 +68,7 @@ class basePoreCCatalog(YAMLFileCatalog):
             ".fq.gz": "pore_c.datasources.Fastq",
             ".fasta.gz": "pore_c.datasources.IndexedFasta",
             ".fa.gz": "pore_c.datasources.IndexedFasta",
+            ".bam": "pore_c.datasources.NameSortedBamSource',
             ".fq": "pore_c.datasources.Fastq",
             ".pairs.gz": "pore_c.datasources.IndexedPairFile",
             ".catalog.yaml": "intake.catalog.local.YAMLFileCatalog",
