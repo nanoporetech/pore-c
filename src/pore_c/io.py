@@ -40,8 +40,10 @@ class PairFileWriter(object):
         # TODO: this could all be cleaned up a bit
         if self._sort_and_compress:
             logger.info("Sorting and compressing: {}".format(self._output_path))
-            comd = "pairtools sort {} | bgzip > {}".format(self._raw_output_path, self._output_path)
-            logger.debug("Running command: {}".format(comd))
+            # FIXFIX: the --nproc 1 is so that this command will run on OSX where the default sort command
+            # doesn't support the --parallel option
+            comd = "pairtools sort --nproc 1 {} | bgzip > {}".format(self._raw_output_path, self._output_path)
+            logger.info("Running command: {}".format(comd))
             sp.check_call(comd, shell=True)
             sp.check_call(["pairix", str(self._output_path)])
             logger.debug("Removing temp file: {}".format(self._raw_output_path))
