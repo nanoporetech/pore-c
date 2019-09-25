@@ -231,6 +231,21 @@ def parse(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize
     adf_cat = catalogs.AlignmentDfCatalog.create(file_paths, metadata, {})
     logger.info(str(adf_cat))
 
+@alignments.command(short_help="Parses the alignment table and converts to pair-end like reads bed files for Salsa")
+@click.argument("align_table", type=click.Path(exists=True))
+@click.argument("output_prefix", type=click.Path(exists=True))
+def to_salsa_bed(align_table, output_prefix):
+    """Covents the alignment table to Salsa bed format. Sorted by read name 
+
+    """
+    from pore_c.analyses import to_salsa
+    adf_cat = open_catalog(str(align_catalog))
+    align_df = adf_cat.alignment.to_dask().compute()
+    output = output_prefix +".salsa.bed" 
+    with open(output, 'w') as bedout:
+        for rec in to_salsa(align_table):
+            bedout.write('{}\n'.format('\t'.join(map(str,rec))))
+    
 
 @cli.group(cls=NaturalOrderGroup, short_help="Create pairs files")
 def pairs():

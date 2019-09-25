@@ -310,3 +310,42 @@ def position_pair_to_tuple(pos1, pos2, read_id):
         pos2.align_idx,
         distance_on_read,
     )
+
+def to_salsa(df: AlignDf):
+    colname = {'chrom': str,
+               'start':int,
+               'end':int,
+               'readid':str,
+               'align_score':int,
+               'strand':str}
+
+    keep_segments = (
+        df.query("pass_filter == True").replace({"strand": {True: "+", False: "-"}})
+        # convert strand to +/- and chrom to string for lexographical sorting to get upper-triangle
+        .astype({"strand": colname["strand"], "chrom": colname['chrom']})
+    )
+    for x, (read_idx, read_df) in enumerate(keep_segments.groupby("read_idx", as_index=False)):
+        if len(read_df) <= 1:
+            continue
+        rows = list(
+            read_df.sort_values(["read_start"], ascending=True)
+            .itertuples()
+        )
+
+        for combi,(pos1, pos2) in enumerate(combinations(rows, 2)):
+            if pos1.align_idx == pos2.align_idx:
+                raise ValueError
+            for rec, paired_id in zip([pos1, pos2], [1,2]):
+                new_read_id = f'{rec.read_name}_{combi}/{paired_id}'
+                yield(to_salsa_bed_tuple(rec,new_read_id))
+
+
+def to_salsa_bed_tuple(pos,read_id):
+    return (
+        pos.chrom,
+        pos.start,
+        pos.end,
+        read_id,
+        pos.mapping_quality,
+        pos.strand
+    )
