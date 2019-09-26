@@ -38,7 +38,10 @@ def command_line_json(ctx, param, value):
 @click.option("-v", "--verbosity", count=True, help="Increase level of logging information, eg. -vvv")
 @click.option("--quiet", is_flag=True, default=False, help="Turn off all logging")
 def cli(verbosity, quiet):
-    """Pore-C tools"""
+    """Pore-C tools
+
+    A suite of tools designed to analyse Oxford Nanopore reads with multiway chromatin contacts.
+    """
     if quiet:
         logger.setLevel(logging.CRITICAL)
     elif verbosity > 0:
@@ -51,17 +54,21 @@ def cli(verbosity, quiet):
     logger.debug("Logger set up")
 
 
-@cli.group(cls=NaturalOrderGroup, short_help="Operations on the reference genome sequence")
+@cli.group(cls=NaturalOrderGroup, short_help="Pre-process reference genome files.")
 def refgenome():
     pass
 
 
-@refgenome.command(short_help="Create a catalog file for the reference genome.")
+@refgenome.command(short_help="Pre-process a reference genome")
 @click.argument("reference_fasta", type=click.Path(exists=True))
 @click.argument("output_prefix")
 @click.option("--genome-id", type=str, help="An ID for this genome assembly")
 def catalog(reference_fasta, output_prefix, genome_id=None):
-    """Preprocess a reference genome for use by pore_c tools
+    """Pre-process a reference genome for use by pore-C tools.
+
+    This cool makes a bgzipped copy of the reference genome along with some ancillary
+    files for use by other tools. The paths to these files, along with metadata
+    about the genome are stored in an intake yaml catalog.
     """
     from pore_c.datasources import IndexedFasta
     from pore_c.catalogs import ReferenceGenomeCatalog
@@ -108,14 +115,19 @@ def catalog(reference_fasta, output_prefix, genome_id=None):
     logger.info("Added reference genome: {}".format(str(rg_cat)))
 
 
-@refgenome.command(short_help="Virtual digest of reference genome.")
+@refgenome.command(short_help="Virtual digest of a reference genome.")
 @click.argument("reference_catalog", type=click.Path(exists=True))
 @click.argument("cut_on")
 @click.argument("output_prefix")
 @click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
 def virtual_digest(reference_catalog, cut_on, output_prefix, n_workers):
     """
-    Carry out a virtual digestion of CUT_ON on REFERENCE_FASTA writing results to BEDFILE and HICREF.
+    Carry out a virtual digestion of the genome listed in a reference catalog.
+
+    Required arguments:
+        - reference_catalog: An intake catalog produced by `pore_c refgenome catalog`
+        - cut_on: An enzyme name to do the digest (see below for more details).
+        - output_prefix:
 
     \b
 
