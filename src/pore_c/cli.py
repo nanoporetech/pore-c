@@ -231,21 +231,26 @@ def parse(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize
     adf_cat = catalogs.AlignmentDfCatalog.create(file_paths, metadata, {})
     logger.info(str(adf_cat))
 
+
 @alignments.command(short_help="Parses the alignment table and converts to pair-end like reads bed files for Salsa")
-@click.argument("align_table", type=click.Path(exists=True))
-@click.argument("output_prefix", type=click.Path(exists=True))
-def to_salsa_bed(align_table, output_prefix):
-    """Covents the alignment table to Salsa bed format. Sorted by read name 
+@click.argument("align_catalog", type=click.Path(exists=True))
+@click.argument("salsa_bed", type=click.Path(exists=False))
+@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
+def to_salsa_bed(align_catalog, salsa_bed, n_workers):
+    """Covert the alignment table to Salsa bed format.
 
     """
-    from pore_c.analyses import to_salsa
+    from pore_c.analyses.pairs import convert_align_df_to_salsa
+
     adf_cat = open_catalog(str(align_catalog))
-    align_df = adf_cat.alignment.to_dask().compute()
-    output = output_prefix +".salsa.bed" 
-    with open(output, 'w') as bedout:
-        for rec in to_salsa(align_table):
-            bedout.write('{}\n'.format('\t'.join(map(str,rec))))
-    
+    align_df = adf_cat.alignment.to_dask()
+
+    logger.info(f"Converting alignments in {align_catalog} to salsa2 bed format {salsa_bed}")
+    res = convert_align_df_to_salsa(align_df, Path(salsa_bed), n_workers=n_workers)
+
+    logger.info(res)
+
+
 
 @cli.group(cls=NaturalOrderGroup, short_help="Create pairs files")
 def pairs():

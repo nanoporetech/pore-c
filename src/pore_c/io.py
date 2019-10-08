@@ -7,6 +7,24 @@ from pyarrow import parquet as pq
 logger = getLogger(__name__)
 
 
+class SalsaBedFileWriter(object):
+    def __init__(self, output_path):
+        self._output_path = output_path
+        self._records_written = 0
+
+    def __call__(self, salsa_df):
+        salsa_df.to_csv(
+            self._output_path,
+            mode='a' if self._records_written > 0 else 'w',
+            sep="\t",
+            index=False,
+            header=False)
+        self._records_written += len(salsa_df)
+
+    def close(self):
+        return self._records_written
+
+
 class PairFileWriter(object):
     def __init__(self, output_path, chrom_sizes, genome_assembly, columns=None):
         self._output_path = output_path

@@ -223,6 +223,30 @@ class PairDf(object):
     def is_valid(self):
         return True
 
+@pd.api.extensions.register_dataframe_accessor("salsadf")
+class SalsaDf(object):
+    """An extension to handle dataframes containing pairfile data"""
+
+    DTYPE = {
+        "chr": str,
+        "start": GENOMIC_COORD_DTYPE,
+        "end": GENOMIC_COORD_DTYPE,
+        "read_pair_id": str,
+        "mapping_quality": np.uint8,
+        "strand": pd.CategoricalDtype(['+', '-'])
+    }
+
+    def __init__(self, pandas_obj):
+        self._validate(pandas_obj)
+        self._obj = pandas_obj
+
+    def _validate(self, obj):
+        assert obj.dtype == PairDf.DTYPE
+
+    def is_valid(self):
+        return True
+
+
 
 @pd.api.extensions.register_dataframe_accessor("aligndf")
 class AlignDf(object):

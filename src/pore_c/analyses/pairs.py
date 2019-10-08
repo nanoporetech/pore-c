@@ -12,7 +12,7 @@ from tqdm import tqdm
 from pore_c.datasources import IndexedPairFile
 from pore_c.io import PairFileWriter
 from pore_c.model import (FRAG_IDX_DTYPE, AlignDf, Chrom, GenomeIntervalDf,
-                          PairDf)
+                          PairDf, SalsaDf)
 from pore_c.utils import DataFrameProgress
 
 logger = getLogger(__name__)
@@ -142,21 +142,16 @@ def convert_pairs_to_matrix(pairs_datasource: IndexedPairFile, resolution: int, 
             df_stream.scatter()
             .buffer(n_workers)
             .map(overlap_count, bin_df=bin_df)
-            # .accumulate(matrix, returns_state=True, start=matrix)
             .gather()
         )
     else:
         coo_stream = (
             df_stream.map(overlap_count, bin_df=bin_df)
-            # .accumulate(matrix, returns_state=True, start=matrix)
         )
 
     write_sink = coo_stream.accumulate(matrix, returns_state=True, start=matrix).sink(lambda x: x)  # noqa: F841
 
-    if False:
-        partition_range = range(327, ds.npartitions)
-    else:
-        partition_range = range(ds.npartitions)
+    partition_range = range(ds.npartitions)
 
     for partition in partition_range:
         _df = ds._get_partition(partition, usecols=["chr1", "pos1", "chr2", "pos2"])
@@ -311,41 +306,83 @@ def position_pair_to_tuple(pos1, pos2, read_id):
         distance_on_read,
     )
 
-def to_salsa(df: AlignDf):
-    colname = {'chrom': str,
-               'start':int,
-               'end':int,
-               'readid':str,
-               'align_score':int,
-               'strand':str}
+
+def convert_align_df_to_salsa(align_df: AlignDf, salsa_bed: Path, n_workers: int = 1):
+    from pore_c.io import SalsaBedFileWriter
+    parallel = n_workers > 1
+    if parallel:
+        from time import sleep
+        from dask.distributed import Client, LocalCluster
+
+        cluster = LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=1)
+        client = Client(cluster)
+
+    writer = SalsaBedFileWriter(salsa_bed)
+
+    batch_progress_bar = tqdm(total=align_df.npartitions, desc="Batches submitted: ", unit=" batches", position=0)
+
+    # stream that holds the filtered/processed alignments
+    df_stream = Stream()
+    if parallel:
+        pair_stream = df_stream.scatter().map(to_salsa).buffer(n_workers).gather()
+    else:
+        pair_stream = df_stream.map(to_salsa)
+
+    write_sink = pair_stream.sink(writer)  # noqa: F841
+    use_cols = [
+        "pass_filter",
+        "read_idx",
+        "align_idx",
+        "read_name",
+        "read_start",
+        "chrom",
+        "start",
+        "end",
+        "strand",
+        "mapping_quality",
+    ]
+    for partition in range(align_df.npartitions):
+        _df = align_df.partitions[partition].loc[:, use_cols]
+        df_stream.emit(_df.compute())
+        batch_progress_bar.update(1)
+
+    if parallel:
+        while True:
+            processing = client.processing()
+            still_running = [len(v) > 0 for k, v in processing.items()]
+            if any(still_running):
+                sleep(10)
+            else:
+                sleep(10)
+                break
+        client.close()
+        cluster.close()
+
+    num_pairs_written = writer.close()
+    batch_progress_bar.close()
+    sys.stderr.write("\n\n")
+    return num_pairs_written
+
+
+def to_salsa(df: AlignDf) -> SalsaDf:
+    res = []
 
     keep_segments = (
         df.query("pass_filter == True").replace({"strand": {True: "+", False: "-"}})
-        # convert strand to +/- and chrom to string for lexographical sorting to get upper-triangle
-        .astype({"strand": colname["strand"], "chrom": colname['chrom']})
+        .astype({"strand": SalsaDf.DTYPE['strand'], "chrom": str})
     )
     for x, (read_idx, read_df) in enumerate(keep_segments.groupby("read_idx", as_index=False)):
         if len(read_df) <= 1:
             continue
-        rows = list(
-            read_df.sort_values(["read_start"], ascending=True)
-            .itertuples()
-        )
+        rows = list(read_df.sort_values(["read_start"], ascending=True).itertuples())
 
-        for combi,(pos1, pos2) in enumerate(combinations(rows, 2)):
+        for combi, (pos1, pos2) in enumerate(combinations(rows, 2)):
             if pos1.align_idx == pos2.align_idx:
                 raise ValueError
-            for rec, paired_id in zip([pos1, pos2], [1,2]):
-                new_read_id = f'{rec.read_name}_{combi}/{paired_id}'
-                yield(to_salsa_bed_tuple(rec,new_read_id))
+            for rec, paired_id in zip([pos1, pos2], [1, 2]):
+                paired_read_id = f"{rec.read_name}_{combi}/{paired_id}"
+                res.append(
+                    (rec.chrom, rec.start, rec.end , paired_read_id, rec.mapping_quality, rec.strand)
+                )
+    return pd.DataFrame(res, columns=SalsaDf.DTYPE.keys()).astype(SalsaDf.DTYPE)
 
-
-def to_salsa_bed_tuple(pos,read_id):
-    return (
-        pos.chrom,
-        pos.start,
-        pos.end,
-        read_id,
-        pos.mapping_quality,
-        pos.strand
-    )
