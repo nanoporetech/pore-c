@@ -6,6 +6,31 @@ from pyarrow import parquet as pq
 
 logger = getLogger(__name__)
 
+class HicTxtFileWriter(object):
+    def __init__(self, output_path):
+        self._output_path = output_path
+        self._unsorted_output_path = output_path.with_suffix(".unsorted")
+        self._records_written = 0
+
+    def __call__(self, hic_df):
+        hic_df.to_csv(
+            self._unsorted_output_path,
+            mode='a' if self._records_written > 0 else 'w',
+            sep=" ",
+            index=False,
+            header=False)
+        self._records_written += len(hic_df)
+
+    def close(self):
+        sp.check_call(
+            "sort -k3V,3 -k7V,7 -nk5,5 -nk9,9 %s > %s && rm %s" %(
+                self._unsorted_output_path, self._output_path,
+                self._unsorted_output_path
+            ), shell=True
+        )
+        return self._records_written
+
+
 
 class SalsaBedFileWriter(object):
     def __init__(self, output_path):

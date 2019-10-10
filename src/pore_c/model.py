@@ -225,7 +225,7 @@ class PairDf(object):
 
 @pd.api.extensions.register_dataframe_accessor("salsadf")
 class SalsaDf(object):
-    """An extension to handle dataframes containing pairfile data"""
+    """An extension to handle dataframes containing salsa bed format data"""
 
     DTYPE = {
         "chr": str,
@@ -245,6 +245,36 @@ class SalsaDf(object):
 
     def is_valid(self):
         return True
+
+
+@pd.api.extensions.register_dataframe_accessor("hictxt")
+class HicTxtDf(object):
+    """An extension to handle dataframes containing .hic data"""
+
+    DTYPE = {
+        "readID": str,
+        "strand1": pd.CategoricalDtype(["0", "16"]),
+        "chr1": str,
+        "pos1": GENOMIC_COORD_DTYPE,
+        "frag1": np.uint32,
+        "strand2": pd.CategoricalDtype(["0", "16"]),
+        "chr2": str,
+        "pos2": GENOMIC_COORD_DTYPE,
+        "frag2": np.uint32,
+        "mapping_quality1": np.uint8,
+        "mapping_quality2": np.uint8,
+    }
+
+    def __init__(self, pandas_obj):
+        self._validate(pandas_obj)
+        self._obj = pandas_obj
+
+    def _validate(self, obj):
+        assert obj.dtype == PairDf.DTYPE
+
+    def is_valid(self):
+        return True
+
 
 
 

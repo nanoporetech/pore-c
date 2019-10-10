@@ -159,6 +159,29 @@ def virtual_digest(reference_catalog, cut_on, output_prefix, n_workers):
     vd_cat = VirtualDigestCatalog.create(file_paths, metadata, {})
     logger.debug("Created Virtual Digest catalog: {}".format(vd_cat))
 
+@refgenome.command(short_help="Create a hicRef file for a virtual digest.")
+@click.argument("virtual_digest_catalog", type=click.Path(exists=True))
+@click.argument("hicref", type=click.Path(exists=False))
+def to_hicref(virtual_digest_catalog, hicref):
+    """
+    Carry out a virtual digestion of the genome listed in a reference catalog.
+    """
+    from pore_c.catalogs import VirtualDigestCatalog
+
+    vd_cat = VirtualDigestCatalog(virtual_digest_catalog)
+
+    frag_df = vd_cat.fragments.to_dask().compute()
+    with open(hicref, 'w') as fh:
+        for chrom, endpoints in (
+                frag_df
+                .groupby("chrom")['end']
+                .agg(lambda x: " ".join(map(str, x)))
+                .items()):
+            fh.write(f"{chrom} {endpoints}\n")
+
+    logger.debug(f"Wrote hicRef file to {hicref}")
+
+
 
 @cli.group(cls=NaturalOrderGroup, short_help="Analyse raw reads")
 def reads():
@@ -232,7 +255,7 @@ def parse(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize
     logger.info(str(adf_cat))
 
 
-@alignments.command(short_help="Parses the alignment table and converts to pair-end like reads bed files for Salsa")
+@alignments.command(short_help="Parses the alignment table and converts to paired-end like reads bed files for Salsa")
 @click.argument("align_catalog", type=click.Path(exists=True))
 @click.argument("salsa_bed", type=click.Path(exists=False))
 @click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
@@ -247,6 +270,31 @@ def to_salsa_bed(align_catalog, salsa_bed, n_workers):
 
     logger.info(f"Converting alignments in {align_catalog} to salsa2 bed format {salsa_bed}")
     res = convert_align_df_to_salsa(align_df, Path(salsa_bed), n_workers=n_workers)
+
+    logger.info(res)
+
+
+@alignments.command(short_help="Parses the alignment table and converts to hic text format")
+@click.argument("align_catalog", type=click.Path(exists=True))
+@click.argument("hic_txt", type=click.Path(exists=False))
+@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
+def to_hic_txt(align_catalog, hic_txt,  n_workers):
+    """Covert the alignment table to hic text format.
+
+    """
+    from pore_c.analyses.pairs import convert_align_df_to_hic
+
+    adf_cat = open_catalog(str(align_catalog))
+    align_df = adf_cat.alignment.to_dask()
+
+    vd_cat = adf_cat.virtual_digest
+    # FIXFIX: some invalid fragment ids are appearing in the alignment table
+    # we need to fix at source, but for now we need to filter these records
+    # out of the hic.txt files
+    max_fragment_id = vd_cat.fragments.to_dask()['fragment_id'].max().compute()
+
+    logger.info(f"Converting alignments in {align_catalog} to hic text format {hic_txt}")
+    res = convert_align_df_to_hic(align_df, Path(hic_txt), n_workers=n_workers, max_fragment_id = max_fragment_id)
 
     logger.info(res)
 
