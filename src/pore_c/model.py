@@ -223,6 +223,7 @@ class PairDf(object):
     def is_valid(self):
         return True
 
+
 @pd.api.extensions.register_dataframe_accessor("salsadf")
 class SalsaDf(object):
     """An extension to handle dataframes containing salsa bed format data"""
@@ -233,7 +234,7 @@ class SalsaDf(object):
         "end": GENOMIC_COORD_DTYPE,
         "read_pair_id": str,
         "mapping_quality": np.uint8,
-        "strand": pd.CategoricalDtype(['+', '-'])
+        "strand": pd.CategoricalDtype(["+", "-"]),
     }
 
     def __init__(self, pandas_obj):
@@ -274,8 +275,6 @@ class HicTxtDf(object):
 
     def is_valid(self):
         return True
-
-
 
 
 @pd.api.extensions.register_dataframe_accessor("aligndf")

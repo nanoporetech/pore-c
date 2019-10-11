@@ -12,7 +12,7 @@ from tqdm import tqdm
 from pore_c.datasources import IndexedPairFile
 from pore_c.io import PairFileWriter
 from pore_c.model import (FRAG_IDX_DTYPE, AlignDf, Chrom, GenomeIntervalDf,
-                          PairDf, SalsaDf, HicTxtDf)
+                          HicTxtDf, PairDf, SalsaDf)
 from pore_c.utils import DataFrameProgress
 
 logger = getLogger(__name__)
@@ -138,16 +138,9 @@ def convert_pairs_to_matrix(pairs_datasource: IndexedPairFile, resolution: int, 
     # stream that holds the filtered/processed alignments
     df_stream = Stream()
     if parallel:
-        coo_stream = (
-            df_stream.scatter()
-            .buffer(n_workers)
-            .map(overlap_count, bin_df=bin_df)
-            .gather()
-        )
+        coo_stream = df_stream.scatter().buffer(n_workers).map(overlap_count, bin_df=bin_df).gather()
     else:
-        coo_stream = (
-            df_stream.map(overlap_count, bin_df=bin_df)
-        )
+        coo_stream = df_stream.map(overlap_count, bin_df=bin_df)
 
     write_sink = coo_stream.accumulate(matrix, returns_state=True, start=matrix).sink(lambda x: x)  # noqa: F841
 
@@ -279,8 +272,6 @@ def to_pairs(df: AlignDf) -> PairDf:
     return pd.DataFrame(res, columns=PairDf.DTYPE.keys()).astype(PairDf.DTYPE)
 
 
-
-
 def position_pair_to_tuple(pos1, pos2, read_id):
     switch_order = False  # reorder to make uppper triangle
     distance_on_read = pos2.read_start - pos1.read_end
@@ -311,6 +302,7 @@ def position_pair_to_tuple(pos1, pos2, read_id):
 
 def convert_align_df_to_salsa(align_df: AlignDf, salsa_bed: Path, n_workers: int = 1):
     from pore_c.io import SalsaBedFileWriter
+
     parallel = n_workers > 1
     if parallel:
         from time import sleep
@@ -370,8 +362,9 @@ def to_salsa(df: AlignDf) -> SalsaDf:
     res = []
 
     keep_segments = (
-        df.query("pass_filter == True").replace({"strand": {True: "+", False: "-"}})
-        .astype({"strand": SalsaDf.DTYPE['strand'], "chrom": str})
+        df.query("pass_filter == True")
+        .replace({"strand": {True: "+", False: "-"}})
+        .astype({"strand": SalsaDf.DTYPE["strand"], "chrom": str})
     )
     for x, (read_idx, read_df) in enumerate(keep_segments.groupby("read_idx", as_index=False)):
         if len(read_df) <= 1:
@@ -383,14 +376,13 @@ def to_salsa(df: AlignDf) -> SalsaDf:
                 raise ValueError
             for rec, paired_id in zip([pos1, pos2], [1, 2]):
                 paired_read_id = f"{rec.read_name}_{combi}/{paired_id}"
-                res.append(
-                    (rec.chrom, rec.start, rec.end , paired_read_id, rec.mapping_quality, rec.strand)
-                )
+                res.append((rec.chrom, rec.start, rec.end, paired_read_id, rec.mapping_quality, rec.strand))
     return pd.DataFrame(res, columns=SalsaDf.DTYPE.keys()).astype(SalsaDf.DTYPE)
 
 
 def convert_align_df_to_hic(align_df: AlignDf, hic_bed: Path, n_workers: int = 1, max_fragment_id: int = 0):
     from pore_c.io import HicTxtFileWriter
+
     parallel = n_workers > 1
     if parallel:
         from time import sleep
@@ -427,7 +419,7 @@ def convert_align_df_to_hic(align_df: AlignDf, hic_bed: Path, n_workers: int = 1
         _df = align_df.partitions[partition].loc[:, use_cols]
         df_stream.emit(_df.compute())
         batch_progress_bar.update(1)
-        #if partition > 2:
+        # if partition > 2:
         #    break
 
     if parallel:
@@ -452,8 +444,9 @@ def to_hic(df: AlignDf, max_fragment_id: int = 0) -> HicTxtDf:
     res = []
 
     keep_segments = (
-        df.query("pass_filter == True").replace({"strand": {True: "0", False: "16"}})
-        .astype({"strand": HicTxtDf.DTYPE['strand1'], "chrom": str})
+        df.query("pass_filter == True")
+        .replace({"strand": {True: "0", False: "16"}})
+        .astype({"strand": HicTxtDf.DTYPE["strand1"], "chrom": str})
     )
     for x, (read_idx, read_df) in enumerate(keep_segments.groupby("read_idx", as_index=False)):
 
@@ -474,18 +467,18 @@ def to_hic(df: AlignDf, max_fragment_id: int = 0) -> HicTxtDf:
             if pos1.fragment_id > pos2.fragment_id:
                 pos1, pos2 = pos2, pos1
             res.append(
-                (read_id,
-                 pos1.strand,
-                 pos1.chrom,
-                 pos1.fragment_end,
-                 pos1.fragment_id - 1,
-                 pos2.strand,
-                 pos2.chrom,
-                 pos2.fragment_end,
-                 pos2.fragment_id - 1,
-                 pos1.mapping_quality,
-                 pos2.mapping_quality,
-                 )
+                (
+                    read_id,
+                    pos1.strand,
+                    pos1.chrom,
+                    pos1.fragment_end,
+                    pos1.fragment_id - 1,
+                    pos2.strand,
+                    pos2.chrom,
+                    pos2.fragment_end,
+                    pos2.fragment_id - 1,
+                    pos1.mapping_quality,
+                    pos2.mapping_quality,
+                )
             )
     return pd.DataFrame(res, columns=HicTxtDf.DTYPE.keys()).astype(HicTxtDf.DTYPE)
-

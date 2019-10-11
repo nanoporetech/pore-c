@@ -159,6 +159,7 @@ def virtual_digest(reference_catalog, cut_on, output_prefix, n_workers):
     vd_cat = VirtualDigestCatalog.create(file_paths, metadata, {})
     logger.debug("Created Virtual Digest catalog: {}".format(vd_cat))
 
+
 @refgenome.command(short_help="Create a hicRef file for a virtual digest.")
 @click.argument("virtual_digest_catalog", type=click.Path(exists=True))
 @click.argument("hicref", type=click.Path(exists=False))
@@ -171,16 +172,11 @@ def to_hicref(virtual_digest_catalog, hicref):
     vd_cat = VirtualDigestCatalog(virtual_digest_catalog)
 
     frag_df = vd_cat.fragments.to_dask().compute()
-    with open(hicref, 'w') as fh:
-        for chrom, endpoints in (
-                frag_df
-                .groupby("chrom")['end']
-                .agg(lambda x: " ".join(map(str, x)))
-                .items()):
+    with open(hicref, "w") as fh:
+        for chrom, endpoints in frag_df.groupby("chrom")["end"].agg(lambda x: " ".join(map(str, x))).items():
             fh.write(f"{chrom} {endpoints}\n")
 
     logger.debug(f"Wrote hicRef file to {hicref}")
-
 
 
 @cli.group(cls=NaturalOrderGroup, short_help="Analyse raw reads")
@@ -278,7 +274,7 @@ def to_salsa_bed(align_catalog, salsa_bed, n_workers):
 @click.argument("align_catalog", type=click.Path(exists=True))
 @click.argument("hic_txt", type=click.Path(exists=False))
 @click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
-def to_hic_txt(align_catalog, hic_txt,  n_workers):
+def to_hic_txt(align_catalog, hic_txt, n_workers):
     """Covert the alignment table to hic text format.
 
     """
@@ -291,13 +287,12 @@ def to_hic_txt(align_catalog, hic_txt,  n_workers):
     # FIXFIX: some invalid fragment ids are appearing in the alignment table
     # we need to fix at source, but for now we need to filter these records
     # out of the hic.txt files
-    max_fragment_id = vd_cat.fragments.to_dask()['fragment_id'].max().compute()
+    max_fragment_id = vd_cat.fragments.to_dask()["fragment_id"].max().compute()
 
     logger.info(f"Converting alignments in {align_catalog} to hic text format {hic_txt}")
-    res = convert_align_df_to_hic(align_df, Path(hic_txt), n_workers=n_workers, max_fragment_id = max_fragment_id)
+    res = convert_align_df_to_hic(align_df, Path(hic_txt), n_workers=n_workers, max_fragment_id=max_fragment_id)
 
     logger.info(res)
-
 
 
 @cli.group(cls=NaturalOrderGroup, short_help="Create pairs files")

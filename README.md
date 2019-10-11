@@ -10,7 +10,7 @@ operations:
 - processing read-sorted BAM files to filter spurious alignments, detect ligation junctions and assign fragments
 - converting the resulting contacts to a [pairs format](https://github.com/4dn-dcic/pairix/blob/master/pairs_format_specification.md) and a COO-formatted matrix compatible with [Cooler](https://github.com/mirnylab/cooler) for downstream processing.
 
-There is an associated snakemake pipeline available at **TBD** that wraps the `pore-C` commands and also handles some of the analysis steps outside the scope of `pore-C tools` such as read alignment and conversion of output files to `.cool` format. This is the recommended way to run `pore-C tools`.
+There is an associated [Pore-C-Snakemake](https://github.com/nanoporetech/Pore-C-Snakemake) that wraps the `pore-C` commands and also handles some of the analysis steps outside the scope of `pore-C tools` such as read alignment and conversion of output files to `.cool` format. This is the recommended way to run `pore-C tools`.
 
 ## Getting Started
 
