@@ -13,7 +13,7 @@ operations:
 There is an associated [Pore-C-Snakemake](https://github.com/nanoporetech/Pore-C-Snakemake) that wraps the `pore-C` commands and also handles some of the analysis steps outside the scope of `pore-C tools` such as read alignment and conversion of output files to `.cool` format. This is the recommended way to run `pore-C tools`.
 
 ### Sample data
-There are some sample datasets (fastq, alignment parquets, .pairs, .cool files) available for HindIII-digested HG002 (31Gb) [here](https://ont-applications-aws-self-service-us-east-1.s3.amazonaws.com/0aface03-968e-42b8-a0c0-c81068f11206/porec_sync/20191103.preprint_HG002.tar.gz?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAJ7PQ6GQTKDJTLDRQ%2F20191108%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20191108T175453Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=b66e41ea9c704c1bebb079b46b43085be4a8a3552a4697a3db43e888b5da6efc) and for NlaIII-digested GM12878 (23Gb) [here](https://ont-applications-aws-self-service-us-east-1.s3.amazonaws.com/0aface03-968e-42b8-a0c0-c81068f11206/porec_sync/20191103.preprint_NA12878.tar.gz?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAJ7PQ6GQTKDJTLDRQ%2F20191108%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20191108T175802Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=281f4c581855960f998da3fbe4e3ba670b509fc24f792a64f2cc079def5c1ea1).
+There are some sample datasets (fastq, alignment parquets, .pairs, .cool files) available for HindIII-digested HG002 (31Gb) [here](https://ont-datasets-us-east-1-public.s3.amazonaws.com/20191103.preprint_HG002.tar.gz) and for NlaIII-digested GM12878 (23Gb) [here](https://ont-datasets-us-east-1-public.s3.amazonaws.com/20191103.preprint_NA12878.tar.gz).
 
 ## Getting Started
 
