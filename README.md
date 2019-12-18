@@ -31,3 +31,9 @@ pore_c --help
 ```
 pytest tests
 ```
+
+### Citation
+
+The biorxiv pre-print describing Pore-C can be found here: 
+
+[Nanopore sequencing of DNA concatemers reveals higher-order features of chromatin structure](https://www.biorxiv.org/content/10.1101/833590v1)
