@@ -10,6 +10,8 @@ Welcome to Pore-C Tools's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   cli
+   api/modules
 
 
 Indices and tables
