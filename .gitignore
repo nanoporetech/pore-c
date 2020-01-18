@@ -64,3 +64,4 @@ docs/_build
 *.bak
 
 dask-worker-space
+scratch

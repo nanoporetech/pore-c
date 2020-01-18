@@ -11,6 +11,7 @@ from pore_c.datasources import IndexedFasta
 from pore_c.model import FragmentDf
 from pore_c.utils import kmg_bases_to_int
 
+
 # complement translation table with support for regex punctuation
 COMPLEMENT_TRANS = str.maketrans("ACGTWSMKRYBDHVNacgtwsmkrybdhvn-)(][", "TGCAWSKMYRVHDBNtgcawskmyrvhdbn-()[]")
 

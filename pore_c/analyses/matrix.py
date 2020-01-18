@@ -4,6 +4,7 @@ from pathlib import Path
 import pandas as pd
 from cooler import Cooler, annotate
 
+
 logger = getLogger(__name__)
 
 

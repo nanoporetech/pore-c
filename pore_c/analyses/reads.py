@@ -10,6 +10,7 @@ from pore_c.datasources import Fastq
 from pore_c.io import FastqWriter
 from pore_c.utils import DataFrameProgress
 
+
 logger = getLogger(__name__)
 
 

@@ -11,9 +11,17 @@ from tqdm import tqdm
 
 from pore_c.datasources import IndexedPairFile
 from pore_c.io import PairFileWriter
-from pore_c.model import (FRAG_IDX_DTYPE, AlignDf, Chrom, GenomeIntervalDf,
-                          HicTxtDf, PairDf, SalsaDf)
+from pore_c.model import (
+    FRAG_IDX_DTYPE,
+    AlignDf,
+    Chrom,
+    GenomeIntervalDf,
+    HicTxtDf,
+    PairDf,
+    SalsaDf,
+)
 from pore_c.utils import DataFrameProgress
+
 
 logger = getLogger(__name__)
 

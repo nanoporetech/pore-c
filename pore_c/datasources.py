@@ -4,8 +4,14 @@ import dask
 import numpy as np
 import pandas as pd
 from intake.source.base import DataSource, Schema
-from pysam import (AlignedSegment, AlignmentFile, FastaFile, FastxFile,
-                   TabixFile, asTuple)
+from pysam import (
+    AlignedSegment,
+    AlignmentFile,
+    FastaFile,
+    FastxFile,
+    TabixFile,
+    asTuple,
+)
 
 from pore_c.model import BamEntryDf, GenomeIntervalDf, PairDf
 

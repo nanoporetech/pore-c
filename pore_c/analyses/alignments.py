@@ -14,6 +14,7 @@ from pore_c.io import TableWriter
 from pore_c.model import BamEntryDf, FragmentDf, PoreCAlignDf, PoreCReadDf
 from pore_c.utils import DataFrameProgress
 
+
 logger = logging.getLogger(__name__)
 
 FILTER_REASON_DTYPE = PoreCAlignDf.DTYPE["reason"]

@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from ncls import NCLS
 
+
 Chrom = NewType("Chrom", str)
 
 

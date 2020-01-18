@@ -4,6 +4,7 @@ from logging import getLogger
 import pyarrow as pa
 from pyarrow import parquet as pq
 
+
 logger = getLogger(__name__)
 
 

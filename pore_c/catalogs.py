@@ -6,6 +6,7 @@ import yaml
 from intake.catalog.local import YAMLFileCatalog
 from intake.source.base import DataSource
 
+
 __all__ = [
     "RawReadCatalog",
     "PairsFileCatalog",
