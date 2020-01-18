@@ -1,0 +1,103 @@
+[tool.poetry]
+name = "pore_c"
+version = "0.2.0"
+description = "Tools to process data from an ONT poreC run"
+license = "MPL 2.0"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+    "Operating System :: Unix",
+    "Operating System :: POSIX",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Utilities"
+    ]
+authors = ["Matthew Pendleton <Matthew.Pendleton@nanoporetech.com>"]
+
+[tool.poetry.dependencies]
+python = "==3.7.*,>=3.7.0"
+biopython = "*"
+click = "==7.0.*,>=7.0.0"
+cooler = "==0.8.*,>=0.8.5"
+dask = "^2.0"
+intake = "*"
+intake-parquet = "*"
+ncls = "*"
+numpy = ">=1.16.1"
+pairtools = "*"
+pandas = "==0.25.*,>=0.25.0"
+pyarrow = "*"
+pysam = "*"
+tqdm = "*"
+distributed = "^2.9.3"
+pydantic = "^1.3"
+streamz = "^0.5.2"
+cython = ">=0.29"
+networkx = "^2.4"
+pyranges = "==0.0.71"
+vulture = "^1.4"
+dephell = "^0.8.2"
+
+[tool.poetry.dev-dependencies]
+flake8 = "==3.*,>=3.7.0"
+flake8-docstrings = "==1.*,>=1.3.0"
+pydocstyle = "<4.0"
+black = {version = "==19.*,>=19.3.0", allows-prereleases = true}
+isort = {version = "==4.*,>=4.3.0", extras = ["pyproject"]}
+seed-isort-config = "==1.*,>=1.9.0"
+tox = "==3.*,>=3.13.0"
+pre-commit = "==1.*,>=1.17.0"
+sphinx = "==2.*,>=2.1.0"
+sphinx_rtd_theme = "==0.*,>=0.4.3"
+toml = "==0.*,>=0.10.0"
+darglint = "==1.*,>=1.1.0"
+sphinx-autoapi = "==1.*,>=1.2.1"
+sphinxcontrib-apidoc = "==0.*,>=0.3.0"
+sphinx-click = "==2.*,>=2.3.1"
+sphinx-autodoc-typehints = "==1.*,>=1.10.3"
+pytest = "*"
+sphinx-jsonschema = "==1.*,>=1.13.0"
+pytype = "==2020.*,>=2020.4.1"
+
+[tool.poetry.extras]
+tests = ["pytest"]
+doc = ["sphinx"]
+
+[tool.poetry.scripts]
+pore_c = "pore_c.cli:cli"
+
+
+[tool.dephell.main]
+from = {format = "poetry", path = "pyproject.toml"}
+versioning = "pep"
+
+[tool.isort]
+line-length = 120
+known_third_party = ["click", "cooler", "dask", "intake", "networkx", "numpy", "pandas", "pyarrow", "pydantic", "pyranges", "pysam", "pytest", "streamz", "tqdm", "yaml"]
+multi_line_output= 3
+force_grid_wrap= 0
+use_parentheses= true
+lines_after_imports = 2
+combine_as_imports = true
+include_trailing_comma = true
+
+[tool.flake8]
+ignore = [ "E203"]
+max-line-length = 120
+
+[tool.black]
+line-length = 120
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | build
+  | dist
+)/
+'''

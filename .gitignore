@@ -21,6 +21,7 @@ lib
 lib64
 venv*/
 pyvenv*/
+.pytype
 
 # Installer logs
 pip-log.txt
@@ -49,7 +50,8 @@ output/*.html
 output/*/index.html
 
 # Sphinx
-docs/_build
+doc/build
+doc/source/api
 
 .DS_Store
 *~
@@ -64,3 +66,5 @@ docs/_build
 *.bak
 
 dask-worker-space
+scratch
+*.profraw
