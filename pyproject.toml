@@ -21,7 +21,7 @@ python = "==3.7.*,>=3.7.0"
 biopython = "*"
 click = "==7.0.*,>=7.0.0"
 cooler = "==0.8.*,>=0.8.5"
-dask = "==2.0.*,>=2.0.0"
+dask = "^2.0"
 intake = "*"
 intake-parquet = "*"
 ncls = "*"
@@ -33,6 +33,8 @@ pysam = "*"
 pytest = {optional = true, version = "*"}
 sphinx = {version = "^2.1", optional = true}
 tqdm = "*"
+distributed = "^2.9.3"
+pydantic = "^1.3"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7"
@@ -64,7 +66,7 @@ versioning = "semver"
 
 [tool.isort]
 line-length = 120
-known_third_party = ["click", "cooler", "dask", "intake", "ncls", "networkx", "numpy", "pandas", "pyarrow", "pysam", "pytest", "streamz", "tqdm", "yaml"]
+known_third_party = ["click", "cooler", "dask", "intake", "ncls", "networkx", "numpy", "pandas", "pyarrow", "pydantic", "pysam", "pytest", "streamz", "tqdm", "yaml"]
 multi_line_output = 3
 lines_after_imports = 2
 force_grid_wrap = 0

@@ -1,28 +1,238 @@
-from typing import Dict, NewType
+from enum import Enum
+from typing import Dict, List, NewType, Tuple
 
 import numpy as np
 import pandas as pd
+import pysam
 from ncls import NCLS
+from pydantic import BaseModel, confloat, conint, constr
+from pysam import AlignedSegment
 
+from .config import (
+    ALIGN_IDX_DTYPE,
+    ALIGN_SCORE_DTYPE,
+    FRAG_IDX_DTYPE,
+    GENOMIC_COORD_DTYPE,
+    HAPLOTYPE_IDX_DTYPE,
+    MQ_DTYPE,
+    PERCENTAGE_DTYPE,
+    PHASE_SET_DTYPE,
+    READ_COORD_DTYPE,
+    READ_IDX_DTYPE,
+    STRAND_DTYPE,
+)
+
+
+class AlignmentType(str, Enum):
+    unmapped = "unmapped"
+    primary = "primary"
+    secondary = "secondary"
+    supplementary = "supplementary"
+
+
+class AlignmentRecord(BaseModel):
+    """A subset of the fields in the BAM file"""
+
+    read_idx: conint(ge=0, strict=True)
+    align_idx: conint(ge=0, strict=True)
+    align_type: AlignmentType
+    chrom: constr(min_length=1, strip_whitespace=True)
+    start: conint(ge=0)
+    end: conint(ge=0)
+    strand: STRAND_DTYPE
+    read_name: constr(min_length=1, strip_whitespace=True)
+    read_length: conint(ge=1)
+    read_start: conint(ge=0)
+    read_end: conint(ge=0)
+    mapping_quality: conint(ge=0, le=255)
+    align_score: conint(ge=0)
+    phase_set: int = 0
+    haplotype: conint(ge=-1) = -1
+
+    class Config:
+        use_enum_values = True
+        fields = dict(
+            read_idx=dict(description="Unique integer ID of the read", dtype=READ_IDX_DTYPE,),
+            align_idx=dict(description="Unique integer ID of the aligned segment", dtype=ALIGN_IDX_DTYPE,),
+            align_type=dict(description="The type of alignment", dtype="category"),
+            chrom=dict(description="The chromosome/contig the read is aligned to", dtype="category"),
+            start=dict(
+                description="The zero-based start position on the genome of the alignment", dtype=GENOMIC_COORD_DTYPE,
+            ),
+            end=dict(description="The end position on the genome of the alignment", dtype=GENOMIC_COORD_DTYPE,),
+            strand=dict(description="The alignment strand", dtype="bool",),
+            read_name=dict(description="The original read name", dtype="str",),
+            read_length=dict(description="The length of the read in bases", dtype=READ_COORD_DTYPE),
+            read_start=dict(description="The start coordinate on the read (0-based)", dtype=READ_COORD_DTYPE),
+            read_end=dict(description="The end coordinate on the read (0-based)", dtype=READ_COORD_DTYPE),
+            mapping_quality=dict(description="The mapping quality as calculated by the aligner", dtype=MQ_DTYPE),
+            align_score=dict(description="The alignment score as calculated by the aligner", dtype=ALIGN_SCORE_DTYPE),
+            phase_set=dict(
+                description="The ID of the phase set, often this is the start position of the phase block",
+                dtype=PHASE_SET_DTYPE,
+            ),
+            haplotype=dict(
+                description=(
+                    "The id of the haplotype within this block, usually set to 1 or 2. "
+                    "A value of -1 means that this alignment is unphased"
+                ),
+                dtype=HAPLOTYPE_IDX_DTYPE,
+            ),
+        )
+
+    @classmethod
+    def pandas_dtype(cls, overrides=None):
+        res = {}
+        if overrides is None:
+            overrides = {}
+        overrides = overrides if overrides is not None else {}
+        for column, col_schema in cls.schema()["properties"].items():
+            if column in overrides:
+                res[column] = overrides[column]
+            else:
+                dtype = col_schema.get("dtype")
+                if dtype == "category" and "enum" in col_schema:
+                    dtype = pd.CategoricalDtype(col_schema["enum"], ordered=True)
+                res[column] = dtype
+        return res
+
+    def to_tuple(self):
+        return tuple([_[1] for _ in self])
+
+    @classmethod
+    def to_dataframe(cls, aligns: List["AlignmentRecord"], chrom_order: List[str] = None) -> "AlignmentRecordDf":
+        columns = [a[0] for a in aligns[0]]
+        if chrom_order:
+            overrides = {"chrom": pd.CategoricalDtype(chrom_order, ordered=True)}
+        else:
+            overrides = {}
+        dtype = cls.pandas_dtype(overrides=overrides)
+        df = pd.DataFrame([a.to_tuple() for a in aligns], columns=columns).astype(dtype)
+        return df
+
+    @classmethod
+    def from_aligned_segment(cls, align: pysam.AlignedSegment, phased: bool = False) -> "AlignmentRecord":
+        """Extract information from a pysam Aligned segment"""
+        read_name, read_idx, align_idx = align.query_name.split(":")
+        read_idx, align_idx = int(read_idx), int(align_idx)
+
+        if align.is_unmapped:
+            align_cat = "unmapped"
+            chrom, start, end, align_score = "NULL", 0, 0, 0
+            read_length = align.query_length
+        else:
+            chrom, start, end = (align.reference_name, align.reference_start, align.reference_end)
+            read_length = align.infer_read_length()
+            align_score = align.get_tag("AS")
+            if align.is_secondary:
+                align_cat = "secondary"
+            elif align.is_supplementary:
+                align_cat = "supplementary"
+            else:
+                align_cat = "primary"
+        optional = {}
+        if phased:
+            try:
+                optional["haplotype"] = int(align.get_tag("HP"))
+                optional["phase_set"] = int(align.get_tag("PS"))
+            except Exception:
+                pass
+
+        return cls(
+            read_idx=read_idx,
+            align_idx=align_idx,
+            align_type=align_cat,
+            chrom=chrom,
+            start=start,
+            end=end,
+            strand=not align.is_reverse,
+            read_name=read_name,
+            read_length=read_length,
+            read_start=align.query_alignment_start,
+            read_end=align.query_alignment_end,
+            mapping_quality=align.mapq,
+            align_score=align_score,
+            **optional
+        )
+
+
+class AlignmentFilterReason(str, Enum):
+    null = "null"
+    Pass = "pass"
+    unmapped = "unmapped"
+    singleton = "singleton"
+    low_mq = "low_mq"
+    overlap_on_read = "overlap_on_read"
+    not_on_shortest_path = "not_on_shortest_path"
+
+
+class PoreCRecord(AlignmentRecord):
+    pass_filter: bool = False
+    filter_reason: AlignmentFilterReason = AlignmentFilterReason.null
+    fragment_id: conint(ge=0) = 0
+    contained_fragments: conint(ge=0) = 0
+    fragment_start: conint(ge=0) = 0
+    fragment_end: conint(ge=0) = 0
+    perc_of_alignment: confloat(ge=0, le=100) = 0.0
+    perc_of_fragment: confloat(ge=0, le=100) = 0.0
+
+    class Config:
+        use_enum_values = True
+        fields = dict(
+            pass_filter=dict(description="Boolean flag, true if alignment passes all filters", dtype="bool"),
+            filter_reason=dict(
+                description="If an alignment fails the filter the reason will be listed here", dtype="category"
+            ),
+            fragment_id=dict(
+                description="The UID of the restriction fragment assigned to this alignment", dtype=FRAG_IDX_DTYPE
+            ),
+            contained_fragments=dict(
+                description="The number of restriction fragments completely contained within this alignment",
+                dtype="uint32",
+            ),
+            fragment_start=dict(
+                description="The start point on the genome of this restriction fragment", dtype=GENOMIC_COORD_DTYPE
+            ),
+            fragment_end=dict(
+                description="The end point on the genome of this restriction fragment", dtype=GENOMIC_COORD_DTYPE
+            ),
+            perc_of_alignment=dict(
+                description="The percentage of the aligned segment that overlaps the assigned fragment",
+                dtype=PERCENTAGE_DTYPE,
+            ),
+            perc_of_fragment=dict(
+                description="The percentage of the assigned restriction fragment that overlaps the aligned segment",
+                dtype=PERCENTAGE_DTYPE,
+            ),
+        )
+
+    @classmethod
+    def init_dataframe(cls, align_df: "AlignmentRecordDf") -> "PoreCRecordDf":
+
+        res = align_df.copy()
+        schema = cls.schema()["properties"]
+        dtype = cls.pandas_dtype()
+        additional_fields = set(dtype.keys()) - (set(align_df.index.names) | set(align_df.columns))
+        num_rows = len(res)
+        for column in [c for c in schema if c in additional_fields]:
+            default_value = schema[column]["default"]
+            res[column] = pd.Series([default_value] * num_rows, index=res.index).astype(dtype[column])
+        return res
+
+
+AlignmentRecordDf = NewType("AlignmentRecordDf", pd.DataFrame)
+PoreCRecordDf = NewType("PoreCRecordDf", pd.DataFrame)
 
 Chrom = NewType("Chrom", str)
 
 
-# int8 	Byte (-128 to 127)
-# int16 	Integer (-32768 to 32767)
-# int32 	Integer (-2147483648 to 2147483647)
-# int64 	Integer (-9223372036854775808 to 9223372036854775807)
-# uint8 	Unsigned integer (0 to 255)
-# uint16 	Unsigned integer (0 to 65535)
-# uint32 	Unsigned integer (0 to 4294967295)
-# uint64 	Unsigned integer (0 to 18446744073709551615)
 GENOMIC_COORD_DTYPE = np.uint32  # should be fine as long as individual chromosomes are less than 4Gb
 READ_COORD_DTYPE = np.uint32
-STRAND_DTYPE = pd.CategoricalDtype(["+", "-"], ordered=True)
 FRAG_IDX_DTYPE = np.uint32
 READ_IDX_DTYPE = np.uint32
 ALIGN_IDX_DTYPE = np.uint32
 PERCENTAGE_DTYPE = np.float32
+HAPLOTYPE_IDX_DTYPE = np.int8
 
 
 class basePorecDf(object):
@@ -92,6 +302,7 @@ class basePorecDf(object):
 class BamEntryDf(basePorecDf):
     """An extension to handle a dataframe derived from a BAM file"""
 
+    _ACCESSOR = "bamdf"
     DTYPE = {
         "read_idx": READ_IDX_DTYPE,
         "align_idx": ALIGN_IDX_DTYPE,
@@ -107,6 +318,59 @@ class BamEntryDf(basePorecDf):
         "mapping_quality": np.uint8,
         "score": np.uint32,
     }
+
+    @staticmethod
+    def align_to_tuple(align: AlignedSegment) -> Tuple:
+        read_name, read_idx, align_idx = align.query_name.split(":")
+        read_idx, align_idx = int(read_idx), int(align_idx)
+        if align.is_unmapped:
+            align_cat = "unmapped"
+            chrom, start, end, align_score = "NULL", 0, 0, 0
+            read_length = align.query_length
+        else:
+            chrom, start, end = (align.reference_name, align.reference_start, align.reference_end)
+            read_length = align.infer_read_length()
+            align_score = align.get_tag("AS")
+            if align.is_secondary:
+                align_cat = "secondary"
+            elif align.is_supplementary:
+                align_cat = "supplementary"
+            else:
+                align_cat = "primary"
+        return (
+            read_idx,
+            align_idx,
+            align_cat,
+            chrom,
+            start,
+            end,
+            not align.is_reverse,
+            read_name,
+            read_length,
+            align.query_alignment_start,
+            align.query_alignment_end,
+            align.mapq,
+            align_score,
+        )
+
+
+@pd.api.extensions.register_dataframe_accessor("phased_bamdf")
+class PhasedBamEntryDf(basePorecDf):
+    """An extension to handle a dataframe derived from a BAM file"""
+
+    DTYPE = {**BamEntryDf.DTYPE, **{"phase_block": GENOMIC_COORD_DTYPE, "haplotype": HAPLOTYPE_IDX_DTYPE}}
+
+    @staticmethod
+    def align_to_tuple(read_idx: int, align_idx: int, align: AlignedSegment) -> Tuple:
+        t = BamEntryDf.align_to_tuple(read_idx, align_idx, align)
+        try:
+            haplotype = align.get_tag("HP")
+            phase_block = align.get_tag("PS")
+        except KeyError:
+            haplotype = -1
+            phase_block = 0
+        res = (*t, *(phase_block, haplotype))
+        return res
 
 
 @pd.api.extensions.register_dataframe_accessor("porec_align")
@@ -147,6 +411,14 @@ class PoreCAlignDf(basePorecDf):
         "perc_of_alignment": -1.0,
         "perc_of_fragment": -1.0,
     }
+
+
+@pd.api.extensions.register_dataframe_accessor("phased_porec_align")
+class PhasedPoreCAlignDf(basePorecDf):
+    """An extension to handle poreC-annotated alignments"""
+
+    DTYPE = {**PoreCAlignDf.DTYPE, **{"phase_block": GENOMIC_COORD_DTYPE, "haplotype": HAPLOTYPE_IDX_DTYPE}}
+    NANS = {**PoreCAlignDf.NANS, **{"phase_block": -1, "haplotype": 0}}
 
 
 @pd.api.extensions.register_dataframe_accessor("porec_read")
@@ -212,6 +484,86 @@ class PairDf(object):
         "align_idx1": np.uint32,
         "align_idx2": np.uint32,
         "distance_on_read": np.int32,
+    }
+
+    def __init__(self, pandas_obj):
+        self._validate(pandas_obj)
+        self._obj = pandas_obj
+
+    def _validate(self, obj):
+        assert obj.dtype == PairDf.DTYPE
+
+    def is_valid(self):
+        # FIXFIX
+        return True
+
+
+@pd.api.extensions.register_dataframe_accessor("contactdf")
+class ContactDf(object):
+    """An extension to handle dataframes containing pairfile data"""
+
+    DTYPE = {
+        "read_name": str,
+        "read_idx": READ_IDX_DTYPE,
+        "read_length": READ_COORD_DTYPE,
+        "read_order": np.uint16,
+        "contact_is_direct": bool,
+        "contact_is_cis": bool,
+        "contact_genome_distance": GENOMIC_COORD_DTYPE,
+        "contact_fragment_distance": GENOMIC_COORD_DTYPE,
+        # align1
+        "align1_align_idx": np.uint32,
+        "align1_chrom": str,
+        "align1_start": GENOMIC_COORD_DTYPE,
+        "align1_end": GENOMIC_COORD_DTYPE,
+        "align1_strand": bool,
+        "align1_read_start": READ_COORD_DTYPE,
+        "align1_read_end": READ_COORD_DTYPE,
+        "align1_mapping_quality": np.uint8,
+        "align1_score": np.uint32,
+        "align1_fragment_id": FRAG_IDX_DTYPE,
+        "align1_fragment_start": GENOMIC_COORD_DTYPE,
+        "align1_fragment_end": GENOMIC_COORD_DTYPE,
+        "align1_fragment_midpoint": GENOMIC_COORD_DTYPE,
+        # align2
+        "align2_align_idx": np.uint32,
+        "align2_chrom": str,
+        "align2_start": GENOMIC_COORD_DTYPE,
+        "align2_end": GENOMIC_COORD_DTYPE,
+        "align2_strand": bool,
+        "align2_read_start": READ_COORD_DTYPE,
+        "align2_read_end": READ_COORD_DTYPE,
+        "align2_mapping_quality": np.uint8,
+        "align2_score": np.uint32,
+        "align2_fragment_id": FRAG_IDX_DTYPE,
+        "align2_fragment_start": GENOMIC_COORD_DTYPE,
+        "align2_fragment_end": GENOMIC_COORD_DTYPE,
+        "align2_fragment_midpoint": GENOMIC_COORD_DTYPE,
+    }
+
+    def __init__(self, pandas_obj):
+        self._validate(pandas_obj)
+        self._obj = pandas_obj
+
+    def _validate(self, obj):
+        assert obj.dtype == PairDf.DTYPE
+
+    def is_valid(self):
+        return True
+
+
+@pd.api.extensions.register_dataframe_accessor("phased_contactdf")
+class PhasedContactDf(object):
+    """An extension to handle dataframes containing pairfile data"""
+
+    DTYPE = {
+        **ContactDf.DTYPE,
+        **{
+            "align1_phase_block": GENOMIC_COORD_DTYPE,
+            "align1_haplotype": HAPLOTYPE_IDX_DTYPE,
+            "align2_phase_block": GENOMIC_COORD_DTYPE,
+            "align2_haplotype": HAPLOTYPE_IDX_DTYPE,
+        },
     }
 
     def __init__(self, pandas_obj):

@@ -218,38 +218,229 @@ def alignments():
     pass
 
 
+@alignments.command(short_help="Reformat a BAM file to have a unique read name per alignment")
+@click.argument("input_sam", type=click.File("r"))
+@click.argument("output_sam", type=click.File("w"))
+def reformat_bam(input_sam, output_sam):
+    """Reformat INPUT_SAM to add a read_index and alignment_index to the query_name
+
+    """
+    import pysam
+
+    infile = pysam.AlignmentFile(input_sam)
+    outfile = pysam.AlignmentFile(output_sam, template=infile)
+    read_indices = {}
+    for align_idx, align in enumerate(infile.fetch(until_eof=True)):
+        read_id = align.query_name
+        read_idx = read_indices.get(read_id, None)
+        if read_idx is None:
+            read_idx = len(read_indices)
+            read_indices[read_id] = read_idx
+        align.set_tag(tag="BX", value=align.query_name, value_type="Z")
+        align.query_name = f"{read_id}:{read_idx}:{align_idx}"
+        outfile.write(align)
+    outfile.close()
+
+
 @alignments.command(short_help="Parse a namesortd bam to pore-C alignment format")
 @click.argument("input_bam", type=click.Path(exists=True))
-@click.argument("virtual_digest_catalog", type=click.Path(exists=True))
-@click.argument("output_prefix")
+@click.argument("output_table", type=click.Path(exists=False))
 @click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
 @click.option("--chunksize", help="Number of reads per processing chunk", default=50000)
-def parse(input_bam, virtual_digest_catalog, output_prefix, n_workers, chunksize):
+@click.option("--phased", is_flag=True, default=False, help="Set if using a haplotagged BAM file")
+def create_table(input_bam, output_table, n_workers, chunksize, phased):
+    """Extract info required for fragment assignment from the BAM file
+
+    """
+    from pore_c import model
+    from pore_c.io import TableWriter
+    from pore_c.utils import DaskExecEnv
+
+    import dask.dataframe as dd
+    import os
+    from toolz import partition_all
+    from pysam import AlignmentFile
+
+    tmp_table = output_table + ".tmp"
+    chunk_writer = TableWriter(tmp_table)
+    af = AlignmentFile(input_bam)
+    chrom_order = list(af.references)
+    assert "NULL" not in chrom_order
+    chrom_order.append("NULL")
+    logger.debug(f"Chromosome order {chrom_order}")
+
+    for chunk_idx, aligns in enumerate(partition_all(chunksize, af)):
+        align_df = model.AlignmentRecord.to_dataframe(
+            [model.AlignmentRecord.from_aligned_segment(a) for a in aligns], chrom_order=chrom_order
+        )
+        chunk_writer(align_df)
+
+    chunk_writer.close()
+
+    logger.debug(f"Wrote {chunk_writer.row_counter} rows in {chunk_writer.counter} batch to {tmp_table}")
+    with DaskExecEnv(n_workers=n_workers, empty_queue=True):
+        logger.debug("Re-sorting alignment table by read_idx")
+        (
+            dd.read_parquet(tmp_table, engine="pyarrow")
+            .set_index("read_idx")
+            .to_parquet(output_table, engine="pyarrow", version="2.0")
+        )
+    logger.info(f"Wrote {chunk_writer.row_counter} alignments to {output_table}")
+    os.unlink(tmp_table)
+
+
+@alignments.command(short_help="Parse a namesortd bam to pore-C alignment format")
+@click.argument("align_table", type=click.Path(exists=True))
+@click.argument("virtual_digest_catalog", type=click.Path(exists=True))
+@click.argument("porec_table")
+@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
+@click.option(
+    "--mapping_quality_cutoff", type=int, default=1, help="Minimum mapping quality for an alignment to be considered"
+)
+@click.option(
+    "--min_overlap_length",
+    type=int,
+    default=10,
+    help="Minimum overlap in base pairs between an alignment and restriction fragment",
+)
+@click.option(
+    "--containment_cutoff",
+    type=float,
+    default=99.0,
+    help=(
+        "Minimum percentage of a fragment included in an overlap for that "
+        "fragment to be considered 'contained' within an alignment"
+    ),
+)
+def assign_fragments(
+    align_table,
+    virtual_digest_catalog,
+    porec_table,
+    n_workers,
+    mapping_quality_cutoff,
+    min_overlap_length,
+    containment_cutoff,
+):
     """Filter the read-sorted alignments in INPUT_BAM and save the results under OUTPUT_PREFIX
 
     """
-    from pore_c.analyses.alignments import parse_alignment_bam
+    from pore_c.analyses.alignments import assign_fragments
+    from pore_c.model import PoreCRecord
+    from pore_c.utils import DaskExecEnv
+    import dask.dataframe as dd
 
-    file_paths = catalogs.AlignmentDfCatalog.generate_paths(output_prefix)
+    align_table = dd.read_parquet(align_table, engine="pyarrow")
+
+    chrom_dtype = align_table.chrom.head(1).dtype
 
     vd_cat = open_catalog(str(virtual_digest_catalog))
-    fragment_df = vd_cat.fragments.read()
-    final_stats = parse_alignment_bam(
-        input_bam,
-        fragment_df,
-        alignment_table=file_paths["alignment"],
-        read_table=file_paths["read"],
-        overlap_table=file_paths["overlap"],
-        alignment_summary=file_paths["alignment_summary"],
-        read_summary=file_paths["read_summary"],
-        n_workers=n_workers,
-        chunksize=chunksize,
+    fragment_df = vd_cat.fragments.read().astype({"chrom": chrom_dtype}).sort_values(["fragment_id"])
+
+    with DaskExecEnv(n_workers=n_workers) as env:
+        fragment_df = env.scatter(fragment_df)
+        porec_df = align_table.repartition(npartitions=1).map_partitions(
+            assign_fragments,
+            fragment_df,
+            mapping_quality_cutoff=mapping_quality_cutoff,
+            min_overlap_length=min_overlap_length,
+            containment_cutoff=containment_cutoff,
+            meta=PoreCRecord.pandas_dtype(overrides={"chrom": chrom_dtype}),
+        )
+
+        print(porec_df.compute().dtypes)
+
+    raise ValueError
+
+
+#    final_stats = parse_alignment_bam(
+#        source_aligns,
+#        fragment_df,
+#        alignment_table=file_paths["alignment"],
+#        read_table=file_paths["read"],
+#        overlap_table=file_paths["overlap"],
+#        alignment_summary=file_paths["alignment_summary"],
+#        read_summary=file_paths["read_summary"],
+#        n_workers=n_workers,
+#        chunksize=chunksize,
+#        phased=phased,
+#        mapping_quality_cutoff=mapping_quality_cutoff,
+#        min_overlap_length=min_overlap_length,
+#        containment_cutoff=containment_cutoff,
+#    )
+#    metadata = {"final_stats": final_stats}
+#    file_paths["virtual_digest"] = Path(virtual_digest_catalog)
+#    file_paths["input_bam"] = Path(input_bam)
+#    adf_cat = catalogs.AlignmentDfCatalog.create(file_paths, metadata, {})
+#    logger.info(str(adf_cat))
+
+
+@alignments.command(short_help="Parses the alignment table and converts to pairwise contacts")
+@click.argument("align_table", type=click.Path(exists=True))
+@click.argument("output_table")
+@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
+def clean_haplotypes(align_table, output_table, n_workers):
+    """Clean up haplotype assignments for each read
+
+    """
+    from dask import dataframe as ddf
+    from pore_c.analyses.alignments import clean_haplotypes
+
+    align_df = ddf.read_parquet(align_table, engine="pyarrow")
+
+    res = clean_haplotypes(align_df, output_table, n_workers=n_workers)
+    raise ValueError(res)
+
+
+@alignments.command(short_help="Parses the alignment table and converts to pairwise contacts")
+@click.argument("align_catalog", type=click.Path(exists=True))
+@click.argument("output_prefix")
+@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
+def to_contacts(align_catalog, output_prefix, n_workers):
+    """Covert the alignment table to virtual pairwise contacts
+
+    """
+    from pore_c.analyses.alignments import convert_align_df_to_contact_df
+
+    file_paths = catalogs.ContactCatalog.generate_paths(output_prefix)
+
+    adf_cat = open_catalog(str(align_catalog))
+    align_df = adf_cat.alignment.to_dask()
+
+    logger.info(f"Converting alignments in {align_catalog} to contact format")
+    convert_align_df_to_contact_df(align_df, contacts=file_paths["contacts"], n_workers=n_workers)
+    metadata = {}
+    contact_catalog = catalogs.ContactCatalog.create(file_paths, metadata, {})
+    logger.info(str(contact_catalog))
+
+
+@cli.group(cls=NaturalOrderGroup, short_help="Work the the contacts table")
+def contacts():
+    pass
+
+
+@contacts.command(short_help="Convert pairwise contacts to a COO text file")
+@click.argument("contact_catalog", type=click.Path(exists=True))
+@click.argument("virtual_digest_catalog", type=click.Path(exists=True))
+@click.argument("output_prefix")
+@click.option("--phased", is_flag=True, default=False, help="Create set of phased coo files.")
+@click.option("-r", "--resolution", help="The bin width of the resulting matrix", default=1000)
+@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
+def to_coo(contact_catalog, virtual_digest_catalog, output_prefix, phased, resolution, n_workers):
+    from pore_c.analyses.contacts import contact_df_to_coo
+
+    vd_cat = catalogs.VirtualDigestCatalog(virtual_digest_catalog)
+    rg_cat = vd_cat.refgenome_catalog
+    chrom_lengths = rg_cat.metadata["chrom_lengths"]
+
+    contact_catalog = open_catalog(str(contact_catalog))
+
+    contact_table_path = contact_catalog.contacts._urlpath
+    fragment_df = vd_cat.fragments.to_dask().compute()
+    res = contact_df_to_coo(
+        contact_table_path, chrom_lengths, fragment_df, resolution, phased=phased, n_workers=n_workers
     )
-    metadata = {"final_stats": final_stats}
-    file_paths["virtual_digest"] = Path(virtual_digest_catalog)
-    file_paths["input_bam"] = Path(input_bam)
-    adf_cat = catalogs.AlignmentDfCatalog.create(file_paths, metadata, {})
-    logger.info(str(adf_cat))
+    raise ValueError(res)
+    pass
 
 
 @alignments.command(short_help="Parses the alignment table and converts to paired-end like reads bed files for Salsa")

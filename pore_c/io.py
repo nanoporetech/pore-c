@@ -124,25 +124,28 @@ class FastqWriter(object):
 
 
 class TableWriter(object):
-    def __init__(self, path):
+    def __init__(self, path, version="2.0"):
         self.path = path
-        self._writer = None
-        self._schema = None
-        self._counter = 0
+        self.writer = None
+        self.schema = None
+        self.counter = 0
+        self.row_counter = 0
+        self.version = version
 
     def write(self, df):
-        table = pa.Table.from_pandas(df, preserve_index=False, schema=self._schema)
-        if self._writer is None:
-            self._writer = pq.ParquetWriter(self.path, schema=table.schema)
-            self._schema = table.schema
+        table = pa.Table.from_pandas(df, preserve_index=False, schema=self.schema)
+        if self.writer is None:
+            self.writer = pq.ParquetWriter(self.path, schema=table.schema, version=self.version)
+            self.schema = table.schema
         try:
-            self._writer.write_table(table)
+            self.writer.write_table(table)
         except Exception as exc:
-            raise IOError("Error writing batch {} to {}:\n{}\n{}".format(self._counter, self.path, df.head(), exc))
-        self._counter += 1
+            raise IOError("Error writing batch {} to {}:\n{}\n{}".format(self.counter, self.path, df.head(), exc))
+        self.row_counter += len(df)
+        self.counter += 1
 
     def __call__(self, *args, **kwds):
         return self.write(*args, **kwds)
 
     def close(self):
-        self._writer.close()
+        self.writer.close()
