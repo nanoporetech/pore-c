@@ -92,7 +92,7 @@ def filter_records(list_of_records, min_read_length, max_read_length):
     df = (
         pd.DataFrame([(_.name, mean_fastq_quality(_.get_quality_array()), len(_.sequence)) for _ in list_of_records], columns=["read_id", "mean_qscore","read_length"])        
         .astype({"read_length": pd.np.uint32})
-        .astype({"mean_qscore": pd.np.uint32})        
+        .astype({"mean_qscore": pd.np.float16})        
         .eval("pass_filter = (@min_read_length <= read_length < @max_read_length)")
     )
     seq_strings = {True: [], False: []}
