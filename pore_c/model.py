@@ -23,6 +23,38 @@ from .config import (
 )
 
 
+class _BaseModel(BaseModel):
+    @classmethod
+    def pandas_dtype(cls, overrides=None):
+        res = {}
+        if overrides is None:
+            overrides = {}
+        overrides = overrides if overrides is not None else {}
+        for column, col_schema in cls.schema()["properties"].items():
+            if column in overrides:
+                res[column] = overrides[column]
+            else:
+                dtype = col_schema.get("dtype")
+                if dtype == "category" and "enum" in col_schema:
+                    dtype = pd.CategoricalDtype(col_schema["enum"], ordered=True)
+                res[column] = dtype
+        return res
+
+    def to_tuple(self):
+        return tuple([_[1] for _ in self])
+
+    @classmethod
+    def to_dataframe(cls, aligns: List, chrom_order: List[str] = None):
+        columns = [a[0] for a in aligns[0]]
+        if chrom_order:
+            overrides = {"chrom": pd.CategoricalDtype(chrom_order, ordered=True)}
+        else:
+            overrides = {}
+        dtype = cls.pandas_dtype(overrides=overrides)
+        df = pd.DataFrame([a.to_tuple() for a in aligns], columns=columns).astype(dtype)
+        return df
+
+
 class AlignmentType(str, Enum):
     unmapped = "unmapped"
     primary = "primary"
@@ -30,7 +62,31 @@ class AlignmentType(str, Enum):
     supplementary = "supplementary"
 
 
-class AlignmentRecord(BaseModel):
+class FragmentRecord(_BaseModel):
+    """Meta-data associated with a restriction fragments"""
+
+    chrom: constr(min_length=1, strip_whitespace=True)
+    start: conint(ge=0)
+    end: conint(ge=0)
+    fragment_id: conint(ge=1, strict=True)
+    fragment_length: conint(ge=1, strict=True)
+
+    class Config:
+        use_enum_values = True
+        fields = dict(
+            chrom=dict(description="The chromosome/contig the fragment is derived from", dtype="category"),
+            start=dict(
+                description="The zero-based start position on the genome of the fragment", dtype=GENOMIC_COORD_DTYPE,
+            ),
+            end=dict(
+                description="The zero-based end position on the genome of the fragment", dtype=GENOMIC_COORD_DTYPE,
+            ),
+            fragment_id=dict(description="Unique integer ID of the fragment, starts at 1", dtype=FRAG_IDX_DTYPE),
+            fragment_length=dict(description="Length of the fragment", dtype=GENOMIC_COORD_DTYPE),
+        )
+
+
+class AlignmentRecord(_BaseModel):
     """A subset of the fields in the BAM file"""
 
     read_idx: conint(ge=0, strict=True)
@@ -79,36 +135,6 @@ class AlignmentRecord(BaseModel):
                 dtype=HAPLOTYPE_IDX_DTYPE,
             ),
         )
-
-    @classmethod
-    def pandas_dtype(cls, overrides=None):
-        res = {}
-        if overrides is None:
-            overrides = {}
-        overrides = overrides if overrides is not None else {}
-        for column, col_schema in cls.schema()["properties"].items():
-            if column in overrides:
-                res[column] = overrides[column]
-            else:
-                dtype = col_schema.get("dtype")
-                if dtype == "category" and "enum" in col_schema:
-                    dtype = pd.CategoricalDtype(col_schema["enum"], ordered=True)
-                res[column] = dtype
-        return res
-
-    def to_tuple(self):
-        return tuple([_[1] for _ in self])
-
-    @classmethod
-    def to_dataframe(cls, aligns: List["AlignmentRecord"], chrom_order: List[str] = None) -> "AlignmentRecordDf":
-        columns = [a[0] for a in aligns[0]]
-        if chrom_order:
-            overrides = {"chrom": pd.CategoricalDtype(chrom_order, ordered=True)}
-        else:
-            overrides = {}
-        dtype = cls.pandas_dtype(overrides=overrides)
-        df = pd.DataFrame([a.to_tuple() for a in aligns], columns=columns).astype(dtype)
-        return df
 
     @classmethod
     def from_aligned_segment(cls, align: pysam.AlignedSegment, phased: bool = False) -> "AlignmentRecord":
@@ -221,6 +247,7 @@ class PoreCRecord(AlignmentRecord):
 
 
 AlignmentRecordDf = NewType("AlignmentRecordDf", pd.DataFrame)
+FragmentRecordDf = NewType("FragmentRecordDf", pd.DataFrame)
 PoreCRecordDf = NewType("PoreCRecordDf", pd.DataFrame)
 
 Chrom = NewType("Chrom", str)

@@ -1,15 +1,17 @@
 import re
 from pathlib import Path
-from time import sleep
-from typing import List, Pattern
+from typing import List, Pattern, Tuple
 
 import numpy as np
 import pandas as pd
+from dask import dataframe as dd
 from pandas import DataFrame
 
 from pore_c.datasources import IndexedFasta
-from pore_c.model import FragmentDf
 from pore_c.utils import kmg_bases_to_int
+
+from ..config import PQ_ENGINE, PQ_VERSION
+from ..model import FragmentRecord, FragmentRecordDf
 
 
 # complement translation table with support for regex punctuation
@@ -36,26 +38,14 @@ DEGENERATE_TRANS = str.maketrans(
 
 
 def create_virtual_digest(
-    reference_fasta: IndexedFasta,
-    digest_type: str,
-    digest_param: str,
-    fragments: Path = None,
-    digest_stats: Path = None,
-    n_workers: int = 1,
-) -> FragmentDf:
+    reference_fasta: Path, digest_type: str, digest_param: str, fragments: Path = None, digest_stats: Path = None
+) -> Tuple[FragmentRecordDf, pd.DataFrame]:
     """Iterate over the sequences in a fasta file and find the match positions for the restriction fragment"""
 
-    parallel = n_workers > 1
-    if parallel:
-        from dask.distributed import Client, LocalCluster
-
-        cluster = LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=1)
-        client = Client(cluster)
-
     # convert the sequences to a dask bag
-    seq_bag = reference_fasta.to_dask()
-    chrom_dtype = pd.CategoricalDtype(reference_fasta._chroms, ordered=True)
-    FragmentDf.set_dtype("chrom", chrom_dtype)
+    ff = IndexedFasta(reference_fasta)
+    seq_bag = ff.to_dask()
+    dtype = FragmentRecord.pandas_dtype(overrides={"chrom": pd.CategoricalDtype(ff._chroms, ordered=True)})
 
     frag_df = (
         pd.concat(
@@ -63,27 +53,13 @@ def create_virtual_digest(
             .starmap(create_fragment_dataframe)
             .compute()
         )
-        .astype({"chrom": chrom_dtype})
+        .astype(dict(chrom=dtype["chrom"]))
         .sort_values(["chrom", "start"])
         .assign(fragment_id=lambda x: np.arange(len(x), dtype=int) + 1)
-        .fragmentdf.cast(subset=True)
+        .astype(dtype)
     )
 
-    if parallel:
-        while True:
-            processing = client.processing()
-            still_running = [len(v) > 0 for k, v in processing.items()]
-            if any(still_running):
-                sleep(10)
-            else:
-                break
-        client.close()
-        cluster.close()
-
-    # use pandas accessor extension
-    frag_df.fragmentdf.assert_valid()
-
-    frag_df.to_parquet(str(fragments), index=False)
+    dd.from_pandas(frag_df, npartitions=1).to_parquet(str(fragments), engine=PQ_ENGINE, version=PQ_VERSION)
 
     summary_stats_df = (
         frag_df.groupby("chrom")["fragment_length"]
@@ -94,7 +70,7 @@ def create_virtual_digest(
     )
     summary_stats_df.to_csv(digest_stats)
 
-    return frag_df
+    return frag_df, summary_stats_df
 
 
 def revcomp(seq: str) -> str:

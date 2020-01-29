@@ -7,10 +7,11 @@ from intake import open_catalog
 
 import pore_c.catalogs as catalogs
 
-from .catalogs import ReferenceGenomeCatalog
+from .catalogs import ReferenceGenomeCatalog, VirtualDigestCatalog
 from .cli_utils import expand_output_prefix, filename_matches_regex
-from .config import INPUT_REFGENOME_REGEX
+from .config import INPUT_REFGENOME_REGEX, PQ_ENGINE, PQ_VERSION
 from .settings import setup_logging
+from .utils import DaskExecEnv
 
 
 logger = setup_logging()
@@ -73,18 +74,14 @@ def refgenome(ctx):
 def prepare(ctx, reference_fasta, output_prefix, genome_id):
     """Pre-process a reference genome for use by pore-C tools.
 
-
-
+    Prepare a reference genome or draft assembly use by pore-c tools.
+    This tool creates the following files:
     \b
-        <output_prefix>.catalog.yaml
-        <output_prefix>.fa
-        <output_prefix>.chromsizes
-        <output_prefix>.metadata.csv
+        <output_prefix>.fa - A decompressed fasta file
+        <output_prefix>.chromsizes - A tab-separated list of chromosome lengths
+        <output_prefix>.metadata.csv - A csv with metadata about each of
+        <output_prefix>.catalog.yaml - An intake catalog of these files
 
-
-    This cool makes a bgzipped copy of the reference genome along with some ancillary
-    files for use by other tools. The paths to these files, along with metadata
-    about the genome are stored in an intake yaml catalog.
     """
     from pore_c.datasources import IndexedFasta
     import pandas as pd
@@ -129,11 +126,13 @@ def prepare(ctx, reference_fasta, output_prefix, genome_id):
 
 
 @refgenome.command(short_help="Virtual digest of a reference genome.")
-@click.argument("reference_catalog", type=click.Path(exists=True))
+@click.argument("fasta", type=click.Path(exists=True))
 @click.argument("cut_on")
-@click.argument("output_prefix")
+@click.argument("output_prefix", callback=expand_output_prefix(VirtualDigestCatalog))
+@click.option("--digest-type", type=click.Choice(["enzyme", "regex", "fixed_width"]), default="enzyme")
 @click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
-def virtual_digest(reference_catalog, cut_on, output_prefix, n_workers):
+@click.pass_context
+def virtual_digest(ctx, fasta, cut_on, output_prefix, digest_type, n_workers):
     """
     Carry out a virtual digestion of the genome listed in a reference catalog.
 
@@ -155,21 +154,15 @@ def virtual_digest(reference_catalog, cut_on, output_prefix, n_workers):
       - degenerate site (ApoI): "regex:RAATY"
 
     """
-    from pore_c.catalogs import ReferenceGenomeCatalog, VirtualDigestCatalog
     from pore_c.analyses.reference import create_virtual_digest
 
-    rg_cat = ReferenceGenomeCatalog(reference_catalog)
-    digest_type, digest_param = cut_on.split(":")
-    assert digest_type in ["bin", "enzyme", "regex"]
+    path_kwds = {key: val for key, val in ctx.meta["file_paths"].items() if key != "catalog"}
+    with DaskExecEnv(n_workers=n_workers, empty_queue=True):
+        logger.info(f"Creating virtual digest of {fasta}")
+        frag_df, summary_stats = create_virtual_digest(fasta, digest_type, cut_on, **path_kwds)
 
-    file_paths = VirtualDigestCatalog.generate_paths(output_prefix)
-    path_kwds = {key: val for key, val in file_paths.items() if key != "catalog"}
-
-    frag_df = create_virtual_digest(rg_cat.fasta, digest_type, digest_param, n_workers=n_workers, **path_kwds)
-
-    metadata = {"digest_type": digest_type, "digest_param": digest_param, "num_fragments": len(frag_df)}
-    file_paths["refgenome_catalog"] = Path(reference_catalog)
-    vd_cat = VirtualDigestCatalog.create(file_paths, metadata, {})
+    metadata = {"digest_type": digest_type, "digest_param": cut_on, "num_fragments": len(frag_df)}
+    vd_cat = VirtualDigestCatalog.create(ctx.meta["file_paths"], metadata, {})
     logger.debug("Created Virtual Digest catalog: {}".format(vd_cat))
 
 
@@ -293,9 +286,9 @@ def create_table(input_bam, output_table, n_workers, chunksize, phased):
     with DaskExecEnv(n_workers=n_workers, empty_queue=True):
         logger.debug("Re-sorting alignment table by read_idx")
         (
-            dd.read_parquet(tmp_table, engine="pyarrow")
+            dd.read_parquet(tmp_table, engine=PQ_ENGINE)
             .set_index("read_idx")
-            .to_parquet(output_table, engine="pyarrow", version="2.0")
+            .to_parquet(output_table, engine=PQ_ENGINE, version=PQ_VERSION)
         )
     logger.info(f"Wrote {chunk_writer.row_counter} alignments to {output_table}")
     os.unlink(tmp_table)

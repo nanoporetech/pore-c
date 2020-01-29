@@ -25,7 +25,7 @@ dask = "^2.0"
 intake = "*"
 intake-parquet = "*"
 ncls = "*"
-numpy = "==1.16.*,>=1.16.0"
+numpy = ">=1.16.1"
 pairtools = "*"
 pandas = "==0.25.*,>=0.25.0"
 pyarrow = "*"
@@ -67,9 +67,10 @@ versioning = "semver"
 [tool.isort]
 line-length = 120
 known_third_party = ["click", "cooler", "dask", "intake", "ncls", "networkx", "numpy", "pandas", "pyarrow", "pydantic", "pysam", "pytest", "streamz", "tqdm", "yaml"]
-multi_line_output = 3
+multi_line_output= 3
+force_grid_wrap= 0
+use_parentheses= true
 lines_after_imports = 2
-force_grid_wrap = 0
 combine_as_imports = true
 include_trailing_comma = true
 

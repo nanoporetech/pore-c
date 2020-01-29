@@ -22,3 +22,6 @@ PERCENTAGE_DTYPE = "float32"
 
 
 INPUT_REFGENOME_REGEX = r"(.+)\.(fasta|fa|fna)(\.gz)*"
+
+PQ_ENGINE = "pyarrow"
+PQ_VERSION = "2.0"
