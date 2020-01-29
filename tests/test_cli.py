@@ -54,4 +54,7 @@ def test_virtual_digest(raw_refgenome_file):
                 "refgenome.fa",
             ]
         )
+
+        result = runner.invoke(cli, ["refgenome", "fragments-to-hicref", "digest.fragments.parquet", "digest.hicRef"])
+        assert result.exit_code == 0
         assert new_files == expected_files

@@ -1,42 +1,25 @@
-import json
 import logging
 from pathlib import Path
 
 import click
+import pandas as pd
 from intake import open_catalog
 
 import pore_c.catalogs as catalogs
 
 from .catalogs import ReferenceGenomeCatalog, VirtualDigestCatalog
-from .cli_utils import expand_output_prefix, filename_matches_regex
+from .cli_utils import (
+    NaturalOrderGroup,
+    command_line_json,
+    expand_output_prefix,
+    filename_matches_regex,
+)
 from .config import INPUT_REFGENOME_REGEX, PQ_ENGINE, PQ_VERSION
 from .settings import setup_logging
 from .utils import DaskExecEnv
 
 
 logger = setup_logging()
-
-
-class NaturalOrderGroup(click.Group):
-    """Command group trying to list subcommands in the order they were added.
-    """
-
-    def list_commands(self, ctx):
-        """List command names as they are in commands dict.
-        """
-        return self.commands.keys()
-
-
-def command_line_json(ctx, param, value):
-    # TODO: add support for json from file
-    if value is None:
-        return {}
-    try:
-        res = json.loads(value)
-    except Exception as exc:  # noqa: F841
-        logger.exception("Not valid json")
-        raise
-    return res
 
 
 @click.group(cls=NaturalOrderGroup)
@@ -129,29 +112,46 @@ def prepare(ctx, reference_fasta, output_prefix, genome_id):
 @click.argument("fasta", type=click.Path(exists=True))
 @click.argument("cut_on")
 @click.argument("output_prefix", callback=expand_output_prefix(VirtualDigestCatalog))
-@click.option("--digest-type", type=click.Choice(["enzyme", "regex", "fixed_width"]), default="enzyme")
+@click.option(
+    "--digest-type",
+    type=click.Choice(["enzyme", "regex", "bin"]),
+    default="enzyme",
+    help="The type of digest you want to do",
+)
 @click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
 @click.pass_context
 def virtual_digest(ctx, fasta, cut_on, output_prefix, digest_type, n_workers):
     """
-    Carry out a virtual digestion of the genome listed in a reference catalog.
+    Carry out a virtual digestion of the genome/assembly FASTA.
 
-    Required arguments:
-        - reference_catalog: An intake catalog produced by `pore_c refgenome catalog`
-        - cut_on: An enzyme name to do the digest (see below for more details).
-        - output_prefix:
+    The DIGEST_TYPE sets what type of value you can use for CUT_ON.
 
     \b
+        ---------------------------------------------------------------------
+        | digest_type |  cut_on           | notes                           |
+        ---------------------------------------------------------------------
+        | enzyme      | NlaIII            | Enzyme name is case sensitive   |
+        | enzyme      | HindIII           |                                 |
+        | regex       | (GAATTC|GCGGCCGC) | Two site EcoRI and NotI         |
+        | regex       | RAATY             | Degenerate site ApoI            |
+        | bin         | 50000             | Create equal-width bins of 50k  |
+        | bin         | 50k               | Create equal-width bins of 50k  |
+        =====================================================================
 
-    Some sample CUT_ONs:
+    This tool will create the following output files:
 
     \b
-      - an enzyme name, note case sensitive: "enzyme:HindIII"
-      - a fixed width bin: "bin:50k"
-      - a single site (HindIII): "regex:AAGCTT"
-      - two sites (ecoRI and NotI): "regex:(GAATTC|GCGGCCGC)"
-      - degenerate site (BglI): "regex:GCCNNNNNGGC"
-      - degenerate site (ApoI): "regex:RAATY"
+        <output_prefix>.fragments.parquet
+
+          A table containing the coordinates and some metadata on each fragment
+
+        <output_prefix>.digest_stats.csv
+
+          Per chromosome/contig summary statistics
+
+        <output_prefix>.catalog.yaml
+
+          An intake catalog of the digest files
 
     """
     from pore_c.analyses.reference import create_virtual_digest
@@ -167,17 +167,14 @@ def virtual_digest(ctx, fasta, cut_on, output_prefix, digest_type, n_workers):
 
 
 @refgenome.command(short_help="Create a hicRef file for a virtual digest.")
-@click.argument("virtual_digest_catalog", type=click.Path(exists=True))
+@click.argument("fragments_parquet", type=click.Path(exists=True))
 @click.argument("hicref", type=click.Path(exists=False))
-def to_hicref(virtual_digest_catalog, hicref):
+def fragments_to_hicref(fragments_parquet, hicref):
     """
-    Carry out a virtual digestion of the genome listed in a reference catalog.
+    Convert a  *.fragments.parquet file to hicRef format
     """
-    from pore_c.catalogs import VirtualDigestCatalog
 
-    vd_cat = VirtualDigestCatalog(virtual_digest_catalog)
-
-    frag_df = vd_cat.fragments.to_dask().compute()
+    frag_df = pd.read_parquet(fragments_parquet, engine=PQ_ENGINE)
     with open(hicref, "w") as fh:
         for chrom, endpoints in frag_df.groupby("chrom")["end"].agg(lambda x: " ".join(map(str, x))).items():
             fh.write(f"{chrom} {endpoints}\n")
