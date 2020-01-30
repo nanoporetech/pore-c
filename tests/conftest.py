@@ -24,3 +24,8 @@ def read_fastq_table():
 @pytest.fixture(scope="session")
 def read_sorted_bam():
     return DATA_DIR / "NlaIII_run01_GRCh38.read_sort.bam"
+
+
+@pytest.fixture(scope="session")
+def haplotagged_bam():
+    return DATA_DIR / "NlaIII_run01_GRCh38.haplotagged.bam"

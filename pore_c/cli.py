@@ -295,6 +295,7 @@ def reformat_bam(input_sam, output_sam, input_is_bam, output_is_bam):
         align.query_name = f"{read_id}:{read_idx}:{align_idx}"
         output_sam.write(align)
     output_sam.close()
+    align_idx += 1
     num_reads = len(read_indices)
     logger.info(f"Processed {align_idx} alignments from {num_reads} reads")
 
@@ -302,11 +303,11 @@ def reformat_bam(input_sam, output_sam, input_is_bam, output_is_bam):
 @alignments.command(short_help="Parse a namesortd bam to pore-C alignment format")
 @click.argument("input_bam", type=click.Path(exists=True))
 @click.argument("output_table", type=click.Path(exists=False))
-@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
-@click.option("--chunksize", help="Number of reads per processing chunk", default=50000)
-@click.option("--phased", is_flag=True, default=False, help="Set if using a haplotagged BAM file")
-def create_table(input_bam, output_table, n_workers, chunksize, phased):
-    """Extract info required for fragment assignment from the BAM file
+@click.option("--phased", is_flag=True, default=False, help="Set if using a haplotagged BAM file", show_default=True)
+@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1, show_default=True)
+@click.option("--chunksize", help="Number of reads per processing chunk", default=50000, show_default=True)
+def create_table(input_bam, output_table, phased, n_workers, chunksize):
+    """Convert a BAM file to a tabular format sorted by read for downstream analysis
 
     """
     from pore_c import model
@@ -328,14 +329,14 @@ def create_table(input_bam, output_table, n_workers, chunksize, phased):
 
     for chunk_idx, aligns in enumerate(partition_all(chunksize, af)):
         align_df = model.AlignmentRecord.to_dataframe(
-            [model.AlignmentRecord.from_aligned_segment(a) for a in aligns], chrom_order=chrom_order
+            [model.AlignmentRecord.from_aligned_segment(a, phased=phased) for a in aligns], chrom_order=chrom_order
         )
         chunk_writer(align_df)
 
     chunk_writer.close()
 
     logger.debug(f"Wrote {chunk_writer.row_counter} rows in {chunk_writer.counter} batch to {tmp_table}")
-    with DaskExecEnv(n_workers=n_workers, empty_queue=True):
+    with DaskExecEnv(n_workers=n_workers):
         logger.debug("Re-sorting alignment table by read_idx")
         (
             dd.read_parquet(tmp_table, engine=PQ_ENGINE)

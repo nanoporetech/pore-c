@@ -7,6 +7,19 @@ from click.testing import CliRunner
 from pore_c.cli import cli
 
 
+def test_create_table(haplotagged_bam):
+    runner = CliRunner()
+
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli, ["alignments", "create-table", str(haplotagged_bam), "align_table.parquet", "--phased"]
+        )
+        assert result.exit_code == 0
+
+        df = pd.read_parquet("align_table.parquet")
+        print(df.haplotype.value_counts())
+
+
 def test_reformat_bam(read_sorted_bam):
     runner = CliRunner()
 
