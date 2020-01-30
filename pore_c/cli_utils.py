@@ -4,6 +4,7 @@ from logging import getLogger
 from pathlib import Path
 
 import click
+from pysam import AlignmentFile
 
 
 logger = getLogger(__name__)
@@ -51,3 +52,26 @@ def filename_matches_regex(regex_str: str):
         if not m:
             raise click.BadParameter(f"Filename {value.name} doesn't match {regex}")
         return value
+
+
+def pipeable_sam_input(ctx, param, value):
+    if value == "-":
+        if ctx.params["input_is_bam"]:
+            mode = "rb"
+        else:
+            mode = "r"
+        res = AlignmentFile(value, mode=mode)
+    else:
+        res = AlignmentFile(value)
+    return res
+
+
+def pipeable_sam_output(ctx, param, value):
+    input_sam = ctx.params["input_sam"]
+
+    if value.endswith(".bam") or (value == "-" and ctx.params["output_is_bam"]):
+        mode = "wb"
+    else:
+        mode = "w"
+    res = AlignmentFile(value, mode=mode, template=input_sam)
+    return res

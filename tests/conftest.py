@@ -19,3 +19,8 @@ def read_fastq_file():
 @pytest.fixture(scope="session")
 def read_fastq_table():
     return DATA_DIR / "GM12878_NlaIII_reads.tsv"
+
+
+@pytest.fixture(scope="session")
+def read_sorted_bam():
+    return DATA_DIR / "NlaIII_run01_GRCh38.read_sort.bam"

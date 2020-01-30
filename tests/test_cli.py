@@ -7,6 +7,14 @@ from click.testing import CliRunner
 from pore_c.cli import cli
 
 
+def test_reformat_bam(read_sorted_bam):
+    runner = CliRunner()
+
+    with runner.isolated_filesystem():
+        result = runner.invoke(cli, ["alignments", "reformat-bam", str(read_sorted_bam), "reformatted.sam"])
+        assert result.exit_code == 0
+
+
 def test_prepare_reads(read_fastq_file):
     runner = CliRunner()
 

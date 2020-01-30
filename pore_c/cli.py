@@ -17,6 +17,8 @@ from .cli_utils import (
     command_line_json,
     expand_output_prefix,
     filename_matches_regex,
+    pipeable_sam_input,
+    pipeable_sam_output,
 )
 from .config import INPUT_REFGENOME_REGEX, PQ_ENGINE, PQ_VERSION
 from .settings import setup_logging
@@ -246,18 +248,44 @@ def alignments():
 
 
 @alignments.command(short_help="Reformat a BAM file to have a unique read name per alignment")
-@click.argument("input_sam", type=click.File("r"))
-@click.argument("output_sam", type=click.File("w"))
-def reformat_bam(input_sam, output_sam):
-    """Reformat INPUT_SAM to add a read_index and alignment_index to the query_name
+@click.argument("input_sam", type=str, callback=pipeable_sam_input)
+@click.argument("output_sam", type=str, callback=pipeable_sam_output)
+@click.option(
+    "--input-is-bam",
+    is_flag=True,
+    default=False,
+    is_eager=True,
+    help="If piping a BAM from stdin (rather than sam)",
+    show_default=True,
+)
+@click.option(
+    "--output-is-bam",
+    is_flag=True,
+    default=False,
+    is_eager=True,
+    help="If piping a BAM to stdout (rather than sam)",
+    show_default=True,
+)
+def reformat_bam(input_sam, output_sam, input_is_bam, output_is_bam):
+    """Reformat query_name in INPUT_SAM  and write to OUTPUT_SAM
+
+    This tool reformats an alignment file so that it works with downstream
+    steps in the Pore-C pipeline. For both files you can supply '-' if you want
+    to read/write from/to stdin/stdout. The 'query_name' field of the alignment
+    file will be reformatted so that each alignment in the SAM file has a
+    unique query name:
+
+    \b
+        <read_id> -> <read_id>:<read_idx>:<align_idx>
+
+    Where 'read_idx' is a unique integer id for each read within the file and
+    'align_idx' is a unique integer id for each alignment within the file. The
+    tool also adds a 'BX' tag consisting of the 'read_id' to each record.
 
     """
-    import pysam
-
-    infile = pysam.AlignmentFile(input_sam)
-    outfile = pysam.AlignmentFile(output_sam, template=infile)
+    logger.debug(f"Reformatting alignments from {input_sam.filename} to {output_sam.filename}")
     read_indices = {}
-    for align_idx, align in enumerate(infile.fetch(until_eof=True)):
+    for align_idx, align in enumerate(input_sam.fetch(until_eof=True)):
         read_id = align.query_name
         read_idx = read_indices.get(read_id, None)
         if read_idx is None:
@@ -265,8 +293,10 @@ def reformat_bam(input_sam, output_sam):
             read_indices[read_id] = read_idx
         align.set_tag(tag="BX", value=align.query_name, value_type="Z")
         align.query_name = f"{read_id}:{read_idx}:{align_idx}"
-        outfile.write(align)
-    outfile.close()
+        output_sam.write(align)
+    output_sam.close()
+    num_reads = len(read_indices)
+    logger.info(f"Processed {align_idx} alignments from {num_reads} reads")
 
 
 @alignments.command(short_help="Parse a namesortd bam to pore-C alignment format")
