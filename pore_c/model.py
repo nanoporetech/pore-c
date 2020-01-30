@@ -86,6 +86,30 @@ class FragmentRecord(_BaseModel):
         )
 
 
+class ReadMetaDataRecord(_BaseModel):
+    """Meta-data associated with a restriction fragments"""
+
+    chrom: constr(min_length=1, strip_whitespace=True)
+    start: conint(ge=0)
+    end: conint(ge=0)
+    fragment_id: conint(ge=1, strict=True)
+    fragment_length: conint(ge=1, strict=True)
+
+    class Config:
+        use_enum_values = True
+        fields = dict(
+            chrom=dict(description="The chromosome/contig the fragment is derived from", dtype="category"),
+            start=dict(
+                description="The zero-based start position on the genome of the fragment", dtype=GENOMIC_COORD_DTYPE,
+            ),
+            end=dict(
+                description="The zero-based end position on the genome of the fragment", dtype=GENOMIC_COORD_DTYPE,
+            ),
+            fragment_id=dict(description="Unique integer ID of the fragment, starts at 1", dtype=FRAG_IDX_DTYPE),
+            fragment_length=dict(description="Length of the fragment", dtype=GENOMIC_COORD_DTYPE),
+        )
+
+
 class AlignmentRecord(_BaseModel):
     """A subset of the fields in the BAM file"""
 

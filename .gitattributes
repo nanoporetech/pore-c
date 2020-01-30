@@ -4,4 +4,4 @@ tests/data/GM12878.phased.conf.vcf.gz.tbi filter=lfs diff=lfs merge=lfs -text
 tests/data/GM12878_NlaIII_reads.fq.gz filter=lfs diff=lfs merge=lfs -text
 tests/data/GRCh38.fasta.gz filter=lfs diff=lfs merge=lfs -text
 tests/data/GRCh38.fasta.gz.fai filter=lfs diff=lfs merge=lfs -text
-tests/data/GRCh38.fasta.gz.gzi filter=lfs diff=lfs merge=lfs -text
+tests/data/GM12878_NlaIII_reads.tsv filter=lfs diff=lfs merge=lfs -text

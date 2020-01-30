@@ -7,7 +7,11 @@ from intake import open_catalog
 
 import pore_c.catalogs as catalogs
 
-from .catalogs import ReferenceGenomeCatalog, VirtualDigestCatalog
+from .catalogs import (
+    RawReadCatalog,
+    ReferenceGenomeCatalog,
+    VirtualDigestCatalog,
+)
 from .cli_utils import (
     NaturalOrderGroup,
     command_line_json,
@@ -24,7 +28,7 @@ logger = setup_logging()
 
 @click.group(cls=NaturalOrderGroup)
 @click.option("-v", "--verbosity", count=True, help="Increase level of logging information, eg. -vvv")
-@click.option("--quiet", is_flag=True, default=False, help="Turn off all logging")
+@click.option("--quiet", is_flag=True, default=False, help="Turn off all logging", show_default=True)
 @click.pass_context
 def cli(ctx, verbosity, quiet):
     """Pore-C tools
@@ -118,7 +122,7 @@ def prepare(ctx, reference_fasta, output_prefix, genome_id):
     default="enzyme",
     help="The type of digest you want to do",
 )
-@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
+@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1, show_default=True)
 @click.pass_context
 def virtual_digest(ctx, fasta, cut_on, output_prefix, digest_type, n_workers):
     """
@@ -183,36 +187,57 @@ def fragments_to_hicref(fragments_parquet, hicref):
 
 
 @cli.group(cls=NaturalOrderGroup, short_help="Analyse raw reads")
-def reads():
+@click.pass_context
+def reads(ctx):
     pass
 
 
 @reads.command(short_help="Create a catalog file for a set of reads")  # noqa: F811
 @click.argument("fastq", type=click.Path(exists=True))
-@click.argument("output_prefix")
-@click.option("--min-read-length", help="The minimum length read to run through porec", default=1)
+@click.argument("output_prefix", callback=expand_output_prefix(RawReadCatalog))
+@click.option("--min-read-length", help="The minimum length read to run through porec", default=1, show_default=True)
 @click.option(
     "--max-read-length",
     help="The maximum length read to run through porec. Note that bwa mem can crash on very long reads",
     default=500_000,
+    show_default=True,
 )
+@click.option("--min-qscore", help="The minimum read qscore", default=0, show_default=True)
+@click.option("--max-qscore", help="The maximum read qscore", default=266, show_default=True)
 @click.option("--user-metadata", callback=command_line_json, help="Additional user metadata to associate with this run")
-def catalog(fastq, output_prefix, min_read_length, max_read_length, user_metadata):
-    """Preprocess a reference genome for use by pore_c tools
+@click.pass_context
+def prepare(ctx, fastq, output_prefix, min_read_length, max_read_length, min_qscore, max_qscore, user_metadata):
+    """Preprocess a set of reads for use with porec tools.
+
+    This tool creates the following files:
+
+    \b
+        <output_prefix>.pass.fq.gz - Fastq with all the reads that pass the qscore and
+          length filters
+        <output_prefix>.fail.fq.gz - Reads that fail the filters
+        <output_prefix>.read_metadata.parquet - Length and qscore metadata for each read and
+          whether they pass the filter
+        <output_prefix>.summary.csv - Summary stats for all/pass/fail reads
+        <output_prefix>.catalog.yaml - An intake catalog
+
     """
-    from pore_c.analyses.reads import filter_fastq
+    from pore_c.analyses.reads import prepare_fastq
+
+    file_paths = ctx.meta["file_paths"]
 
     file_paths = catalogs.RawReadCatalog.generate_paths(output_prefix)
     path_kwds = {key: val for key, val in file_paths.items() if key != "catalog"}
-    summary = filter_fastq(
-        input_fastq=fastq, min_read_length=min_read_length, max_read_length=max_read_length, **path_kwds
+    summary = prepare_fastq(
+        input_fastq=fastq,
+        min_read_length=min_read_length,
+        max_read_length=max_read_length,
+        min_qscore=min_qscore,
+        max_qscore=max_qscore,
+        **path_kwds,
     )
 
-    catalog = catalogs.RawReadCatalog.create(file_paths, {"summary_stats": summary}, user_metadata)
+    catalog = RawReadCatalog.create(file_paths, {"summary_stats": summary}, user_metadata)
     logger.info("Created catalog for results: {}".format(catalog))
-
-    c1 = open_catalog(str(file_paths["catalog"]))
-    logger.info(c1)
 
 
 @cli.group(cls=NaturalOrderGroup, short_help="Analyse aligned porec reads")

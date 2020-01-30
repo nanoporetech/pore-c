@@ -14,6 +14,9 @@ from pore_c.utils import DataFrameProgress
 logger = getLogger(__name__)
 
 
+PHRED_TO_PROB = np.power(10, (np.arange(256, dtype=float) / -10.0))
+
+
 def read_length_stats(lengths, percentiles=[25, 50, 75]):
     if len(lengths) == 0:
         return {}
@@ -36,7 +39,7 @@ def read_length_stats(lengths, percentiles=[25, 50, 75]):
     }
 
 
-def filter_fastq(
+def prepare_fastq(
     input_fastq: Path,
     pass_fastq: Path = None,
     fail_fastq: Path = None,
@@ -44,12 +47,14 @@ def filter_fastq(
     summary: Path = None,
     min_read_length: int = 50,
     max_read_length: int = 5000000,
-    chunksize: int = 1000,
+    min_qscore: int = 0,
+    max_qscore: int = 266,
+    chunksize: int = 10000,
 ):
 
     fastq_stream = Stream()
 
-    filtered_stream = fastq_stream.map(filter_records, min_read_length, max_read_length)
+    filtered_stream = fastq_stream.map(filter_records, min_read_length, max_read_length, min_qscore, max_qscore)
 
     pass_writer = FastqWriter(pass_fastq)
     fail_writer = FastqWriter(fail_fastq)
@@ -65,10 +70,11 @@ def filter_fastq(
     # split reads into chunks for processing
     for chunk_idx, records in enumerate(Fastq(input_fastq).read_chunked(chunksize)):
         fastq_stream.emit(records)
-        # if chunk_idx == 2:
-        #    break
     metadata_df = pd.concat(df_sink, ignore_index=True)
     metadata_df.to_parquet(read_metadata, index=False)
+    pass_rate = metadata_df["pass_filter"].mean()
+    if pass_rate == 0:
+        raise ValueError("No reads passed filter")
     summary_stats = {
         "all": read_length_stats(metadata_df["read_length"]),
         "pass": read_length_stats(metadata_df.query("pass_filter == True")["read_length"]),
@@ -87,18 +93,27 @@ def filter_fastq(
     return summary_stats
 
 
-def filter_records(list_of_records, min_read_length, max_read_length):
+def filter_records(list_of_records, min_read_length, max_read_length, min_qscore, max_qscore):
 
     df = (
-        pd.DataFrame([(_.name, len(_.sequence)) for _ in list_of_records], columns=["read_id", "read_length"])
-        .astype({"read_length": pd.np.uint32})
-        .eval("pass_filter = (@min_read_length <= read_length < @max_read_length)")
+        pd.DataFrame(
+            [(_.name, len(_.sequence), mean_qscore(_.get_quality_array())) for _ in list_of_records],
+            columns=["read_id", "read_length", "qscore"],
+        )
+        .astype({"read_length": pd.np.uint32, "qscore": pd.np.float32})
+        .eval(
+            "pass_filter = (@min_read_length <= read_length < @max_read_length) & (@min_qscore <= qscore < @max_qscore)"
+        )
     )
     seq_strings = {True: [], False: []}
     for seq, is_pass in zip(map(str, list_of_records), df["pass_filter"].values):
         seq_strings[is_pass].append(seq)
 
     return {"metadata": df, "pass": seq_strings[True], "fail": seq_strings[False]}
+
+
+def mean_qscore(quals):
+    return -10 * np.log10(PHRED_TO_PROB[quals].mean())
 
 
 class ReadFilterProgress(DataFrameProgress):

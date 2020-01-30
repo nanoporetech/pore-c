@@ -1,15 +1,51 @@
 import os
 from pathlib import Path
 
+import pandas as pd
 from click.testing import CliRunner
 
 from pore_c.cli import cli
 
 
-# def test_logging():
-#    runner = CliRunner(mix_stderr=False)
-#    result = runner.invoke(cli, ['-vvv', 'refgenome', 'catalog'])
-#    assert 'pore_c - DEBUG - Logger set up' in result.stdout
+def test_prepare_reads(read_fastq_file):
+    runner = CliRunner()
+
+    with runner.isolated_filesystem():
+        cwd = Path(os.getcwd())
+        result = runner.invoke(
+            cli,
+            [
+                "reads",
+                "prepare",
+                str(read_fastq_file),
+                "reads",
+                "--min-qscore",
+                "6",
+                "--max-qscore",
+                "12",
+                "--min-read-length",
+                "500",
+                "--max-read-length",
+                "5000",
+            ],
+        )
+        assert result.exit_code == 0
+        new_files = set([f.name for f in cwd.glob("*.*")])
+        expected_files = set(
+            [
+                "reads.pass.fq.gz",
+                "reads.fail.fq.gz",
+                "reads.read_metadata.parquet",
+                "reads.summary.csv",
+                "reads.catalog.yaml",
+            ]
+        )
+
+        df = pd.read_parquet(cwd / "reads.read_metadata.parquet", engine="pyarrow")
+        # g = df.groupby("pass_filter")[['read_length', 'qscore']].agg(["min", "max", "count"])
+        res = df["pass_filter"].value_counts()
+        assert res[True] == 19
+        assert new_files == expected_files
 
 
 def test_prepare_refgenome(raw_refgenome_file):
