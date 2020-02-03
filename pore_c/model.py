@@ -217,14 +217,17 @@ class AlignmentFilterReason(str, Enum):
 
 
 class PoreCRecord(AlignmentRecord):
-    pass_filter: bool = False
+    pass_filter: bool = True
     filter_reason: AlignmentFilterReason = AlignmentFilterReason.null
     fragment_id: conint(ge=0) = 0
-    contained_fragments: conint(ge=0) = 0
+    num_contained_fragments: conint(ge=0) = 0
+    num_overlapping_fragments: conint(ge=0) = 0
+    overlap_length: conint(ge=0) = 0
     fragment_start: conint(ge=0) = 0
     fragment_end: conint(ge=0) = 0
     perc_of_alignment: confloat(ge=0, le=100) = 0.0
     perc_of_fragment: confloat(ge=0, le=100) = 0.0
+    is_contained: bool = False
 
     class Config:
         use_enum_values = True
@@ -236,9 +239,15 @@ class PoreCRecord(AlignmentRecord):
             fragment_id=dict(
                 description="The UID of the restriction fragment assigned to this alignment", dtype=FRAG_IDX_DTYPE
             ),
-            contained_fragments=dict(
+            num_contained_fragments=dict(
                 description="The number of restriction fragments completely contained within this alignment",
                 dtype="uint32",
+            ),
+            num_overlapping_fragments=dict(
+                description="The number of restriction fragments overlapping this alignment", dtype="uint32",
+            ),
+            overlap_length=dict(
+                description="The length of the overlap between alignment and fragment", dtype=GENOMIC_COORD_DTYPE
             ),
             fragment_start=dict(
                 description="The start point on the genome of this restriction fragment", dtype=GENOMIC_COORD_DTYPE
@@ -253,6 +262,10 @@ class PoreCRecord(AlignmentRecord):
             perc_of_fragment=dict(
                 description="The percentage of the assigned restriction fragment that overlaps the aligned segment",
                 dtype=PERCENTAGE_DTYPE,
+            ),
+            is_contained=dict(
+                description="Boolean flag to inidicate if the alignment is fully contained with the fragment",
+                dtype=bool,
             ),
         )
 

@@ -7,6 +7,17 @@ from click.testing import CliRunner
 from pore_c.cli import cli
 
 
+def test_assign_fragments(align_table_pq, fragment_table_pq):
+    runner = CliRunner()
+
+    common_opts = ["--dask-disable-dashboard", "--dask-scheduler-port", "0"]
+    result = runner.invoke(
+        cli,
+        common_opts + ["alignments", "assign-fragments", str(align_table_pq), str(fragment_table_pq), "frag_assign"],
+    )
+    assert result.exit_code == 0
+
+
 def test_create_table(haplotagged_bam):
     runner = CliRunner()
 

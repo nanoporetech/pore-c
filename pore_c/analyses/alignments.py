@@ -39,100 +39,45 @@ def assign_fragments(
     from pore_c.model import PoreCRecord
 
     pore_c_table = PoreCRecord.init_dataframe(align_table.reset_index(drop=False))
+    dtype = pore_c_table.dtypes
 
     align_types = pore_c_table.align_type.value_counts()
     some_aligns = align_types["unmapped"] != align_types.sum()
 
-    if some_aligns:
-        fragment_assignments = assign_fragment(pore_c_table, fragment_df, min_overlap_length, containment_cutoff)
-        print(fragment_assignments)
+    if not some_aligns:
+        logger.warning("No alignments in dataframe")
+        return pore_c_table
 
-    return pore_c_table  # .reset_index(level="align_idx", drop=False)
+    fragment_assignments = assign_fragment(pore_c_table, fragment_df, min_overlap_length, containment_cutoff)
 
+    pore_c_table = pore_c_table.set_index("align_idx", drop=False)
+    pore_c_table.update(fragment_assignments)
+    pore_c_table = pore_c_table.astype(dtype)
 
-#    res = df.assign(pass_filter=True, reason="pass").astype({"reason": FILTER_REASON_DTYPE}).set_index("align_idx")
-#
-#    # calculate fragment overlaps
-#    overlaps = (
-#        res.ginterval.overlap(fragment_df)
-#        .query("overlap_length >= {}".format(min_overlap_length))
-#        .loc[
-#            :,
-#            ["align_idx", "fragment_id", "other_start", "other_end",
-#             "overlap_length", "perc_of_self", "perc_of_other"],
-#        ]
-#        .rename(
-#            columns={
-#                "perc_of_self": "perc_of_alignment",
-#                "perc_of_other": "perc_of_fragment",
-#                "other_start": "fragment_start",
-#                "other_end": "fragment_end",
-#            }
-#        )
-#        .sort_values(["overlap_length"], ascending=False)
-#    )
-#    overlaps = pd.merge(overlaps, res[["read_idx"]], left_on="align_idx", right_index=True, how="left")
-#
-#    contained_fragments = (
-#        overlaps.query("perc_of_fragment >= {}".format(containment_cutoff))
-#        .groupby("align_idx", as_index=True, sort=False)
-#        .size()
-#        .rename("contained_fragments")
-#    )
-#
-#    # pick the longest overlap as the associated fragment
-#    olg = overlaps.groupby("align_idx", as_index=True, sort=False)
-#    overlap_summary = (
-#        olg.head(1).set_index(["align_idx"]).join(contained_fragments)  # take longest overlap as fragment assignment
-#    )
-#    res = res.join(
-#        overlap_summary[
-#            [
-#                "fragment_id",
-#                "contained_fragments",
-#                "fragment_start",
-#                "fragment_end",
-#                "perc_of_alignment",
-#                "perc_of_fragment",
-#            ]
-#        ]
-#    ).fillna({"fragment_id": -1, "contained_fragments": 0, "fragment_start": 0, "fragment_end": 0})
-#
-#    # apply alignment-level filters
-#    unmapped_mask = res.mapping_type == "unmapped"
-#    res.loc[unmapped_mask, "pass_filter"] = False
-#    res.loc[unmapped_mask, "reason"] = "unmapped"
-#
-#    # if not unmapped, but mapping quality below cutoff then fail
-#    fail_mq_mask = ~unmapped_mask & (df.mapping_quality <= mapping_quality_cutoff)
-#    res.loc[fail_mq_mask, "pass_filter"] = False
-#    res.loc[fail_mq_mask, "reason"] = "low_mq"
-#
-#    # no need to do other checks if nothing left
-#    if res["pass_filter"].any():
-#        # for the remaining alignments filtering happens on a per-read basis
-#        by_read_res = (
-#            res.query("pass_filter == True")
-#            .groupby("read_name", sort=False, as_index=False)
-#            .apply(apply_per_read_filters)
-#        )
-#        res.update(by_read_res[["pass_filter", "reason"]])
-#        res = res.astype({"reason": FILTER_REASON_DTYPE})
-#
-#    if phased:
-#        res = res.reset_index().phased_porec_align.cast(subset=True, fillna=True)
-#    else:
-#        if "haplotype" in res.columns:
-#            res = res.drop(columns=["haplotype", "phase_block"])
-#        res = res.reset_index().porec_align.cast(subset=True, fillna=True)
-#
-#    read_table = calculate_read_stats(res)
-#
-#    return {
-#        "alignment_table": res.reset_index(),
-#        "overlap_table": overlaps.reset_index(),
-#        "read_table": read_table.reset_index(),
-#    }
+    # apply alignment-level filters
+    unmapped_mask = pore_c_table.align_type == "unmapped"
+    pore_c_table.loc[unmapped_mask, "pass_filter"] = False
+    pore_c_table.loc[unmapped_mask, "filter_reason"] = "unmapped"
+
+    # if not unmapped, but mapping quality below cutoff then fail
+    fail_mq_mask = ~unmapped_mask & (pore_c_table.mapping_quality <= mapping_quality_cutoff)
+    pore_c_table.loc[fail_mq_mask, "pass_filter"] = False
+    pore_c_table.loc[fail_mq_mask, "filter_reason"] = "low_mq"
+
+    # no need to do other checks if nothing left
+    if pore_c_table["pass_filter"].any():
+        # for the remaining alignments filtering happens on a per-read basis
+        by_read_res = (
+            pore_c_table[pore_c_table.pass_filter]
+            .groupby("read_idx", sort=False, as_index=False)
+            .apply(apply_per_read_filters)
+        )
+        pore_c_table.update(by_read_res[["pass_filter", "filter_reason"]])
+        pore_c_table = pore_c_table.astype(dtype)
+    else:
+        logger.warning("No alignments passed filter")
+
+    return pore_c_table.reset_index(drop=True).sort_values(["read_idx", "align_idx"], ascending=True)
 
 
 def assign_fragment(pore_c_table, fragment_df, min_overlap_length: int, containment_cutoff: float):
@@ -148,10 +93,10 @@ def assign_fragment(pore_c_table, fragment_df, min_overlap_length: int, containm
             columns={"chrom": "Chromosome", "start": "Start", "end": "End"}
         )
     )
+    # all overlaps, one to many
     overlaps = align_range.join(fragment_range).new_position("intersection")
     if len(overlaps) == 0:
         raise ValueError("No overlaps found between alignments and fragments, this shouldn't happen")
-    # print(overlaps)
     overlaps = (
         overlaps.df.rename(
             columns={
@@ -164,12 +109,13 @@ def assign_fragment(pore_c_table, fragment_df, min_overlap_length: int, containm
             }
         )
         .eval("overlap_length = (end - start)")
-        .query(f"overlap_length >= {min_overlap_length}")
+        .query(f"overlap_length >= {min_overlap_length}")  # TODO: what if restriction fragment < minimum
         .eval("perc_of_alignment = (100.0 * overlap_length) / (align_end - align_start)")
         .eval("perc_of_fragment = (100.0 * overlap_length) / (fragment_end - fragment_start)")
         .eval(f"is_contained = (perc_of_fragment >= {containment_cutoff})")
     )
 
+    # per-alignment statistics
     by_align = overlaps.groupby("align_idx", sort=True)
 
     rank = by_align["overlap_length"].rank(method="first", ascending=False).astype(int)
@@ -183,23 +129,24 @@ def assign_fragment(pore_c_table, fragment_df, min_overlap_length: int, containm
         .astype({"sum": int})
         .rename(columns={"size": "num_overlapping_fragments", "sum": "num_contained_fragments"})
     )
-    print(
-        contained_fragments.join(
-            best_overlap[
-                [
-                    "fragment_id",
-                    "fragment_start",
-                    "fragment_end",
-                    "overlap_length",
-                    "perc_of_alignment",
-                    "perc_of_fragment",
-                    "is_contained",
-                ]
+    align_df = contained_fragments.join(
+        best_overlap[
+            [
+                "fragment_id",
+                "fragment_start",
+                "fragment_end",
+                "overlap_length",
+                "perc_of_alignment",
+                "perc_of_fragment",
+                "is_contained",
             ]
-        )
+        ]
     )
 
-    return overlaps
+    dtype = {col: dtype for col, dtype in pore_c_table.dtypes.items() if col in align_df.columns}
+    align_df = align_df.astype(dtype)
+    # pore_c_table.head(5))
+    return align_df
 
 
 def calculate_read_stats(align_df: PoreCAlignDf) -> PoreCReadDf:
@@ -253,23 +200,23 @@ def calculate_read_stats(align_df: PoreCAlignDf) -> PoreCReadDf:
 
 
 def apply_per_read_filters(read_df):
-    return read_df.pipe(filter_singleton).pipe(filter_overlap_on_query).pipe(filter_shortest_path)
+    return read_df.pipe(filter_singleton).pipe(filter_exact_overlap_on_query).pipe(filter_shortest_path)
 
 
 def filter_singleton(read_df):
     if len(read_df) == 1:  # if you have a single alignment at this point you fail
         read_df.loc[:, "pass_filter"] = False
-        read_df.loc[:, "reason"] = "singleton"
+        read_df.loc[:, "filter_reason"] = "singleton"
     return read_df
 
 
-def filter_overlap_on_query(read_df):
+def filter_exact_overlap_on_query(read_df):
     overlap_on_read = read_df.duplicated(subset=["read_start", "read_end"], keep=False)
     if overlap_on_read.any():
         best_align_idx = read_df.loc[overlap_on_read, :].groupby(["read_start", "read_end"])["score"].idxmax()
         overlap_on_read[best_align_idx.values] = False
         read_df.loc[overlap_on_read, "pass_filter"] = False
-        read_df.loc[overlap_on_read, "reason"] = "overlap_on_read"
+        read_df.loc[overlap_on_read, "filter_reason"] = "overlap_on_read"
     return read_df
 
 
@@ -286,7 +233,7 @@ def bwa_gapscore(length, O=5, E=2):  # noqa: E741
 def create_align_graph(aligns, gap_fn):
     # we'll visit the alignments in order of increasing endpoint on the read, need to keep
     # the ids as the index in the original list of aligns for filtering later
-    aligns = aligns[["read_start", "read_end", "read_length", "score"]].copy().sort_values(["read_end"])
+    aligns = aligns[["read_start", "read_end", "read_length", "align_score"]].copy().sort_values(["read_end"])
     node_ids = list(aligns.index)
     graph = nx.DiGraph()
     # initialise graph with root and sink node, and one for each alignment
@@ -295,7 +242,7 @@ def create_align_graph(aligns, gap_fn):
     graph.add_nodes_from(["ROOT", "SINK"] + node_ids)
     for align in aligns.itertuples():
         align_idx = align.Index
-        align_score = align.score
+        align_score = align.align_score
         gap_penalty_start = gap_fn(align.read_start)
         graph.add_edge("ROOT", align_idx, weight=gap_penalty_start - align_score)
         gap_penalty_end = gap_fn(int(align.read_length - align.read_end))
@@ -305,7 +252,7 @@ def create_align_graph(aligns, gap_fn):
     for idx_a, align_idx_a in enumerate(node_ids[:-1]):
         align_a_end = aligns.at[align_idx_a, "read_end"]
         for align_idx_b in node_ids[idx_a + 1 :]:  # noqa: E203 black does this
-            align_b_score = aligns.at[align_idx_b, "score"]
+            align_b_score = aligns.at[align_idx_b, "align_score"]
             align_b_read_start = aligns.at[align_idx_b, "read_start"]
             gap_penalty = gap_fn(abs(int(align_b_read_start) - int(align_a_end)))
             graph.add_edge(align_idx_a, align_idx_b, weight=gap_penalty - align_b_score)
@@ -331,7 +278,7 @@ def filter_shortest_path(read_df, aligner="minimap2"):
     for idx in aligns.index:
         if idx not in shortest_path:
             read_df.at[idx, "pass_filter"] = False
-            read_df.at[idx, "reason"] = "not_on_shortest_path"
+            read_df.at[idx, "filter_reason"] = "not_on_shortest_path"
     return read_df
 
 
@@ -366,7 +313,6 @@ def clean_read_haplotypes(read_aligns, min_count=1, min_prop=0.5):
         # proportion of alignments in each phase block assigned to each haplotype
         counts_df["prop"] = g.transform(lambda x: x / x.sum())
         counts_df["rank"] = g["count"].rank()
-        print(counts_df)
         raise NotImplementedError
         return read_aligns
 

@@ -31,8 +31,34 @@ logger = setup_logging()
 @click.group(cls=NaturalOrderGroup)
 @click.option("-v", "--verbosity", count=True, help="Increase level of logging information, eg. -vvv")
 @click.option("--quiet", is_flag=True, default=False, help="Turn off all logging", show_default=True)
+@click.option("--dask-num-workers", type=int, default=1, help="Number of dask workers")
+@click.option("--dask-use-threads", is_flag=True, default=False, help="Use threads instead of processes")
+@click.option("--dask-threads-per-worker", type=int, default=1, help="Number of threads per worker")
+@click.option(
+    "--dask-scheduler-port",
+    type=int,
+    default=8786,
+    help="The port to use for the dask scheduler, set to 0 to use a random port",
+)
+@click.option(
+    "--dask-dashboard-port",
+    type=int,
+    default=8787,
+    help="The port to use for the dask dashboard, set to 0 to use a random port",
+)
+@click.option("--dask-disable-dashboard", is_flag=True, default=False, help="Disable the dask dashboard")
 @click.pass_context
-def cli(ctx, verbosity, quiet):
+def cli(
+    ctx,
+    verbosity,
+    quiet,
+    dask_num_workers,
+    dask_use_threads,
+    dask_threads_per_worker,
+    dask_scheduler_port,
+    dask_dashboard_port,
+    dask_disable_dashboard,
+):
     """Pore-C tools
 
     A suite of tools designed to analyse Oxford Nanopore reads with multiway chromatin contacts.
@@ -47,6 +73,13 @@ def cli(ctx, verbosity, quiet):
     else:
         logger.setLevel(logging.INFO)
     logger.debug("Logger set up")
+    ctx.meta["dask_env"] = DaskExecEnv(
+        n_workers=dask_num_workers,
+        threads_per_worker=dask_threads_per_worker,
+        processes=dask_use_threads is True,
+        scheduler_port=dask_scheduler_port,
+        dashboard_port=None if dask_disable_dashboard else dask_dashboard_port,
+    )
 
 
 @cli.group(cls=NaturalOrderGroup, short_help="Pre-process reference genome files.")
@@ -163,7 +196,7 @@ def virtual_digest(ctx, fasta, cut_on, output_prefix, digest_type, n_workers):
     from pore_c.analyses.reference import create_virtual_digest
 
     path_kwds = {key: val for key, val in ctx.meta["file_paths"].items() if key != "catalog"}
-    with DaskExecEnv(n_workers=n_workers, empty_queue=True):
+    with ctx.meta["dask_env"]:
         logger.info(f"Creating virtual digest of {fasta}")
         frag_df, summary_stats = create_virtual_digest(fasta, digest_type, cut_on, **path_kwds)
 
@@ -306,13 +339,13 @@ def reformat_bam(input_sam, output_sam, input_is_bam, output_is_bam):
 @click.option("--phased", is_flag=True, default=False, help="Set if using a haplotagged BAM file", show_default=True)
 @click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1, show_default=True)
 @click.option("--chunksize", help="Number of reads per processing chunk", default=50000, show_default=True)
-def create_table(input_bam, output_table, phased, n_workers, chunksize):
+@click.pass_context
+def create_table(ctx, input_bam, output_table, phased, n_workers, chunksize):
     """Convert a BAM file to a tabular format sorted by read for downstream analysis
 
     """
     from pore_c import model
     from pore_c.io import TableWriter
-    from pore_c.utils import DaskExecEnv
 
     import dask.dataframe as dd
     import os
@@ -336,7 +369,7 @@ def create_table(input_bam, output_table, phased, n_workers, chunksize):
     chunk_writer.close()
 
     logger.debug(f"Wrote {chunk_writer.row_counter} rows in {chunk_writer.counter} batch to {tmp_table}")
-    with DaskExecEnv(n_workers=n_workers):
+    with ctx.meta["dask_env"]:
         logger.debug("Re-sorting alignment table by read_idx")
         (
             dd.read_parquet(tmp_table, engine=PQ_ENGINE)
@@ -349,65 +382,61 @@ def create_table(input_bam, output_table, phased, n_workers, chunksize):
 
 @alignments.command(short_help="Parse a namesortd bam to pore-C alignment format")
 @click.argument("align_table", type=click.Path(exists=True))
-@click.argument("virtual_digest_catalog", type=click.Path(exists=True))
+@click.argument("fragments_table", type=click.Path(exists=True))
 @click.argument("porec_table")
-@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
 @click.option(
-    "--mapping_quality_cutoff", type=int, default=1, help="Minimum mapping quality for an alignment to be considered"
+    "--mapping_quality_cutoff",
+    type=int,
+    default=1,
+    help="Minimum mapping quality for an alignment to be considered",
+    show_default=True,
 )
 @click.option(
     "--min_overlap_length",
     type=int,
     default=10,
+    show_default=True,
     help="Minimum overlap in base pairs between an alignment and restriction fragment",
 )
 @click.option(
     "--containment_cutoff",
     type=float,
     default=99.0,
+    show_default=True,
     help=(
         "Minimum percentage of a fragment included in an overlap for that "
         "fragment to be considered 'contained' within an alignment"
     ),
 )
+@click.pass_context
 def assign_fragments(
-    align_table,
-    virtual_digest_catalog,
-    porec_table,
-    n_workers,
-    mapping_quality_cutoff,
-    min_overlap_length,
-    containment_cutoff,
+    ctx, align_table, fragments_table, porec_table, mapping_quality_cutoff, min_overlap_length, containment_cutoff,
 ):
-    """Filter the read-sorted alignments in INPUT_BAM and save the results under OUTPUT_PREFIX
+    """For each alignment in ALIGN_TABLE either filter out or assign a fragment from FRAGMENT_TABLE
 
     """
     from pore_c.analyses.alignments import assign_fragments
     from pore_c.model import PoreCRecord
-    from pore_c.utils import DaskExecEnv
     import dask.dataframe as dd
 
-    align_table = dd.read_parquet(align_table, engine="pyarrow")
-
+    logger.info(f"Assigning fragments from {fragments_table} to alignments from {align_table}")
+    align_table = dd.read_parquet(align_table, engine=PQ_ENGINE, version=PQ_VERSION)
+    fragment_df = dd.read_parquet(fragments_table, engine=PQ_ENGINE, version=PQ_VERSION).compute()
     chrom_dtype = align_table.chrom.head(1).dtype
-
-    vd_cat = open_catalog(str(virtual_digest_catalog))
-    fragment_df = vd_cat.fragments.read().astype({"chrom": chrom_dtype}).sort_values(["fragment_id"])
-
-    with DaskExecEnv(n_workers=n_workers) as env:
+    meta = PoreCRecord.pandas_dtype(overrides={"chrom": chrom_dtype})
+    with ctx.meta["dask_env"] as env:
         fragment_df = env.scatter(fragment_df)
-        porec_df = align_table.repartition(npartitions=1).map_partitions(
+        porec_df = align_table.map_partitions(
             assign_fragments,
             fragment_df,
             mapping_quality_cutoff=mapping_quality_cutoff,
             min_overlap_length=min_overlap_length,
             containment_cutoff=containment_cutoff,
-            meta=PoreCRecord.pandas_dtype(overrides={"chrom": chrom_dtype}),
-        )
+            meta=meta,
+        ).set_index(["read_idx"], sorted=True)
+        porec_df.to_parquet(porec_table, version=PQ_VERSION, engine=PQ_ENGINE)
 
-        print(porec_df.compute().dtypes)
-
-    raise ValueError
+    logger.info(f"Fragments written to {porec_table}")
 
 
 #    final_stats = parse_alignment_bam(

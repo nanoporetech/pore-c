@@ -264,6 +264,14 @@ distributed = ["distributed (>=2.0)"]
 
 [[package]]
 category = "main"
+description = "Decorators for Humans"
+name = "decorator"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*"
+version = "4.4.1"
+
+[[package]]
+category = "main"
 description = "serialize all of python"
 name = "dill"
 optional = false
@@ -576,6 +584,18 @@ dill = ">=0.3.1"
 
 [[package]]
 category = "main"
+description = "Simple yet flexible natural sorting in Python."
+name = "natsort"
+optional = false
+python-versions = ">=3.4"
+version = "7.0.1"
+
+[package.extras]
+fast = ["fastnumbers (>=2.0.0)"]
+icu = ["PyICU (>=1.0.0)"]
+
+[[package]]
+category = "main"
 description = "A wrapper for the nested containment list data structure."
 name = "ncls"
 optional = false
@@ -584,6 +604,30 @@ version = "0.0.51"
 
 [package.dependencies]
 numpy = "*"
+
+[[package]]
+category = "main"
+description = "Python package for creating and manipulating graphs and networks"
+name = "networkx"
+optional = false
+python-versions = ">=3.5"
+version = "2.4"
+
+[package.dependencies]
+decorator = ">=4.3.0"
+
+[package.extras]
+all = ["numpy", "scipy", "pandas", "matplotlib", "pygraphviz", "pydot", "pyyaml", "gdal", "lxml", "pytest"]
+gdal = ["gdal"]
+lxml = ["lxml"]
+matplotlib = ["matplotlib"]
+numpy = ["numpy"]
+pandas = ["pandas"]
+pydot = ["pydot"]
+pygraphviz = ["pygraphviz"]
+pytest = ["pytest"]
+pyyaml = ["pyyaml"]
+scipy = ["scipy"]
 
 [[package]]
 category = "dev"
@@ -828,6 +872,38 @@ version = "2.4.6"
 
 [[package]]
 category = "main"
+description = "GenomicRanges for Python."
+name = "pyranges"
+optional = false
+python-versions = "*"
+version = "0.0.71"
+
+[package.dependencies]
+cython = "*"
+natsort = "*"
+ncls = ">=0.0.50"
+pandas = "*"
+pyrle = "*"
+sorted_nearest = ">=0.0.30"
+tabulate = "*"
+
+[[package]]
+category = "main"
+description = ""
+name = "pyrle"
+optional = false
+python-versions = "*"
+version = "0.0.29"
+
+[package.dependencies]
+cython = "*"
+natsort = "*"
+numpy = "*"
+pandas = "*"
+tabulate = "*"
+
+[[package]]
+category = "main"
 description = "pysam"
 name = "pysam"
 optional = false
@@ -958,6 +1034,18 @@ name = "snowballstemmer"
 optional = false
 python-versions = "*"
 version = "2.0.0"
+
+[[package]]
+category = "main"
+description = "Find nearest interval."
+name = "sorted-nearest"
+optional = false
+python-versions = "*"
+version = "0.0.31"
+
+[package.dependencies]
+cython = "*"
+numpy = "*"
 
 [[package]]
 category = "main"
@@ -1152,6 +1240,17 @@ zict = "*"
 
 [[package]]
 category = "main"
+description = "Pretty-print tabular data"
+name = "tabulate"
+optional = false
+python-versions = "*"
+version = "0.8.6"
+
+[package.extras]
+widechars = ["wcwidth"]
+
+[[package]]
+category = "main"
 description = "Traceback serialization library."
 name = "tblib"
 optional = false
@@ -1322,7 +1421,7 @@ doc = []
 tests = []
 
 [metadata]
-content-hash = "31a27710b416d63a28e71d495134576f17df7a32c925216cf5754c3861e6e21f"
+content-hash = "cdcd0681c3989da59dfaa570fd8cc2efa3ea44e3dc0a2ec5e7d7e7aa4c0b486b"
 python-versions = "==3.7.*,>=3.7.0"
 
 [metadata.files]
@@ -1468,6 +1567,10 @@ darglint = [
 dask = [
     {file = "dask-2.10.1-py3-none-any.whl", hash = "sha256:cf9ebd3797e69350cfa463aaeefe20f58c07d84d6fa9548367cd102b5f9b61bb"},
     {file = "dask-2.10.1.tar.gz", hash = "sha256:b20d7dfb8f9f23de9c6c810e0e8b44c3cd83c49f52d26e6d6a0679ed2867de2b"},
+]
+decorator = [
+    {file = "decorator-4.4.1-py2.py3-none-any.whl", hash = "sha256:5d19b92a3c8f7f101c8dd86afd86b0f061a8ce4540ab8cd401fa2542756bce6d"},
+    {file = "decorator-4.4.1.tar.gz", hash = "sha256:54c38050039232e1db4ad7375cfce6748d7b41c29e95a081c8a6d2c30364a2ce"},
 ]
 dill = [
     {file = "dill-0.3.1.1.tar.gz", hash = "sha256:42d8ef819367516592a825746a18073ced42ca169ab1f5f4044134703e7a049c"},
@@ -1685,8 +1788,16 @@ multiprocess = [
     {file = "multiprocess-0.70.9-cp27-cp27m-win_amd64.whl", hash = "sha256:1eb7dfe2d809d53be92e8a288ed1c01614fe5407bbc9d078ed451a749fb1bd34"},
     {file = "multiprocess-0.70.9.tar.gz", hash = "sha256:9fd5bd990132da77e73dec6e9613408602a4612e1d73caf2e2b813d2b61508e5"},
 ]
+natsort = [
+    {file = "natsort-7.0.1-py3-none-any.whl", hash = "sha256:d3fd728a3ceb7c78a59aa8539692a75e37cbfd9b261d4d702e8016639820f90a"},
+    {file = "natsort-7.0.1.tar.gz", hash = "sha256:a633464dc3a22b305df0f27abcb3e83515898aa1fd0ed2f9726c3571a27258cf"},
+]
 ncls = [
     {file = "ncls-0.0.51.tar.gz", hash = "sha256:08ef16e5e42bd2d1bbb6b1a6d29ab599b75110b5ee48f8c366c4cc00b911732d"},
+]
+networkx = [
+    {file = "networkx-2.4-py3-none-any.whl", hash = "sha256:cdfbf698749a5014bf2ed9db4a07a5295df1d3a53bf80bf3cbd61edf9df05fa1"},
+    {file = "networkx-2.4.tar.gz", hash = "sha256:f8f4ff0b6f96e4f9b16af6b84622597b5334bf9cae8cf9b2e42e7985d5c95c64"},
 ]
 nodeenv = [
     {file = "nodeenv-1.3.4-py2.py3-none-any.whl", hash = "sha256:561057acd4ae3809e665a9aaaf214afff110bbb6a6d5c8a96121aea6878408b3"},
@@ -1863,6 +1974,12 @@ pyparsing = [
     {file = "pyparsing-2.4.6-py2.py3-none-any.whl", hash = "sha256:c342dccb5250c08d45fd6f8b4a559613ca603b57498511740e65cd11a2e7dcec"},
     {file = "pyparsing-2.4.6.tar.gz", hash = "sha256:4c830582a84fb022400b85429791bc551f1f4871c33f23e44f353119e92f969f"},
 ]
+pyranges = [
+    {file = "pyranges-0.0.71.tar.gz", hash = "sha256:d4b716bff2a580767986b4482a83a8a80d335bcb7239a51e9cd66c13ccea1687"},
+]
+pyrle = [
+    {file = "pyrle-0.0.29.tar.gz", hash = "sha256:8c4dc9fe1d7330eb9aeca7dabe3b0bfab5552b5187a04465a910529d51beb1cf"},
+]
 pysam = [
     {file = "pysam-0.15.4-cp27-cp27m-macosx_10_6_intel.whl", hash = "sha256:0b0f407ad96b3bd492017ee82a317ac0fc68dc858ecba9119e4ae69b1cda9910"},
     {file = "pysam-0.15.4-cp27-cp27m-manylinux2010_i686.whl", hash = "sha256:5b6a2258e326204ee94bf4d482d9a137ce8cbb3f3cefada42c7f26802d15b95d"},
@@ -2000,6 +2117,9 @@ snowballstemmer = [
     {file = "snowballstemmer-2.0.0-py2.py3-none-any.whl", hash = "sha256:209f257d7533fdb3cb73bdbd24f436239ca3b2fa67d56f6ff88e86be08cc5ef0"},
     {file = "snowballstemmer-2.0.0.tar.gz", hash = "sha256:df3bac3df4c2c01363f3dd2cfa78cce2840a79b9f1c2d2de9ce8d31683992f52"},
 ]
+sorted-nearest = [
+    {file = "sorted_nearest-0.0.31.tar.gz", hash = "sha256:003a5565647417187e2fd1f522b282aaa8022ca875bc4cf46d06691d818c49f4"},
+]
 sortedcontainers = [
     {file = "sortedcontainers-2.1.0-py2.py3-none-any.whl", hash = "sha256:d9e96492dd51fae31e60837736b38fe42a187b5404c16606ff7ee7cd582d4c60"},
     {file = "sortedcontainers-2.1.0.tar.gz", hash = "sha256:974e9a32f56b17c1bac2aebd9dcf197f3eb9cd30553c5852a3187ad162e1a03a"},
@@ -2054,6 +2174,9 @@ sphinxcontrib-serializinghtml = [
 ]
 streamz = [
     {file = "streamz-0.5.2.tar.gz", hash = "sha256:0c106f40ca1804a3646f79f94c8a15233efa97c3152e3cab8bd2b3f964bbf988"},
+]
+tabulate = [
+    {file = "tabulate-0.8.6.tar.gz", hash = "sha256:5470cc6687a091c7042cee89b2946d9235fe9f6d49c193a4ae2ac7bf386737c8"},
 ]
 tblib = [
     {file = "tblib-1.6.0-py2.py3-none-any.whl", hash = "sha256:e222f44485d45ed13fada73b57775e2ff9bd8af62160120bbb6679f5ad80315b"},

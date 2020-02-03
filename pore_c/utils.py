@@ -1,36 +1,52 @@
 import re
 from contextlib import AbstractContextManager
 from time import sleep
+from typing import Optional
 
 from dask.distributed import Client, LocalCluster
 from tqdm import tqdm
 
 
 class DaskExecEnv(AbstractContextManager):
-    def __init__(self, n_workers: int = 1, empty_queue=False):
-        self.parallel = n_workers > 1
-        self.n_workers = n_workers
+    def __init__(
+        self,
+        n_workers: int = 1,
+        processes: bool = True,
+        threads_per_worker: int = 1,
+        scheduler_port: int = 0,
+        dashboard_port: Optional[int] = None,
+        empty_queue=False,
+    ):
+        self._cluster_kwds = {
+            "processes": processes,
+            "n_workers": n_workers,
+            "scheduler_port": scheduler_port,
+            # 'dashboard_port': dashboard_port,   # TODO: need to capture/convert to dashboard_address string
+            "threads_per_worker": threads_per_worker,
+        }
         self.empty_queue = empty_queue
+        self._cluster, self._client = None, None
 
     def scatter(self, data):
         return self._client.scatter(data)
 
     def __enter__(self):
-        if self.parallel:
-            self._cluster = LocalCluster(processes=True, n_workers=self.n_workers, threads_per_worker=1)
-            self._client = Client(self._cluster)
-        else:
-            self._cluster = LocalCluster(processes=False, n_workers=1, threads_per_worker=1)
-            self._client = Client(self._cluster)
+        self._cluster = LocalCluster(**self._cluster_kwds)
+        self._client = Client(self._cluster)
         return self
 
     def __exit__(self, *args):
-        if self.parallel and self.empty_queue:
-            while True:
+        if self._cluster:
+            max_tries = 10
+            backoff = 2
+            delay = 1
+            while max_tries > 1:
                 processing = self._client.processing()
                 still_running = [len(v) > 0 for k, v in processing.items()]
                 if any(still_running):
-                    sleep(5)
+                    sleep(delay)
+                    max_tries -= 1
+                    delay = delay * backoff
                 else:
                     sleep(1)
                     break

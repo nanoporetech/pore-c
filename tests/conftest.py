@@ -29,3 +29,13 @@ def read_sorted_bam():
 @pytest.fixture(scope="session")
 def haplotagged_bam():
     return DATA_DIR / "NlaIII_run01_GRCh38.haplotagged.bam"
+
+
+@pytest.fixture(scope="session")
+def align_table_pq():
+    return DATA_DIR / "NlaIII_run01_GRCh38.align_table.parquet"
+
+
+@pytest.fixture(scope="session")
+def fragment_table_pq():
+    return DATA_DIR / "NlaIII_GRCh38.vd.fragments.parquet"
