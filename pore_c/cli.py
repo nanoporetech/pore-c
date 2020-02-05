@@ -450,19 +450,23 @@ def to_contacts(ctx, porec_table, contact_table, concatemer_table):
 
     """
     from pore_c.analyses.alignments import to_contacts, gather_concatemer_stats
-    from .model import PoreCContactRecord
+    from .model import PoreCContactRecord, PoreCConcatemerRecord
 
     porec_table = dd.read_parquet(porec_table, engine=PQ_ENGINE, version=PQ_VERSION)
     chrom_dtype = porec_table.chrom.head(1).dtype
-    meta = PoreCContactRecord.pandas_dtype(overrides={"align1_chrom": chrom_dtype, "align2_chrom": chrom_dtype})
+    contact_meta = PoreCContactRecord.pandas_dtype(overrides={"align1_chrom": chrom_dtype, "align2_chrom": chrom_dtype})
+    concatemer_meta = PoreCConcatemerRecord.pandas_dtype()
 
     with ctx.meta["dask_env"]:
-        contacts_df = porec_table.map_partitions(to_contacts, meta=meta).set_index("read_idx", sorted=True)
-        concatemer_df = contacts_df.map_partitions(gather_concatemer_stats, meta=meta)
-        raise ValueError(concatemer_df.compute())
+        contacts_df = porec_table.map_partitions(to_contacts, meta=contact_meta).set_index("read_idx", sorted=True)
+        concatemer_df = contacts_df.map_partitions(gather_concatemer_stats, meta=concatemer_meta).set_index(
+            "read_idx", sorted=True
+        )
         contacts_df.to_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION)
+        concatemer_df.to_parquet(concatemer_table, engine=PQ_ENGINE, version=PQ_VERSION)
 
     logger.info(f"Wrote contacts to {contact_table}")
+    logger.info(f"Wrote concatemers to {concatemer_table}")
 
 
 @cli.group(cls=NaturalOrderGroup, short_help="Work the the contacts table")

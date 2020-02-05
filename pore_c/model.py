@@ -267,6 +267,16 @@ class PoreCRecord(AlignmentRecord):
         return res
 
 
+class HaplotypePairType(str, Enum):
+    null = "null"
+    trans = "trans"
+    unphased = "unphased"
+    semi_phased = "semi_phased"
+    phased_sets_differ = "phased_sets_differ"
+    phased_h_cis = "phased_h_cis"
+    phased_h_trans = "phased_h_trans"
+
+
 class PoreCContactRecord(_BaseModel):
     read_idx: conint(ge=0, strict=True)
     contact_is_direct: bool = False
@@ -274,6 +284,7 @@ class PoreCContactRecord(_BaseModel):
     contact_read_distance: int = 0
     contact_genome_distance: int = 0
     contact_fragment_distance: conint(ge=0, strict=True)
+    haplotype_pair_type: HaplotypePairType = HaplotypePairType.null
     align1_align_idx: conint(ge=0, strict=True)
     align1_chrom: constr(min_length=1, strip_whitespace=True)
     align1_start: conint(ge=0)
@@ -323,9 +334,16 @@ class PoreCContactRecord(_BaseModel):
             ),
             contact_fragment_distance=dict(
                 description=(
-                    "The distance between the midpoints of the assigned fragments " "(valid for cis contacts only)"
+                    "The distance between the midpoints of the assigned fragments (valid for cis contacts only)"
                 ),
                 dtype=GENOMIC_DISTANCE_DTYPE,
+            ),
+            haplotype_pair_type=dict(
+                description=(
+                    "A categorical variable describing the relationship between the haplotypes assigned to each of the "
+                    "alignments in a contact",
+                ),
+                dtype="category",
             ),
             align1_align_idx=dict(description="Unique integer ID of the first aligned segment", dtype=ALIGN_IDX_DTYPE),
             align1_chrom=dict(description="The chromosome/contig of the first aligned segment", dtype="category"),
@@ -404,6 +422,21 @@ class PoreCContactRecord(_BaseModel):
         else:
             contact_genome_distance = 0
             contact_fragment_distance = 0
+
+        haplotype_pair_type = HaplotypePairType.null
+        if not contact_is_cis:
+            haplotype_pair_type = HaplotypePairType.trans
+        elif align1.haplotype == -1 and align2.haplotype == -1:
+            haplotype_pair_type = HaplotypePairType.unphased
+        elif align1.haplotype == -1 or align2.haplotype == -1:
+            haplotype_pair_type = HaplotypePairType.semi_phased
+        elif align1.phase_set != align2.phase_set:
+            haplotype_pair_type = HaplotypePairType.phased_sets_differ
+        elif align1.haplotype == align2.haplotype:
+            haplotype_pair_type = HaplotypePairType.phased_h_cis
+        else:
+            haplotype_pair_type = HaplotypePairType.phased_h_trans
+
         return cls(
             read_idx=read_idx,
             contact_is_direct=contact_is_direct,
@@ -411,6 +444,7 @@ class PoreCContactRecord(_BaseModel):
             contact_read_distance=contact_read_distance,
             contact_genome_distance=contact_genome_distance,
             contact_fragment_distance=contact_fragment_distance,
+            haplotype_pair_type=haplotype_pair_type,
             align1_align_idx=align1.align_idx,
             align1_chrom=align1.chrom,
             align1_start=align1.start,
@@ -438,10 +472,88 @@ class PoreCContactRecord(_BaseModel):
         )
 
 
+class PoreCConcatemerRecord(_BaseModel):
+    read_idx: conint(ge=0, strict=True)
+    indirect_contacts: conint(ge=0, strict=True)
+    direct_contacts: conint(ge=0, strict=True)
+    total_contacts: conint(ge=0, strict=True)
+    read_order: conint(ge=0, strict=True)
+    total_cis_contacts: conint(ge=0, strict=True)
+    haplotype_phased_h_cis: conint(ge=0, strict=True)
+    haplotype_phased_h_trans: conint(ge=0, strict=True)
+    haplotype_phased_sets_differ: conint(ge=0, strict=True)
+    haplotype_semi_phased: conint(ge=0, strict=True)
+    haplotype_unphased: conint(ge=0, strict=True)
+    max_indirect_contact_genome_distance: conint(ge=0, strict=True)
+    max_direct_contact_genome_distance: conint(ge=0, strict=True)
+    max_indirect_contact_fragment_distance: conint(ge=0, strict=True)
+    max_direct_contact_fragment_distance: conint(ge=0, strict=True)
+
+    class Config:
+        use_enum_values = True
+        fields = dict(
+            read_idx=dict(description="Unique integer ID of the read", dtype=READ_IDX_DTYPE),
+            read_order=dict(description="The number of monomers for this read", dtype="uint32"),
+            total_contacts=dict(description="The total number of contacts for this read", dtype="uint32"),
+            direct_contacts=dict(
+                description="The total number direct (adjacent on read) contacts for this read", dtype="uint32"
+            ),
+            indirect_contacts=dict(
+                description="The total number indirect (non-adjacent on read) contacts for this read", dtype="uint32"
+            ),
+            total_cis_contacts=dict(
+                description="The total number of cis-contacts (direct + indirect) for this read", dtype="uint32"
+            ),
+            haplotype_unphased=dict(
+                description="The number of cis contacts where both members of the pair are unphased", dtype="uint32"
+            ),
+            haplotype_semi_phased=dict(
+                description="The number of cis contacts where one member of the pair is unphased", dtype="uint32"
+            ),
+            haplotype_phased_sets_differ=dict(
+                description=(
+                    "The number of cis contacts where both members of the pair are phased but the phase sets differ"
+                ),
+                dtype="uint32",
+            ),
+            haplotype_phased_h_trans=dict(
+                description=(
+                    "The number of cis contacts where both members of the pair are phased, are part of the same phase "
+                    "group, but the haplotypes differ"
+                ),
+                dtype="uint32",
+            ),
+            haplotype_phased_h_cis=dict(
+                description=(
+                    "The number of cis contacts where both members of the pair are phased, are part of the same phase "
+                    "group, and the haplotypes agree"
+                ),
+                dtype="uint32",
+            ),
+            max_direct_contact_fragment_distance=dict(
+                description=("The longest distance between fragment midpoints for all direct contacts",),
+                dtype=GENOMIC_DISTANCE_DTYPE,
+            ),
+            max_indirect_contact_fragment_distance=dict(
+                description=("The longest distance between fragment midpoints for all indirect contacts",),
+                dtype=GENOMIC_DISTANCE_DTYPE,
+            ),
+            max_direct_contact_genome_distance=dict(
+                description=("The longest distance between alignment endpoints for all direct contacts",),
+                dtype=GENOMIC_DISTANCE_DTYPE,
+            ),
+            max_indirect_contact_genome_distance=dict(
+                description=("The longest distance between alignment endpoints for all indirect contacts",),
+                dtype=GENOMIC_DISTANCE_DTYPE,
+            ),
+        )
+
+
 AlignmentRecordDf = NewType("AlignmentRecordDf", pd.DataFrame)
 FragmentRecordDf = NewType("FragmentRecordDf", pd.DataFrame)
 PoreCRecordDf = NewType("PoreCRecordDf", pd.DataFrame)
-PoreCContactRecordDf = NewType("PoreCRecordDf", pd.DataFrame)
+PoreCContactRecordDf = NewType("PoreCContactRecordDf", pd.DataFrame)
+PoreCConcatemerRecordDf = NewType("PoreCConcatemerRecordDf", pd.DataFrame)
 
 Chrom = NewType("Chrom", str)
 
