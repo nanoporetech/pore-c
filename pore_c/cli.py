@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 
 import click
+import dask.dataframe as dd
 import pandas as pd
 from intake import open_catalog
 
@@ -414,10 +415,10 @@ def assign_fragments(
 ):
     """For each alignment in ALIGN_TABLE either filter out or assign a fragment from FRAGMENT_TABLE
 
+
     """
     from pore_c.analyses.alignments import assign_fragments
     from pore_c.model import PoreCRecord
-    import dask.dataframe as dd
 
     logger.info(f"Assigning fragments from {fragments_table} to alignments from {align_table}")
     align_table = dd.read_parquet(align_table, engine=PQ_ENGINE, version=PQ_VERSION)
@@ -439,65 +440,29 @@ def assign_fragments(
     logger.info(f"Fragments written to {porec_table}")
 
 
-#    final_stats = parse_alignment_bam(
-#        source_aligns,
-#        fragment_df,
-#        alignment_table=file_paths["alignment"],
-#        read_table=file_paths["read"],
-#        overlap_table=file_paths["overlap"],
-#        alignment_summary=file_paths["alignment_summary"],
-#        read_summary=file_paths["read_summary"],
-#        n_workers=n_workers,
-#        chunksize=chunksize,
-#        phased=phased,
-#        mapping_quality_cutoff=mapping_quality_cutoff,
-#        min_overlap_length=min_overlap_length,
-#        containment_cutoff=containment_cutoff,
-#    )
-#    metadata = {"final_stats": final_stats}
-#    file_paths["virtual_digest"] = Path(virtual_digest_catalog)
-#    file_paths["input_bam"] = Path(input_bam)
-#    adf_cat = catalogs.AlignmentDfCatalog.create(file_paths, metadata, {})
-#    logger.info(str(adf_cat))
-
-
 @alignments.command(short_help="Parses the alignment table and converts to pairwise contacts")
-@click.argument("align_table", type=click.Path(exists=True))
-@click.argument("output_table")
-@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
-def clean_haplotypes(align_table, output_table, n_workers):
-    """Clean up haplotype assignments for each read
-
-    """
-    from dask import dataframe as ddf
-    from pore_c.analyses.alignments import clean_haplotypes
-
-    align_df = ddf.read_parquet(align_table, engine="pyarrow")
-
-    res = clean_haplotypes(align_df, output_table, n_workers=n_workers)
-    raise ValueError(res)
-
-
-@alignments.command(short_help="Parses the alignment table and converts to pairwise contacts")
-@click.argument("align_catalog", type=click.Path(exists=True))
-@click.argument("output_prefix")
-@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
-def to_contacts(align_catalog, output_prefix, n_workers):
+@click.argument("porec_table", type=click.Path(exists=True))
+@click.argument("contact_table", type=click.Path(exists=False))
+@click.argument("concatemer_table", type=click.Path(exists=False))
+@click.pass_context
+def to_contacts(ctx, porec_table, contact_table, concatemer_table):
     """Covert the alignment table to virtual pairwise contacts
 
     """
-    from pore_c.analyses.alignments import convert_align_df_to_contact_df
+    from pore_c.analyses.alignments import to_contacts, gather_concatemer_stats
+    from .model import PoreCContactRecord
 
-    file_paths = catalogs.ContactCatalog.generate_paths(output_prefix)
+    porec_table = dd.read_parquet(porec_table, engine=PQ_ENGINE, version=PQ_VERSION)
+    chrom_dtype = porec_table.chrom.head(1).dtype
+    meta = PoreCContactRecord.pandas_dtype(overrides={"align1_chrom": chrom_dtype, "align2_chrom": chrom_dtype})
 
-    adf_cat = open_catalog(str(align_catalog))
-    align_df = adf_cat.alignment.to_dask()
+    with ctx.meta["dask_env"]:
+        contacts_df = porec_table.map_partitions(to_contacts, meta=meta).set_index("read_idx", sorted=True)
+        concatemer_df = contacts_df.map_partitions(gather_concatemer_stats, meta=meta)
+        raise ValueError(concatemer_df.compute())
+        contacts_df.to_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION)
 
-    logger.info(f"Converting alignments in {align_catalog} to contact format")
-    convert_align_df_to_contact_df(align_df, contacts=file_paths["contacts"], n_workers=n_workers)
-    metadata = {}
-    contact_catalog = catalogs.ContactCatalog.create(file_paths, metadata, {})
-    logger.info(str(contact_catalog))
+    logger.info(f"Wrote contacts to {contact_table}")
 
 
 @cli.group(cls=NaturalOrderGroup, short_help="Work the the contacts table")

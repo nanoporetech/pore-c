@@ -1,25 +1,25 @@
 import logging
 from itertools import combinations
 from pathlib import Path
-from typing import Dict, Union
+from typing import Union
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 
 from pore_c.model import (
-    AlignDf,
-    BamEntryDf,
+    AlignmentRecordDf,
     ContactDf,
     FragmentDf,
-    PairDf,
-    PhasedBamEntryDf,
     PhasedContactDf,
     PhasedPoreCAlignDf,
     PoreCAlignDf,
+    PoreCContactRecord,
+    PoreCContactRecordDf,
     PoreCReadDf,
+    PoreCRecordDf,
 )
-from pore_c.utils import DaskExecEnv, DataFrameProgress
+from pore_c.utils import DaskExecEnv
 
 
 logger = logging.getLogger(__name__)
@@ -28,12 +28,12 @@ FILTER_REASON_DTYPE = PoreCAlignDf.DTYPE["reason"]
 
 
 def assign_fragments(
-    align_table: Union[BamEntryDf, PhasedBamEntryDf],
+    align_table: AlignmentRecordDf,
     fragment_df: FragmentDf,
     mapping_quality_cutoff: int = 1,
     min_overlap_length: int = 10,
     containment_cutoff: float = 99.0,
-) -> Dict:
+) -> PoreCRecordDf:
     # initialise everything as having passed filter
 
     from pore_c.model import PoreCRecord
@@ -145,7 +145,6 @@ def assign_fragment(pore_c_table, fragment_df, min_overlap_length: int, containm
 
     dtype = {col: dtype for col, dtype in pore_c_table.dtypes.items() if col in align_df.columns}
     align_df = align_df.astype(dtype)
-    # pore_c_table.head(5))
     return align_df
 
 
@@ -282,100 +281,6 @@ def filter_shortest_path(read_df, aligner="minimap2"):
     return read_df
 
 
-def clean_haplotypes(align_df, output_path, n_workers: int = 1):
-
-    with DaskExecEnv(n_workers=n_workers):
-        cleaned_df = align_df.map_partitions(_clean_haplotypes, meta=align_df._meta).compute()
-    return cleaned_df
-
-
-def _clean_haplotypes(align_df, *args):
-
-    return align_df.groupby("read_idx").apply(clean_read_haplotypes)
-
-
-def clean_read_haplotypes(read_aligns, min_count=1, min_prop=0.5):
-
-    # dataframe containing the count of phased alignment segments per chromosome and haplotype
-    counts_df = (
-        read_aligns.loc[(read_aligns.pass_filter & (read_aligns.haplotype > 0)), :]
-        .groupby(["chrom", "phase_block", "haplotype"])
-        .size()
-        .rename("count")
-        .to_frame()
-        .groupby(level=["chrom", "phase_block"])
-        .filter(lambda x: len(x) > 1)
-    )
-    if len(counts_df) == 0:
-        return read_aligns
-    else:
-        g = counts_df.groupby(level=["chrom", "phase_block"])
-        # proportion of alignments in each phase block assigned to each haplotype
-        counts_df["prop"] = g.transform(lambda x: x / x.sum())
-        counts_df["rank"] = g["count"].rank()
-        raise NotImplementedError
-        return read_aligns
-
-
-class AlignmentProgress(DataFrameProgress):
-    def __init__(self, **kwds):
-        kwds["desc"] = "Alignments processed"
-        kwds["unit"] = " alignments"
-        super(AlignmentProgress, self).__init__(**kwds)
-
-    def update_data(self, align_df):
-        pass_stats = align_df["reason"].value_counts(dropna=False).to_frame().T.reset_index(drop=True)
-        if self._data is None:
-            self._data = pass_stats
-        else:
-            self._data += pass_stats
-
-    def update_progress_bar(self, num_aligns):
-        percents = (100.0 * self._data).div(self._data.sum(axis=1), axis=0)
-        self._bar.update(num_aligns)
-        self._bar.set_postfix(percents.iloc[0, :].to_dict())
-
-
-class ReadProgress(DataFrameProgress):
-    def __init__(self, **kwds):
-        kwds["desc"] = "Reads processed"
-        kwds["unit"] = " reads"
-        super(ReadProgress, self).__init__(**kwds)
-        self._contact_histogram = None
-
-    def update_data(self, read_df):
-        count_cols = ["read_length", "num_contacts", "num_cis_contacts", "num_aligns", "num_pass_aligns"]
-        counts = read_df.loc[:, count_cols].sum(axis=0)
-        counts["reads"] = len(read_df)
-        counts = counts.astype(int).to_frame().T
-
-        if self._data is None:
-            self._data = counts
-        else:
-            self._data += counts
-
-    @staticmethod
-    def summarize(df):
-        summary = (
-            df.eval("Gb = read_length * 1e-9")
-            .eval("contacts_per_Gb = num_contacts/Gb")
-            .eval("percent_cis = 100 * (num_cis_contacts / num_contacts)")
-            .loc[:, ["reads", "Gb", "num_contacts", "contacts_per_Gb", "percent_cis"]]
-        )
-        return summary
-
-    def update_progress_bar(self, num_aligns):
-        self._bar.update(num_aligns)
-        self._bar.set_postfix(self.summarize(self._data).iloc[0, :].to_dict())
-
-    def final_stats(self):
-        return self._data.join(self.summarize(self._data).drop(columns=["num_contacts", "reads"])).iloc[0, :].to_dict()
-
-    def save(self, path):
-        df = self._data.join(self.summarize(self._data).drop(columns=["num_contacts", "reads"]))
-        df.to_csv(path, index=False)
-
-
 def convert_align_df_to_contact_df(
     align_df: Union[PoreCAlignDf, PhasedPoreCAlignDf], contacts: Path, n_workers: int = 1
 ):
@@ -390,91 +295,42 @@ def convert_align_df_to_contact_df(
         contact_df.to_parquet(str(contacts), engine="pyarrow")
 
 
-def to_contacts(df: Union[AlignDf, PhasedPoreCAlignDf], phased=False) -> ContactDf:
-
+def to_contacts(df: PoreCRecordDf) -> PoreCContactRecordDf:
     res = []
-    keep_segments = (
-        df.query("pass_filter == True").replace({"strand": {True: "+", False: "-"}})
-        # convert strand to +/- and chrom to string for lexographical sorting to get upper-triangle
-        .astype({"strand": PairDf.DTYPE["strand1"], "chrom": str})
+    keep_segments = df.query("pass_filter == True").assign(
+        fragment_midpoint=lambda x: np.rint((x.fragment_start + x.fragment_end) * 0.5).astype(int)
     )
+    chrom_dtype = df.dtypes["chrom"]
     for x, (read_idx, read_df) in enumerate(keep_segments.groupby("read_idx", as_index=False)):
         if len(read_df) <= 1:
             continue
 
-        read_info = read_df[["read_name", "read_length"]].iloc[0, :]
-        read_name = read_info["read_name"]
-        read_length = read_info["read_length"]
-        read_order = len(read_df)
         rows = list(
             read_df.sort_values(["read_start"], ascending=True)
-            .assign(
-                pos_on_read=lambda x: np.arange(len(x)),
-                fragment_midpoint=lambda x: np.rint((x.fragment_start + x.fragment_end) * 0.5).astype(int),
-            )
+            .assign(pos_on_read=lambda x: np.arange(len(x)))
             .itertuples()
         )
-
         for (align_1, align_2) in combinations(rows, 2):
-            res.append(
-                align_pair_to_tuple(align_1, align_2, read_name, read_idx, read_length, read_order, phased=phased)
+            contact = PoreCContactRecord.from_pore_c_align_pair(
+                read_idx, align_1, align_2, contact_is_direct=align_2.pos_on_read - align_1.pos_on_read == 1
             )
-    if phased:
-        df_type = PhasedContactDf
-    else:
-        df_type = ContactDf
-    return pd.DataFrame(res, columns=df_type.DTYPE.keys()).astype(df_type.DTYPE)
+            res.append(contact)
 
-
-def align_pair_to_tuple(align_1, align_2, read_name, read_idx, read_length, read_order, phased=False):
-    contact_is_direct = (align_2.pos_on_read - align_1.pos_on_read) == 1
-    if align_1.fragment_id > align_2.fragment_id:
-        align_1, align_2 = align_2, align_1
-
-    contact_is_cis = align_1.chrom == align_2.chrom
-    if contact_is_cis:
-        contact_genome_distance = align_2.start - align_1.end
-        contact_fragment_distance = align_2.fragment_midpoint - align_1.fragment_midpoint
-    else:
-        contact_genome_distance = 0
-        contact_fragment_distance = 0
-
-    res = (
-        read_name,
-        read_idx,
-        read_length,
-        read_order,
-        contact_is_direct,
-        contact_is_cis,
-        contact_genome_distance,
-        contact_fragment_distance,
-        align_1.align_idx,
-        align_1.chrom,
-        align_1.start,
-        align_1.end,
-        align_1.strand,
-        align_1.read_start,
-        align_1.read_end,
-        align_1.mapping_quality,
-        align_1.score,
-        align_1.fragment_id,
-        align_1.fragment_start,
-        align_1.fragment_end,
-        align_1.fragment_midpoint,
-        align_2.align_idx,
-        align_2.chrom,
-        align_2.start,
-        align_2.end,
-        align_2.strand,
-        align_2.read_start,
-        align_2.read_end,
-        align_2.mapping_quality,
-        align_2.score,
-        align_2.fragment_id,
-        align_2.fragment_start,
-        align_2.fragment_end,
-        align_2.fragment_midpoint,
-    )
-    if phased:
-        res = (*res, align_1.phase_block, align_1.haplotype, align_2.phase_block, align_2.haplotype)
+    res = PoreCContactRecord.to_dataframe(res, overrides={"align1_chrom": chrom_dtype, "align2_chrom": chrom_dtype})
     return res
+
+
+def gather_concatemer_stats(contact_df: PoreCContactRecordDf):
+
+    by_read = contact_df.groupby(level="read_idx")
+
+    agg = (
+        by_read["contact_is_direct"]
+        .agg(["sum", "size"])
+        .astype("uint16")
+        .rename(columns={"sum": "direct_contacts", "size": "total_contacts"})
+        .eval("read_order = direct_contacts  + 1 ")
+        .join(by_read[["contact_genome_distance", "contact_fragment_distance"]].max())
+        .join(by_read["contact_is_cis"].sum().astype(int).rename("cis_contacts").to_frame())
+    )
+    raise ValueError(agg)

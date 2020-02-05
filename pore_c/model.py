@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, List, NewType, Tuple
+from typing import Dict, List, NewType, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -13,11 +13,13 @@ from .config import (
     ALIGN_SCORE_DTYPE,
     FRAG_IDX_DTYPE,
     GENOMIC_COORD_DTYPE,
+    GENOMIC_DISTANCE_DTYPE,
     HAPLOTYPE_IDX_DTYPE,
     MQ_DTYPE,
     PERCENTAGE_DTYPE,
     PHASE_SET_DTYPE,
     READ_COORD_DTYPE,
+    READ_DISTANCE_DTYPE,
     READ_IDX_DTYPE,
     STRAND_DTYPE,
 )
@@ -44,14 +46,10 @@ class _BaseModel(BaseModel):
         return tuple([_[1] for _ in self])
 
     @classmethod
-    def to_dataframe(cls, aligns: List, chrom_order: List[str] = None):
-        columns = [a[0] for a in aligns[0]]
-        if chrom_order:
-            overrides = {"chrom": pd.CategoricalDtype(chrom_order, ordered=True)}
-        else:
-            overrides = {}
+    def to_dataframe(cls, data: List, overrides=Optional[Dict]):
+        columns = [a[0] for a in data[0]]
         dtype = cls.pandas_dtype(overrides=overrides)
-        df = pd.DataFrame([a.to_tuple() for a in aligns], columns=columns).astype(dtype)
+        df = pd.DataFrame([a.to_tuple() for a in data], columns=columns).astype(dtype)
         return df
 
 
@@ -76,34 +74,10 @@ class FragmentRecord(_BaseModel):
         fields = dict(
             chrom=dict(description="The chromosome/contig the fragment is derived from", dtype="category"),
             start=dict(
-                description="The zero-based start position on the genome of the fragment", dtype=GENOMIC_COORD_DTYPE,
+                description="The zero-based start position on the genome of the fragment", dtype=GENOMIC_COORD_DTYPE
             ),
             end=dict(
-                description="The zero-based end position on the genome of the fragment", dtype=GENOMIC_COORD_DTYPE,
-            ),
-            fragment_id=dict(description="Unique integer ID of the fragment, starts at 1", dtype=FRAG_IDX_DTYPE),
-            fragment_length=dict(description="Length of the fragment", dtype=GENOMIC_COORD_DTYPE),
-        )
-
-
-class ReadMetaDataRecord(_BaseModel):
-    """Meta-data associated with a restriction fragments"""
-
-    chrom: constr(min_length=1, strip_whitespace=True)
-    start: conint(ge=0)
-    end: conint(ge=0)
-    fragment_id: conint(ge=1, strict=True)
-    fragment_length: conint(ge=1, strict=True)
-
-    class Config:
-        use_enum_values = True
-        fields = dict(
-            chrom=dict(description="The chromosome/contig the fragment is derived from", dtype="category"),
-            start=dict(
-                description="The zero-based start position on the genome of the fragment", dtype=GENOMIC_COORD_DTYPE,
-            ),
-            end=dict(
-                description="The zero-based end position on the genome of the fragment", dtype=GENOMIC_COORD_DTYPE,
+                description="The zero-based end position on the genome of the fragment", dtype=GENOMIC_COORD_DTYPE
             ),
             fragment_id=dict(description="Unique integer ID of the fragment, starts at 1", dtype=FRAG_IDX_DTYPE),
             fragment_length=dict(description="Length of the fragment", dtype=GENOMIC_COORD_DTYPE),
@@ -132,16 +106,16 @@ class AlignmentRecord(_BaseModel):
     class Config:
         use_enum_values = True
         fields = dict(
-            read_idx=dict(description="Unique integer ID of the read", dtype=READ_IDX_DTYPE,),
-            align_idx=dict(description="Unique integer ID of the aligned segment", dtype=ALIGN_IDX_DTYPE,),
+            read_idx=dict(description="Unique integer ID of the read", dtype=READ_IDX_DTYPE),
+            align_idx=dict(description="Unique integer ID of the aligned segment", dtype=ALIGN_IDX_DTYPE),
             align_type=dict(description="The type of alignment", dtype="category"),
             chrom=dict(description="The chromosome/contig the read is aligned to", dtype="category"),
             start=dict(
-                description="The zero-based start position on the genome of the alignment", dtype=GENOMIC_COORD_DTYPE,
+                description="The zero-based start position on the genome of the alignment", dtype=GENOMIC_COORD_DTYPE
             ),
-            end=dict(description="The end position on the genome of the alignment", dtype=GENOMIC_COORD_DTYPE,),
-            strand=dict(description="The alignment strand", dtype="bool",),
-            read_name=dict(description="The original read name", dtype="str",),
+            end=dict(description="The end position on the genome of the alignment", dtype=GENOMIC_COORD_DTYPE),
+            strand=dict(description="The alignment strand", dtype="bool"),
+            read_name=dict(description="The original read name", dtype="str"),
             read_length=dict(description="The length of the read in bases", dtype=READ_COORD_DTYPE),
             read_start=dict(description="The start coordinate on the read (0-based)", dtype=READ_COORD_DTYPE),
             read_end=dict(description="The end coordinate on the read (0-based)", dtype=READ_COORD_DTYPE),
@@ -205,6 +179,17 @@ class AlignmentRecord(_BaseModel):
             **optional
         )
 
+    @classmethod
+    def to_dataframe(cls, aligns: List, chrom_order: List[str] = None):
+        columns = [a[0] for a in aligns[0]]
+        if chrom_order:
+            overrides = {"chrom": pd.CategoricalDtype(chrom_order, ordered=True)}
+        else:
+            overrides = {}
+        dtype = cls.pandas_dtype(overrides=overrides)
+        df = pd.DataFrame([a.to_tuple() for a in aligns], columns=columns).astype(dtype)
+        return df
+
 
 class AlignmentFilterReason(str, Enum):
     null = "null"
@@ -244,7 +229,7 @@ class PoreCRecord(AlignmentRecord):
                 dtype="uint32",
             ),
             num_overlapping_fragments=dict(
-                description="The number of restriction fragments overlapping this alignment", dtype="uint32",
+                description="The number of restriction fragments overlapping this alignment", dtype="uint32"
             ),
             overlap_length=dict(
                 description="The length of the overlap between alignment and fragment", dtype=GENOMIC_COORD_DTYPE
@@ -271,7 +256,6 @@ class PoreCRecord(AlignmentRecord):
 
     @classmethod
     def init_dataframe(cls, align_df: "AlignmentRecordDf") -> "PoreCRecordDf":
-
         res = align_df.copy()
         schema = cls.schema()["properties"]
         dtype = cls.pandas_dtype()
@@ -283,20 +267,192 @@ class PoreCRecord(AlignmentRecord):
         return res
 
 
+class PoreCContactRecord(_BaseModel):
+    read_idx: conint(ge=0, strict=True)
+    contact_is_direct: bool = False
+    contact_is_cis: bool = False
+    contact_read_distance: int = 0
+    contact_genome_distance: int = 0
+    contact_fragment_distance: conint(ge=0, strict=True)
+    align1_align_idx: conint(ge=0, strict=True)
+    align1_chrom: constr(min_length=1, strip_whitespace=True)
+    align1_start: conint(ge=0)
+    align1_end: conint(ge=0)
+    align1_strand: STRAND_DTYPE
+    align1_mapping_quality: conint(ge=0, le=255)
+    align1_align_score: conint(ge=0)
+    align1_phase_set: int = 0
+    align1_haplotype: conint(ge=-1) = -1
+    align1_fragment_id: conint(ge=0) = 0
+    align1_fragment_start: conint(ge=0) = 0
+    align1_fragment_end: conint(ge=0) = 0
+    align2_align_idx: conint(ge=0, strict=True)
+    align2_chrom: constr(min_length=1, strip_whitespace=True)
+    align2_start: conint(ge=0)
+    align2_end: conint(ge=0)
+    align2_strand: STRAND_DTYPE
+    align2_mapping_quality: conint(ge=0, le=255)
+    align2_align_score: conint(ge=0)
+    align2_phase_set: int = 0
+    align2_haplotype: conint(ge=-1) = -1
+    align2_fragment_id: conint(ge=0) = 0
+    align2_fragment_start: conint(ge=0) = 0
+    align2_fragment_end: conint(ge=0) = 0
+
+    class Config:
+        use_enum_values = True
+        fields = dict(
+            read_idx=dict(description="Unique integer ID of the read", dtype=READ_IDX_DTYPE),
+            contact_is_direct=dict(
+                description="There are no intervening assigned restriction fragments on the read", dtype=bool
+            ),
+            contact_is_cis=dict(description="Both alignments come from the same chromsome/contig", dtype=bool),
+            contact_read_distance=dict(
+                description=(
+                    "The distance between the end of the left alignment and the start of the right "
+                    "alignment on the read"
+                ),
+                dtype=READ_DISTANCE_DTYPE,
+            ),
+            contact_genome_distance=dict(
+                description=(
+                    "The distance between the end of the left alignment and the start of the right alignment "
+                    "(valid for cis contacts only)"
+                ),
+                dtype=GENOMIC_DISTANCE_DTYPE,
+            ),
+            contact_fragment_distance=dict(
+                description=(
+                    "The distance between the midpoints of the assigned fragments " "(valid for cis contacts only)"
+                ),
+                dtype=GENOMIC_DISTANCE_DTYPE,
+            ),
+            align1_align_idx=dict(description="Unique integer ID of the first aligned segment", dtype=ALIGN_IDX_DTYPE),
+            align1_chrom=dict(description="The chromosome/contig of the first aligned segment", dtype="category"),
+            align1_start=dict(
+                description="The zero-based start position on the genome of the alignment", dtype=GENOMIC_COORD_DTYPE
+            ),
+            align1_end=dict(description="The end position on the genome of the alignment", dtype=GENOMIC_COORD_DTYPE),
+            align1_strand=dict(description="The alignment strand", dtype="bool"),
+            align1_mapping_quality=dict(description="The mapping quality as calculated by the aligner", dtype=MQ_DTYPE),
+            align1_align_score=dict(
+                description="The alignment score as calculated by the aligner", dtype=ALIGN_SCORE_DTYPE
+            ),
+            align1_phase_set=dict(
+                description="The ID of the phase set, often this is the start position of the phase block",
+                dtype=PHASE_SET_DTYPE,
+            ),
+            align1_haplotype=dict(
+                description=(
+                    "The id of the haplotype within this block, usually set to 1 or 2. "
+                    "A value of -1 means that this alignment is unphased"
+                ),
+                dtype=HAPLOTYPE_IDX_DTYPE,
+            ),
+            align1_fragment_id=dict(
+                description="The UID of the restriction fragment assigned to this alignment", dtype=FRAG_IDX_DTYPE
+            ),
+            align1_fragment_start=dict(
+                description="The start point on the genome of this restriction fragment", dtype=GENOMIC_COORD_DTYPE
+            ),
+            align1_fragment_end=dict(
+                description="The end point on the genome of this restriction fragment", dtype=GENOMIC_COORD_DTYPE
+            ),
+            align2_align_idx=dict(description="Unique integer ID of the first aligned segment", dtype=ALIGN_IDX_DTYPE),
+            align2_chrom=dict(description="The chromosome/contig of the first aligned segment", dtype="category"),
+            align2_start=dict(
+                description="The zero-based start position on the genome of the alignment", dtype=GENOMIC_COORD_DTYPE
+            ),
+            align2_end=dict(description="The end position on the genome of the alignment", dtype=GENOMIC_COORD_DTYPE),
+            align2_strand=dict(description="The alignment strand", dtype="bool"),
+            align2_mapping_quality=dict(description="The mapping quality as calculated by the aligner", dtype=MQ_DTYPE),
+            align2_align_score=dict(
+                description="The alignment score as calculated by the aligner", dtype=ALIGN_SCORE_DTYPE
+            ),
+            align2_phase_set=dict(
+                description="The ID of the phase set, often this is the start position of the phase block",
+                dtype=PHASE_SET_DTYPE,
+            ),
+            align2_haplotype=dict(
+                description=(
+                    "The id of the haplotype within this block, usually set to 1 or 2. "
+                    "A value of -1 means that this alignment is unphased"
+                ),
+                dtype=HAPLOTYPE_IDX_DTYPE,
+            ),
+            align2_fragment_id=dict(
+                description="The UID of the restriction fragment assigned to this alignment", dtype=FRAG_IDX_DTYPE
+            ),
+            align2_fragment_start=dict(
+                description="The start point on the genome of this restriction fragment", dtype=GENOMIC_COORD_DTYPE
+            ),
+            align2_fragment_end=dict(
+                description="The end point on the genome of this restriction fragment", dtype=GENOMIC_COORD_DTYPE
+            ),
+        )
+
+    @classmethod
+    def from_pore_c_align_pair(cls, read_idx: int, align1, align2, contact_is_direct: bool = False):
+        contact_read_distance = align2.read_start - align1.read_end
+        if align1.fragment_id > align2.fragment_id:
+            align1, align2 = align2, align1
+
+        contact_is_cis = align1.chrom == align2.chrom
+        if contact_is_cis:
+            contact_genome_distance = align2.start - align1.end
+            contact_fragment_distance = align2.fragment_midpoint - align1.fragment_midpoint
+        else:
+            contact_genome_distance = 0
+            contact_fragment_distance = 0
+        return cls(
+            read_idx=read_idx,
+            contact_is_direct=contact_is_direct,
+            contact_is_cis=contact_is_cis,
+            contact_read_distance=contact_read_distance,
+            contact_genome_distance=contact_genome_distance,
+            contact_fragment_distance=contact_fragment_distance,
+            align1_align_idx=align1.align_idx,
+            align1_chrom=align1.chrom,
+            align1_start=align1.start,
+            align1_end=align1.end,
+            align1_strand=align1.strand,
+            align1_mapping_quality=align1.mapping_quality,
+            align1_align_score=align1.align_score,
+            align1_phase_set=align1.phase_set,
+            align1_haplotype=align1.haplotype,
+            align1_fragment_id=align1.fragment_id,
+            align1_fragment_start=align1.fragment_start,
+            align1_fragment_end=align1.fragment_end,
+            align2_align_idx=align2.align_idx,
+            align2_chrom=align2.chrom,
+            align2_start=align2.start,
+            align2_end=align2.end,
+            align2_strand=align2.strand,
+            align2_mapping_quality=align2.mapping_quality,
+            align2_align_score=align2.align_score,
+            align2_phase_set=align2.phase_set,
+            align2_haplotype=align2.haplotype,
+            align2_fragment_id=align2.fragment_id,
+            align2_fragment_start=align2.fragment_start,
+            align2_fragment_end=align2.fragment_end,
+        )
+
+
 AlignmentRecordDf = NewType("AlignmentRecordDf", pd.DataFrame)
 FragmentRecordDf = NewType("FragmentRecordDf", pd.DataFrame)
 PoreCRecordDf = NewType("PoreCRecordDf", pd.DataFrame)
+PoreCContactRecordDf = NewType("PoreCRecordDf", pd.DataFrame)
 
 Chrom = NewType("Chrom", str)
 
 
-GENOMIC_COORD_DTYPE = np.uint32  # should be fine as long as individual chromosomes are less than 4Gb
-READ_COORD_DTYPE = np.uint32
-FRAG_IDX_DTYPE = np.uint32
-READ_IDX_DTYPE = np.uint32
-ALIGN_IDX_DTYPE = np.uint32
-PERCENTAGE_DTYPE = np.float32
-HAPLOTYPE_IDX_DTYPE = np.int8
+# GENOMIC_COORD_DTYPE = np.uint32  # should be fine as long as individual chromosomes are less than 4Gb
+# READ_COORD_DTYPE = np.uint32
+# FRAG_IDX_DTYPE = np.uint32
+# READ_IDX_DTYPE = np.uint32
+# ALIGN_IDX_DTYPE = np.uint32
+# PERCENTAGE_DTYPE = np.float32
+# HAPLOTYPE_IDX_DTYPE = np.int8
 
 
 class basePorecDf(object):

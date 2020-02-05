@@ -7,13 +7,45 @@ from click.testing import CliRunner
 from pore_c.cli import cli
 
 
-def test_assign_fragments(align_table_pq, fragment_table_pq):
+def test_fragments_to_contacts(align_table_pq, fragment_table_pq, tmp_path_factory):
     runner = CliRunner()
 
+    outdir = tmp_path_factory.mktemp("contacts")
+    prefix = fragment_table_pq.name.split(".")[0]
+
+    fragment_table = str(outdir / (prefix + ".pore_c.parquet"))
+    contact_table = str(outdir / (prefix + ".contacts.parquet"))
+    concatemer_table = str(outdir / (prefix + ".concatemers.parquet"))
     common_opts = ["--dask-disable-dashboard", "--dask-scheduler-port", "0"]
+
     result = runner.invoke(
         cli,
-        common_opts + ["alignments", "assign-fragments", str(align_table_pq), str(fragment_table_pq), "frag_assign"],
+        common_opts + ["alignments", "assign-fragments", str(align_table_pq), str(fragment_table_pq), fragment_table],
+    )
+    assert result.exit_code == 0
+    result = runner.invoke(
+        cli, common_opts + ["alignments", "to-contacts", fragment_table, contact_table, concatemer_table],
+    )
+    assert result.exit_code == 0
+
+
+def test_assign_fragments(align_table_pq, fragment_table_pq, tmp_path_factory):
+    runner = CliRunner()
+
+    outdir = tmp_path_factory.mktemp("assign_fragments")
+    prefix = fragment_table_pq.name.split(".")[0]
+    common_opts = ["--dask-disable-dashboard", "--dask-scheduler-port", "0"]
+
+    result = runner.invoke(
+        cli,
+        common_opts
+        + [
+            "alignments",
+            "assign-fragments",
+            str(align_table_pq),
+            str(fragment_table_pq),
+            str(outdir / (prefix + ".pore_c.parquet")),
+        ],
     )
     assert result.exit_code == 0
 

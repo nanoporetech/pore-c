@@ -7,7 +7,9 @@
 # uint32 	Unsigned integer (0 to 4294967295)
 # uint64 	Unsigned integer (0 to 18446744073709551615)
 GENOMIC_COORD_DTYPE = "uint32"  # should be fine as long as individual chromosomes are less than 4Gb
+GENOMIC_DISTANCE_DTYPE = "int32"
 READ_COORD_DTYPE = "uint32"
+READ_DISTANCE_DTYPE = "int32"
 STRAND_DTYPE = "bool"
 FRAG_IDX_DTYPE = "uint32"
 READ_IDX_DTYPE = "uint32"
