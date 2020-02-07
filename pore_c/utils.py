@@ -3,8 +3,16 @@ from contextlib import AbstractContextManager
 from time import sleep
 from typing import Optional
 
+import numpy as np
 from dask.distributed import Client, LocalCluster
 from tqdm import tqdm
+
+
+PHRED_TO_PROB = np.power(10, (np.arange(256, dtype=float) / -10.0))
+
+
+def mean_qscore(quals):
+    return -10 * np.log10(PHRED_TO_PROB[quals].mean())
 
 
 class DaskExecEnv(AbstractContextManager):

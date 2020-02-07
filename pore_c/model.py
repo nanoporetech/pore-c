@@ -23,6 +23,7 @@ from .config import (
     READ_IDX_DTYPE,
     STRAND_DTYPE,
 )
+from .utils import mean_qscore
 
 
 class _BaseModel(BaseModel):
@@ -100,7 +101,9 @@ class AlignmentRecord(_BaseModel):
     read_end: conint(ge=0)
     mapping_quality: conint(ge=0, le=255)
     align_score: conint(ge=0)
+    align_base_qscore: conint(ge=0)
     phase_set: int = 0
+    phase_qual: conint(ge=0) = 0
     haplotype: conint(ge=-1) = -1
 
     class Config:
@@ -121,10 +124,15 @@ class AlignmentRecord(_BaseModel):
             read_end=dict(description="The end coordinate on the read (0-based)", dtype=READ_COORD_DTYPE),
             mapping_quality=dict(description="The mapping quality as calculated by the aligner", dtype=MQ_DTYPE),
             align_score=dict(description="The alignment score as calculated by the aligner", dtype=ALIGN_SCORE_DTYPE),
+            align_base_qscore=dict(
+                description="The mean read base score for the aligned segment (rounded to the nearest integer).",
+                dtype=ALIGN_SCORE_DTYPE,
+            ),
             phase_set=dict(
                 description="The ID of the phase set, often this is the start position of the phase block",
                 dtype=PHASE_SET_DTYPE,
             ),
+            phase_qual=dict(description="The phred-scaled quality score of the haplotype assignment", dtype=MQ_DTYPE),
             haplotype=dict(
                 description=(
                     "The id of the haplotype within this block, usually set to 1 or 2. "
@@ -144,24 +152,24 @@ class AlignmentRecord(_BaseModel):
             align_cat = "unmapped"
             chrom, start, end, align_score = "NULL", 0, 0, 0
             read_length = align.query_length
+            align_base_qscore = mean_qscore(np.array(align.query_qualities))
         else:
             chrom, start, end = (align.reference_name, align.reference_start, align.reference_end)
             read_length = align.infer_read_length()
             align_score = align.get_tag("AS")
+            align_base_qscore = mean_qscore(np.array(align.query_alignment_qualities))
             if align.is_secondary:
                 align_cat = "secondary"
             elif align.is_supplementary:
                 align_cat = "supplementary"
             else:
                 align_cat = "primary"
+
         optional = {}
         if phased:
-            try:
-                optional["haplotype"] = int(align.get_tag("HP"))
-                optional["phase_set"] = int(align.get_tag("PS"))
-            except Exception:
-                pass
-
+            for key, tag in [("haplotype", "HP"), ("phase_set", "PS"), ("phase_qual", "PC")]:
+                if align.has_tag(tag):
+                    optional[key] = int(align.get_tag(tag))
         return cls(
             read_idx=read_idx,
             align_idx=align_idx,
@@ -176,6 +184,7 @@ class AlignmentRecord(_BaseModel):
             read_end=align.query_alignment_end,
             mapping_quality=align.mapq,
             align_score=align_score,
+            align_base_qscore=np.rint(align_base_qscore),
             **optional
         )
 
@@ -292,7 +301,9 @@ class PoreCContactRecord(_BaseModel):
     align1_strand: STRAND_DTYPE
     align1_mapping_quality: conint(ge=0, le=255)
     align1_align_score: conint(ge=0)
+    align1_align_base_qscore: conint(ge=0)
     align1_phase_set: int = 0
+    align1_phase_qual: int = 0
     align1_haplotype: conint(ge=-1) = -1
     align1_fragment_id: conint(ge=0) = 0
     align1_fragment_start: conint(ge=0) = 0
@@ -304,7 +315,9 @@ class PoreCContactRecord(_BaseModel):
     align2_strand: STRAND_DTYPE
     align2_mapping_quality: conint(ge=0, le=255)
     align2_align_score: conint(ge=0)
+    align2_align_base_qscore: conint(ge=0)
     align2_phase_set: int = 0
+    align1_phase_qual: int = 0
     align2_haplotype: conint(ge=-1) = -1
     align2_fragment_id: conint(ge=0) = 0
     align2_fragment_start: conint(ge=0) = 0
@@ -356,9 +369,16 @@ class PoreCContactRecord(_BaseModel):
             align1_align_score=dict(
                 description="The alignment score as calculated by the aligner", dtype=ALIGN_SCORE_DTYPE
             ),
+            align1_align_base_qscore=dict(
+                description="The mean read base score for the aligned segment (rounded to the nearest integer).",
+                dtype=ALIGN_SCORE_DTYPE,
+            ),
             align1_phase_set=dict(
                 description="The ID of the phase set, often this is the start position of the phase block",
                 dtype=PHASE_SET_DTYPE,
+            ),
+            align1_phase_qual=dict(
+                description="The phred-scaled quality score of the haplotype assignment", dtype=MQ_DTYPE
             ),
             align1_haplotype=dict(
                 description=(
@@ -387,9 +407,16 @@ class PoreCContactRecord(_BaseModel):
             align2_align_score=dict(
                 description="The alignment score as calculated by the aligner", dtype=ALIGN_SCORE_DTYPE
             ),
+            align2_align_base_qscore=dict(
+                description="The mean read base score for the aligned segment (rounded to the nearest integer).",
+                dtype=ALIGN_SCORE_DTYPE,
+            ),
             align2_phase_set=dict(
                 description="The ID of the phase set, often this is the start position of the phase block",
                 dtype=PHASE_SET_DTYPE,
+            ),
+            align2_phase_qual=dict(
+                description="The phred-scaled quality score of the haplotype assignment", dtype=MQ_DTYPE
             ),
             align2_haplotype=dict(
                 description=(
@@ -452,7 +479,9 @@ class PoreCContactRecord(_BaseModel):
             align1_strand=align1.strand,
             align1_mapping_quality=align1.mapping_quality,
             align1_align_score=align1.align_score,
+            align1_align_base_qscore=align1.align_base_qscore,
             align1_phase_set=align1.phase_set,
+            align1_phase_qual=align1.phase_qual,
             align1_haplotype=align1.haplotype,
             align1_fragment_id=align1.fragment_id,
             align1_fragment_start=align1.fragment_start,
@@ -464,7 +493,9 @@ class PoreCContactRecord(_BaseModel):
             align2_strand=align2.strand,
             align2_mapping_quality=align2.mapping_quality,
             align2_align_score=align2.align_score,
+            align2_align_base_qscore=align2.align_base_qscore,
             align2_phase_set=align2.phase_set,
+            align2_phase_qual=align2.phase_qual,
             align2_haplotype=align2.haplotype,
             align2_fragment_id=align2.fragment_id,
             align2_fragment_start=align2.fragment_start,

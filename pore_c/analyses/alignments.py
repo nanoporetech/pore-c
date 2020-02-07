@@ -342,10 +342,8 @@ def gather_concatemer_stats(contact_df: PoreCContactRecordDf) -> PoreCConcatemer
     for cat in contact_df.haplotype_pair_type.cat.categories:
         if cat == "null" or cat == "trans":
             if cat in haplotype_stats.columns:
-                print(cat)
                 drop.append(cat)
         elif cat not in haplotype_stats.columns:
-            print(cat)
             haplotype_stats[cat] = 0
     if drop:
         haplotype_stats = haplotype_stats.drop(columns=drop)

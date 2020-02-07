@@ -8,13 +8,10 @@ from streamz import Stream
 
 from pore_c.datasources import Fastq
 from pore_c.io import FastqWriter
-from pore_c.utils import DataFrameProgress
+from pore_c.utils import DataFrameProgress, mean_qscore
 
 
 logger = getLogger(__name__)
-
-
-PHRED_TO_PROB = np.power(10, (np.arange(256, dtype=float) / -10.0))
 
 
 def read_length_stats(lengths, percentiles=[25, 50, 75]):
@@ -110,10 +107,6 @@ def filter_records(list_of_records, min_read_length, max_read_length, min_qscore
         seq_strings[is_pass].append(seq)
 
     return {"metadata": df, "pass": seq_strings[True], "fail": seq_strings[False]}
-
-
-def mean_qscore(quals):
-    return -10 * np.log10(PHRED_TO_PROB[quals].mean())
 
 
 class ReadFilterProgress(DataFrameProgress):

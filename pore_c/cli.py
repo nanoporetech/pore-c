@@ -446,7 +446,7 @@ def assign_fragments(
 @click.argument("concatemer_table", type=click.Path(exists=False))
 @click.pass_context
 def to_contacts(ctx, porec_table, contact_table, concatemer_table):
-    """Covert the alignment table to virtual pairwise contacts
+    """Covert the alignment table to a pairwise contact table and associated concatemer table
 
     """
     from pore_c.analyses.alignments import to_contacts, gather_concatemer_stats
