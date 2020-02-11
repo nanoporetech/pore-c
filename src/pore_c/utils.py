@@ -1,5 +1,4 @@
 import re
-import math
 
 from tqdm import tqdm
 
@@ -28,9 +27,6 @@ class DataFrameProgress(object):
     def save(self, path):
         self._data.to_csv(path, index=False)
 
-
-def mean_fastq_quality(qual_array):
-    return -10. * math.log(sum([10.**(-x / 10.) for x in qual_array]) / len(qual_array),10)
 
 def kmg_bases_to_int(value: str) -> int:
     try:

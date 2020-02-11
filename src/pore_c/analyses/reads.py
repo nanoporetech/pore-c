@@ -1,4 +1,3 @@
-import math 
 import sys
 from logging import getLogger
 from pathlib import Path
@@ -9,7 +8,7 @@ from streamz import Stream
 
 from pore_c.datasources import Fastq
 from pore_c.io import FastqWriter
-from pore_c.utils import DataFrameProgress, mean_fastq_quality
+from pore_c.utils import DataFrameProgress
 
 logger = getLogger(__name__)
 
@@ -90,9 +89,8 @@ def filter_fastq(
 def filter_records(list_of_records, min_read_length, max_read_length):
 
     df = (
-        pd.DataFrame([(_.name, mean_fastq_quality(_.get_quality_array()), len(_.sequence)) for _ in list_of_records], columns=["read_id", "mean_qscore","read_length"])        
+        pd.DataFrame([(_.name, len(_.sequence)) for _ in list_of_records], columns=["read_id", "read_length"])
         .astype({"read_length": pd.np.uint32})
-        .astype({"mean_qscore": pd.np.float32})        
         .eval("pass_filter = (@min_read_length <= read_length < @max_read_length)")
     )
     seq_strings = {True: [], False: []}
