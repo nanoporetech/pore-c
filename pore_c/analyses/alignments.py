@@ -214,7 +214,7 @@ def filter_singleton(read_df):
 def filter_exact_overlap_on_query(read_df):
     overlap_on_read = read_df.duplicated(subset=["read_start", "read_end"], keep=False)
     if overlap_on_read.any():
-        best_align_idx = read_df.loc[overlap_on_read, :].groupby(["read_start", "read_end"])["score"].idxmax()
+        best_align_idx = read_df.loc[overlap_on_read, :].groupby(["read_start", "read_end"])["align_score"].idxmax()
         overlap_on_read[best_align_idx.values] = False
         read_df.loc[overlap_on_read, "pass_filter"] = False
         read_df.loc[overlap_on_read, "filter_reason"] = "overlap_on_read"
