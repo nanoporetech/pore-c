@@ -7,6 +7,9 @@ from intake import open_catalog
 
 import pore_c.catalogs as catalogs
 
+from .catalogs import ReferenceGenomeCatalog
+from .cli_utils import expand_output_prefix, filename_matches_regex
+from .config import INPUT_REFGENOME_REGEX
 from .settings import setup_logging
 
 
@@ -38,7 +41,8 @@ def command_line_json(ctx, param, value):
 @click.group(cls=NaturalOrderGroup)
 @click.option("-v", "--verbosity", count=True, help="Increase level of logging information, eg. -vvv")
 @click.option("--quiet", is_flag=True, default=False, help="Turn off all logging")
-def cli(verbosity, quiet):
+@click.pass_context
+def cli(ctx, verbosity, quiet):
     """Pore-C tools
 
     A suite of tools designed to analyse Oxford Nanopore reads with multiway chromatin contacts.
@@ -56,52 +60,60 @@ def cli(verbosity, quiet):
 
 
 @cli.group(cls=NaturalOrderGroup, short_help="Pre-process reference genome files.")
-def refgenome():
+@click.pass_context
+def refgenome(ctx):
     pass
 
 
 @refgenome.command(short_help="Pre-process a reference genome")
-@click.argument("reference_fasta", type=click.Path(exists=True))
-@click.argument("output_prefix")
+@click.argument("reference_fasta", type=click.Path(exists=True), callback=filename_matches_regex(INPUT_REFGENOME_REGEX))
+@click.argument("output_prefix", callback=expand_output_prefix(ReferenceGenomeCatalog))
 @click.option("--genome-id", type=str, help="An ID for this genome assembly")
-def catalog(reference_fasta, output_prefix, genome_id=None):
+@click.pass_context
+def prepare(ctx, reference_fasta, output_prefix, genome_id):
     """Pre-process a reference genome for use by pore-C tools.
+
+
+
+    \b
+        <output_prefix>.catalog.yaml
+        <output_prefix>.fa
+        <output_prefix>.chromsizes
+        <output_prefix>.metadata.csv
+
 
     This cool makes a bgzipped copy of the reference genome along with some ancillary
     files for use by other tools. The paths to these files, along with metadata
     about the genome are stored in an intake yaml catalog.
     """
     from pore_c.datasources import IndexedFasta
-    from pore_c.catalogs import ReferenceGenomeCatalog
     import pandas as pd
     import re
     import subprocess as sp
     import pysam
+    from shutil import copyfile
 
-    fname_re = re.compile(r"(.+)\.(fasta|fa|fna)(\.gz)*")
+    logger.info(f"Adding reference genome under prefix: {output_prefix}")
+    file_paths = ctx.meta["file_paths"]
+    reference_fasta = Path(reference_fasta)
 
-    logger.info("Adding reference genome under prefix: {}".format(output_prefix))
-    file_paths = ReferenceGenomeCatalog.generate_paths(output_prefix)
-    path_kwds = {key: val for key, val in file_paths.items() if key != "catalog"}
-    src_fasta = Path(str(reference_fasta))
-    dest_fasta = path_kwds["fasta"]
-
-    parts_m = fname_re.match(src_fasta.name)
-    if not parts_m:
-        raise ValueError(f"Fasta file should match regex {fname_re}: {src_fasta}")
+    parts_m = re.compile(INPUT_REFGENOME_REGEX).match(reference_fasta.name)
     stem, _, compression = parts_m.groups()
+    if not genome_id:
+        genome_id = stem
 
+    dest_fasta = file_paths["fasta"]
     if compression == ".gz":
-        comd = f"gunzip -cd {src_fasta} | bgzip > {dest_fasta}"
+        comd = f"gunzip -cd {reference_fasta} > {dest_fasta}"
+        logger.debug(f"Decompressing source fasta: {comd}")
+        try:
+            sp.check_call(comd, shell=True)
+        except Exception as exc:  # noqa: F841
+            logger.exception(f"Error creating bgzipped reference: {dest_fasta}")
+            raise
     else:
-        comd = f"cat {src_fasta} | bgzip > {dest_fasta}"
-    try:
-        logger.info(f"Creating bgzipped reference: {comd}")
-        sp.check_call(comd, shell=True)
-    except Exception as exc:  # noqa: F841
-        logger.exception(f"Error creating bgzipped reference: {dest_fasta}")
-        raise
-
+        logger.debug("Copying {reference_fasta} to {dest_fasta}")
+        copyfile(reference_fasta, dest_fasta)
     logger.debug("Creating faidx file")
     pysam.faidx(str(dest_fasta))
 
@@ -192,7 +204,7 @@ def reads():
 @click.option(
     "--max-read-length",
     help="The maximum length read to run through porec. Note that bwa mem can crash on very long reads",
-    default=500000,
+    default=500_000,
 )
 @click.option("--user-metadata", callback=command_line_json, help="Additional user metadata to associate with this run")
 def catalog(fastq, output_prefix, min_read_length, max_read_length, user_metadata):
@@ -542,7 +554,7 @@ def matrix():
 @click.argument("x_mcool", type=click.Path(exists=True))
 @click.argument("y_mcool", type=click.Path(exists=True))
 @click.argument("output_prefix")
-@click.option("-r", "--resolution", help="The resolution to do the correlation at.", default=1000000)
+@click.option("-r", "--resolution", help="The resolution to do the correlation at.", default=1_000_000)
 def correlate(x_mcool, y_mcool, output_prefix, resolution):
     from pore_c.analyses.matrix import correlate
     from cooler import Cooler

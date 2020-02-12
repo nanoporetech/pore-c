@@ -224,7 +224,7 @@ class ReferenceGenomeCatalog(basePoreCCatalog):
 
     _suffix_map = {
         "catalog": ".catalog.yaml",
-        "fasta": ".fa.gz",
+        "fasta": ".fa",
         "chromsizes": ".chromsizes",
         "chrom_metadata": ".metadata.csv",
     }
