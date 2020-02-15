@@ -52,10 +52,12 @@ def test_assign_fragments(align_table_pq, fragment_table_pq, tmp_path_factory):
 
 def test_create_table(haplotagged_bam):
     runner = CliRunner()
+    common_opts = ["-vvv", "--dask-disable-dashboard", "--dask-scheduler-port", "0"]
+
 
     with runner.isolated_filesystem():
         result = runner.invoke(
-            cli, ["alignments", "create-table", str(haplotagged_bam), "align_table.parquet", "--phased"]
+            cli, common_opts + ["alignments", "create-table", str(haplotagged_bam), "align_table.parquet"]
         )
         assert result.exit_code == 0
 

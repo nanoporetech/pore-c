@@ -7,6 +7,11 @@ import numpy as np
 from dask.distributed import Client, LocalCluster
 from tqdm import tqdm
 
+from logging import getLogger
+
+
+logger = getLogger(__name__)
+
 
 PHRED_TO_PROB = np.power(10, (np.arange(256, dtype=float) / -10.0))
 
@@ -29,7 +34,8 @@ class DaskExecEnv(AbstractContextManager):
             "processes": processes,
             "n_workers": n_workers,
             "scheduler_port": scheduler_port,
-            # 'dashboard_port': dashboard_port,   # TODO: need to capture/convert to dashboard_address string
+            #'dashboard_port': dashboard_port,   # TODO: need to capture/convert to dashboard_address string
+            'dashboard_address': f"127.0.0.1:{dashboard_port}",
             "threads_per_worker": threads_per_worker,
         }
         self.empty_queue = empty_queue
@@ -41,6 +47,8 @@ class DaskExecEnv(AbstractContextManager):
     def __enter__(self):
         self._cluster = LocalCluster(**self._cluster_kwds)
         self._client = Client(self._cluster)
+        logger.debug(f"Cluster started: {self._cluster}")
+        logger.debug(f"Client started: {self._client}")
         return self
 
     def __exit__(self, *args):

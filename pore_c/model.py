@@ -143,7 +143,7 @@ class AlignmentRecord(_BaseModel):
         )
 
     @classmethod
-    def from_aligned_segment(cls, align: pysam.AlignedSegment, phased: bool = False) -> "AlignmentRecord":
+    def from_aligned_segment(cls, align: pysam.AlignedSegment) -> "AlignmentRecord":
         """Extract information from a pysam Aligned segment"""
         read_name, read_idx, align_idx = align.query_name.split(":")
         read_idx, align_idx = int(read_idx), int(align_idx)
@@ -166,10 +166,9 @@ class AlignmentRecord(_BaseModel):
                 align_cat = "primary"
 
         optional = {}
-        if phased:
-            for key, tag in [("haplotype", "HP"), ("phase_set", "PS"), ("phase_qual", "PC")]:
-                if align.has_tag(tag):
-                    optional[key] = int(align.get_tag(tag))
+        for key, tag in [("haplotype", "HP"), ("phase_set", "PS"), ("phase_qual", "PC")]:
+            if align.has_tag(tag):
+                optional[key] = int(align.get_tag(tag))
         return cls(
             read_idx=read_idx,
             align_idx=align_idx,

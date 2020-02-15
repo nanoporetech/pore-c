@@ -77,7 +77,7 @@ def cli(
     ctx.meta["dask_env"] = DaskExecEnv(
         n_workers=dask_num_workers,
         threads_per_worker=dask_threads_per_worker,
-        processes=dask_use_threads is True,
+        processes= not dask_use_threads,
         scheduler_port=dask_scheduler_port,
         dashboard_port=None if dask_disable_dashboard else dask_dashboard_port,
     )
@@ -337,11 +337,9 @@ def reformat_bam(input_sam, output_sam, input_is_bam, output_is_bam):
 @alignments.command(short_help="Parse a namesortd bam to pore-C alignment format")
 @click.argument("input_bam", type=click.Path(exists=True))
 @click.argument("output_table", type=click.Path(exists=False))
-@click.option("--phased", is_flag=True, default=False, help="Set if using a haplotagged BAM file", show_default=True)
-@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1, show_default=True)
 @click.option("--chunksize", help="Number of reads per processing chunk", default=50000, show_default=True)
 @click.pass_context
-def create_table(ctx, input_bam, output_table, phased, n_workers, chunksize):
+def create_table(ctx, input_bam, output_table, chunksize):
     """Convert a BAM file to a tabular format sorted by read for downstream analysis
 
     """
@@ -354,6 +352,7 @@ def create_table(ctx, input_bam, output_table, phased, n_workers, chunksize):
     from pysam import AlignmentFile
 
     tmp_table = output_table + ".tmp"
+    logger.debug(f"Writing temporary unsorted data to {tmp_table}")
     chunk_writer = TableWriter(tmp_table)
     af = AlignmentFile(input_bam)
     chrom_order = list(af.references)
@@ -363,7 +362,7 @@ def create_table(ctx, input_bam, output_table, phased, n_workers, chunksize):
 
     for chunk_idx, aligns in enumerate(partition_all(chunksize, af)):
         align_df = model.AlignmentRecord.to_dataframe(
-            [model.AlignmentRecord.from_aligned_segment(a, phased=phased) for a in aligns], chrom_order=chrom_order
+            [model.AlignmentRecord.from_aligned_segment(a) for a in aligns], chrom_order=chrom_order
         )
         chunk_writer(align_df)
 
@@ -375,7 +374,8 @@ def create_table(ctx, input_bam, output_table, phased, n_workers, chunksize):
         (
             dd.read_parquet(tmp_table, engine=PQ_ENGINE)
             .set_index("read_idx")
-            .to_parquet(output_table, engine=PQ_ENGINE, version=PQ_VERSION)
+            .repartition(partition_size="50Mb")
+            .to_parquet(output_table, engine=PQ_ENGINE, version=PQ_VERSION, compute=True)
         )
     logger.info(f"Wrote {chunk_writer.row_counter} alignments to {output_table}")
     os.unlink(tmp_table)
@@ -462,8 +462,8 @@ def to_contacts(ctx, porec_table, contact_table, concatemer_table):
         concatemer_df = contacts_df.map_partitions(gather_concatemer_stats, meta=concatemer_meta).set_index(
             "read_idx", sorted=True
         )
-        contacts_df.to_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION)
-        concatemer_df.to_parquet(concatemer_table, engine=PQ_ENGINE, version=PQ_VERSION)
+        contacts_df.to_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION, compute=True)
+        concatemer_df.to_parquet(concatemer_table, engine=PQ_ENGINE, version=PQ_VERSION, compute=True)
 
     logger.info(f"Wrote contacts to {contact_table}")
     logger.info(f"Wrote concatemers to {concatemer_table}")
