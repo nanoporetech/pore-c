@@ -39,3 +39,18 @@ def align_table_pq():
 @pytest.fixture(scope="session")
 def fragment_table_pq():
     return DATA_DIR / "NlaIII_GRCh38.vd.fragments.parquet"
+
+
+@pytest.fixture(scope="session")
+def contact_table_pq():
+    return DATA_DIR / "NlaIII_GRCh38.contacts.parquet"
+
+
+@pytest.fixture(scope="session")
+def concatemer_table_pq():
+    return DATA_DIR / "NlaIII_GRCh38.concatemers.parquet"
+
+
+@pytest.fixture(scope="session")
+def chromsizes():
+    return DATA_DIR / "GRCh38.chromsizes"

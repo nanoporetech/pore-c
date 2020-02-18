@@ -14,6 +14,7 @@ from .catalogs import (
     VirtualDigestCatalog,
 )
 from .cli_utils import (
+    ExportDependentOption,
     NaturalOrderGroup,
     command_line_json,
     expand_output_prefix,
@@ -77,7 +78,7 @@ def cli(
     ctx.meta["dask_env"] = DaskExecEnv(
         n_workers=dask_num_workers,
         threads_per_worker=dask_threads_per_worker,
-        processes= not dask_use_threads,
+        processes=not dask_use_threads,
         scheduler_port=dask_scheduler_port,
         dashboard_port=None if dask_disable_dashboard else dask_dashboard_port,
     )
@@ -411,7 +412,7 @@ def create_table(ctx, input_bam, output_table, chunksize):
 )
 @click.pass_context
 def assign_fragments(
-    ctx, align_table, fragments_table, porec_table, mapping_quality_cutoff, min_overlap_length, containment_cutoff,
+    ctx, align_table, fragments_table, porec_table, mapping_quality_cutoff, min_overlap_length, containment_cutoff
 ):
     """For each alignment in ALIGN_TABLE either filter out or assign a fragment from FRAGMENT_TABLE
 
@@ -422,7 +423,7 @@ def assign_fragments(
 
     logger.info(f"Assigning fragments from {fragments_table} to alignments from {align_table}")
     align_table = dd.read_parquet(align_table, engine=PQ_ENGINE, version=PQ_VERSION)
-    fragment_df = dd.read_parquet(fragments_table, engine=PQ_ENGINE, version=PQ_VERSION).compute()
+    fragment_df = dd.read_parquet(fragments_table, engine=PQ_ENGINE, version=PQ_VERSION).compute().reset_index()
     chrom_dtype = align_table.chrom.head(1).dtype
     meta = PoreCRecord.pandas_dtype(overrides={"chrom": chrom_dtype})
     with ctx.meta["dask_env"] as env:
@@ -474,29 +475,94 @@ def contacts():
     pass
 
 
-@contacts.command(short_help="Convert pairwise contacts to a COO text file")
-@click.argument("contact_catalog", type=click.Path(exists=True))
-@click.argument("virtual_digest_catalog", type=click.Path(exists=True))
+@contacts.command(short_help="Export contacts to various formats")
+@click.argument("contact_table", type=click.Path(exists=True))
+#  @click.argument("concatemer_table", type=click.Path(exists=True))
+@click.argument("format", type=click.Choice(["cooler", "paired_end_fastq"]))
 @click.argument("output_prefix")
-@click.option("--phased", is_flag=True, default=False, help="Create set of phased coo files.")
-@click.option("-r", "--resolution", help="The bin width of the resulting matrix", default=1000)
-@click.option("-n", "--n_workers", help="The number of dask_workers to use", default=1)
-def to_coo(contact_catalog, virtual_digest_catalog, output_prefix, phased, resolution, n_workers):
-    from pore_c.analyses.contacts import contact_df_to_coo
+@click.option(
+    "--min-mapping-quality",
+    type=int,
+    default=0,
+    show_default=True,
+    help="Both alignments have mapping qualities greater than this",
+)
+@click.option(
+    "--min-align-base-qscore",
+    type=int,
+    default=0,
+    show_default=True,
+    help="Both alignments have mean base qualities greater than this",
+)
+@click.option("--cooler-resolution", help="The bin width of the resulting matrix", default=1000, show_default=True)
+@click.option(
+    "--fragment-table",
+    cls=ExportDependentOption,
+    export_formats=["cooler"],
+    help="The fragment table for the corresponding virtual digest",
+)
+@click.option(
+    "--chromsizes",
+    cls=ExportDependentOption,
+    export_formats=["cooler"],
+    help="The chromsizes file for the corresponding genome",
+)
+@click.option(
+    "--reference-fasta",
+    cls=ExportDependentOption,
+    export_formats=["paired_end_fastq"],
+    help="The reference genome used to generate the contact table",
+)
+@click.pass_context
+def export(
+    ctx,
+    contact_table,
+    format,
+    output_prefix,
+    min_mapping_quality,
+    min_align_base_qscore,
+    cooler_resolution,
+    fragment_table,
+    chromsizes,
+    reference_fasta,
+):
+    """
+    Export contacts to the following formats:
 
-    vd_cat = catalogs.VirtualDigestCatalog(virtual_digest_catalog)
-    rg_cat = vd_cat.refgenome_catalog
-    chrom_lengths = rg_cat.metadata["chrom_lengths"]
+     - cooler: a sparse representation of a contact matrix
+     - paired_end_fastq: for each contact create a pseudo pair-end read using the reference genome sequence
 
-    contact_catalog = open_catalog(str(contact_catalog))
+    """
+    from pore_c.analyses.contacts import export_to_cooler, export_to_paired_end_fastq
 
-    contact_table_path = contact_catalog.contacts._urlpath
-    fragment_df = vd_cat.fragments.to_dask().compute()
-    res = contact_df_to_coo(
-        contact_table_path, chrom_lengths, fragment_df, resolution, phased=phased, n_workers=n_workers
-    )
-    raise ValueError(res)
-    pass
+    columns = []
+    query = []
+    if min_mapping_quality:
+        columns.extend(["align1_mapping_quality", "align2_mapping_quality"])
+        query.append(
+            f"(align1_mapping_quality > {min_mapping_quality}) & (align2_mapping_quality > {min_mapping_quality}) "
+        )
+    if min_align_base_qscore:
+        columns.extend(["align1_align_base_qscore", "align2_align_base_qscore"])
+        query.append(
+            f"(align1_align_base_qscore > {min_align_base_qscore}) & "
+            f"(align2_align_base_qscore > {min_align_base_qscore}) "
+        )
+
+    query = " & ".join(query)
+
+    if format == "cooler":
+        cooler_path = export_to_cooler(
+            contact_table, output_prefix, cooler_resolution, fragment_table, chromsizes, query, query_columns=columns
+        )
+        logger.info(f"Wrote cooler to {cooler_path}")
+    elif format == "paired_end_fastq":
+        fastq1, fastq2 = export_to_paired_end_fastq(
+            contact_table, output_prefix, reference_fasta, query, query_columns=columns
+        )
+        logger.info(f"Wrote reads to {fastq1} and {fastq2}")
+    else:
+        raise NotImplementedError(format)
 
 
 @alignments.command(short_help="Parses the alignment table and converts to paired-end like reads bed files for Salsa")

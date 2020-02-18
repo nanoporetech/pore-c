@@ -152,7 +152,12 @@ class AlignmentRecord(_BaseModel):
             align_cat = "unmapped"
             chrom, start, end, align_score = "NULL", 0, 0, 0
             read_length = align.query_length
-            align_base_qscore = mean_qscore(np.array(align.query_qualities))
+            quals = align.query_qualities
+            # TODO: handle this more gracefully
+            if quals is None:
+                align_base_qscore = 0
+            else:
+                align_base_qscore = mean_qscore(np.array(align.query_qualities))
         else:
             chrom, start, end = (align.reference_name, align.reference_start, align.reference_end)
             read_length = align.infer_read_length()

@@ -1,13 +1,12 @@
 import re
 from contextlib import AbstractContextManager
+from logging import getLogger
 from time import sleep
 from typing import Optional
 
 import numpy as np
 from dask.distributed import Client, LocalCluster
 from tqdm import tqdm
-
-from logging import getLogger
 
 
 logger = getLogger(__name__)
@@ -34,8 +33,8 @@ class DaskExecEnv(AbstractContextManager):
             "processes": processes,
             "n_workers": n_workers,
             "scheduler_port": scheduler_port,
-            #'dashboard_port': dashboard_port,   # TODO: need to capture/convert to dashboard_address string
-            'dashboard_address': f"127.0.0.1:{dashboard_port}",
+            #  'dashboard_port': dashboard_port,   # TODO: need to capture/convert to dashboard_address string
+            "dashboard_address": f"127.0.0.1:{dashboard_port}",
             "threads_per_worker": threads_per_worker,
         }
         self.empty_queue = empty_queue

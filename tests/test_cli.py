@@ -7,9 +7,52 @@ from pore_c.cli import cli
 def _run_command(opts):
     runner = CliRunner()
     common_opts = ["-vvv", "--dask-use-threads", "--dask-disable-dashboard", "--dask-scheduler-port", "0"]
-
-    result = runner.invoke(cli, common_opts + [str(_) for _ in opts])
+    comd = common_opts + [str(_) for _ in opts]
+    # print("Running command: {}".format(" ".join(comd)))
+    result = runner.invoke(cli, comd)
     return result
+
+
+def test_contacts_to_paired_end_fastq(contact_table_pq, raw_refgenome_file, tmp_path_factory):
+    outdir = tmp_path_factory.mktemp("contacts")
+    prefix = contact_table_pq.name.split(".")[0]
+
+    result = _run_command(
+        [
+            "contacts",
+            "export",
+            contact_table_pq,
+            "paired_end_fastq",
+            outdir / prefix,
+            "--reference-fasta",
+            raw_refgenome_file,
+        ]
+    )
+
+    new_files = set([f.name for f in outdir.glob("*.*")])
+    expected_files = {prefix + ".1.fastq", prefix + ".2.fastq"}
+    assert result.exit_code == 0
+    assert new_files == expected_files
+
+
+def test_contacts_to_cool(contact_table_pq, fragment_table_pq, chromsizes, tmp_path_factory):
+    outdir = tmp_path_factory.mktemp("contacts")
+    prefix = contact_table_pq.name.split(".")[0]
+
+    result = _run_command(
+        [
+            "contacts",
+            "export",
+            contact_table_pq,
+            "cooler",
+            outdir / prefix,
+            "--fragment-table",
+            fragment_table_pq,
+            "--chromsizes",
+            chromsizes,
+        ]
+    )
+    assert result.exit_code == 0
 
 
 def test_fragments_to_contacts(align_table_pq, fragment_table_pq, tmp_path_factory):
@@ -112,25 +155,36 @@ def test_prepare_refgenome(raw_refgenome_file, tmp_path_factory):
 def test_virtual_digest(raw_refgenome_file, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("virtual_digest")
 
-    result = _run_command(["refgenome", "prepare", str(raw_refgenome_file), outdir / "refgenome"])
-    result = _run_command(["refgenome", "virtual-digest", outdir / "refgenome.fa", "NlaIII", outdir / "digest"])
+    refgenome_prefix = raw_refgenome_file.name.split(".")[0]
+    enzyme = "NlaIII"
+    digest_id = f"{refgenome_prefix}_{enzyme}"
+
+    result = _run_command(["refgenome", "prepare", str(raw_refgenome_file), outdir / refgenome_prefix])
+    result = _run_command(
+        ["refgenome", "virtual-digest", outdir / f"{refgenome_prefix}.fa", enzyme, outdir / digest_id]
+    )
     assert result.exit_code == 0
     new_files = set([f.name for f in outdir.glob("*.*")])
     expected_files = set(
         [
-            "digest.catalog.yaml",
-            "digest.digest_stats.csv",
-            "digest.fragments.parquet",
-            "refgenome.chromsizes",
-            "refgenome.metadata.csv",
-            "refgenome.fa.fai",
-            "refgenome.catalog.yaml",
-            "refgenome.fa",
+            f"{digest_id}.catalog.yaml",
+            f"{digest_id}.digest_stats.csv",
+            f"{digest_id}.fragments.parquet",
+            f"{refgenome_prefix}.chromsizes",
+            f"{refgenome_prefix}.metadata.csv",
+            f"{refgenome_prefix}.fa.fai",
+            f"{refgenome_prefix}.catalog.yaml",
+            f"{refgenome_prefix}.fa",
         ]
     )
     assert new_files == expected_files
 
     result = _run_command(
-        ["refgenome", "fragments-to-hicref", outdir / "digest.fragments.parquet", outdir / "digest.hicRef"]
+        [
+            "refgenome",
+            "fragments-to-hicref",
+            outdir / f"{digest_id}.fragments.parquet",
+            outdir / f"{refgenome_prefix}.hicRef",
+        ]
     )
     assert result.exit_code == 0

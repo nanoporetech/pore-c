@@ -10,6 +10,25 @@ from pysam import AlignmentFile
 logger = getLogger(__name__)
 
 
+class ExportDependentOption(click.Option):
+    def __init__(self, *args, **kwds):
+        self.export_formats: list = kwds.pop("export_formats")
+
+        kwds["help"] = kwds.get("help", "") + "(required if export format is in {})".format(
+            ",".join(self.export_formats)
+        )
+        super(ExportDependentOption, self).__init__(*args, **kwds)
+
+    def handle_parse_result(self, ctx, opts, args):
+        fmt = ctx.params.get("format", None)
+        if fmt in self.export_formats:
+            if self.name not in opts:
+                raise click.UsageError("When exporting to {}, {} is a required parameter".format(fmt, self.name))
+            else:
+                self.prompt = None
+        return super(ExportDependentOption, self).handle_parse_result(ctx, opts, args)
+
+
 class NaturalOrderGroup(click.Group):
     """Command group trying to list subcommands in the order they were added.
     """

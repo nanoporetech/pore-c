@@ -57,6 +57,8 @@ def create_virtual_digest(
         .sort_values(["chrom", "start"])
         .assign(fragment_id=lambda x: np.arange(len(x), dtype=int) + 1)
         .astype(dtype)
+        .set_index("fragment_id")
+        .sort_index()
     )
 
     dd.from_pandas(frag_df, npartitions=1).to_parquet(str(fragments), engine=PQ_ENGINE, version=PQ_VERSION)
