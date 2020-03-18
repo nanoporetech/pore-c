@@ -258,7 +258,7 @@ class PoreCRecord(AlignmentRecord):
             ),
             is_contained=dict(
                 description="Boolean flag to inidicate if the alignment is fully contained with the fragment",
-                dtype=bool,
+                dtype='bool'
             ),
         )
 
@@ -327,9 +327,9 @@ class PoreCContactRecord(_BaseModel):
         fields = dict(
             read_idx=dict(description="Unique integer ID of the read", dtype=READ_IDX_DTYPE),
             contact_is_direct=dict(
-                description="There are no intervening assigned restriction fragments on the read", dtype=bool
+                description="There are no intervening assigned restriction fragments on the read", dtype='bool'
             ),
-            contact_is_cis=dict(description="Both alignments come from the same chromsome/contig", dtype=bool),
+            contact_is_cis=dict(description="Both alignments come from the same chromsome/contig", dtype='bool'),
             contact_read_distance=dict(
                 description=(
                     "The distance between the end of the left alignment and the start of the right "

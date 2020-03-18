@@ -35,6 +35,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinxcontrib.apidoc",
     "sphinx_click.ext",
+    "sphinx-jsonschema"
 ]
 
 apidoc_module_dir = "../../pore_c"
