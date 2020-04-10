@@ -21,6 +21,7 @@ lib
 lib64
 venv*/
 pyvenv*/
+.pytype
 
 # Installer logs
 pip-log.txt

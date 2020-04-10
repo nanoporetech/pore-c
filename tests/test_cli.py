@@ -8,9 +8,26 @@ def _run_command(opts):
     runner = CliRunner()
     common_opts = ["-vvv", "--dask-use-threads", "--dask-disable-dashboard", "--dask-scheduler-port", "0"]
     comd = common_opts + [str(_) for _ in opts]
-    # print("Running command: {}".format(" ".join(comd)))
+    print("Running command: {}".format(" ".join(comd)))
     result = runner.invoke(cli, comd)
     return result
+
+
+def test_haplotype_consensus(pore_c_table_pq, tmp_path_factory):
+    outdir = tmp_path_factory.mktemp("haplotype_consensus")
+    prefix = pore_c_table_pq.name.split(".")[0]
+
+    output_pq = outdir / (prefix + ".pore_c.parquet")
+    result = _run_command(
+        ["alignments", "assign-consensus-haplotype", pore_c_table_pq, output_pq, "--threshold", "0.51"]
+    )
+
+    assert result.exit_code == 0
+    pre_df = pd.read_parquet(pore_c_table_pq)[["align_idx", "haplotype"]].set_index("align_idx", append=True)
+    post_df = pd.read_parquet(output_pq)[["align_idx", "haplotype"]].set_index("align_idx", append=True)
+    # 6 alignments have their haplotypes changed as a result
+    changes = (pre_df != post_df)["haplotype"].sum()
+    assert changes == 6
 
 
 def test_contacts_to_paired_end_fastq(contact_table_pq, raw_refgenome_file, tmp_path_factory):
@@ -55,19 +72,14 @@ def test_contacts_to_cool(contact_table_pq, fragment_table_pq, chromsizes, tmp_p
     assert result.exit_code == 0
 
 
-def test_fragments_to_contacts(align_table_pq, fragment_table_pq, tmp_path_factory):
+def test_fragments_to_contacts(pore_c_table_pq, fragment_table_pq, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("contacts")
-    prefix = fragment_table_pq.name.split(".")[0]
+    prefix = pore_c_table_pq.name.split(".")[0]
 
-    fragment_table = str(outdir / (prefix + ".pore_c.parquet"))
     contact_table = str(outdir / (prefix + ".contacts.parquet"))
     concatemer_table = str(outdir / (prefix + ".concatemers.parquet"))
 
-    result = _run_command(
-        ["alignments", "assign-fragments", str(align_table_pq), str(fragment_table_pq), fragment_table]
-    )
-    assert result.exit_code == 0
-    result = _run_command(["alignments", "to-contacts", fragment_table, contact_table, concatemer_table])
+    result = _run_command(["alignments", "to-contacts", pore_c_table_pq, contact_table, concatemer_table])
     assert result.exit_code == 0
 
 

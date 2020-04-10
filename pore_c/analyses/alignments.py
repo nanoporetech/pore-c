@@ -1,7 +1,5 @@
 import logging
 from itertools import combinations
-from pathlib import Path
-from typing import Union
 
 import networkx as nx
 import numpy as np
@@ -9,10 +7,7 @@ import pandas as pd
 
 from pore_c.model import (
     AlignmentRecordDf,
-    ContactDf,
     FragmentDf,
-    PhasedContactDf,
-    PhasedPoreCAlignDf,
     PoreCAlignDf,
     PoreCConcatemerRecord,
     PoreCConcatemerRecordDf,
@@ -21,7 +16,6 @@ from pore_c.model import (
     PoreCReadDf,
     PoreCRecordDf,
 )
-from pore_c.utils import DaskExecEnv
 
 
 logger = logging.getLogger(__name__)
@@ -281,20 +275,6 @@ def filter_shortest_path(read_df, aligner="minimap2"):
             read_df.at[idx, "pass_filter"] = False
             read_df.at[idx, "filter_reason"] = "not_on_shortest_path"
     return read_df
-
-
-def convert_align_df_to_contact_df(
-    align_df: Union[PoreCAlignDf, PhasedPoreCAlignDf], contacts: Path, n_workers: int = 1
-):
-
-    phased = "phase_block" in align_df.columns
-    if phased:
-        df_type = PhasedContactDf
-    else:
-        df_type = ContactDf
-    with DaskExecEnv(n_workers=n_workers):
-        contact_df = align_df.map_partitions(to_contacts, phased=phased, meta=df_type.DTYPE)
-        contact_df.to_parquet(str(contacts), engine="pyarrow")
 
 
 def to_contacts(df: PoreCRecordDf) -> PoreCContactRecordDf:

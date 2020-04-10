@@ -29,3 +29,4 @@ tests/data//NlaIII_GRCh38.concatemers.parquet/_metadata filter=lfs diff=lfs merg
 tests/data//NlaIII_GRCh38.contacts.parquet/part.0.parquet filter=lfs diff=lfs merge=lfs -text
 tests/data//NlaIII_GRCh38.contacts.parquet/_common_metadata filter=lfs diff=lfs merge=lfs -text
 tests/data//NlaIII_GRCh38.contacts.parquet/_metadata filter=lfs diff=lfs merge=lfs -text
+tests/data/NlaIII_GRCh38.pore_c.parquet filter=lfs diff=lfs merge=lfs -text

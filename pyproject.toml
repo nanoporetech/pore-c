@@ -57,6 +57,7 @@ sphinx-click = "^2.3.1"
 sphinx-autodoc-typehints = "^1.10.3"
 pytest = "*"
 sphinx-jsonschema = "^1.13"
+pytype = "^2020.4.1"
 
 [tool.poetry.extras]
 tests = ["pytest"]

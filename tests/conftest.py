@@ -37,6 +37,11 @@ def align_table_pq():
 
 
 @pytest.fixture(scope="session")
+def pore_c_table_pq():
+    return DATA_DIR / "NlaIII_GRCh38.pore_c.parquet"
+
+
+@pytest.fixture(scope="session")
 def fragment_table_pq():
     return DATA_DIR / "NlaIII_GRCh38.vd.fragments.parquet"
 
