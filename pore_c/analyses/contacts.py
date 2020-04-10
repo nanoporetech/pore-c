@@ -64,6 +64,58 @@ def export_to_cooler(
     return cooler_path
 
 
+def export_to_salsa_bed(contact_table, output_prefix, query, query_columns):
+    if query_columns:
+        columns = query_columns[:]
+    else:
+        columns = []
+
+    columns.extend(
+        [
+            "align1_fragment_id",
+            "align1_chrom",
+            "align1_start",
+            "align1_end",
+            "align1_strand",
+            "align1_mapping_quality",
+            "align2_chrom",
+            "align2_start",
+            "align2_end",
+            "align2_strand",
+            "align2_mapping_quality",
+        ]
+    )
+    contact_df = dd.read_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION, columns=columns)
+    if query:
+        contact_df = contact_df.query(query)
+    bed_file = output_prefix + ".salsa.bed"
+
+    fh = open(bed_file, "w")
+
+    contact_counter = defaultdict(int)
+    for partition in range(contact_df.npartitions):
+        df = (
+            contact_df.get_partition(partition)
+            .compute()
+            .replace({"align1_strand": {True: "+", False: "-"}, "align2_strand": {True: "+", False: "-"}})
+        )
+        for read_idx, row in df.iterrows():
+            contact_counter[read_idx] += 1
+            contact_idx = contact_counter[read_idx]
+            read_name = f"read{read_idx:09}_{contact_idx}"
+            fh.write(
+                f"{row.align1_chrom}\t{row.align1_start}\t{row.align1_end}\t{read_name}/1\t{row.align1_mapping_quality}"
+                f"\t{row.align1_strand}\n"
+            )
+            fh.write(
+                f"{row.align2_chrom}\t{row.align2_start}\t{row.align2_end}\t{read_name}/2\t{row.align2_mapping_quality}"
+                f"\t{row.align2_strand}\n"
+            )
+
+    fh.close()
+    return bed_file
+
+
 def export_to_paired_end_fastq(
     contact_table, output_prefix, reference_fasta, query, query_columns=None, read_length=50
 ):

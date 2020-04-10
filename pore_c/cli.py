@@ -495,7 +495,7 @@ def assign_consensus_haplotype(ctx, pore_c_table, output_pore_c_table, threshold
         return pore_c_table
 
     with ctx.meta["dask_env"]:
-        pore_c_df = pore_c_table.map_partitions(_assign_consensus_haplotype, threshold, meta=meta,).set_index(
+        pore_c_df = pore_c_table.map_partitions(_assign_consensus_haplotype, threshold, meta=meta).set_index(
             ["read_idx"], sorted=True
         )
         pore_c_df.to_parquet(output_pore_c_table, version=PQ_VERSION, engine=PQ_ENGINE)
@@ -538,7 +538,7 @@ def contacts():
 @contacts.command(short_help="Export contacts to various formats")
 @click.argument("contact_table", type=click.Path(exists=True))
 #  @click.argument("concatemer_table", type=click.Path(exists=True))
-@click.argument("format", type=click.Choice(["cooler", "paired_end_fastq"]))
+@click.argument("format", type=click.Choice(["cooler", "salsa_bed", "paired_end_fastq"]))
 @click.argument("output_prefix")
 @click.option(
     "--min-mapping-quality",
@@ -593,7 +593,7 @@ def export(
      - paired_end_fastq: for each contact create a pseudo pair-end read using the reference genome sequence
 
     """
-    from pore_c.analyses.contacts import export_to_cooler, export_to_paired_end_fastq
+    from pore_c.analyses.contacts import export_to_cooler, export_to_paired_end_fastq, export_to_salsa_bed
 
     columns = []
     query = []
@@ -616,6 +616,9 @@ def export(
             contact_table, output_prefix, cooler_resolution, fragment_table, chromsizes, query, query_columns=columns
         )
         logger.info(f"Wrote cooler to {cooler_path}")
+    elif format == "salsa_bed":
+        bed_path = export_to_salsa_bed(contact_table, output_prefix, query, query_columns=columns)
+        logger.info(f"Wrote cooler to {bed_path}")
     elif format == "paired_end_fastq":
         fastq1, fastq2 = export_to_paired_end_fastq(
             contact_table, output_prefix, reference_fasta, query, query_columns=columns
