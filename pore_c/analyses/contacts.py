@@ -72,7 +72,6 @@ def export_to_salsa_bed(contact_table, output_prefix, query, query_columns):
 
     columns.extend(
         [
-            "align1_fragment_id",
             "align1_chrom",
             "align1_start",
             "align1_end",
@@ -90,29 +89,36 @@ def export_to_salsa_bed(contact_table, output_prefix, query, query_columns):
         contact_df = contact_df.query(query)
     bed_file = output_prefix + ".salsa.bed"
 
-    fh = open(bed_file, "w")
+    dtypes = contact_df.head(1).dtypes
+    strand_dtype = pd.CategoricalDtype(["+", "-"], ordered=False)
+    meta = {
+        "chrom": dtypes["align1_chrom"],
+        "start": dtypes["align1_chrom"],
+        "end": dtypes["align1_chrom"],
+        "read_pair_id": str,
+        "strand": strand_dtype,
+        "mapping_quality": dtypes["align1_mapping_quality"],
+    }
 
-    contact_counter = defaultdict(int)
-    for partition in range(contact_df.npartitions):
-        df = (
-            contact_df.get_partition(partition)
-            .compute()
-            .replace({"align1_strand": {True: "+", False: "-"}, "align2_strand": {True: "+", False: "-"}})
+    def to_salsa_long(df):
+        contact_idx = df.groupby(level="read_idx")["align1_chrom"].transform(lambda x: np.arange(len(x), dtype=int))
+        df["align1_contact_idx"] = contact_idx
+        df["align2_contact_idx"] = contact_idx
+        new_columns = pd.MultiIndex.from_tuples(
+            [c.replace("align", "").split("_", 1) for c in df.columns], names=["pair_idx", "value"]
         )
-        for read_idx, row in df.iterrows():
-            contact_counter[read_idx] += 1
-            contact_idx = contact_counter[read_idx]
-            read_name = f"read{read_idx:09}_{contact_idx}"
-            fh.write(
-                f"{row.align1_chrom}\t{row.align1_start}\t{row.align1_end}\t{read_name}/1\t{row.align1_mapping_quality}"
-                f"\t{row.align1_strand}\n"
-            )
-            fh.write(
-                f"{row.align2_chrom}\t{row.align2_start}\t{row.align2_end}\t{read_name}/2\t{row.align2_mapping_quality}"
-                f"\t{row.align2_strand}\n"
-            )
+        df.columns = new_columns
+        df = df.stack(level="pair_idx").reset_index()
+        df["read_pair_id"] = df[["read_idx", "contact_idx", "pair_idx"]].apply(
+            lambda x: f"read{x.read_idx:012}_{x.contact_idx}/{x.pair_idx}", axis=1
+        )
+        df["strand"] = df["strand"].replace({True: "+", False: "-"}).astype(strand_dtype)
+        return df[["chrom", "start", "end", "read_pair_id", "strand", "mapping_quality"]]
 
-    fh.close()
+    contact_df.map_partitions(to_salsa_long, meta=meta).to_csv(
+        bed_file, single_file=True, sep="\t", header=False, index=False
+    )
+
     return bed_file
 
 

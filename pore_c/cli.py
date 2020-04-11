@@ -617,7 +617,8 @@ def export(
         )
         logger.info(f"Wrote cooler to {cooler_path}")
     elif format == "salsa_bed":
-        bed_path = export_to_salsa_bed(contact_table, output_prefix, query, query_columns=columns)
+        with ctx.meta["dask_env"]:
+            bed_path = export_to_salsa_bed(contact_table, output_prefix, query, query_columns=columns)
         logger.info(f"Wrote cooler to {bed_path}")
     elif format == "paired_end_fastq":
         fastq1, fastq2 = export_to_paired_end_fastq(
