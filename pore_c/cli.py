@@ -562,6 +562,11 @@ def contacts():
     help="The fragment table for the corresponding virtual digest",
 )
 @click.option(
+    "--by-haplotype",
+    is_flag=True,
+    help="Create a cooler for each pair of haplotypes (eg 1-1, 1-2, 2-2,...). Only valid with 'cooler'",
+)
+@click.option(
     "--chromsizes",
     cls=ExportDependentOption,
     export_formats=["cooler"],
@@ -583,6 +588,7 @@ def export(
     min_align_base_qscore,
     cooler_resolution,
     fragment_table,
+    by_haplotype,
     chromsizes,
     reference_fasta,
 ):
@@ -612,10 +618,18 @@ def export(
     query = " & ".join(query)
 
     if format == "cooler":
-        cooler_path = export_to_cooler(
-            contact_table, output_prefix, cooler_resolution, fragment_table, chromsizes, query, query_columns=columns
+        cooler_paths = export_to_cooler(
+            contact_table,
+            output_prefix,
+            cooler_resolution,
+            fragment_table,
+            chromsizes,
+            query,
+            query_columns=columns,
+            by_haplotype=by_haplotype,
         )
-        logger.info(f"Wrote cooler to {cooler_path}")
+        for cooler_path in cooler_paths:
+            logger.info(f"Wrote cooler to {cooler_path}")
     elif format == "salsa_bed":
         with ctx.meta["dask_env"]:
             bed_path = export_to_salsa_bed(contact_table, output_prefix, query, query_columns=columns)

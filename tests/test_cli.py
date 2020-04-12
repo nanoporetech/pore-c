@@ -64,6 +64,32 @@ def test_contacts_to_paired_end_fastq(contact_table_pq, raw_refgenome_file, tmp_
     assert new_files == expected_files
 
 
+def test_contacts_to_cool_by_haplotype(contact_table_pq, fragment_table_pq, chromsizes, tmp_path_factory):
+    outdir = tmp_path_factory.mktemp("contacts")
+    prefix = contact_table_pq.name.split(".")[0]
+
+    result = _run_command(
+        [
+            "contacts",
+            "export",
+            contact_table_pq,
+            "cooler",
+            outdir / prefix,
+            "--fragment-table",
+            fragment_table_pq,
+            "--chromsizes",
+            chromsizes,
+            "--by-haplotype",
+        ]
+    )
+    assert result.exit_code == 0
+    new_files = set([f.name for f in outdir.glob("*.*")])
+    expected_files = {
+        f"{prefix}.{ht_key}.cooler" for ht_key in ("1_1", "1_2", "2_2", "nohap_1", "nohap_2", "nohap_nohap")
+    }
+    assert new_files == expected_files
+
+
 def test_contacts_to_cool(contact_table_pq, fragment_table_pq, chromsizes, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("contacts")
     prefix = contact_table_pq.name.split(".")[0]

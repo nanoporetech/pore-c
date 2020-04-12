@@ -67,3 +67,4 @@ doc/source/api
 
 dask-worker-space
 scratch
+*.profraw
