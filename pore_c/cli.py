@@ -538,7 +538,7 @@ def contacts():
 @contacts.command(short_help="Export contacts to various formats")
 @click.argument("contact_table", type=click.Path(exists=True))
 #  @click.argument("concatemer_table", type=click.Path(exists=True))
-@click.argument("format", type=click.Choice(["cooler", "salsa_bed", "paired_end_fastq"]))
+@click.argument("format", type=click.Choice(["cooler", "salsa_bed", "paired_end_fastq", "pairs"]))
 @click.argument("output_prefix")
 @click.option(
     "--min-mapping-quality",
@@ -569,7 +569,7 @@ def contacts():
 @click.option(
     "--chromsizes",
     cls=ExportDependentOption,
-    export_formats=["cooler"],
+    export_formats=["cooler", "pairs"],
     help="The chromsizes file for the corresponding genome",
 )
 @click.option(
@@ -599,7 +599,12 @@ def export(
      - paired_end_fastq: for each contact create a pseudo pair-end read using the reference genome sequence
 
     """
-    from pore_c.analyses.contacts import export_to_cooler, export_to_paired_end_fastq, export_to_salsa_bed
+    from pore_c.analyses.contacts import (
+        export_to_cooler,
+        export_to_paired_end_fastq,
+        export_to_salsa_bed,
+        export_to_pairs,
+    )
 
     columns = []
     query = []
@@ -639,6 +644,9 @@ def export(
             contact_table, output_prefix, reference_fasta, query, query_columns=columns
         )
         logger.info(f"Wrote reads to {fastq1} and {fastq2}")
+    elif format == "pairs":
+        pairs = export_to_pairs(contact_table, output_prefix, chromsizes, query, query_columns=columns)
+        logger.info(f"Wrote contacts to {pairs}")
     else:
         raise NotImplementedError(format)
 

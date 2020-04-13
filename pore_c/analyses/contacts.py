@@ -1,4 +1,5 @@
 import logging
+import shutil
 from collections import defaultdict
 
 import dask.dataframe as dd
@@ -128,6 +129,8 @@ def export_to_cooler(
             logger.info(f"Created cooler: {c.info}")
             results.append(cooler_path)
 
+        shutil.rmtree(tmp_parquet)
+
     return results
 
 
@@ -187,6 +190,101 @@ def export_to_salsa_bed(contact_table, output_prefix, query, query_columns):
     )
 
     return bed_file
+
+
+def export_to_pairs(contact_table, output_prefix, chromsizes, query, query_columns):
+    if query_columns:
+        columns = query_columns[:]
+    else:
+        columns = []
+
+    columns.extend(
+        [
+            "contact_is_direct",
+            "contact_read_distance",
+            "align1_align_idx",
+            "align1_chrom",
+            "align1_fragment_start",
+            "align1_fragment_end",
+            "align1_strand",
+            "align1_mapping_quality",
+            "align2_align_idx",
+            "align2_chrom",
+            "align2_fragment_start",
+            "align2_fragment_end",
+            "align2_strand",
+            "align2_mapping_quality",
+        ]
+    )
+    contact_df = dd.read_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION, columns=columns)
+    chrom_dict = pd.read_csv(
+        chromsizes, sep="\t", header=None, names=["chrom", "size"], index_col=["chrom"], squeeze=True
+    )
+
+    if query:
+        contact_df = contact_df.query(query)
+
+    dtypes = contact_df.head(1).dtypes
+    strand_dtype = pd.CategoricalDtype(["+", "-"], ordered=False)
+    junction_dtype = pd.CategoricalDtype(["DJ", "IJ"], ordered=False)
+    meta = {
+        "readID": str,
+        "chr1": dtypes["align1_chrom"],
+        "pos1": dtypes["align1_fragment_start"],
+        "chr2": dtypes["align2_chrom"],
+        "pos2": dtypes["align2_fragment_start"],
+        "strand1": strand_dtype,
+        "strand2": strand_dtype,
+        "pair_type": junction_dtype,
+        "align1_idx": dtypes["align1_align_idx"],
+        "align2_idx": dtypes["align2_align_idx"],
+        "distance_on_read": dtypes["contact_read_distance"],
+    }
+
+    pairs_file = output_prefix + ".pairs"
+    output_fh = open(pairs_file, "w")
+    header_lines = lines = ["## pairs format 1.0", "#shape: upper triangle"]
+    header_lines.extend(["#chromsize: {} {}".format(*_) for _ in chrom_dict.items()])
+    header_lines.append("#columns: {}".format(" ".join(meta.keys())))
+
+    output_fh.write("{}\n".format("\n".join(lines)))
+    output_fh.flush()
+
+    def to_pairs_df(df):
+        df["contact_idx"] = df.groupby(level="read_idx")["align1_chrom"].transform(
+            lambda x: np.arange(len(x), dtype=int)
+        )
+        df = (
+            df.reset_index()
+            .assign(
+                readID=lambda x: x[["read_idx", "contact_idx"]]
+                .astype(int)
+                .apply(lambda y: f"read{y.read_idx:012}_{y.contact_idx:d}", axis=1),
+                pos1=lambda x: np.rint(x.eval("0.5 * (align1_fragment_start + align1_fragment_end)")).astype(int),
+                pos2=lambda x: np.rint(x.eval("0.5 * (align2_fragment_start + align2_fragment_end)")).astype(int),
+                align1_strand=lambda x: x["align1_strand"].replace({True: "+", False: "-"}).astype(strand_dtype),
+                align2_strand=lambda x: x["align2_strand"].replace({True: "+", False: "-"}).astype(strand_dtype),
+                pair_type=lambda x: x["contact_is_direct"].replace({True: "DJ", False: "IJ"}).astype(junction_dtype),
+            )
+            .rename(
+                columns=dict(
+                    align1_chrom="chr1",
+                    align2_chrom="chr2",
+                    align1_strand="strand1",
+                    align2_strand="strand2",
+                    align2_align_idx="align2_idx",
+                    align1_align_idx="align1_idx",
+                    contact_read_distance="distance_on_read",
+                )
+            )
+        )
+        return df[list(meta.keys())]
+
+    contact_df.map_partitions(to_pairs_df, meta=meta).to_csv(
+        pairs_file, mode="a", single_file=True, sep="\t", header=False, index=False
+    )
+
+    return pairs_file
 
 
 def export_to_paired_end_fastq(

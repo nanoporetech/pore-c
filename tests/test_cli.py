@@ -42,6 +42,20 @@ def test_contacts_to_salsa_bed(contact_table_pq, tmp_path_factory):
     assert new_files == expected_files
 
 
+def test_contacts_to_pairs(contact_table_pq, chromsizes, tmp_path_factory):
+    outdir = tmp_path_factory.mktemp("contacts")
+    prefix = contact_table_pq.name.split(".")[0]
+
+    result = _run_command(
+        ["contacts", "export", contact_table_pq, "pairs", outdir / prefix, "--chromsizes", chromsizes]
+    )
+
+    new_files = set([f.name for f in outdir.glob("*.*")])
+    expected_files = {prefix + ".pairs"}
+    assert result.exit_code == 0
+    assert new_files == expected_files
+
+
 def test_contacts_to_paired_end_fastq(contact_table_pq, raw_refgenome_file, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("contacts")
     prefix = contact_table_pq.name.split(".")[0]
