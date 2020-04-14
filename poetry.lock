@@ -251,14 +251,14 @@ description = "Parallel PyData with Task Scheduling"
 name = "dask"
 optional = false
 python-versions = ">=3.6"
-version = "2.10.1"
+version = "2.14.0"
 
 [package.extras]
-array = ["numpy (>=1.13.0)", "toolz (>=0.7.3)"]
-bag = ["cloudpickle (>=0.2.1)", "fsspec (>=0.6.0)", "toolz (>=0.7.3)", "partd (>=0.3.10)"]
-complete = ["pyyaml", "bokeh (>=1.0.0)", "cloudpickle (>=0.2.1)", "distributed (>=2.0)", "fsspec (>=0.6.0)", "numpy (>=1.13.0)", "pandas (>=0.21.0)", "partd (>=0.3.10)", "toolz (>=0.7.3)"]
-dataframe = ["numpy (>=1.13.0)", "pandas (>=0.21.0)", "toolz (>=0.7.3)", "partd (>=0.3.10)", "fsspec (>=0.6.0)"]
-delayed = ["cloudpickle (>=0.2.1)", "toolz (>=0.7.3)"]
+array = ["numpy (>=1.13.0)", "toolz (>=0.8.2)"]
+bag = ["cloudpickle (>=0.2.2)", "fsspec (>=0.6.0)", "toolz (>=0.8.2)", "partd (>=0.3.10)"]
+complete = ["pyyaml", "bokeh (>=1.0.0)", "cloudpickle (>=0.2.2)", "distributed (>=2.0)", "fsspec (>=0.6.0)", "numpy (>=1.13.0)", "pandas (>=0.23.0)", "partd (>=0.3.10)", "toolz (>=0.8.2)"]
+dataframe = ["numpy (>=1.13.0)", "pandas (>=0.23.0)", "toolz (>=0.8.2)", "partd (>=0.3.10)", "fsspec (>=0.6.0)"]
+delayed = ["cloudpickle (>=0.2.2)", "toolz (>=0.8.2)"]
 diagnostics = ["bokeh (>=1.0.0)"]
 distributed = ["distributed (>=2.0)"]
 
@@ -287,21 +287,24 @@ description = "Distributed scheduler for Dask"
 name = "distributed"
 optional = false
 python-versions = ">=3.6"
-version = "2.10.0"
+version = "2.14.0"
 
 [package.dependencies]
 click = ">=6.6"
 cloudpickle = ">=0.2.2"
 dask = ">=2.9.0"
-msgpack = "*"
+msgpack = ">=0.6.0"
 psutil = ">=5.0"
 pyyaml = "*"
 setuptools = "*"
 sortedcontainers = "<2.0.0 || >2.0.0,<2.0.1 || >2.0.1"
-tblib = "*"
-toolz = ">=0.7.4"
-tornado = ">=5"
+tblib = ">=1.6.0"
+toolz = ">=0.8.2"
 zict = ">=0.1.3"
+
+[package.dependencies.tornado]
+python = "<3.8"
+version = ">=5"
 
 [[package]]
 category = "dev"
@@ -380,8 +383,8 @@ category = "main"
 description = "File-system specification"
 name = "fsspec"
 optional = false
-python-versions = ">=3.5"
-version = "0.6.2"
+python-versions = ">3.5"
+version = "0.7.2"
 
 [[package]]
 category = "main"
@@ -1007,7 +1010,7 @@ category = "main"
 description = "YAML parser and emitter for Python"
 name = "pyyaml"
 optional = false
-python-versions = "*"
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 version = "5.3"
 
 [[package]]
@@ -1626,8 +1629,8 @@ darglint = [
     {file = "darglint-1.1.2.tar.gz", hash = "sha256:8177e69e8305bcb6785c4abb482523b006f6fa76d44e1a7db3dcc5a8dca427dd"},
 ]
 dask = [
-    {file = "dask-2.10.1-py3-none-any.whl", hash = "sha256:cf9ebd3797e69350cfa463aaeefe20f58c07d84d6fa9548367cd102b5f9b61bb"},
-    {file = "dask-2.10.1.tar.gz", hash = "sha256:b20d7dfb8f9f23de9c6c810e0e8b44c3cd83c49f52d26e6d6a0679ed2867de2b"},
+    {file = "dask-2.14.0-py3-none-any.whl", hash = "sha256:ddcfc2afa13a359aa707e5b3369127286543967a268061b50ee0cc891793602f"},
+    {file = "dask-2.14.0.tar.gz", hash = "sha256:3885d0d071fb49707c7311f9762c1863800a6f13fa7a1dc12ec7006d8404320c"},
 ]
 decorator = [
     {file = "decorator-4.4.1-py2.py3-none-any.whl", hash = "sha256:5d19b92a3c8f7f101c8dd86afd86b0f061a8ce4540ab8cd401fa2542756bce6d"},
@@ -1637,8 +1640,8 @@ dill = [
     {file = "dill-0.3.1.1.tar.gz", hash = "sha256:42d8ef819367516592a825746a18073ced42ca169ab1f5f4044134703e7a049c"},
 ]
 distributed = [
-    {file = "distributed-2.10.0-py3-none-any.whl", hash = "sha256:04342deeeb4771de9553c41de545d194b00dc88361c34ea8fca79c2210d56368"},
-    {file = "distributed-2.10.0.tar.gz", hash = "sha256:2f8cca741a20f776929cbad3545f2df64cf60207fb21f774ef24aad6f6589e8b"},
+    {file = "distributed-2.14.0-py3-none-any.whl", hash = "sha256:3af871bc24b3dd775f87f7575b77c2cde156c34d16c0a13580af54dd908efc6d"},
+    {file = "distributed-2.14.0.tar.gz", hash = "sha256:d9d49536fefc4238417de89bc6ddcc1cfa64da90d52b74128a16d9d28a823089"},
 ]
 docutils = [
     {file = "docutils-0.16-py2.py3-none-any.whl", hash = "sha256:0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af"},
@@ -1664,8 +1667,8 @@ flake8-docstrings = [
     {file = "flake8_docstrings-1.5.0-py2.py3-none-any.whl", hash = "sha256:a256ba91bc52307bef1de59e2a009c3cf61c3d0952dbe035d6ff7208940c2edc"},
 ]
 fsspec = [
-    {file = "fsspec-0.6.2-py3-none-any.whl", hash = "sha256:00ca67c62ae642f3bded2100dd431d151c1c5965c410bf10b12480bc8eb0a9f6"},
-    {file = "fsspec-0.6.2.tar.gz", hash = "sha256:ffd7cd5ac32f36698097c3d78c2c433d4c12f7e4bce3a3a4036fd3491188046d"},
+    {file = "fsspec-0.7.2-py3-none-any.whl", hash = "sha256:7ba96c818572afd82c8a1c658ea2bfedcdb3762ed7cf3ddcbb9896a79d1b7d78"},
+    {file = "fsspec-0.7.2.tar.gz", hash = "sha256:2f74d8cb37820480d5802620f819385a162202c7d9dbafcf82bc25e5fade4fd7"},
 ]
 h5py = [
     {file = "h5py-2.10.0-cp27-cp27m-macosx_10_6_intel.whl", hash = "sha256:ecf4d0b56ee394a0984de15bceeb97cbe1fe485f1ac205121293fc44dcf3f31f"},
@@ -1818,6 +1821,11 @@ markupsafe = [
     {file = "MarkupSafe-1.1.1-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:ba59edeaa2fc6114428f1637ffff42da1e311e29382d81b339c1817d37ec93c6"},
     {file = "MarkupSafe-1.1.1-cp37-cp37m-win32.whl", hash = "sha256:b00c1de48212e4cc9603895652c5c410df699856a2853135b3967591e4beebc2"},
     {file = "MarkupSafe-1.1.1-cp37-cp37m-win_amd64.whl", hash = "sha256:9bf40443012702a1d2070043cb6291650a0841ece432556f784f004937f0f32c"},
+    {file = "MarkupSafe-1.1.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:6788b695d50a51edb699cb55e35487e430fa21f1ed838122d722e0ff0ac5ba15"},
+    {file = "MarkupSafe-1.1.1-cp38-cp38-manylinux1_i686.whl", hash = "sha256:cdb132fc825c38e1aeec2c8aa9338310d29d337bebbd7baa06889d09a60a1fa2"},
+    {file = "MarkupSafe-1.1.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:13d3144e1e340870b25e7b10b98d779608c02016d5184cfb9927a9f10c689f42"},
+    {file = "MarkupSafe-1.1.1-cp38-cp38-win32.whl", hash = "sha256:596510de112c685489095da617b5bcbbac7dd6384aeebeda4df6025d0256a81b"},
+    {file = "MarkupSafe-1.1.1-cp38-cp38-win_amd64.whl", hash = "sha256:e8313f01ba26fbbe36c7be1966a7b7424942f670f38e666995b88d012765b9be"},
     {file = "MarkupSafe-1.1.1.tar.gz", hash = "sha256:29872e92839765e546828bb7754a68c418d927cd064fd4708fab9fe9c8bb116b"},
 ]
 mccabe = [

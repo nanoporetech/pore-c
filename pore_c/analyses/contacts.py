@@ -1,5 +1,7 @@
 import logging
+import os
 import shutil
+import subprocess as sp
 from collections import defaultdict
 
 import dask.dataframe as dd
@@ -242,13 +244,16 @@ def export_to_pairs(contact_table, output_prefix, chromsizes, query, query_colum
     }
 
     pairs_file = output_prefix + ".pairs"
-    output_fh = open(pairs_file, "w")
+    # dask to_csv doesn't support append writing, so need to concatenate header after the fact
+    header_file = output_prefix + ".pairs.header"
+    body_file = output_prefix + ".pairs.body"
+
     header_lines = lines = ["## pairs format 1.0", "#shape: upper triangle"]
     header_lines.extend(["#chromsize: {} {}".format(*_) for _ in chrom_dict.items()])
     header_lines.append("#columns: {}".format(" ".join(meta.keys())))
 
-    output_fh.write("{}\n".format("\n".join(lines)))
-    output_fh.flush()
+    with open(header_file, "w") as output_fh:
+        output_fh.write("{}\n".format("\n".join(lines)))
 
     def to_pairs_df(df):
         df["contact_idx"] = df.groupby(level="read_idx")["align1_chrom"].transform(
@@ -281,8 +286,12 @@ def export_to_pairs(contact_table, output_prefix, chromsizes, query, query_colum
         return df[list(meta.keys())]
 
     contact_df.map_partitions(to_pairs_df, meta=meta).to_csv(
-        pairs_file, mode="a", single_file=True, sep="\t", header=False, index=False
+        body_file, mode="w+", single_file=True, sep="\t", header=False, index=False
     )
+
+    sp.check_call(f"cat {header_file} {body_file} > {pairs_file}", shell=True)
+    os.unlink(header_file)
+    os.unlink(body_file)
 
     return pairs_file
 

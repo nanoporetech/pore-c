@@ -448,7 +448,7 @@ def assign_fragments(
     "--threshold",
     type=float,
     default=0.8,
-    help="Minimum major:minor haplotype fraction to declare a consensus",
+    help="major:minor haplotype fraction must be greater than this value to assign a consensus",
     show_default=True,
 )
 @click.pass_context
@@ -481,7 +481,7 @@ def assign_consensus_haplotype(ctx, pore_c_table, output_pore_c_table, threshold
             .value_counts()  # count haplotypes
             .unstack(fill_value=0)  # convert to wide dataframe with one column per haplotype
             .pipe(get_most_freq_haplotype)  # get the most frequent haplotype by phase_set
-            .query(f"({threshold} <= proportion < 1.0)")  # if prop is 1 then we don't need to update
+            .query(f"({threshold} < proportion < 1.0)")  # if prop is 1 then we don't need to update
             .loc[:, ["haplotype"]]  # select the phase sets where consensus is possible
         )
 
