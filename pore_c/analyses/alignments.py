@@ -90,9 +90,11 @@ def assign_fragment(pore_c_table, fragment_df, min_overlap_length: int, containm
         )
     )
     # all overlaps, one to many
+    # TODO: pyranges API has changed so that the new_position call overwrites the alignment start and end
     overlaps = align_range.join(fragment_range).new_position("intersection")
     if len(overlaps) == 0:
         raise ValueError("No overlaps found between alignments and fragments, this shouldn't happen")
+
     overlaps = (
         overlaps.df.rename(
             columns={
