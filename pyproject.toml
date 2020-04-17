@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pore_c"
-version = "0.1"
+version = "0.2.0"
 description = "Tools to process data from an ONT poreC run"
 license = "MPL 2.0"
 classifiers = [
@@ -38,27 +38,28 @@ cython = ">=0.29"
 networkx = "^2.4"
 pyranges = "==0.0.71"
 vulture = "^1.4"
+dephell = "^0.8.2"
 
 [tool.poetry.dev-dependencies]
-flake8 = "^3.7"
-flake8-docstrings = "^1.3.0"
+flake8 = "==3.*,>=3.7.0"
+flake8-docstrings = "==1.*,>=1.3.0"
 pydocstyle = "<4.0"
-black = {version = "^19.3b0", allow-prereleases = true}
-isort = {version = "^4.3", extras = ["pyproject"]}
-seed-isort-config = "^1.9"
-tox = "^3.13"
-pre-commit = "^1.17"
-sphinx = "^2.1"
-sphinx_rtd_theme = "^0.4.3"
-toml = "^0.10.0"
-darglint = "^1.1.0"
-sphinx-autoapi = "^1.2.1"
-sphinxcontrib-apidoc = "^0.3.0"
-sphinx-click = "^2.3.1"
-sphinx-autodoc-typehints = "^1.10.3"
+black = {version = "==19.*,>=19.3.0", allows-prereleases = true}
+isort = {version = "==4.*,>=4.3.0", extras = ["pyproject"]}
+seed-isort-config = "==1.*,>=1.9.0"
+tox = "==3.*,>=3.13.0"
+pre-commit = "==1.*,>=1.17.0"
+sphinx = "==2.*,>=2.1.0"
+sphinx_rtd_theme = "==0.*,>=0.4.3"
+toml = "==0.*,>=0.10.0"
+darglint = "==1.*,>=1.1.0"
+sphinx-autoapi = "==1.*,>=1.2.1"
+sphinxcontrib-apidoc = "==0.*,>=0.3.0"
+sphinx-click = "==2.*,>=2.3.1"
+sphinx-autodoc-typehints = "==1.*,>=1.10.3"
 pytest = "*"
-sphinx-jsonschema = "^1.13"
-pytype = "^2020.4.1"
+sphinx-jsonschema = "==1.*,>=1.13.0"
+pytype = "==2020.*,>=2020.4.1"
 
 [tool.poetry.extras]
 tests = ["pytest"]
@@ -67,9 +68,10 @@ doc = ["sphinx"]
 [tool.poetry.scripts]
 pore_c = "pore_c.cli:cli"
 
+
 [tool.dephell.main]
 from = {format = "poetry", path = "pyproject.toml"}
-versioning = "semver"
+versioning = "pep"
 
 [tool.isort]
 line-length = 120
