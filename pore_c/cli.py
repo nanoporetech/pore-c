@@ -648,3 +648,24 @@ def export(
         logger.info(f"Wrote contacts to {pairs}")
     else:
         raise NotImplementedError(format)
+
+
+@cli.group(cls=NaturalOrderGroup, short_help="Misc tools")
+def utils():
+    pass
+
+
+@utils.command()
+@click.argument("input_parquet", type=click.Path(exists=True))
+@click.argument("output_csv", type=click.Path(exists=False))
+@click.pass_context
+def parquet_to_csv(ctx, input_parquet, output_csv):
+    """Convert a parquet file to CSV
+
+    """
+
+    with ctx.meta["dask_env"]:
+        df = dd.read_parquet(input_parquet, engine=PQ_ENGINE, version=PQ_VERSION)
+        df.to_csv(
+            output_csv, single_file=True, compute=True, compression="gzip" if output_csv.endswith(".gz") else None
+        )

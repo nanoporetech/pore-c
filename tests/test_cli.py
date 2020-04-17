@@ -13,6 +13,17 @@ def _run_command(opts):
     return result
 
 
+def test_parquet_to_csv(pore_c_table_pq, tmp_path_factory):
+    outdir = tmp_path_factory.mktemp("utils")
+
+    prefix = pore_c_table_pq.name.split(".")[0]
+
+    output_csv = outdir / (prefix + ".pore_c.csv.gz")
+    result = _run_command(["utils", "parquet-to-csv", pore_c_table_pq, output_csv])
+
+    assert result.exit_code == 0
+
+
 def test_haplotype_consensus(pore_c_table_pq, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("haplotype_consensus")
     prefix = pore_c_table_pq.name.split(".")[0]
