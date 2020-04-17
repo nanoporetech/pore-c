@@ -9,11 +9,8 @@ from intake.source.base import DataSource
 
 __all__ = [
     "RawReadCatalog",
-    "PairsFileCatalog",
-    "AlignmentDfCatalog",
     "VirtualDigestCatalog",
     "ReferenceGenomeCatalog",
-    "MatrixCatalog",
 ]
 
 logger = getLogger(__name__)
@@ -132,71 +129,6 @@ class RawReadCatalog(basePoreCCatalog):
         )
 
 
-class PairsFileCatalog(basePoreCCatalog):
-    name = "pore_c_pairs"
-    description = "An intake catalog file for a pairs format file"
-
-    _suffix_map = {"catalog": ".catalog.yaml", "pairs": ".pairs.gz"}
-
-    @classmethod
-    def create(cls, file_paths, *args, **kwds):
-        catalog_data = basePoreCCatalog.create_catalog_dict(cls, file_paths, *args, **kwds)
-        catalog_path = file_paths["catalog"]
-        with catalog_path.open("w") as fh:
-            fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
-        cat = cls(str(catalog_path))
-        return cat
-
-
-class AlignmentDfCatalog(basePoreCCatalog):
-    name = "pore_c_alignment_df"
-    description = "An intake catalog file for the annotated alignments dataframe"
-
-    _suffix_map = {
-        "catalog": ".catalog.yaml",
-        "alignment": ".alignment.parquet",
-        "read": ".read.parquet",
-        "overlap": ".overlap.parquet",
-        "alignment_summary": ".alignment_summary.csv",
-        "read_summary": ".read_summary.csv",
-    }
-
-    @classmethod
-    def create(cls, file_paths, *args, **kwds):
-        catalog_data = basePoreCCatalog.create_catalog_dict(cls, file_paths, *args, **kwds)
-        catalog_path = file_paths["catalog"]
-        with catalog_path.open("w") as fh:
-            fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
-        cat = cls(str(catalog_path))
-        return cat
-
-    def __str__(self):
-        return "<AlignmentDfCatalog>"
-        # ={} digest_param:{} num_fragments:{} path:{}>".format(
-        #    self.metadata['digest_type'], self.metadata['digest_param'], self.metadata['num_fragments'], self.path
-        # )
-
-
-class MatrixCatalog(basePoreCCatalog):
-    name = "pore_c_matrix"
-    description = "An intake catalog file for a contact matrix"
-
-    _suffix_map = {
-        "catalog": ".catalog.yaml",
-        "coo": ".coo.csv.gz",
-        # "bg2": ".bg2.bed.gz",
-    }
-
-    @classmethod
-    def create(cls, file_paths, *args, **kwds):
-        catalog_data = basePoreCCatalog.create_catalog_dict(cls, file_paths, *args, **kwds)
-        catalog_path = file_paths["catalog"]
-        with catalog_path.open("w") as fh:
-            fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
-        cat = cls(str(catalog_path))
-        return cat
-
-
 class VirtualDigestCatalog(basePoreCCatalog):
     name = "pore_c_virtual_digest"
     description = "An intake catalog file for a virtual digest of a reference genome"
@@ -268,24 +200,3 @@ class ReferenceGenomeCatalog(basePoreCCatalog):
             ",".join(self.chrom_order[:3]),
             self.chrom_order[-1],
         )
-
-
-class MatrixCorrelationCatalog(basePoreCCatalog):
-    name = "pore_c_matrix"
-    description = "An intake catalog file for a contact matrix"
-
-    _suffix_map = {
-        "catalog": ".catalog.yaml",
-        "xy": ".xy.parquet",
-        "coefficients": ".coefficients.csv"
-        # "bg2": ".bg2.bed.gz",
-    }
-
-    @classmethod
-    def create(cls, file_paths, *args, **kwds):
-        catalog_data = basePoreCCatalog.create_catalog_dict(cls, file_paths, *args, **kwds)
-        catalog_path = file_paths["catalog"]
-        with catalog_path.open("w") as fh:
-            fh.write(yaml.dump(catalog_data, default_flow_style=False, sort_keys=False))
-        cat = cls(str(catalog_path))
-        return cat

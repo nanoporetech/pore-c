@@ -27,7 +27,6 @@ class DaskExecEnv(AbstractContextManager):
         threads_per_worker: int = 1,
         scheduler_port: int = 0,
         dashboard_port: Optional[int] = None,
-        empty_queue=False,
     ):
         self._cluster_kwds = {
             "processes": processes,
@@ -37,7 +36,6 @@ class DaskExecEnv(AbstractContextManager):
             "dashboard_address": f"127.0.0.1:{dashboard_port}",
             "threads_per_worker": threads_per_worker,
         }
-        self.empty_queue = empty_queue
         self._cluster, self._client = None, None
 
     def scatter(self, data):
@@ -73,9 +71,9 @@ class DataFrameProgress(object):
     def __init__(self, save_to=None, **kwds):
         self._bar = tqdm(**kwds)
         self._data = None
-        self._save_to = None
+        self._save_to = save_to
 
-    def __call__(self, state, df):
+    def __call__(self, _, df):
         self.update_data(df)
         self.update_progress_bar(len(df))
         return self, df

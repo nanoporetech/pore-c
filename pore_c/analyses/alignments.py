@@ -3,29 +3,24 @@ from itertools import combinations
 
 import networkx as nx
 import numpy as np
-import pandas as pd
 
 from pore_c.model import (
     AlignmentRecordDf,
-    FragmentDf,
-    PoreCAlignDf,
+    FragmentRecordDf,
     PoreCConcatemerRecord,
     PoreCConcatemerRecordDf,
     PoreCContactRecord,
     PoreCContactRecordDf,
-    PoreCReadDf,
     PoreCRecordDf,
 )
 
 
 logger = logging.getLogger(__name__)
 
-FILTER_REASON_DTYPE = PoreCAlignDf.DTYPE["reason"]
-
 
 def assign_fragments(
     align_table: AlignmentRecordDf,
-    fragment_df: FragmentDf,
+    fragment_df: FragmentRecordDf,
     mapping_quality_cutoff: int = 1,
     min_overlap_length: int = 10,
     containment_cutoff: float = 99.0,
@@ -144,56 +139,6 @@ def assign_fragment(pore_c_table, fragment_df, min_overlap_length: int, containm
     dtype = {col: dtype for col, dtype in pore_c_table.dtypes.items() if col in align_df.columns}
     align_df = align_df.astype(dtype)
     return align_df
-
-
-def calculate_read_stats(align_df: PoreCAlignDf) -> PoreCReadDf:
-    # total number of reads and how many aligments per read
-    num_aligns = (
-        align_df.groupby(["read_idx"], sort=False)[["read_name", "read_length"]]
-        .max()
-        .join(align_df.query("chrom != 'NULL'").groupby(["read_idx"]).size().rename("num_aligns").to_frame())
-        .fillna(0)
-        .astype({"num_aligns": np.uint8})
-    )
-
-    # subset of alignments that passed filters
-    pass_aligns = align_df.query("pass_filter == True").eval(
-        "perc_read_assigned = 100.0 * (read_end - read_start) / read_length"
-    )
-
-    pass_stats = (
-        pass_aligns.groupby(["read_idx"], sort=False)
-        .agg(
-            {"fragment_id": "nunique", "pass_filter": "size", "contained_fragments": "sum", "perc_read_assigned": "sum"}
-        )
-        .rename(columns={"fragment_id": "unique_fragments_assigned", "pass_filter": "num_pass_aligns"})
-    )
-
-    def count_contacts(chroms: pd.Series):
-        """Take a list of chromosomes and calculate the total number of contacts (N choose 2) and the
-        number of those that are cis
-        """
-        if len(chroms) < 2:
-            res = {"num_contacts": 0, "num_cis_contacts": 0}
-        else:
-            is_cis = np.array([chrom1 == chrom2 for (chrom1, chrom2) in combinations(chroms, 2)])
-            res = {"num_contacts": len(is_cis), "num_cis_contacts": is_cis.sum()}
-        res["num_chroms_contacted"] = chroms.nunique()
-        return pd.DataFrame(res, index=[chroms.name])
-
-    def _check_index(_df):
-        level_0 = _df.index.get_level_values(0)
-        level_1 = _df.index.get_level_values(1)
-        assert (level_0 == level_1).all()
-        return _df
-
-    contact_stats = (
-        pass_aligns.groupby(["read_idx"], sort=False)["chrom"].apply(count_contacts).pipe(_check_index).droplevel(1)
-    )
-
-    # create a merged dataframe with one row per read
-    res = num_aligns.join(pass_stats.join(contact_stats), how="outer")
-    return res.reset_index().porec_read.cast(subset=True, fillna=True)
 
 
 def apply_per_read_filters(read_df):
