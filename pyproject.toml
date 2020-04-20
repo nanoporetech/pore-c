@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pore_c"
-version = "0.2.0"
+version = "0.2.0rc1"
 description = "Tools to process data from an ONT poreC run"
 license = "MPL 2.0"
 classifiers = [
@@ -67,6 +67,7 @@ doc = ["sphinx"]
 
 [tool.poetry.scripts]
 pore_c = "pore_c.cli:cli"
+
 
 
 [tool.dephell.main]
