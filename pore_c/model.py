@@ -1,8 +1,10 @@
+import logging
 from enum import Enum
 from typing import Dict, List, NewType, Optional
 
 import numpy as np
 import pandas as pd
+import pyarrow as pa
 import pysam
 from pydantic import BaseModel, confloat, conint, constr
 
@@ -24,6 +26,9 @@ from .config import (
 from .utils import mean_qscore
 
 
+logger = logging.getLogger(__name__)
+
+
 class _BaseModel(BaseModel):
     @classmethod
     def pandas_dtype(cls, overrides=None):
@@ -31,15 +36,27 @@ class _BaseModel(BaseModel):
         if overrides is None:
             overrides = {}
         overrides = overrides if overrides is not None else {}
-        for column, col_schema in cls.schema()["properties"].items():
+        schema = cls.schema()
+        for column, col_schema in schema["properties"].items():
             if column in overrides:
                 res[column] = overrides[column]
+                continue
+            if "$ref" in col_schema:
+                def_key = col_schema["$ref"].rsplit("/", 1)[-1]
+                col_schema = schema["definitions"][def_key]
+            if "dtype" in col_schema:
+                dtype = col_schema["dtype"]
             else:
-                dtype = col_schema.get("dtype")
-                if dtype == "category" and "enum" in col_schema:
-                    dtype = pd.CategoricalDtype(col_schema["enum"], ordered=True)
-                res[column] = dtype
+                assert "enum" in col_schema
+                dtype = pd.CategoricalDtype(col_schema["enum"], ordered=True)
+            res[column] = dtype
         return res
+
+    @classmethod
+    def pyarrow_schema(cls, overrides=None):
+        dtype = cls.pandas_dtype(overrides=overrides)
+        df = pd.DataFrame(columns=dtype.keys(), dtype=dtype)
+        return pa.Schema.from_pandas(df)
 
     def to_tuple(self):
         return tuple([_[1] for _ in self])
@@ -187,7 +204,7 @@ class AlignmentRecord(_BaseModel):
             mapping_quality=align.mapq,
             align_score=align_score,
             align_base_qscore=np.rint(align_base_qscore),
-            **optional
+            **optional,
         )
 
     @classmethod
@@ -198,8 +215,43 @@ class AlignmentRecord(_BaseModel):
         else:
             overrides = {}
         dtype = cls.pandas_dtype(overrides=overrides)
-        df = pd.DataFrame([a.to_tuple() for a in aligns], columns=columns).astype(dtype)
+        df = pd.DataFrame([a.to_tuple() for a in aligns], columns=columns)
+        df = df.astype(dtype)
         return df
+
+    @staticmethod
+    def update_dataframe_with_haplotypes(align_df, haplotype_df):
+        if len(haplotype_df) == 0:
+            logger.info(f"Aligment haplotypes dataframe is empty, haplotypes won't be added.")
+            return align_df
+        haplotype_df = (
+            haplotype_df.join(
+                haplotype_df["#readname"]
+                .str.split(":", expand=True)
+                .rename({0: "read_name", 1: "read_idx", 2: "align_idx"}, axis=1)
+            )
+            .rename(columns={"phaseset": "phase_set"})
+            .replace(dict(haplotype={"none": -1, "H1": 1, "H2": 2}, phase_set={"none": 0},))
+            .astype(
+                {
+                    "read_idx": READ_IDX_DTYPE,
+                    "align_idx": ALIGN_IDX_DTYPE,
+                    "haplotype": HAPLOTYPE_IDX_DTYPE,
+                    "phase_set": PHASE_SET_DTYPE,
+                }
+            )
+            .set_index(["read_idx", "align_idx"])
+        )
+        col_order = list(align_df.columns)
+        align_df = align_df.set_index(["read_idx", "align_idx"])
+        align_df["haplotype"] = -1
+        align_df["phase_set"] = 0
+        align_df["phase_qual"] = 0
+        align_df.update(haplotype_df[["haplotype", "phase_set"]], overwrite=True, errors="ignore")
+        align_df = align_df.reset_index()[col_order].astype(
+            {"haplotype": HAPLOTYPE_IDX_DTYPE, "phase_set": PHASE_SET_DTYPE}
+        )
+        return align_df
 
 
 class AlignmentFilterReason(str, Enum):
@@ -268,12 +320,26 @@ class PoreCRecord(AlignmentRecord):
     @classmethod
     def init_dataframe(cls, align_df: "AlignmentRecordDf") -> "PoreCRecordDf":
         res = align_df.copy()
-        schema = cls.schema()["properties"]
+        schema = cls.schema()
+
+        col_schema = schema["properties"]
+
+        for key, val in col_schema.items():
+            if "$ref" in val:
+                def_key = val["$ref"].rsplit("/", 1)[-1]
+                col_schema[key] = schema["definitions"][def_key]
+
         dtype = cls.pandas_dtype()
         additional_fields = set(dtype.keys()) - (set(align_df.index.names) | set(align_df.columns))
         num_rows = len(res)
-        for column in [c for c in schema if c in additional_fields]:
-            default_value = schema[column]["default"]
+        for column in [c for c in col_schema if c in additional_fields]:
+            cs = col_schema[column]
+            if "default" in cs:
+                default_value = cs["default"]
+            elif "enum" in cs:
+                default_value = cs["enum"][0]
+            else:
+                raise ValueError(cs)
             res[column] = pd.Series([default_value] * num_rows, index=res.index).astype(dtype[column])
         return res
 
@@ -289,11 +355,14 @@ class HaplotypePairType(str, Enum):
 
 
 class PoreCContactRecord(_BaseModel):
+    read_name: constr(min_length=1, strip_whitespace=True)
+    read_length: conint(ge=1)
     read_idx: conint(ge=0, strict=True)
     contact_is_direct: bool = False
     contact_is_cis: bool = False
     contact_read_distance: int = 0
     contact_genome_distance: int = 0
+    contact_fragment_adjacent: bool = False
     contact_fragment_distance: conint(ge=0, strict=True)
     haplotype_pair_type: HaplotypePairType = HaplotypePairType.null
     align1_align_idx: conint(ge=0, strict=True)
@@ -328,6 +397,8 @@ class PoreCContactRecord(_BaseModel):
     class Config:
         use_enum_values = True
         fields = dict(
+            read_name=dict(description="The original read name", dtype="str"),
+            read_length=dict(description="The length of the read in bases", dtype=READ_COORD_DTYPE),
             read_idx=dict(description="Unique integer ID of the read", dtype=READ_IDX_DTYPE),
             contact_is_direct=dict(
                 description="There are no intervening assigned restriction fragments on the read", dtype="bool"
@@ -346,6 +417,10 @@ class PoreCContactRecord(_BaseModel):
                     "(valid for cis contacts only)"
                 ),
                 dtype=GENOMIC_DISTANCE_DTYPE,
+            ),
+            contact_fragment_adjacent=dict(
+                description=("A boolean to indicate if the contact is between the same or adjacent fragments",),
+                dtype="bool",
             ),
             contact_fragment_distance=dict(
                 description=(
@@ -439,8 +514,9 @@ class PoreCContactRecord(_BaseModel):
         )
 
     @classmethod
-    def from_pore_c_align_pair(cls, read_idx: int, align1, align2, contact_is_direct: bool = False):
+    def from_pore_c_align_pair(cls, read_name: str, read_length: int, read_idx: int, align1, align2):
         contact_read_distance = align2.read_start - align1.read_end
+        contact_is_direct = align2.pos_on_read - align1.pos_on_read == 1
         if align1.fragment_id > align2.fragment_id:
             align1, align2 = align2, align1
 
@@ -448,9 +524,11 @@ class PoreCContactRecord(_BaseModel):
         if contact_is_cis:
             contact_genome_distance = align2.start - align1.end
             contact_fragment_distance = align2.fragment_midpoint - align1.fragment_midpoint
+            contact_fragment_adjacent = abs(align2.fragment_id - align1.fragment_id) <= 1
         else:
             contact_genome_distance = 0
             contact_fragment_distance = 0
+            contact_fragment_adjacent = False
 
         haplotype_pair_type = HaplotypePairType.null
         if not contact_is_cis:
@@ -467,11 +545,14 @@ class PoreCContactRecord(_BaseModel):
             haplotype_pair_type = HaplotypePairType.phased_h_trans
 
         return cls(
+            read_name=read_name,
+            read_length=read_length,
             read_idx=read_idx,
             contact_is_direct=contact_is_direct,
             contact_is_cis=contact_is_cis,
             contact_read_distance=contact_read_distance,
             contact_genome_distance=contact_genome_distance,
+            contact_fragment_adjacent=contact_fragment_adjacent,
             contact_fragment_distance=contact_fragment_distance,
             haplotype_pair_type=haplotype_pair_type,
             align1_align_idx=align1.align_idx,
@@ -506,6 +587,8 @@ class PoreCContactRecord(_BaseModel):
 
 
 class PoreCConcatemerRecord(_BaseModel):
+    read_name: constr(min_length=1, strip_whitespace=True)
+    read_length: conint(ge=1)
     read_idx: conint(ge=0, strict=True)
     indirect_contacts: conint(ge=0, strict=True)
     direct_contacts: conint(ge=0, strict=True)
@@ -525,6 +608,8 @@ class PoreCConcatemerRecord(_BaseModel):
     class Config:
         use_enum_values = True
         fields = dict(
+            read_name=dict(description="The original read name", dtype="str"),
+            read_length=dict(description="The length of the read in bases", dtype=READ_COORD_DTYPE),
             read_idx=dict(description="Unique integer ID of the read", dtype=READ_IDX_DTYPE),
             read_order=dict(description="The number of monomers for this read", dtype="uint32"),
             total_contacts=dict(description="The total number of contacts for this read", dtype="uint32"),

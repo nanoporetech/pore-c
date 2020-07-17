@@ -7,7 +7,7 @@ import pandas as pd
 from streamz import Stream
 
 from pore_c.datasources import Fastq
-from pore_c.io import FastqWriter
+from pore_c.io import BatchedFastqWriter, FastqWriter
 from pore_c.utils import DataFrameProgress, mean_qscore
 
 
@@ -53,7 +53,7 @@ def prepare_fastq(
 
     filtered_stream = fastq_stream.map(filter_records, min_read_length, max_read_length, min_qscore, max_qscore)
 
-    pass_writer = FastqWriter(pass_fastq)
+    pass_writer = BatchedFastqWriter(pass_fastq)
     fail_writer = FastqWriter(fail_fastq)
 
     read_prog = ReadFilterProgress()
@@ -97,7 +97,7 @@ def filter_records(list_of_records, min_read_length, max_read_length, min_qscore
             [(_.name, len(_.sequence), mean_qscore(_.get_quality_array())) for _ in list_of_records],
             columns=["read_id", "read_length", "qscore"],
         )
-        .astype({"read_length": pd.np.uint32, "qscore": pd.np.float32})
+        .astype({"read_length": np.uint32, "qscore": np.float32})
         .eval(
             "pass_filter = (@min_read_length <= read_length < @max_read_length) & (@min_qscore <= qscore < @max_qscore)"
         )

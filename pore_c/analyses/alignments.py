@@ -25,11 +25,11 @@ def assign_fragments(
     min_overlap_length: int = 10,
     containment_cutoff: float = 99.0,
 ) -> PoreCRecordDf:
-    # initialise everything as having passed filter
 
     from pore_c.model import PoreCRecord
 
-    pore_c_table = PoreCRecord.init_dataframe(align_table.reset_index(drop=False))
+    # initialise everything as having passed filter
+    pore_c_table = PoreCRecord.init_dataframe(align_table)
     dtype = pore_c_table.dtypes
 
     align_types = pore_c_table.align_type.value_counts()
@@ -37,6 +37,8 @@ def assign_fragments(
 
     if not some_aligns:
         logger.warning("No alignments in dataframe")
+        pore_c_table["pass_filter"] = False
+        pore_c_table["filter_reason"] = "unmapped"
         return pore_c_table
 
     fragment_assignments = assign_fragment(pore_c_table, fragment_df, min_overlap_length, containment_cutoff)
@@ -68,6 +70,7 @@ def assign_fragments(
     else:
         logger.warning("No alignments passed filter")
 
+    pore_c_table.loc[pore_c_table.pass_filter, "filter_reason"] = "pass"
     return pore_c_table.reset_index(drop=True).sort_values(["read_idx", "align_idx"], ascending=True)
 
 
@@ -135,7 +138,6 @@ def assign_fragment(pore_c_table, fragment_df, min_overlap_length: int, containm
             ]
         ]
     )
-
     dtype = {col: dtype for col, dtype in pore_c_table.dtypes.items() if col in align_df.columns}
     align_df = align_df.astype(dtype)
     return align_df
@@ -230,7 +232,7 @@ def to_contacts(df: PoreCRecordDf) -> PoreCContactRecordDf:
         fragment_midpoint=lambda x: np.rint((x.fragment_start + x.fragment_end) * 0.5).astype(int)
     )
     chrom_dtype = df.dtypes["chrom"]
-    for x, (read_idx, read_df) in enumerate(keep_segments.groupby("read_idx", as_index=False)):
+    for (read_name, read_df) in keep_segments.groupby("read_name", as_index=False):
         if len(read_df) <= 1:
             continue
 
@@ -239,10 +241,11 @@ def to_contacts(df: PoreCRecordDf) -> PoreCContactRecordDf:
             .assign(pos_on_read=lambda x: np.arange(len(x)))
             .itertuples()
         )
+
+        read_idx = rows[0].read_idx
+        read_length = rows[0].read_length
         for (align_1, align_2) in combinations(rows, 2):
-            contact = PoreCContactRecord.from_pore_c_align_pair(
-                read_idx, align_1, align_2, contact_is_direct=align_2.pos_on_read - align_1.pos_on_read == 1
-            )
+            contact = PoreCContactRecord.from_pore_c_align_pair(read_name, read_length, read_idx, align_1, align_2,)
             res.append(contact)
 
     res = PoreCContactRecord.to_dataframe(res, overrides={"align1_chrom": chrom_dtype, "align2_chrom": chrom_dtype})
@@ -251,11 +254,12 @@ def to_contacts(df: PoreCRecordDf) -> PoreCContactRecordDf:
 
 def gather_concatemer_stats(contact_df: PoreCContactRecordDf) -> PoreCConcatemerRecordDf:
 
-    by_read = contact_df.groupby(level="read_idx")
+    by_read = contact_df.groupby("read_name", as_index=True)
+    read_stats = by_read[["read_length", "read_idx"]].first()
     num_reads = len(by_read)
-    by_read_and_type = contact_df.reset_index().groupby(["read_idx", "contact_is_direct"])
+    by_read_and_type = contact_df.groupby(["read_name", "contact_is_direct"], as_index=True)
 
-    contact_counts = (
+    contact_counts = read_stats.join(
         by_read_and_type.size()
         .unstack(fill_value=0)
         .rename(columns={True: "direct_contacts", False: "indirect_contacts"})
@@ -291,5 +295,6 @@ def gather_concatemer_stats(contact_df: PoreCContactRecordDf) -> PoreCConcatemer
         .reset_index()
         .astype(dtype)[list(dtype.keys())]
     )
+
     assert len(res) == num_reads
     return res

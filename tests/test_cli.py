@@ -34,11 +34,11 @@ def test_haplotype_consensus(pore_c_table_pq, tmp_path_factory):
     )
 
     assert result.exit_code == 0
-    pre_df = pd.read_parquet(pore_c_table_pq)[["align_idx", "haplotype"]].set_index("align_idx", append=True)
-    post_df = pd.read_parquet(output_pq)[["align_idx", "haplotype"]].set_index("align_idx", append=True)
+    pre_df = pd.read_parquet(pore_c_table_pq)[["align_idx", "haplotype"]].set_index("align_idx").sort_index()
+    post_df = pd.read_parquet(output_pq)[["align_idx", "haplotype"]].set_index("align_idx").sort_index()
     # 6 alignments have their haplotypes changed as a result
     changes = (pre_df != post_df)["haplotype"].sum()
-    assert changes == 6
+    assert changes == 7
 
 
 def test_contacts_to_salsa_bed(contact_table_pq, tmp_path_factory):
@@ -135,14 +135,13 @@ def test_contacts_to_cool(contact_table_pq, fragment_table_pq, chromsizes, tmp_p
     assert result.exit_code == 0
 
 
-def test_fragments_to_contacts(pore_c_table_pq, fragment_table_pq, tmp_path_factory):
+def test_fragments_to_contacts(pore_c_table_pq, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("contacts")
     prefix = pore_c_table_pq.name.split(".")[0]
 
     contact_table = str(outdir / (prefix + ".contacts.parquet"))
-    concatemer_table = str(outdir / (prefix + ".concatemers.parquet"))
 
-    result = _run_command(["alignments", "to-contacts", pore_c_table_pq, contact_table, concatemer_table])
+    result = _run_command(["alignments", "to-contacts", pore_c_table_pq, contact_table])
     assert result.exit_code == 0
 
 
@@ -168,14 +167,28 @@ def test_create_table(haplotagged_bam, tmp_path_factory):
 
     result = _run_command(["alignments", "create-table", str(haplotagged_bam), align_table])
     assert result.exit_code == 0
-    df = pd.read_parquet(align_table)
-    print(df.haplotype.value_counts())
+
+
+def test_create_table_with_haplotagged_aligns(coord_sorted_bam, haplotagged_aligns, tmp_path_factory):
+    outdir = tmp_path_factory.mktemp("create_table")
+    align_table = str(outdir / "align_table.parquet")
+
+    result = _run_command(
+        [
+            "alignments",
+            "create-table",
+            str(coord_sorted_bam),
+            align_table,
+            "--alignment-haplotypes",
+            str(haplotagged_aligns),
+        ]
+    )
+    assert result.exit_code == 0
 
 
 def test_reformat_bam(read_sorted_bam, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("reformat_bam")
-
-    result = _run_command(["alignments", "reformat-bam", str(read_sorted_bam), str(outdir / "reformatted.sam")])
+    result = _run_command(["alignments", "reformat-bam", str(read_sorted_bam), str(outdir / "reformatted.bam")])
     assert result.exit_code == 0
 
 
@@ -188,6 +201,8 @@ def test_prepare_reads(read_fastq_file, tmp_path_factory):
             "prepare",
             str(read_fastq_file),
             outdir / "reads",
+            "--batch-size",
+            "50",
             "--min-qscore",
             "6",
             "--max-qscore",
@@ -202,7 +217,8 @@ def test_prepare_reads(read_fastq_file, tmp_path_factory):
     new_files = set([f.name for f in outdir.glob("*.*")])
     expected_files = set(
         [
-            "reads.pass.fq.gz",
+            "reads.batch1.fq.gz",
+            "reads.batch2.fq.gz",
             "reads.fail.fq.gz",
             "reads.read_metadata.parquet",
             "reads.summary.csv",

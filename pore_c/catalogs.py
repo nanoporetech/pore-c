@@ -108,7 +108,7 @@ class RawReadCatalog(basePoreCCatalog):
 
     _suffix_map = {
         "catalog": ".catalog.yaml",
-        "pass_fastq": ".pass.fq.gz",
+        "pass_fastq": ".batch.fq.gz",
         "fail_fastq": ".fail.fq.gz",
         "read_metadata": ".read_metadata.parquet",
         "summary": ".summary.csv",

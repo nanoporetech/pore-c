@@ -27,6 +27,16 @@ def read_sorted_bam():
 
 
 @pytest.fixture(scope="session")
+def coord_sorted_bam():
+    return DATA_DIR / "NlaIII_run01_GRCh38.coord_sort.bam"
+
+
+@pytest.fixture(scope="session")
+def haplotagged_aligns():
+    return DATA_DIR / "NlaIII_GRCh38.haplotagged_aligns.txt"
+
+
+@pytest.fixture(scope="session")
 def haplotagged_bam():
     return DATA_DIR / "NlaIII_run01_GRCh38.haplotagged.bam"
 

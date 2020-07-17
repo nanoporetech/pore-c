@@ -32,10 +32,11 @@ class DaskExecEnv(AbstractContextManager):
             "processes": processes,
             "n_workers": n_workers,
             "scheduler_port": scheduler_port,
-            #  'dashboard_port': dashboard_port,   # TODO: need to capture/convert to dashboard_address string
             "dashboard_address": f"127.0.0.1:{dashboard_port}",
             "threads_per_worker": threads_per_worker,
         }
+        if dashboard_port is None:
+            self._cluster_kwds["dashboard_address"] = None
         self._cluster, self._client = None, None
 
     def scatter(self, data):

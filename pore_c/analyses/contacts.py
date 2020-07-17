@@ -38,7 +38,7 @@ def export_to_cooler(
     columns.extend(["align1_fragment_id", "align2_fragment_id"])
     if by_haplotype:
         columns.extend(["align1_haplotype", "align2_haplotype"])
-    contact_df = dd.read_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION, columns=columns)
+    contact_df = dd.read_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION, columns=columns, index=False)
     if query:
         contact_df = contact_df.query(query)
 
@@ -113,7 +113,7 @@ def export_to_cooler(
             version=PQ_VERSION,
         )
 
-        pixels = dd.read_parquet(tmp_parquet, engine=PQ_ENGINE, version=PQ_VERSION, columns=["hap_key"])
+        pixels = dd.read_parquet(tmp_parquet, engine=PQ_ENGINE, version=PQ_VERSION, columns=["hap_key"], index=False)
         hap_keys = pixels["hap_key"].unique().compute()
         # create a cooler for each haplotype pair
         for hap_key in hap_keys:
@@ -144,6 +144,7 @@ def export_to_salsa_bed(contact_table, output_prefix, query, query_columns):
 
     columns.extend(
         [
+            "read_name",
             "align1_chrom",
             "align1_start",
             "align1_end",
@@ -156,7 +157,7 @@ def export_to_salsa_bed(contact_table, output_prefix, query, query_columns):
             "align2_mapping_quality",
         ]
     )
-    contact_df = dd.read_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION, columns=columns)
+    contact_df = dd.read_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION, columns=columns, index=False)
     if query:
         contact_df = contact_df.query(query)
     bed_file = output_prefix + ".salsa.bed"
@@ -173,7 +174,8 @@ def export_to_salsa_bed(contact_table, output_prefix, query, query_columns):
     }
 
     def to_salsa_long(df):
-        contact_idx = df.groupby(level="read_idx")["align1_chrom"].transform(lambda x: np.arange(len(x), dtype=int))
+        df = df.set_index("read_name")
+        contact_idx = df.groupby(level="read_name")["align1_chrom"].transform(lambda x: np.arange(len(x), dtype=int))
         df["align1_contact_idx"] = contact_idx
         df["align2_contact_idx"] = contact_idx
         new_columns = pd.MultiIndex.from_tuples(
@@ -181,8 +183,8 @@ def export_to_salsa_bed(contact_table, output_prefix, query, query_columns):
         )
         df.columns = new_columns
         df = df.stack(level="pair_idx").reset_index()
-        df["read_pair_id"] = df[["read_idx", "contact_idx", "pair_idx"]].apply(
-            lambda x: f"read{x.read_idx:012}_{x.contact_idx}/{x.pair_idx}", axis=1
+        df["read_pair_id"] = df[["read_name", "contact_idx", "pair_idx"]].apply(
+            lambda x: f"read{x.read_name}_{x.contact_idx}/{x.pair_idx}", axis=1
         )
         df["strand"] = df["strand"].replace({True: "+", False: "-"}).astype(strand_dtype)
         return df[["chrom", "start", "end", "read_pair_id", "strand", "mapping_quality"]]
@@ -202,6 +204,7 @@ def export_to_pairs(contact_table, output_prefix, chromsizes, query, query_colum
 
     columns.extend(
         [
+            "read_name",
             "contact_is_direct",
             "contact_read_distance",
             "align1_align_idx",
@@ -218,7 +221,7 @@ def export_to_pairs(contact_table, output_prefix, chromsizes, query, query_colum
             "align2_mapping_quality",
         ]
     )
-    contact_df = dd.read_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION, columns=columns)
+    contact_df = dd.read_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION, columns=columns, index=False)
     chrom_dict = pd.read_csv(
         chromsizes, sep="\t", header=None, names=["chrom", "size"], index_col=["chrom"], squeeze=True
     )
@@ -256,15 +259,13 @@ def export_to_pairs(contact_table, output_prefix, chromsizes, query, query_colum
         output_fh.write("{}\n".format("\n".join(lines)))
 
     def to_pairs_df(df):
-        df["contact_idx"] = df.groupby(level="read_idx")["align1_chrom"].transform(
-            lambda x: np.arange(len(x), dtype=int)
-        )
+        df["contact_idx"] = df.groupby("read_name")["align1_chrom"].transform(lambda x: np.arange(len(x), dtype=int))
         df = (
             df.reset_index()
             .assign(
-                readID=lambda x: x[["read_idx", "contact_idx"]]
-                .astype(int)
-                .apply(lambda y: f"read{y.read_idx:012}_{y.contact_idx:d}", axis=1),
+                readID=lambda x: x[["read_name", "contact_idx"]].apply(
+                    lambda y: f"read{y.read_name}_{y.contact_idx:d}", axis=1
+                ),
                 pos1=lambda x: np.rint(x.eval("0.5 * (align1_fragment_start + align1_fragment_end)")).astype(int),
                 pos2=lambda x: np.rint(x.eval("0.5 * (align2_fragment_start + align2_fragment_end)")).astype(int),
                 align1_strand=lambda x: x["align1_strand"].replace({True: "+", False: "-"}).astype(strand_dtype),
@@ -306,7 +307,7 @@ def export_to_paired_end_fastq(
 
     columns.extend(
         [
-            # "read_idx",
+            "read_name",
             "align1_fragment_id",
             "align1_chrom",
             "align1_fragment_start",
@@ -319,7 +320,7 @@ def export_to_paired_end_fastq(
             "align2_strand",
         ]
     )
-    contact_df = dd.read_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION, columns=columns)
+    contact_df = dd.read_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION, columns=columns, index=False)
     if query:
         query += " & (align1_fragment_id != align2_fragment_id) "
     else:
@@ -343,11 +344,14 @@ def export_to_paired_end_fastq(
                 pos2=lambda x: np.rint(x.eval("0.5 * (align2_fragment_start + align2_fragment_end)")).astype(int),
             )
         )
+
+        df["pos1"].clip(lower=read_length, inplace=True)
+        df["pos2"].clip(lower=read_length, inplace=True)
         for idx, row in df.iterrows():
 
-            contact_counter[idx] += 1
+            contact_counter[row.read_name] += 1
             contact_idx = contact_counter[idx]
-            read_name = f"read{idx:09}:{contact_idx:04}"
+            read_name = f"{row.read_name}:{contact_idx:04}"
 
             read1 = ref.fetch(row.align1_chrom, row.pos1 - read_length, row.pos1)
             if row.align1_strand is False:

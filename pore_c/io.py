@@ -1,5 +1,6 @@
 import subprocess as sp
 from logging import getLogger
+from pathlib import Path
 
 import pyarrow as pa
 from pyarrow import parquet as pq
@@ -38,6 +39,39 @@ class FastqWriter(object):
         if self._compress:
             logger.info("Compressing {} using bgzip".format(self._raw_output_path))
             sp.check_call(["bgzip", str(self._raw_output_path)])
+
+
+class BatchedFastqWriter(object):
+    def __init__(self, output_path: Path):
+        self._output_path = output_path
+        if self._output_path.suffix == ".gz":
+            self._raw_output_path = self._output_path.with_suffix("")
+            self._compress = True
+        else:
+            self._raw_output_path = self._output_path
+            self._compress = False
+
+        self.output_paths = []
+        self._counter = 0
+        self._batch_counter = 0
+
+    def __call__(self, sequences):
+        if len(sequences) == 0:
+            return
+        self._batch_counter += 1
+        output_path = str(self._raw_output_path).format(self._batch_counter)
+        with open(output_path, "w") as fh:
+            fh.write("%s\n" % "\n".join(sequences))
+        if self._compress:
+            logger.info("Compressing {} using bgzip".format(output_path))
+            sp.check_call(["bgzip", str(output_path)])
+        self.output_paths.append(output_path)
+        self._counter += len(sequences)
+
+    def close(self):
+        logger.debug(
+            "Wrote {} sequences to {} files: {}".format(self._counter, self._batch_counter, " ".join(self.output_paths))
+        )
 
 
 class TableWriter(object):

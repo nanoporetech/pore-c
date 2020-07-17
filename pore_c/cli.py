@@ -197,9 +197,8 @@ def virtual_digest(ctx, fasta, cut_on, output_prefix, digest_type, n_workers):
     from pore_c.analyses.reference import create_virtual_digest
 
     path_kwds = {key: val for key, val in ctx.meta["file_paths"].items() if key != "catalog"}
-    with ctx.meta["dask_env"]:
-        logger.info(f"Creating virtual digest of {fasta}")
-        frag_df, summary_stats = create_virtual_digest(fasta, digest_type, cut_on, **path_kwds)
+    logger.info(f"Creating virtual digest of {fasta}")
+    frag_df, summary_stats = create_virtual_digest(fasta, digest_type, cut_on, **path_kwds)
 
     metadata = {"digest_type": digest_type, "digest_param": cut_on, "num_fragments": len(frag_df)}
     vd_cat = VirtualDigestCatalog.create(ctx.meta["file_paths"], metadata, {})
@@ -231,25 +230,33 @@ def reads(ctx):
 @reads.command(short_help="Create a catalog file for a set of reads")  # noqa: F811
 @click.argument("fastq", type=click.Path(exists=True))
 @click.argument("output_prefix", callback=expand_output_prefix(RawReadCatalog))
+@click.option(
+    "--batch-size",
+    help="The reads will be split into batches of this size for downstream processing",
+    default=10_000,
+    show_default=True,
+)
 @click.option("--min-read-length", help="The minimum length read to run through pore_c", default=1, show_default=True)
 @click.option(
     "--max-read-length",
     help="The maximum length read to run through pore_c. Note that bwa mem can crash on very long reads",
-    default=500_000,
+    default=150_000,
     show_default=True,
 )
 @click.option("--min-qscore", help="The minimum read qscore", default=0, show_default=True)
 @click.option("--max-qscore", help="The maximum read qscore", default=266, show_default=True)
 @click.option("--user-metadata", callback=command_line_json, help="Additional user metadata to associate with this run")
 @click.pass_context
-def prepare(ctx, fastq, output_prefix, min_read_length, max_read_length, min_qscore, max_qscore, user_metadata):
+def prepare(
+    ctx, fastq, output_prefix, batch_size, min_read_length, max_read_length, min_qscore, max_qscore, user_metadata
+):
     """Preprocess a set of reads for use with pore_c tools.
 
     This tool creates the following files:
 
     \b
-        <output_prefix>.pass.fq.gz - Fastq with all the reads that pass the qscore and
-          length filters
+        <output_prefix>.batch[batch_idx].fq.gz - Fastq with all the reads that pass the qscore and
+          length filters. Fastqs are split so there are at most --batch-size reads per fastq
         <output_prefix>.fail.fq.gz - Reads that fail the filters
         <output_prefix>.read_metadata.parquet - Length and qscore metadata for each read and
           whether they pass the filter
@@ -263,12 +270,14 @@ def prepare(ctx, fastq, output_prefix, min_read_length, max_read_length, min_qsc
 
     file_paths = catalogs.RawReadCatalog.generate_paths(output_prefix)
     path_kwds = {key: val for key, val in file_paths.items() if key != "catalog"}
+    path_kwds["pass_fastq"] = Path(str(path_kwds["pass_fastq"]).replace(".batch.", ".batch{:d}."))
     summary = prepare_fastq(
         input_fastq=fastq,
         min_read_length=min_read_length,
         max_read_length=max_read_length,
         min_qscore=min_qscore,
         max_qscore=max_qscore,
+        chunksize=batch_size,
         **path_kwds,
     )
 
@@ -300,7 +309,8 @@ def alignments():
     help="If piping a BAM to stdout (rather than sam)",
     show_default=True,
 )
-def reformat_bam(input_sam, output_sam, input_is_bam, output_is_bam):
+@click.option("--set-bx-flag", is_flag=True, default=False, help="Set the BX tag to the read name", show_default=True)
+def reformat_bam(input_sam, output_sam, input_is_bam, output_is_bam, set_bx_flag):
     """Reformat query_name in INPUT_SAM  and write to OUTPUT_SAM
 
     This tool reformats an alignment file so that it works with downstream
@@ -325,7 +335,8 @@ def reformat_bam(input_sam, output_sam, input_is_bam, output_is_bam):
         if read_idx is None:
             read_idx = len(read_indices)
             read_indices[read_id] = read_idx
-        align.set_tag(tag="BX", value=align.query_name, value_type="Z")
+        if set_bx_flag:
+            align.set_tag(tag="BX", value=align.query_name, value_type="Z")
         align.query_name = f"{read_id}:{read_idx}:{align_idx}"
         output_sam.write(align)
     output_sam.close()
@@ -337,48 +348,48 @@ def reformat_bam(input_sam, output_sam, input_is_bam, output_is_bam):
 @alignments.command(short_help="Parse a namesortd bam to pore-C alignment format")
 @click.argument("input_bam", type=click.Path(exists=True))
 @click.argument("output_table", type=click.Path(exists=False))
-@click.option("--chunksize", help="Number of reads per processing chunk", default=50000, show_default=True)
+@click.option(
+    "--alignment-haplotypes", type=click.Path(exists=True), help="The alignment to haplotype mapping from whatshap"
+)
 @click.pass_context
-def create_table(ctx, input_bam, output_table, chunksize):
+def create_table(ctx, input_bam, output_table, alignment_haplotypes):
     """Convert a BAM file to a tabular format sorted by read for downstream analysis
 
     """
     from pore_c import model
-    from pore_c.io import TableWriter
-
-    import dask.dataframe as dd
-    import os
-    from toolz import partition_all
     from pysam import AlignmentFile
 
     tmp_table = output_table + ".tmp"
     logger.debug(f"Writing temporary unsorted data to {tmp_table}")
-    chunk_writer = TableWriter(tmp_table)
     af = AlignmentFile(input_bam)
     chrom_order = list(af.references)
     assert "NULL" not in chrom_order
     chrom_order.append("NULL")
     logger.debug(f"Chromosome order {chrom_order}")
 
-    for chunk_idx, aligns in enumerate(partition_all(chunksize, af)):
-        align_df = model.AlignmentRecord.to_dataframe(
-            [model.AlignmentRecord.from_aligned_segment(a) for a in aligns], chrom_order=chrom_order
-        )
-        chunk_writer(align_df)
+    align_df = model.AlignmentRecord.to_dataframe(
+        [model.AlignmentRecord.from_aligned_segment(a) for a in af], chrom_order=chrom_order
+    )
+    align_df = align_df.sort_values(["read_name"])
+    num_aligns, num_reads = len(align_df), align_df.read_idx.nunique()
+    logger.debug(f"Writing {num_aligns} alignments for {num_reads} reads to {output_table}")
 
-    chunk_writer.close()
+    if alignment_haplotypes:
+        ht_df = pd.read_csv(alignment_haplotypes, sep="\t")
+        align_df = model.AlignmentRecord.update_dataframe_with_haplotypes(align_df, ht_df)
 
-    logger.debug(f"Wrote {chunk_writer.row_counter} rows in {chunk_writer.counter} batch to {tmp_table}")
-    with ctx.meta["dask_env"]:
-        logger.debug("Re-sorting alignment table by read_idx")
-        (
-            dd.read_parquet(tmp_table, engine=PQ_ENGINE)
-            .set_index("read_idx")
-            .repartition(partition_size="50Mb")
-            .to_parquet(output_table, engine=PQ_ENGINE, version=PQ_VERSION, compute=True)
-        )
-    logger.info(f"Wrote {chunk_writer.row_counter} alignments to {output_table}")
-    os.unlink(tmp_table)
+    align_df.to_parquet(output_table, engine=PQ_ENGINE, index=False, version=PQ_VERSION)
+    g = align_df.groupby(["align_type"])
+    summary = pd.concat({"num_reads": g["read_idx"].nunique(), "num_aligns": g.size()}).unstack(level=0)
+    logger.info(f"Mapping summary:\n {summary}")
+
+    haplotype_counts = (
+        align_df.haplotype.value_counts()
+        .rename_axis("haplotype")
+        .to_frame()
+        .rename(columns={"haplotype": "num_aligns"})
+    )
+    logger.info(f"Haplotype counts:\n {haplotype_counts}")
 
 
 @alignments.command(short_help="Parse a namesortd bam to pore-C alignment format")
@@ -418,26 +429,22 @@ def assign_fragments(
 
     """
     from pore_c.analyses.alignments import assign_fragments
-    from pore_c.model import PoreCRecord
 
     logger.info(f"Assigning fragments from {fragments_table} to alignments from {align_table}")
-    align_table = dd.read_parquet(align_table, engine=PQ_ENGINE, version=PQ_VERSION)
-    fragment_df = dd.read_parquet(fragments_table, engine=PQ_ENGINE, version=PQ_VERSION).compute().reset_index()
-    chrom_dtype = align_table.chrom.head(1).dtype
-    meta = PoreCRecord.pandas_dtype(overrides={"chrom": chrom_dtype})
-    with ctx.meta["dask_env"] as env:
-        fragment_df = env.scatter(fragment_df)
-        pore_c_df = align_table.map_partitions(
-            assign_fragments,
-            fragment_df,
-            mapping_quality_cutoff=mapping_quality_cutoff,
-            min_overlap_length=min_overlap_length,
-            containment_cutoff=containment_cutoff,
-            meta=meta,
-        ).set_index(["read_idx"], sorted=True)
-        pore_c_df.to_parquet(pore_c_table, version=PQ_VERSION, engine=PQ_ENGINE)
-
+    align_table = pd.read_parquet(align_table, engine=PQ_ENGINE)
+    fragment_df = pd.read_parquet(fragments_table, engine=PQ_ENGINE)
+    pore_c_df = assign_fragments(
+        align_table,
+        fragment_df,
+        mapping_quality_cutoff=mapping_quality_cutoff,
+        min_overlap_length=min_overlap_length,
+        containment_cutoff=containment_cutoff,
+    )
+    num_overlapping_alignments = len(pore_c_df)
+    logger.info(f"Found {num_overlapping_alignments} overlapping alignments")
+    pore_c_df.to_parquet(pore_c_table, engine=PQ_ENGINE, index=False, version=PQ_VERSION)
     logger.info(f"Fragments written to {pore_c_table}")
+    logger.info("Summary: \n{}".format(pore_c_df.filter_reason.value_counts()))
 
 
 @alignments.command(short_help="Parse a namesortd bam to pore-C alignment format")
@@ -459,10 +466,7 @@ def assign_consensus_haplotype(ctx, pore_c_table, output_pore_c_table, threshold
     """
     from pore_c.model import PoreCRecord
 
-    pore_c_table = dd.read_parquet(pore_c_table, engine=PQ_ENGINE, version=PQ_VERSION)
-
-    chrom_dtype = pore_c_table.chrom.head(1).dtype
-    meta = PoreCRecord.pandas_dtype(overrides={"chrom": chrom_dtype})
+    pore_c_table = pd.read_parquet(pore_c_table, engine=PQ_ENGINE)
 
     def get_most_freq_haplotype(_df):
         props = _df.div(_df.sum(axis=1), axis=0)
@@ -473,10 +477,10 @@ def assign_consensus_haplotype(ctx, pore_c_table, output_pore_c_table, threshold
         chrom_dtype = pore_c_table.chrom.head(1).dtype
         meta = PoreCRecord.pandas_dtype(overrides={"chrom": chrom_dtype})
 
-        pore_c_table = pore_c_table.set_index(["chrom", "phase_set", "align_idx"], append=True)
+        pore_c_table = pore_c_table.set_index(["read_name", "chrom", "phase_set", "align_idx"])
         consensus_haplotypes = (
             pore_c_table.query("pass_filter == True and haplotype != -1")
-            .groupby(level=["read_idx", "chrom", "phase_set"], as_index=True)["haplotype"]
+            .groupby(level=["read_name", "chrom", "phase_set"], as_index=True)["haplotype"]
             .value_counts()  # count haplotypes
             .unstack(fill_value=0)  # convert to wide dataframe with one column per haplotype
             .pipe(get_most_freq_haplotype)  # get the most frequent haplotype by phase_set
@@ -486,52 +490,89 @@ def assign_consensus_haplotype(ctx, pore_c_table, output_pore_c_table, threshold
 
         if len(consensus_haplotypes) > 0:
             # broadcast the consensus haplotype to all alignments for that read, phase_set combination
-            consensus, original = consensus_haplotypes.align(pore_c_table, join="left")
+            consensus, _ = consensus_haplotypes.align(pore_c_table, join="left")
             # changes = (consensus != original).sum()
             # overwrite the haplotype values where consensus is possible
             pore_c_table.update(consensus, overwrite=True)
-        pore_c_table = pore_c_table.reset_index().astype(meta)[list(meta.keys())].sort_values(["read_idx", "align_idx"])
+        pore_c_table = (
+            pore_c_table.reset_index().astype(meta)[list(meta.keys())].sort_values(["read_name", "align_idx"])
+        )
         return pore_c_table
 
-    with ctx.meta["dask_env"]:
-        pore_c_df = pore_c_table.map_partitions(_assign_consensus_haplotype, threshold, meta=meta).set_index(
-            ["read_idx"], sorted=True
-        )
-        pore_c_df.to_parquet(output_pore_c_table, version=PQ_VERSION, engine=PQ_ENGINE)
+    pore_c_df = _assign_consensus_haplotype(pore_c_table, threshold)
+
+    pore_c_df.to_parquet(output_pore_c_table, engine=PQ_ENGINE, index=False, version=PQ_VERSION)
 
 
 @alignments.command(short_help="Parses the alignment table and converts to pairwise contacts")
 @click.argument("pore_c_table", type=click.Path(exists=True))
 @click.argument("contact_table", type=click.Path(exists=False))
-@click.argument("concatemer_table", type=click.Path(exists=False))
 @click.pass_context
-def to_contacts(ctx, pore_c_table, contact_table, concatemer_table):
+def to_contacts(ctx, pore_c_table, contact_table):
     """Covert the alignment table to a pairwise contact table and associated concatemer table
 
     """
-    from pore_c.analyses.alignments import to_contacts, gather_concatemer_stats
-    from .model import PoreCContactRecord, PoreCConcatemerRecord
+    from pore_c.analyses.alignments import to_contacts
 
-    pore_c_table = dd.read_parquet(pore_c_table, engine=PQ_ENGINE, version=PQ_VERSION)
-    chrom_dtype = pore_c_table.chrom.head(1).dtype
-    contact_meta = PoreCContactRecord.pandas_dtype(overrides={"align1_chrom": chrom_dtype, "align2_chrom": chrom_dtype})
-    concatemer_meta = PoreCConcatemerRecord.pandas_dtype()
+    pore_c_df = pd.read_parquet(pore_c_table, engine=PQ_ENGINE)
 
-    with ctx.meta["dask_env"]:
-        contacts_df = pore_c_table.map_partitions(to_contacts, meta=contact_meta).set_index("read_idx", sorted=True)
-        concatemer_df = contacts_df.map_partitions(gather_concatemer_stats, meta=concatemer_meta).set_index(
-            "read_idx", sorted=True
-        )
-        contacts_df.to_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION, compute=True)
-        concatemer_df.to_parquet(concatemer_table, engine=PQ_ENGINE, version=PQ_VERSION, compute=True)
-
-    logger.info(f"Wrote contacts to {contact_table}")
-    logger.info(f"Wrote concatemers to {concatemer_table}")
+    contacts_df = to_contacts(pore_c_df).sort_values(["read_name"])
+    num_contacts = len(contacts_df)
+    contacts_df.to_parquet(contact_table, engine=PQ_ENGINE, index=False, version=PQ_VERSION)
+    logger.info(f"Wrote {num_contacts} contacts to {contact_table}")
+    if num_contacts == 0:
+        logger.warning("No contacts found in {pore_c_table}")
 
 
 @cli.group(cls=NaturalOrderGroup, short_help="Work the the contacts table")
 def contacts():
     pass
+
+
+@contacts.command(short_help="Summarise a contact table")
+@click.argument("src_contact_tables", nargs=-1, type=click.Path(exists=True))
+@click.argument("dest_contact_table", type=click.Path(exists=False))
+@click.pass_context
+def merge(ctx, src_contact_tables, dest_contact_table):
+    import pyarrow.parquet as pq
+    from pyarrow import dataset
+
+    parts = []
+    for i in src_contact_tables:
+        md = pq.read_metadata(i)
+        if md.num_rows == 0:
+            logger.warning(f"The following contact file has no entries, removing from merge: {i}")
+            continue
+        parts.append(i)
+
+    ds = dataset.dataset(parts, format="parquet")
+    df = dd.read_parquet(parts, engine=PQ_ENGINE, version=PQ_VERSION, index=False)
+    df.to_parquet(dest_contact_table, engine=PQ_ENGINE, version=PQ_VERSION, schema=ds.schema, write_index=False)
+
+
+@contacts.command(short_help="Summarise a contact table")
+@click.argument("contact_table", type=click.Path(exists=True))
+@click.argument("concatemer_table", type=click.Path(exists=False))
+@click.pass_context
+def summarize(ctx, contact_table, concatemer_table):
+    from pore_c.analyses.alignments import gather_concatemer_stats
+    from .model import PoreCConcatemerRecord
+
+    concatemer_meta = PoreCConcatemerRecord.pandas_dtype()
+
+    with ctx.meta["dask_env"]:
+        contacts_df = dd.read_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION, index=False)
+        concatemer_df = contacts_df.map_partitions(gather_concatemer_stats, meta=concatemer_meta).compute()
+        concatemer_df.to_parquet(concatemer_table, engine=PQ_ENGINE, version=PQ_VERSION, index=False)
+
+    num_reads_with_contacts = len(concatemer_df)
+    total_contacts = concatemer_df["total_contacts"].sum()
+    total_cis_contacts = concatemer_df["total_cis_contacts"].sum()
+    perc_cis = 100.0 * total_cis_contacts / total_contacts
+
+    logger.info(f"Total reads with contacts (concatemers): {num_reads_with_contacts}")
+    logger.info(f"Total contacts: {total_contacts}")
+    logger.info(f"Percent cis: {perc_cis}")
 
 
 @contacts.command(short_help="Export contacts to various formats")

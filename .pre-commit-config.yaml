@@ -1,4 +1,10 @@
 repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.1.0
+    hooks:
+    -   id: check-added-large-files
+    -   id: no-commit-to-branch
+        args: [--branch, master]
 -   repo: https://github.com/asottile/seed-isort-config
     rev: v2.1.0
     hooks:
