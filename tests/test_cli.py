@@ -292,3 +292,25 @@ def test_virtual_digest(raw_refgenome_file, tmp_path_factory):
         ]
     )
     assert result.exit_code == 0
+
+
+def test_contacts_to_merged_no_dups(contact_table_pq, raw_refgenome_file, tmp_path_factory):
+    outdir = tmp_path_factory.mktemp("contacts")
+    prefix = contact_table_pq.name.split(".")[0]
+
+    result = _run_command(
+        [
+            "contacts",
+            "export",
+            contact_table_pq,
+            "merged_no_dups",
+            outdir / prefix,
+            "--reference-fasta",
+            raw_refgenome_file,
+        ]
+    )
+
+    new_files = set([f.name for f in outdir.glob("*.*")])
+    expected_files = {prefix + ".mnd.txt"}
+    assert result.exit_code == 0
+    assert new_files == expected_files

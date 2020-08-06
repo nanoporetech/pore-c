@@ -356,7 +356,7 @@ def export_to_paired_end_fastq(
         for idx, row in df.iterrows():
 
             contact_counter[row.read_name] += 1
-            contact_idx = contact_counter[idx]
+            contact_idx = contact_counter[row.read_name]
             read_name = f"{row.read_name}:{contact_idx:04}"
 
             read1 = ref.fetch(row.align1_chrom, row.pos1 - read_length, row.pos1)
@@ -370,7 +370,82 @@ def export_to_paired_end_fastq(
     return fastq1, fastq2
 
 
-# TODO: move to contacts.py
+def export_to_merged_no_dups(contact_table, output_prefix, reference_fasta, query, query_columns=None, read_length=50):
+    if query_columns:
+        columns = query_columns[:]
+    else:
+        columns = []
+
+    columns.extend(
+        [
+            "read_name",
+            "align1_fragment_id",
+            "align1_chrom",
+            "align1_fragment_start",
+            "align1_fragment_end",
+            "align1_strand",
+            "align2_fragment_id",
+            "align2_chrom",
+            "align2_fragment_start",
+            "align2_fragment_end",
+            "align2_strand",
+        ]
+    )
+    contact_df = dd.read_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION, columns=columns, index=False)
+    if query:
+        query += " & (align1_fragment_id != align2_fragment_id) "
+    else:
+        query += "(align1_fragment_id != align2_fragment_id) "
+
+    contact_df = contact_df.query(query)
+    mnd_file = output_prefix + ".mnd.txt"
+    fh = open(mnd_file, "w")
+
+    ref = FastaFile(reference_fasta)
+    cigar_str = f"{read_length}M"
+    contact_counter = defaultdict(int)
+    for partition in range(contact_df.npartitions):
+        df = (
+            contact_df.get_partition(partition)
+            .compute()
+            .astype({"align1_strand": "uint8", "align2_strand": "uint8"})
+            .assign(
+                pos1=lambda x: np.rint(x.eval("0.5 * (align1_fragment_start + align1_fragment_end)")).astype(int),
+                pos2=lambda x: np.rint(x.eval("0.5 * (align2_fragment_start + align2_fragment_end)")).astype(int),
+            )
+            .drop_duplicates(subset=["pos1", "pos1"])
+        )
+
+        df["pos1"].clip(lower=read_length, inplace=True)
+        df["pos2"].clip(lower=read_length, inplace=True)
+        for _, row in df.iterrows():
+
+            contact_counter[row.read_name] += 1
+            contact_idx = contact_counter[row.read_name]
+            read_name = f"{row.read_name}:{contact_idx:04}"
+
+            read1 = ref.fetch(row.align1_chrom, row.pos1 - read_length, row.pos1)
+            if row.align1_strand == 1:
+                read1 = revcomp(read1)
+            read2 = ref.fetch(row.align2_chrom, row.pos2 - read_length, row.pos2)
+            if row.align2_strand == 1:
+                read2 = revcomp(read2)
+            # <str1> <chr1> <pos1> <frag1>
+            # <str2> <chr2> <pos2> <frag2>
+            # <mapq1> <cigar1> <sequence1>
+            # <mapq2> <cigar2> <sequence2>
+            # <readname1> <readname2>
+            fh.write(
+                f"{row.align1_strand} {row.align1_chrom} {row.pos1} {row.align1_fragment_id} "
+                f"{row.align2_strand} {row.align2_chrom} {row.pos2} {row.align2_fragment_id} "
+                f"60 {cigar_str} {read1} "
+                f"60 {cigar_str} {read2} "
+                f"{read_name}:1 {read_name}:2\n"
+            )
+
+    return mnd_file
+
+
 def gather_concatemer_stats(contact_df: PoreCContactRecordDf) -> PoreCConcatemerRecordDf:
 
     contact_df["is_short_range"] = contact_df["contact_fragment_distance"] < SHORT_RANGE_CUTOFF

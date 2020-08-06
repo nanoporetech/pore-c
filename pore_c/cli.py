@@ -600,7 +600,7 @@ def summarize(ctx, contact_table, read_summary_table, concatemer_table, concatem
 @contacts.command(short_help="Export contacts to various formats")
 @click.argument("contact_table", type=click.Path(exists=True))
 #  @click.argument("concatemer_table", type=click.Path(exists=True))
-@click.argument("format", type=click.Choice(["cooler", "salsa_bed", "paired_end_fastq", "pairs"]))
+@click.argument("format", type=click.Choice(["cooler", "salsa_bed", "paired_end_fastq", "pairs", "merged_no_dups"]))
 @click.argument("output_prefix")
 @click.option(
     "--min-mapping-quality",
@@ -637,7 +637,7 @@ def summarize(ctx, contact_table, read_summary_table, concatemer_table, concatem
 @click.option(
     "--reference-fasta",
     cls=ExportDependentOption,
-    export_formats=["paired_end_fastq"],
+    export_formats=["paired_end_fastq", "merged_no_dups"],
     help="The reference genome used to generate the contact table",
 )
 @click.pass_context
@@ -664,6 +664,7 @@ def export(
     from pore_c.analyses.contacts import (
         export_to_cooler,
         export_to_paired_end_fastq,
+        export_to_merged_no_dups,
         export_to_salsa_bed,
         export_to_pairs,
     )
@@ -706,6 +707,10 @@ def export(
             contact_table, output_prefix, reference_fasta, query, query_columns=columns
         )
         logger.info(f"Wrote reads to {fastq1} and {fastq2}")
+    elif format == "merged_no_dups":
+        mnd = export_to_merged_no_dups(contact_table, output_prefix, reference_fasta, query, query_columns=columns)
+        logger.info(f"Wrote contacts to {mnd}")
+
     elif format == "pairs":
         pairs = export_to_pairs(contact_table, output_prefix, chromsizes, query, query_columns=columns)
         logger.info(f"Wrote contacts to {pairs}")
