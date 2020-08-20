@@ -532,10 +532,35 @@ def contacts():
 @contacts.command(short_help="Summarise a contact table")
 @click.argument("src_contact_tables", nargs=-1, type=click.Path(exists=True))
 @click.argument("dest_contact_table", type=click.Path(exists=False))
+@click.option(
+    "--fofn",
+    is_flag=True,
+    help=(
+        "If this flag is set then the SRC_CONTACT_TABLES is a "
+        "file of filenames corresponding to the contact tables you want to merge. "
+        "This is workaround for when the command line gets too long."
+    ),
+)
 @click.pass_context
-def merge(ctx, src_contact_tables, dest_contact_table):
+def merge(ctx, src_contact_tables, dest_contact_table, fofn):
     import pyarrow.parquet as pq
     from pyarrow import dataset
+
+    if fofn:
+        assert len(src_contact_tables) == 1, "If using --fofn you can only pass a single source file"
+        src_fofn = src_contact_tables[0]
+        src_contact_tables = []
+        errors = []
+
+        for l in open(src_fofn):
+            input_file = Path(l.strip())
+            if not input_file.resolve().exists():
+                errors.append(f"Input file missing: {input_file}")
+            src_contact_tables.append(input_file)
+        if errors:
+            for e in errors:
+                logger.error(e)
+            raise IOError("Missing input files")
 
     parts = []
     for i in src_contact_tables:
