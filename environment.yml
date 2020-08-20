@@ -1,4 +1,4 @@
-name: pore-c
+name: pore_c_dev
 channels:
 - defaults
 - bioconda
