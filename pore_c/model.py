@@ -21,6 +21,7 @@ from .config import (
     READ_COORD_DTYPE,
     READ_DISTANCE_DTYPE,
     READ_IDX_DTYPE,
+    SHORT_RANGE_CUTOFF,
     STRAND_DTYPE,
 )
 from .utils import mean_qscore
@@ -590,11 +591,23 @@ class PoreCConcatemerRecord(_BaseModel):
     read_name: constr(min_length=1, strip_whitespace=True)
     read_length: conint(ge=1)
     read_idx: conint(ge=0, strict=True)
-    indirect_contacts: conint(ge=0, strict=True)
-    direct_contacts: conint(ge=0, strict=True)
-    total_contacts: conint(ge=0, strict=True)
     read_order: conint(ge=0, strict=True)
+    num_fragments: conint(ge=0, strict=True)
+    total_contacts: conint(ge=0, strict=True)
     total_cis_contacts: conint(ge=0, strict=True)
+    total_trans_contacts: conint(ge=0, strict=True)
+    total_short_range_cis_contacts: conint(ge=0, strict=True)
+    total_long_range_cis_contacts: conint(ge=0, strict=True)
+    direct_contacts: conint(ge=0, strict=True)
+    direct_cis_contacts: conint(ge=0, strict=True)
+    direct_trans_contacts: conint(ge=0, strict=True)
+    direct_short_range_cis_contacts: conint(ge=0, strict=True)
+    direct_long_range_cis_contacts: conint(ge=0, strict=True)
+    indirect_contacts: conint(ge=0, strict=True)
+    indirect_cis_contacts: conint(ge=0, strict=True)
+    indirect_trans_contacts: conint(ge=0, strict=True)
+    indirect_short_range_cis_contacts: conint(ge=0, strict=True)
+    indirect_long_range_cis_contacts: conint(ge=0, strict=True)
     haplotype_phased_h_cis: conint(ge=0, strict=True)
     haplotype_phased_h_trans: conint(ge=0, strict=True)
     haplotype_phased_sets_differ: conint(ge=0, strict=True)
@@ -612,7 +625,9 @@ class PoreCConcatemerRecord(_BaseModel):
             read_length=dict(description="The length of the read in bases", dtype=READ_COORD_DTYPE),
             read_idx=dict(description="Unique integer ID of the read", dtype=READ_IDX_DTYPE),
             read_order=dict(description="The number of monomers for this read", dtype="uint32"),
-            total_contacts=dict(description="The total number of contacts for this read", dtype="uint32"),
+            total_contacts=dict(
+                description="The total (direct + indirect) number of contacts for this read", dtype="uint32"
+            ),
             direct_contacts=dict(
                 description="The total number direct (adjacent on read) contacts for this read", dtype="uint32"
             ),
@@ -621,6 +636,39 @@ class PoreCConcatemerRecord(_BaseModel):
             ),
             total_cis_contacts=dict(
                 description="The total number of cis-contacts (direct + indirect) for this read", dtype="uint32"
+            ),
+            total_trans_contacts=dict(
+                description="The total number of trans-contacts (direct + indirect) for this read", dtype="uint32"
+            ),
+            direct_cis_contacts=dict(description="The number of direct cis-contacts for this read", dtype="uint32"),
+            direct_trans_contacts=dict(description="The number of direct trans-contacts for this read", dtype="uint32"),
+            indirect_cis_contacts=dict(description="The number of indirect cis-contacts for this read", dtype="uint32"),
+            indirect_trans_contacts=dict(
+                description="The number of indirect trans-contacts for this read", dtype="uint32"
+            ),
+            total_short_range_cis_contacts=dict(
+                description=f"The total number of cis contacts < {SHORT_RANGE_CUTOFF} bases apart for this read",
+                dtype="uint32",
+            ),
+            total_long_range_cis_contacts=dict(
+                description=f"The total number of cis contacts >= {SHORT_RANGE_CUTOFF} bases apart for this read",
+                dtype="uint32",
+            ),
+            direct_short_range_cis_contacts=dict(
+                description=f"The number of direct cis contacts < {SHORT_RANGE_CUTOFF} bases apart for this read",
+                dtype="uint32",
+            ),
+            direct_long_range_cis_contacts=dict(
+                description=f"The number of direct cis contacts >= {SHORT_RANGE_CUTOFF} bases apart for this read",
+                dtype="uint32",
+            ),
+            indirect_short_range_cis_contacts=dict(
+                description=f"The number of indirect cis contacts < {SHORT_RANGE_CUTOFF} bases apart for this read",
+                dtype="uint32",
+            ),
+            indirect_long_range_cis_contacts=dict(
+                description=f"The number of indirect cis contacts >= {SHORT_RANGE_CUTOFF} bases apart for this read",
+                dtype="uint32",
             ),
             haplotype_unphased=dict(
                 description="The number of cis contacts where both members of the pair are unphased", dtype="uint32"
@@ -663,6 +711,10 @@ class PoreCConcatemerRecord(_BaseModel):
             max_indirect_contact_genome_distance=dict(
                 description=("The longest distance between alignment endpoints for all indirect contacts",),
                 dtype=GENOMIC_DISTANCE_DTYPE,
+            ),
+            num_fragments=dict(
+                description=("The number of unique restriction fragments  represented in the concatemer"),
+                dtype="uint32",
             ),
         )
 

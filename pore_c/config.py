@@ -27,3 +27,5 @@ INPUT_REFGENOME_REGEX = r"(.+)\.(fasta|fa|fna)(\.gz)*"
 
 PQ_ENGINE = "pyarrow"
 PQ_VERSION = "2.0"
+
+SHORT_RANGE_CUTOFF = 20_000

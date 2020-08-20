@@ -69,3 +69,8 @@ def concatemer_table_pq():
 @pytest.fixture(scope="session")
 def chromsizes():
     return DATA_DIR / "GRCh38.chromsizes"
+
+
+@pytest.fixture(scope="session")
+def read_summary_csv():
+    return DATA_DIR / "reads.summary.csv"

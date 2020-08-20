@@ -7,8 +7,6 @@ import numpy as np
 from pore_c.model import (
     AlignmentRecordDf,
     FragmentRecordDf,
-    PoreCConcatemerRecord,
-    PoreCConcatemerRecordDf,
     PoreCContactRecord,
     PoreCContactRecordDf,
     PoreCRecordDf,
@@ -245,56 +243,8 @@ def to_contacts(df: PoreCRecordDf) -> PoreCContactRecordDf:
         read_idx = rows[0].read_idx
         read_length = rows[0].read_length
         for (align_1, align_2) in combinations(rows, 2):
-            contact = PoreCContactRecord.from_pore_c_align_pair(read_name, read_length, read_idx, align_1, align_2,)
+            contact = PoreCContactRecord.from_pore_c_align_pair(read_name, read_length, read_idx, align_1, align_2)
             res.append(contact)
 
     res = PoreCContactRecord.to_dataframe(res, overrides={"align1_chrom": chrom_dtype, "align2_chrom": chrom_dtype})
-    return res
-
-
-def gather_concatemer_stats(contact_df: PoreCContactRecordDf) -> PoreCConcatemerRecordDf:
-
-    by_read = contact_df.groupby("read_name", as_index=True)
-    read_stats = by_read[["read_length", "read_idx"]].first()
-    num_reads = len(by_read)
-    by_read_and_type = contact_df.groupby(["read_name", "contact_is_direct"], as_index=True)
-
-    contact_counts = read_stats.join(
-        by_read_and_type.size()
-        .unstack(fill_value=0)
-        .rename(columns={True: "direct_contacts", False: "indirect_contacts"})
-    )
-    contact_counts["total_contacts"] = contact_counts.sum(axis=1)
-    contact_counts["read_order"] = contact_counts["direct_contacts"] + 1
-    contact_counts["total_cis_contacts"] = by_read["contact_is_cis"].sum().astype(int)
-
-    haplotype_stats = by_read["haplotype_pair_type"].value_counts().unstack(fill_value=0)
-    drop = []
-    for cat in contact_df.haplotype_pair_type.cat.categories:
-        if cat == "null" or cat == "trans":
-            if cat in haplotype_stats.columns:
-                drop.append(cat)
-        elif cat not in haplotype_stats.columns:
-            haplotype_stats[cat] = 0
-    if drop:
-        haplotype_stats = haplotype_stats.drop(columns=drop)
-    haplotype_stats = haplotype_stats.add_prefix("haplotype_")
-
-    max_distance = (
-        by_read_and_type[["contact_genome_distance", "contact_fragment_distance"]]
-        .max()
-        .unstack(fill_value=0)
-        .astype(int)
-        .rename(columns={True: "direct", False: "indirect"})
-    )
-    max_distance.columns = ["max_{1}_{0}".format(*_) for _ in max_distance.columns]
-    dtype = PoreCConcatemerRecord.pandas_dtype()
-    res = (
-        contact_counts.join(haplotype_stats, how="left")
-        .join(max_distance, how="left")
-        .reset_index()
-        .astype(dtype)[list(dtype.keys())]
-    )
-
-    assert len(res) == num_reads
     return res

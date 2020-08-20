@@ -145,6 +145,19 @@ def test_fragments_to_contacts(pore_c_table_pq, tmp_path_factory):
     assert result.exit_code == 0
 
 
+def test_contact_summary(contact_table_pq, read_summary_csv, tmp_path_factory):
+    outdir = tmp_path_factory.mktemp("contacts")
+    prefix = contact_table_pq.name.split(".")[0]
+
+    concatemer_table = str(outdir / (prefix + ".concatemer.parquet"))
+    concatemer_summary = str(outdir / (prefix + ".concatemer.summary.csv"))
+
+    result = _run_command(
+        ["contacts", "summarize", contact_table_pq, read_summary_csv, concatemer_table, concatemer_summary]
+    )
+    assert result.exit_code == 0
+
+
 def test_assign_fragments(align_table_pq, fragment_table_pq, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("assign_fragments")
     prefix = fragment_table_pq.name.split(".")[0]

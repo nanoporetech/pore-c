@@ -12,8 +12,14 @@ from cooler import Cooler, create_cooler
 from cooler.util import binnify
 from pysam import FastaFile
 
+from pore_c.analyses.reads import read_length_stats
 from pore_c.analyses.reference import revcomp
-from pore_c.config import PQ_ENGINE, PQ_VERSION
+from pore_c.config import PQ_ENGINE, PQ_VERSION, SHORT_RANGE_CUTOFF
+from pore_c.model import (
+    PoreCConcatemerRecord,
+    PoreCConcatemerRecordDf,
+    PoreCContactRecordDf,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -362,3 +368,250 @@ def export_to_paired_end_fastq(
                 read2 = revcomp(read2)
             fhs[1].write(f"@{read_name} 2:N:0:1\n{read2}\n{qual_str}\n")
     return fastq1, fastq2
+
+
+# TODO: move to contacts.py
+def gather_concatemer_stats(contact_df: PoreCContactRecordDf) -> PoreCConcatemerRecordDf:
+
+    contact_df["is_short_range"] = contact_df["contact_fragment_distance"] < SHORT_RANGE_CUTOFF
+    by_read = contact_df.groupby("read_name", as_index=True)
+    read_stats = by_read[["read_length", "read_idx"]].first()
+
+    num_fragments = (
+        by_read[["align1_fragment_id", "align2_fragment_id"]]
+        .agg(lambda x: set(x.unique()))
+        .apply(lambda x: len(x.align1_fragment_id.union(x.align2_fragment_id)), axis=1)
+        .rename("num_fragments")
+    )
+
+    num_reads = len(by_read)
+    by_read_and_type = contact_df.groupby(["read_name", "contact_is_direct"], as_index=True)
+
+    def flatten_index(df, sep="_"):
+        df.columns = [sep.join(t) for t in df.columns.to_flat_index()]
+        return df
+
+    contact_counts = (
+        contact_df.groupby(["read_name", "contact_is_direct", "contact_is_cis"])
+        .size()
+        .rename(index={True: "direct", False: "indirect"}, level="contact_is_direct")
+        .rename(index={True: "cis", False: "trans"}, level="contact_is_cis")
+        .unstack(fill_value=0, level="contact_is_direct")
+        .unstack(fill_value=0, level="contact_is_cis")
+        .pipe(flatten_index)
+        .astype(int)
+        .eval("total_cis = direct_cis + indirect_cis")
+        .eval("total_trans = direct_trans + indirect_trans")
+        .eval("direct = direct_cis + direct_trans")
+        .eval("indirect = indirect_cis + indirect_trans")
+        .eval("total = total_cis + total_trans")
+        .add_suffix("_contacts")
+        .eval("read_order = direct_contacts + 1")
+    )
+
+    short_range_counts = (
+        contact_df.loc[contact_df.contact_is_cis]
+        .groupby(["read_name", "contact_is_direct", "is_short_range"], as_index=True)
+        .size()
+        .rename(index={True: "short_range", False: "long_range"}, level=-1)
+        .rename(index={True: "direct", False: "indirect"}, level=-2)
+        .unstack(fill_value=0, level=-2)
+        .unstack(fill_value=0, level=-1)
+        .pipe(flatten_index)
+        .eval("total_short_range = direct_short_range + indirect_short_range")
+        .eval("total_long_range = direct_long_range + indirect_long_range")
+        .add_suffix("_cis_contacts")
+    )
+
+    haplotype_stats = by_read["haplotype_pair_type"].value_counts().unstack(fill_value=0)
+    drop = []
+    for cat in contact_df.haplotype_pair_type.cat.categories:
+        if cat == "null" or cat == "trans":
+            if cat in haplotype_stats.columns:
+                drop.append(cat)
+        elif cat not in haplotype_stats.columns:
+            haplotype_stats[cat] = 0
+    if drop:
+        haplotype_stats = haplotype_stats.drop(columns=drop)
+    haplotype_stats = haplotype_stats.add_prefix("haplotype_")
+
+    max_distance = (
+        by_read_and_type[["contact_genome_distance", "contact_fragment_distance"]]
+        .max()
+        .unstack(fill_value=0)
+        .astype(int)
+        .rename(columns={True: "direct", False: "indirect"})
+    )
+    max_distance.columns = ["max_{1}_{0}".format(*_) for _ in max_distance.columns]
+    dtype = PoreCConcatemerRecord.pandas_dtype()
+    res = (
+        contact_counts.join(haplotype_stats, how="left")
+        .join(read_stats, how="left")
+        .join(max_distance, how="left")
+        .join(short_range_counts, how="left")
+        .join(num_fragments, how="left")
+        .fillna({c: 0 for c in short_range_counts.columns})
+        .reset_index()
+        # .astype(dtype)
+        [list(dtype.keys())]
+    )
+    assert len(res) == num_reads
+    return res
+
+
+def summarize_concatemer_table(concatemer_df: PoreCConcatemerRecordDf, read_summary_table: str) -> pd.DataFrame:
+    concatemer_read_length_stats = read_length_stats(concatemer_df["read_length"])
+    # read_subset_dtype = pd.CategoricalDtype(["all", "pass", "fail"])
+    read_summary_table = (
+        pd.read_csv(read_summary_table)
+        .query("read_subset == 'all'")
+        .assign(index=0)
+        # .astype({"read_subset": read_subset_dtype})
+        .set_index(["index", "read_subset"])
+        .unstack(fill_value=0)
+        .rename({"all": "all_reads", "pass": "pass_read_qc", "fail": "fail_read_qc"}, axis=1, level=1)
+    )
+
+    # print(read_summary_table)
+
+    contact_counts = (
+        concatemer_df.loc[:, lambda x: [c for c in x.columns if c.endswith("_contacts")]]
+        .sum()
+        .astype(int)
+        .rename("count")
+        .to_frame()
+    )
+    contact_counts.index = pd.MultiIndex.from_tuples(
+        [c.split("_", 1) for c in contact_counts.index], names=["subset", "value"]
+    )
+    contact_props = (
+        contact_counts.div(contact_counts.xs("contacts", level="value", drop_level=True), level="subset", axis=0)
+        .mul(100.0)
+        .rename(columns={"count": "perc"})
+    )
+    contact_section = (
+        contact_counts.join(contact_props)
+        .rename_axis("variable", axis=1)
+        .stack()
+        .rename("value")
+        .to_frame()
+        .reorder_levels([0, 2, 1])
+        .sort_index(level=[0, 1], sort_remaining=False)
+    )
+
+    read_counts = read_summary_table.xs("num_sequences", axis=1).copy()
+    read_data = {"all": read_counts.loc[0, "all_reads"], "concatemer": len(concatemer_df)}
+    read_data["fail_filter"] = read_data["all"] - read_data["concatemer"]
+    read_data = pd.Series(read_data, name="count").to_frame()
+    read_data["perc"] = 100.0 * read_data["count"] / read_data.loc["all", "count"]
+
+    read_data = (
+        read_data.rename_axis("variable", axis=1).stack().rename("value").to_frame().reorder_levels([1, 0]).sort_index()
+    )
+
+    bases = read_summary_table.xs("total_bases", axis=1).copy()
+    base_data = {"all": bases.loc[0, "all_reads"], "concatemer": concatemer_read_length_stats["total_bases"]}
+    base_data["fail_filter"] = base_data["all"] - base_data["concatemer"]
+    base_data = pd.Series(base_data, name="bases").to_frame()
+    base_data["perc"] = 100.0 * base_data["bases"] / base_data.loc["all", "bases"]
+    base_data = (
+        base_data.rename_axis("variable", axis=1).stack().rename("value").to_frame().reorder_levels([1, 0]).sort_index()
+    )
+    read_length_data = {
+        "all": read_summary_table.at[0, ("N50", "all_reads")],
+        "concatemer": concatemer_read_length_stats["N50"],
+    }
+    read_length_data = (
+        pd.Series(read_length_data, name="value")
+        .to_frame()
+        .rename_axis("subset")
+        .assign(variable="N50")
+        .set_index("variable", append=True)
+        .reorder_levels([1, 0])
+        .sort_index(level=0)
+    )
+
+    # fragments_per_alignment = concatemer_df.eval("(1.0 * num_fragments) /  read_order")
+    # print(fragments_per_alignment.describe())
+    # fragment_data = {
+    #    "mean": fragments_per_alignment.mean(),
+    #    "median": fragments_per_alignment.median(),
+    # }
+    # print(fragment_data)
+
+    length_bins = pd.IntervalIndex.from_breaks([1, 2, 3, 4, 6, 11, 21, 50, int(1e9)])
+    length_bin_labels = {}
+    for i in length_bins:
+        if i.length == 1:
+            label = str(i.right)
+        elif i.length >= int(1e8):
+            label = f"gt_{i.left}"
+        else:
+            label = "{}-{}".format(i.left + 1, i.right)
+        length_bin_labels[i] = label
+
+    read_order_hist = (
+        pd.cut(concatemer_df["read_order"], length_bins, labels=length_bin_labels)
+        .value_counts()
+        .rename("count")
+        .sort_index()
+    )
+    read_order_hist = read_order_hist.to_frame().rename(index=length_bin_labels).rename_axis("concatemer_order")
+    read_order_hist["perc"] = read_order_hist.div(read_order_hist["count"].sum(), axis=1) * 100
+    read_order_hist = (
+        read_order_hist.rename_axis("variable", axis=1)
+        .stack()
+        .rename("value")
+        .to_frame()
+        .reorder_levels([1, 0])
+        .sort_index(level="variable", sort_remaining=False)
+    )
+
+    total_contacts = contact_section.at[("total", "count", "contacts"), "value"]
+    density_data = (
+        pd.Series(
+            {
+                "all": 1e9 * total_contacts / base_data.at[("bases", "all"), "value"],
+                "concatemer": 1e9 * total_contacts / base_data.at[("bases", "concatemer"), "value"],
+            }
+        )
+        .rename_axis("divisor")
+        .rename("value")
+        .to_frame()
+        .assign(variable="contacts_per_gb")
+        .set_index("variable", append=True)
+        .reorder_levels([1, 0])
+    )
+
+    def normalize_levels(dfs):
+        max_levels = max([len(df.index.names) for df in dfs.values()])
+        level_labels = [f"level_{x}" for x in range(max_levels)]
+        res = {}
+        for key, val in dfs.items():
+            existing_levels = val.index.names
+            add_levels = max_levels - len(existing_levels)
+            rename_levels = dict(zip(existing_levels, level_labels[add_levels:]))
+            for x in range(add_levels):
+                val[level_labels[x]] = ""
+                val = val.set_index(level_labels[x], append=True)
+            new_labels = [rename_levels.get(l, l) for l in val.index.names]
+            val.index.rename(new_labels, inplace=True)
+            val = val.reorder_levels(level_labels)
+            res[key] = val
+        res = pd.concat(res, axis=0, names=["section"])
+        idx_names = res.index.names
+        res = res.T.convert_dtypes().astype(str).T
+        res.index.rename(idx_names, inplace=True)
+        return res
+
+    long_df = normalize_levels(
+        {
+            "reads": read_data,
+            "read_length": read_length_data,
+            "bases": base_data,
+            "contacts": contact_section,
+            "density": density_data,
+            "concatemer_order": read_order_hist,
+        }
+    )
+    return long_df

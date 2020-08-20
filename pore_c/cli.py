@@ -552,10 +552,12 @@ def merge(ctx, src_contact_tables, dest_contact_table):
 
 @contacts.command(short_help="Summarise a contact table")
 @click.argument("contact_table", type=click.Path(exists=True))
+@click.argument("read_summary_table", type=click.Path(exists=True))
 @click.argument("concatemer_table", type=click.Path(exists=False))
+@click.argument("concatemer_summary_csv", type=click.Path(exists=False))
 @click.pass_context
-def summarize(ctx, contact_table, concatemer_table):
-    from pore_c.analyses.alignments import gather_concatemer_stats
+def summarize(ctx, contact_table, read_summary_table, concatemer_table, concatemer_summary_csv):
+    from pore_c.analyses.contacts import gather_concatemer_stats, summarize_concatemer_table
     from .model import PoreCConcatemerRecord
 
     concatemer_meta = PoreCConcatemerRecord.pandas_dtype()
@@ -565,14 +567,9 @@ def summarize(ctx, contact_table, concatemer_table):
         concatemer_df = contacts_df.map_partitions(gather_concatemer_stats, meta=concatemer_meta).compute()
         concatemer_df.to_parquet(concatemer_table, engine=PQ_ENGINE, version=PQ_VERSION, index=False)
 
-    num_reads_with_contacts = len(concatemer_df)
-    total_contacts = concatemer_df["total_contacts"].sum()
-    total_cis_contacts = concatemer_df["total_cis_contacts"].sum()
-    perc_cis = 100.0 * total_cis_contacts / total_contacts
-
-    logger.info(f"Total reads with contacts (concatemers): {num_reads_with_contacts}")
-    logger.info(f"Total contacts: {total_contacts}")
-    logger.info(f"Percent cis: {perc_cis}")
+    long_summary_df = summarize_concatemer_table(concatemer_df, read_summary_table)
+    long_summary_df.to_csv(concatemer_summary_csv)
+    logger.info("Concatemer summary written to {}:\n {}".format(concatemer_summary_csv, long_summary_df.to_string()))
 
 
 @contacts.command(short_help="Export contacts to various formats")
