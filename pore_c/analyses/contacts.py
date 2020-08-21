@@ -3,6 +3,7 @@ import os
 import shutil
 import subprocess as sp
 from collections import defaultdict
+from typing import Dict, Optional
 
 import dask.dataframe as dd
 import numpy as np
@@ -534,7 +535,9 @@ def gather_concatemer_stats(contact_df: PoreCContactRecordDf) -> PoreCConcatemer
     return res
 
 
-def summarize_concatemer_table(concatemer_df: PoreCConcatemerRecordDf, read_summary_table: str) -> pd.DataFrame:
+def summarize_concatemer_table(
+    concatemer_df: PoreCConcatemerRecordDf, read_summary_table: str, user_metadata: Optional[Dict] = None
+) -> pd.DataFrame:
     concatemer_read_length_stats = read_length_stats(concatemer_df["read_length"])
     # read_subset_dtype = pd.CategoricalDtype(["all", "pass", "fail"])
     read_summary_table = (
@@ -548,6 +551,10 @@ def summarize_concatemer_table(concatemer_df: PoreCConcatemerRecordDf, read_summ
     )
 
     # print(read_summary_table)
+    if user_metadata:
+        user_metadata = pd.Series(user_metadata, name="value").to_frame()
+    else:
+        user_metadata = None
 
     contact_counts = (
         concatemer_df.loc[:, lambda x: [c for c in x.columns if c.endswith("_contacts")]]
@@ -679,14 +686,17 @@ def summarize_concatemer_table(concatemer_df: PoreCConcatemerRecordDf, read_summ
         res.index.rename(idx_names, inplace=True)
         return res
 
-    long_df = normalize_levels(
-        {
-            "reads": read_data,
-            "read_length": read_length_data,
-            "bases": base_data,
-            "contacts": contact_section,
-            "density": density_data,
-            "concatemer_order": read_order_hist,
-        }
-    )
+    summary_dfs = {
+        "user_metadata": user_metadata,
+        "reads": read_data,
+        "read_length": read_length_data,
+        "bases": base_data,
+        "contacts": contact_section,
+        "density": density_data,
+        "concatemer_order": read_order_hist,
+    }
+    if user_metadata is None:
+        summary_dfs.pop("user_metadata")
+
+    long_df = normalize_levels(summary_dfs)
     return long_df
