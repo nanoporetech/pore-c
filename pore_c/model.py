@@ -261,6 +261,7 @@ class AlignmentFilterReason(str, Enum):
     unmapped = "unmapped"
     singleton = "singleton"
     low_mq = "low_mq"
+    short_overlap = "short_overlap"
     overlap_on_read = "overlap_on_read"
     not_on_shortest_path = "not_on_shortest_path"
 

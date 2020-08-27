@@ -43,6 +43,7 @@ def assign_fragments(
 
     pore_c_table = pore_c_table.set_index("align_idx", drop=False)
     pore_c_table.update(fragment_assignments)
+
     pore_c_table = pore_c_table.astype(dtype)
 
     # apply alignment-level filters
@@ -54,6 +55,11 @@ def assign_fragments(
     fail_mq_mask = ~unmapped_mask & (pore_c_table.mapping_quality <= mapping_quality_cutoff)
     pore_c_table.loc[fail_mq_mask, "pass_filter"] = False
     pore_c_table.loc[fail_mq_mask, "filter_reason"] = "low_mq"
+
+    # short overlap filter
+    short_overlap_mask = ~(unmapped_mask | fail_mq_mask) & (pore_c_table.overlap_length < min_overlap_length)
+    pore_c_table.loc[short_overlap_mask, "pass_filter"] = False
+    pore_c_table.loc[short_overlap_mask, "filter_reason"] = "short_overlap"
 
     # no need to do other checks if nothing left
     if pore_c_table["pass_filter"].any():
@@ -103,7 +109,7 @@ def assign_fragment(pore_c_table, fragment_df, min_overlap_length: int, containm
             }
         )
         .eval("overlap_length = (end - start)")
-        .query(f"overlap_length >= {min_overlap_length}")  # TODO: what if restriction fragment < minimum
+        # .query(f"overlap_length >= {min_overlap_length}")  # TODO: what if restriction fragment < minimum
         .eval("perc_of_alignment = (100.0 * overlap_length) / (align_end - align_start)")
         .eval("perc_of_fragment = (100.0 * overlap_length) / (fragment_end - fragment_start)")
         .eval(f"is_contained = (perc_of_fragment >= {containment_cutoff})")
