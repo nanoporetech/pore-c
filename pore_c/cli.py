@@ -142,7 +142,7 @@ def prepare(ctx, reference_fasta, output_prefix, genome_id):
     chrom_lengths = {c["chrom"]: c["length"] for c in ref_source.metadata["chroms"]}
     chrom_df = pd.DataFrame(ref_source.metadata["chroms"])[["chrom", "length"]]
     chrom_df.to_csv(file_paths["chrom_metadata"], index=False)
-    chrom_df.to_csv(file_paths["chromsizes"], sep="\t", header=None, index=False)
+    chrom_df.to_csv(file_paths["chromsizes"], sep="\t", header=False, index=False)
     metadata = {"chrom_lengths": chrom_lengths, "genome_id": genome_id}
     rg_cat = ReferenceGenomeCatalog.create(file_paths, metadata, {})
     logger.info("Added reference genome: {}".format(str(rg_cat)))
@@ -227,7 +227,7 @@ def reads(ctx):
     pass
 
 
-@reads.command(short_help="Create a catalog file for a set of reads")  # noqa: F811
+@reads.command(short_help="Create a catalog file for a set of reads")
 @click.argument("fastq", type=click.Path(exists=True))
 @click.argument("output_prefix", callback=expand_output_prefix(RawReadCatalog))
 @click.option(
@@ -247,7 +247,7 @@ def reads(ctx):
 @click.option("--max-qscore", help="The maximum read qscore", default=266, show_default=True)
 @click.option("--user-metadata", callback=command_line_json, help="Additional user metadata to associate with this run")
 @click.pass_context
-def prepare(
+def prepare(  # noqa: F811
     ctx, fastq, output_prefix, batch_size, min_read_length, max_read_length, min_qscore, max_qscore, user_metadata
 ):
     """Preprocess a set of reads for use with pore_c tools.

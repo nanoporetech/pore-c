@@ -16,6 +16,7 @@ var
 sdist
 wheelhouse
 develop-eggs
+pkgs
 .installed.cfg
 lib
 lib64
@@ -68,3 +69,4 @@ doc/source/api
 dask-worker-space
 scratch
 *.profraw
+.vim
