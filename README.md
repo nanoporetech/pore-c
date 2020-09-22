@@ -22,9 +22,10 @@ The recommended way to use pore-C tools is through the associated [Pore-C-Snakem
 up a development environment. We use the [tox](https://tox.readthedocs.io/en/latest/index.html) automation tool with the [tox-conda](https://github.com/tox-dev/tox-conda) extension
 to create conda environments for development. Several environments are defined in the `tox.ini` file:
 
-    *  `py37` -  The default environment. Running `tox -e py37` will run all of the `pytest` tests. By adding `--` to the command you you can pass additional arguments to pytest e.g. `tox -e py37 -- -k refgenome`.
-    *  `dev` - A development environment that runs the `pore_c` command. You can use this to try our `pore_c` commands e.g. `tox -e dev -- refgenome --help`.
-    *  `snakemake` - An environment that runs an associated snakemake pipeline in development mode. The command assumes that the `pore-c-snakemake` repository is located in the same directory as `pore-c` though this can be changed with enviroment variables - see the `tox.ini` file for details.
+
+*  **py37:**  The default environment. Running `tox -e py37` will run all of the `pytest` tests. By adding `--` to the command you you can pass additional arguments to pytest e.g. `tox -e py37 -- -k refgenome`.
+*  **dev:** A development environment that runs the `pore_c` command. You can use this to try our `pore_c` commands e.g. `tox -e dev -- refgenome --help`.
+*  **snakemake:** An environment that runs an associated snakemake pipeline in development mode. The command assumes that the `pore-c-snakemake` repository is located in the same directory as `pore-c` though this can be changed with enviroment variables - see the `tox.ini` file for details.
 
 
 For each of these environments a conda environment is created at `.tox/<env_id>`. You can activate these for interactive work with `conda activate .tox/<env_id>`.
