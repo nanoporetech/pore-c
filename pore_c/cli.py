@@ -575,6 +575,184 @@ def merge(ctx, src_contact_tables, dest_contact_table, fofn):
     df.to_parquet(dest_contact_table, engine=PQ_ENGINE, version=PQ_VERSION, schema=ds.schema, write_index=False)
 
 
+### -- download sampling -- ### 
+
+@contacts.command(short_help="Downsample a contact table")
+@click.argument("src_contact_table", type=click.Path(exists=True))
+@click.argument("dest_contact_table_prefix", type=click.Path(exists=False))
+@click.argument("downsample_increments", nargs=-1, type=float)
+@click.option("--downsample-unit", default="Gb", type=click.Choice(["Gb", "Mb", "Kb"]))
+@click.option("--random-seed", default=None, type=int)
+@click.option(
+    "--tol",
+    default=0.01,
+    type=float,
+    help=("Check if the difference between the sampled amout " "and the target amount is greater than this proportion"),
+)
+@click.option(
+    "--warn", is_flag=True, help=("If the a sample fails the --tol check print a warning rather than exiting"),
+)
+@click.option(
+    "--max-attempts",
+    type=int,
+    default=100,
+    help=("The number of times to try and find a set of subsamples all within --tol"),
+)
+@click.pass_context
+def downsample(
+    ctx,
+    src_contact_table,
+    dest_contact_table_prefix,
+    downsample_increments,
+    downsample_unit,
+    random_seed,
+    tol,
+    warn,
+    max_attempts,
+):
+
+    from numpy.random import RandomState
+    from .utils import kmg_bases_to_int
+
+    rs = RandomState(random_seed)
+
+    contact_reads = dd.read_parquet(
+        src_contact_table, columns=["read_name", "read_length"], engine=PQ_ENGINE, version=PQ_VERSION
+    ).compute()
+    # print(contact_reads.shape[0])
+    read_table = contact_reads.drop_duplicates(subset=['read_name'])
+    # print(read_table.shape[0])
+    # print(read_table)
+    downsample_increments = sorted(downsample_increments)
+
+    if downsample_unit in ["Gb", "Mb", "Kb"]:
+
+        total_bases = read_table["read_length"].sum()
+        logging.info(f'Total bases {total_bases:,.0f}')
+        all_targets = [f"{i}{downsample_unit}" for i in downsample_increments]
+        
+        all_targets = {l: kmg_bases_to_int(l) for l in all_targets}
+        # print(all_targets)
+        targets = {key: val for key, val in all_targets.items() if val <= total_bases}
+        if len(targets) != len(all_targets):
+            logger.warning("Not enough data to downsample to {}".format(set(all_targets.keys()) - set(targets.keys())))
+            if len(targets) == 0:
+                raise ValueError(f"Not enough data to downsample {total_bases}: {all_targets.keys()}")
+
+        read_to_partition = None
+        for attempt in range(max_attempts):
+            logger.debug(f"Attempt {attempt} to find subset within tolerance")
+            partition_table = (
+                read_table.sample(frac=1, random_state=rs)
+                .assign(cumul_length=lambda x: x["read_length"].cumsum(), partition=None)
+                .reset_index(drop=True)
+            )
+            # print(partition_table)
+            def find_index(cumul_length, target_length):
+                diff = (int(target_length) - cumul_length).abs()
+                min_diff_idx = diff.idxmin()
+                target_df = pd.DataFrame(
+                    [
+                        {
+                            "target_length": target_length,
+                            "actual_length": cumul_length[min_diff_idx],
+                            "end_idx": min_diff_idx,
+                        }
+                    ]
+                )
+                # print(target_df)
+                return target_df
+
+            ds_df = (
+                pd.concat({l: find_index(partition_table.cumul_length, t) for l, t in targets.items()}, names=["label"])
+                .droplevel(1, axis=0)
+                .assign(
+                    diff=lambda x: (x.target_length - x.actual_length).abs(),
+                    relative_diff=lambda x: x["diff"] / x.target_length,
+                    pass_tol=lambda x: x.relative_diff < tol,
+                )
+            )
+            logging.debug(ds_df) ## Table with index start and ends for target
+            if ds_df.pass_tol.all():
+                ds_df["end"] = ds_df["end_idx"]
+                ds_df["start"] = ds_df.end.shift(1, fill_value=0)
+                for row in ds_df.itertuples():
+                    label = row.Index
+                    partition_table.loc[row.start : row.end, "partition"] = label
+
+                check = (
+                    partition_table.dropna(subset=["partition"])
+                    .groupby("partition", sort=False)["read_length"]
+                    .agg(["size", "sum"])
+                    .assign(partitioned_length=lambda x: x["sum"].cumsum())
+                )
+                logging.debug(check)
+
+                read_to_partition = pd.merge(
+                    contact_reads,
+                    partition_table.dropna(subset=["partition"])[["read_name", "partition"]],
+                    left_on=["read_name"],
+                    right_on=["read_name"],
+                    how="inner",
+                )
+                break
+
+        if read_to_partition is None:
+            raise ValueError("Couldn't find subsamples within tolerance")
+
+        src_df = dd.read_parquet(src_contact_table, engine=PQ_ENGINE, version=PQ_VERSION).reset_index()
+        # print(src_df.tail())
+        # raise ValueError(dir(src_df))
+        partitioned_src = dd.merge(src_df, read_to_partition[["partition"]], how="inner")
+        # print(partitioned_src.head())
+        # print(partitioned_src.compute().shape)
+        part_dfs = []
+        for label in targets:
+            read_names = read_to_partition.query(f"partition == '{label}'")["read_name"]
+            # print(read_names.index.values)
+            # print(read_names.to_list()[:4])
+
+            # partition_df = src_df.loc[src_df.index.isin(read_names.index.values)]
+            partition_df = src_df.loc[src_df.read_name.isin(list(set(read_names.to_list())))] ## Matches the partitioned length
+
+            # print(type(partition_df), partition_df.compute().shape)
+
+            part_dfs.append(partition_df)
+            # part_dfs.append(
+            #     src_df.map_partitions(
+            #         lambda x: x[x.index.isin(read_names.index.values)],
+            #          meta = src_df.dtypes)
+            #     )
+
+  
+        # raise ValueError(part_dfs[0].head())
+        for x, label in enumerate(targets):
+            outfile = dest_contact_table_prefix + f".{label}.contacts.parquet"
+            if x > 0:
+                # df = dd.from_delayed(part_dfs[:x])
+                df = pd.concat([x.compute() for x in part_dfs[:x+1]])
+                # print(df.columns)
+                # raise ValueError()
+            else:
+                df = part_dfs[x]
+                # print(df.compute().head())
+            actual_length = df.drop_duplicates(subset=['read_name']).read_length.sum()
+            # print(f"X={x}, LABEL={label},{type(actual_length)}")
+            if isinstance(actual_length, dd.core.Scalar):
+                df = df.compute()
+                # actual_length = actual_length.compute()
+                actual_length = df.drop_duplicates(subset=['read_name']).read_length.sum()
+            logger.info(f"Targeted length: {label} Actual length: {actual_length:,.0f}")
+            logger.info(f"Writing to file: {outfile}")
+            df.to_parquet(outfile, engine=PQ_ENGINE, version=PQ_VERSION)
+
+
+
+
+### --- END --- ###
+
+
+
 @contacts.command(short_help="Summarise a contact table")
 @click.argument("contact_table", type=click.Path(exists=True))
 @click.argument("read_summary_table", type=click.Path(exists=True))
