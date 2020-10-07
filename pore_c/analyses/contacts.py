@@ -194,7 +194,7 @@ def export_to_salsa_bed(contact_table, output_prefix, query, query_columns):
             lambda x: f"read{x.read_name}_{x.contact_idx}/{x.pair_idx}", axis=1
         )
         df["strand"] = df["strand"].replace({True: "+", False: "-"}).astype(strand_dtype)
-        return df[["chrom", "start", "end", "read_pair_id", "strand", "mapping_quality"]]
+        return df[["chrom", "start", "end", "read_pair_id", "mapping_quality", "strand" ]]
 
     contact_df.map_partitions(to_salsa_long, meta=meta).to_csv(
         bed_file, single_file=True, sep="\t", header=False, index=False
