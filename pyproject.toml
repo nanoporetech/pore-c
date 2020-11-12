@@ -11,6 +11,7 @@ name = "pore_c"
 version = "0.3.0-rc.1"
 description = "Tools to process data from an ONT poreC run"
 license = "MPL 2.0"
+repository = "https://github.com/nanoporetech/pore-c"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -22,11 +23,43 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Utilities"
     ]
+maintainers = ["Eoghan Harrington <Eoghan.Harrington@nanoporetech.com>"]
 authors = ["Eoghan Harrington <Eoghan.Harrington@nanoporetech.com>", "Matthew Pendleton <Matthew.Pendleton@nanoporetech.com>"]
+readme = "README.md"
+packages = ['pore_c', 'pore_c.analyses']
+
+
+[tool.poetry.dependencies]
+biopython ="==1.77"
+click ="==7.0.*,>=7.0.0"
+cooler ="==0.8.*,>=0.8.5"
+cython =">=0.29"
+dask ="==2.*,>=2.0.0"
+distributed ="==2.*,>=2.9.3"
+intake = "*"
+intake-parquet ="*"
+ncls = "*"
+networkx ="==2.*,>=2.4.0"
+numpy =">=1.16.1"
+pairtools = "*"
+pandas =">=1.0.5"
+pyarrow ="==1.*,>=1.0.0"
+pydantic ="==1.6.1"
+pyranges ="==0.0.71"
+pysam = "*"
+streamz ="==0.*,>=0.5.2"
+tqdm = "*"
+
 
 
 [tool.dephell.main]
 versioning = "zerover"
+# read from poetry format
+from = {format = "poetry", path = "pyproject.toml"}
+# drop dev-dependencies
+envs = ["main"]
+# and convert into setup.py
+to = {format = "setuppy", path = "setup.py"}
 
 [tool.isort]
 line-length = 120

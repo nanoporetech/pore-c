@@ -43,7 +43,7 @@ If you're working on the [Pore-C-Snakemake](https://github.com/nanoporetech/Pore
     git clone git@github.com:nanoporetech/Pore-C-Snakemake.git
     cd pore-c-snakemake
     conda activate ../pore-c/.tox/snakemake
-    snakemake -j 8 test --config pore_c_version=dev
+    snakemake -j 8 test --use-conda --config pore_c_version=dev
 
 
 
