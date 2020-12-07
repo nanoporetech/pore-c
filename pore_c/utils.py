@@ -103,9 +103,9 @@ def kmg_bases_to_int(value: str) -> int:
         result = None
     if result is not None:
         return result
-        
-    value_re = re.compile(r"(\d+\.\d+)([KkMmGg])b*")
-    m = value_re.match(value)
+
+    value_re = re.compile(r"(\d+(?:\.\d+)?)([KkMmGg])([bB])?")
+    m = value_re.match(value.strip())
     if not m:
         raise ValueError(f"Invalid string: {value}")
 
