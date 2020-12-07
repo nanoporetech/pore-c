@@ -21,6 +21,7 @@ pkgs
 lib
 lib64
 venv*/
+.venv
 pyvenv*/
 .pytype
 
@@ -53,6 +54,7 @@ output/*/index.html
 # Sphinx
 doc/build
 doc/source/api
+doc/gen/
 
 .DS_Store
 *~
@@ -70,3 +72,5 @@ dask-worker-space
 scratch
 *.profraw
 .vim
+
+.snakemake
