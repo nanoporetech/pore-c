@@ -112,5 +112,3 @@ def kmg_bases_to_int(value: str) -> int:
     value = float(m.group(1))
     exponent = {"k": 1e3, "m": 1e6, "g": 1e9}[m.group(2).lower()]
     return value * int(exponent)
-
-

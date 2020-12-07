@@ -353,9 +353,7 @@ def reformat_bam(input_sam, output_sam, input_is_bam, output_is_bam, set_bx_flag
 )
 @click.pass_context
 def create_table(ctx, input_bam, output_table, alignment_haplotypes):
-    """Convert a BAM file to a tabular format sorted by read for downstream analysis
-
-    """
+    """Convert a BAM file to a tabular format sorted by read for downstream analysis"""
     from pore_c import model
     from pysam import AlignmentFile
 
@@ -424,10 +422,7 @@ def create_table(ctx, input_bam, output_table, alignment_haplotypes):
 def assign_fragments(
     ctx, align_table, fragments_table, pore_c_table, mapping_quality_cutoff, min_overlap_length, containment_cutoff
 ):
-    """For each alignment in ALIGN_TABLE either filter out or assign a fragment from FRAGMENT_TABLE
-
-
-    """
+    """For each alignment in ALIGN_TABLE either filter out or assign a fragment from FRAGMENT_TABLE"""
     from pore_c.analyses.alignments import assign_fragments
 
     logger.info(f"Assigning fragments from {fragments_table} to alignments from {align_table}")
@@ -509,9 +504,7 @@ def assign_consensus_haplotype(ctx, pore_c_table, output_pore_c_table, threshold
 @click.argument("contact_table", type=click.Path(exists=False))
 @click.pass_context
 def to_contacts(ctx, pore_c_table, contact_table):
-    """Covert the alignment table to a pairwise contact table and associated concatemer table
-
-    """
+    """Covert the alignment table to a pairwise contact table and associated concatemer table"""
     from pore_c.analyses.alignments import to_contacts
 
     pore_c_df = pd.read_parquet(pore_c_table, engine=PQ_ENGINE)
@@ -552,8 +545,8 @@ def merge(ctx, src_contact_tables, dest_contact_table, fofn):
         src_contact_tables = []
         errors = []
 
-        for l in open(src_fofn):
-            input_file = Path(l.strip())
+        for file_path in open(src_fofn):
+            input_file = Path(file_path.strip())
             if not input_file.resolve().exists():
                 errors.append(f"Input file missing: {input_file}")
             src_contact_tables.append(input_file)
@@ -574,8 +567,6 @@ def merge(ctx, src_contact_tables, dest_contact_table, fofn):
     df = dd.read_parquet(parts, engine=PQ_ENGINE, version=PQ_VERSION, index=False)
     df.to_parquet(dest_contact_table, engine=PQ_ENGINE, version=PQ_VERSION, schema=ds.schema, write_index=False)
 
-
-### -- download sampling -- ### 
 
 @contacts.command(short_help="Downsample a contact table")
 @click.argument("src_contact_table", type=click.Path(exists=True))
@@ -610,7 +601,7 @@ def downsample(
     warn,
     max_attempts,
 ):
-
+    logger.warning("The downsample script is experimental and might change in the future")
     from numpy.random import RandomState
     from .utils import kmg_bases_to_int
 
@@ -620,7 +611,7 @@ def downsample(
         src_contact_table, columns=["read_name", "read_length"], engine=PQ_ENGINE, version=PQ_VERSION
     ).compute()
     # print(contact_reads.shape[0])
-    read_table = contact_reads.drop_duplicates(subset=['read_name'])
+    read_table = contact_reads.drop_duplicates(subset=["read_name"])
     # print(read_table.shape[0])
     # print(read_table)
     downsample_increments = sorted(downsample_increments)
@@ -628,10 +619,10 @@ def downsample(
     if downsample_unit in ["Gb", "Mb", "Kb"]:
 
         total_bases = read_table["read_length"].sum()
-        logging.info(f'Total bases {total_bases:,.0f}')
+        logging.info(f"Total bases {total_bases:,.0f}")
         all_targets = [f"{i}{downsample_unit}" for i in downsample_increments]
-        
-        all_targets = {l: kmg_bases_to_int(l) for l in all_targets}
+
+        all_targets = {target: kmg_bases_to_int(target) for target in all_targets}
         # print(all_targets)
         targets = {key: val for key, val in all_targets.items() if val <= total_bases}
         if len(targets) != len(all_targets):
@@ -647,7 +638,7 @@ def downsample(
                 .assign(cumul_length=lambda x: x["read_length"].cumsum(), partition=None)
                 .reset_index(drop=True)
             )
-            # print(partition_table)
+
             def find_index(cumul_length, target_length):
                 diff = (int(target_length) - cumul_length).abs()
                 min_diff_idx = diff.idxmin()
@@ -660,11 +651,13 @@ def downsample(
                         }
                     ]
                 )
-                # print(target_df)
                 return target_df
 
             ds_df = (
-                pd.concat({l: find_index(partition_table.cumul_length, t) for l, t in targets.items()}, names=["label"])
+                pd.concat(
+                    {target: find_index(partition_table.cumul_length, t) for target, t in targets.items()},
+                    names=["label"],
+                )
                 .droplevel(1, axis=0)
                 .assign(
                     diff=lambda x: (x.target_length - x.actual_length).abs(),
@@ -672,7 +665,7 @@ def downsample(
                     pass_tol=lambda x: x.relative_diff < tol,
                 )
             )
-            logging.debug(ds_df) ## Table with index start and ends for target
+            logging.debug(ds_df)  # Table with index start and ends for target
             if ds_df.pass_tol.all():
                 ds_df["end"] = ds_df["end_idx"]
                 ds_df["start"] = ds_df.end.shift(1, fill_value=0)
@@ -701,56 +694,31 @@ def downsample(
             raise ValueError("Couldn't find subsamples within tolerance")
 
         src_df = dd.read_parquet(src_contact_table, engine=PQ_ENGINE, version=PQ_VERSION).reset_index()
-        # print(src_df.tail())
-        # raise ValueError(dir(src_df))
-        partitioned_src = dd.merge(src_df, read_to_partition[["partition"]], how="inner")
-        # print(partitioned_src.head())
-        # print(partitioned_src.compute().shape)
+        # partitioned_src = dd.merge(src_df, read_to_partition[["partition"]], how="inner")
         part_dfs = []
         for label in targets:
             read_names = read_to_partition.query(f"partition == '{label}'")["read_name"]
-            # print(read_names.index.values)
-            # print(read_names.to_list()[:4])
-
-            # partition_df = src_df.loc[src_df.index.isin(read_names.index.values)]
-            partition_df = src_df.loc[src_df.read_name.isin(list(set(read_names.to_list())))] ## Matches the partitioned length
-
-            # print(type(partition_df), partition_df.compute().shape)
-
+            partition_df = src_df.loc[src_df.read_name.isin(list(set(read_names.to_list())))]
             part_dfs.append(partition_df)
-            # part_dfs.append(
-            #     src_df.map_partitions(
-            #         lambda x: x[x.index.isin(read_names.index.values)],
-            #          meta = src_df.dtypes)
-            #     )
-
-  
-        # raise ValueError(part_dfs[0].head())
         for x, label in enumerate(targets):
             outfile = dest_contact_table_prefix + f".{label}.contacts.parquet"
             if x > 0:
                 # df = dd.from_delayed(part_dfs[:x])
-                df = pd.concat([x.compute() for x in part_dfs[:x+1]])
+                df = pd.concat([x.compute() for x in part_dfs[: x + 1]])
                 # print(df.columns)
                 # raise ValueError()
             else:
                 df = part_dfs[x]
                 # print(df.compute().head())
-            actual_length = df.drop_duplicates(subset=['read_name']).read_length.sum()
+            actual_length = df.drop_duplicates(subset=["read_name"]).read_length.sum()
             # print(f"X={x}, LABEL={label},{type(actual_length)}")
             if isinstance(actual_length, dd.core.Scalar):
                 df = df.compute()
                 # actual_length = actual_length.compute()
-                actual_length = df.drop_duplicates(subset=['read_name']).read_length.sum()
+                actual_length = df.drop_duplicates(subset=["read_name"]).read_length.sum()
             logger.info(f"Targeted length: {label} Actual length: {actual_length:,.0f}")
             logger.info(f"Writing to file: {outfile}")
             df.to_parquet(outfile, engine=PQ_ENGINE, version=PQ_VERSION)
-
-
-
-
-### --- END --- ###
-
 
 
 @contacts.command(short_help="Summarise a contact table")
@@ -910,9 +878,7 @@ def utils():
 @click.argument("output_csv", type=click.Path(exists=False))
 @click.pass_context
 def parquet_to_csv(ctx, input_parquet, output_csv):
-    """Convert a parquet file to CSV
-
-    """
+    """Convert a parquet file to CSV"""
 
     with ctx.meta["dask_env"]:
         df = dd.read_parquet(input_parquet, engine=PQ_ENGINE, version=PQ_VERSION)

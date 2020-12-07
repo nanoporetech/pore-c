@@ -45,6 +45,7 @@ setup(
     ],
     packages=["pore_c", "pore_c.analyses"],
     package_dir={"": "."},
+    entry_points={"console_scripts": ["pore_c=pore_c.cli:cli"],},
     package_data={},
     install_requires=[
         "biopython==1.77",

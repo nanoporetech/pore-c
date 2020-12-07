@@ -28,6 +28,9 @@ authors = ["Eoghan Harrington <Eoghan.Harrington@nanoporetech.com>", "Matthew Pe
 readme = "README.md"
 packages = ['pore_c', 'pore_c.analyses']
 
+[tool.poetry.scripts]
+pore_c = 'pore_c.cli:cli'
+
 
 [tool.poetry.dependencies]
 biopython ="==1.77"
@@ -50,14 +53,10 @@ pysam = "*"
 streamz ="==0.*,>=0.5.2"
 tqdm = "*"
 
-
-
 [tool.dephell.main]
-versioning = "zerover"
+versioning = "semver"
 # read from poetry format
 from = {format = "poetry", path = "pyproject.toml"}
-# drop dev-dependencies
-envs = ["main"]
 # and convert into setup.py
 to = {format = "setuppy", path = "setup.py"}
 
