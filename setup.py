@@ -24,7 +24,7 @@ if os.path.exists(readme_path):
 setup(
     long_description=readme,
     name="pore_c",
-    version="0.3.0-rc.1",
+    version="0.3.0",
     description="Tools to process data from an ONT poreC run",
     project_urls={"repository": "https://github.com/nanoporetech/pore-c"},
     author="Eoghan Harrington",
