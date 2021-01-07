@@ -11,6 +11,10 @@ Welcome to Pore-C Tools's documentation!
    :caption: Contents:
 
 
+   model
+   cli
+   api/modules
+
 
 Indices and tables
 ==================

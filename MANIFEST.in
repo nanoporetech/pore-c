@@ -1,5 +1,0 @@
-recursive-include src/pore_c *
-recursive-include tests/ *
-global-exclude *.pyc
-include versioneer.py
-include src/pore_c/_version.py
