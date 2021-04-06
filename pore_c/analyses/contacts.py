@@ -415,7 +415,6 @@ def export_to_merged_no_dups(contact_table, output_prefix, reference_fasta, quer
                 pos1=lambda x: np.rint(x.eval("0.5 * (align1_fragment_start + align1_fragment_end)")).astype(int),
                 pos2=lambda x: np.rint(x.eval("0.5 * (align2_fragment_start + align2_fragment_end)")).astype(int),
             )
-            .drop_duplicates(subset=["pos1", "pos1"])
         )
 
         df["pos1"].clip(lower=read_length, inplace=True)
