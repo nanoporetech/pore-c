@@ -94,7 +94,7 @@ def refgenome(ctx):
 @click.argument("output_prefix", callback=expand_output_prefix(ReferenceGenomeCatalog))
 @click.option("--genome-id", type=str, help="An ID for this genome assembly")
 @click.pass_context
-def prepare(ctx, reference_fasta, output_prefix, genome_id):
+def prepare(ctx, reference_fasta, output_prefix, genome_id):  # noqa: F811
     """Pre-process a reference genome for use by pore-C tools.
 
     Prepare a reference genome or draft assembly use by pore-c tools.
@@ -227,7 +227,7 @@ def reads(ctx):
     pass
 
 
-@reads.command(short_help="Create a catalog file for a set of reads")
+@reads.command(short_help="Create a catalog file for a set of reads")  # noqa: F811
 @click.argument("fastq", type=click.Path(exists=True))
 @click.argument("output_prefix", callback=expand_output_prefix(RawReadCatalog))
 @click.option(
@@ -247,8 +247,8 @@ def reads(ctx):
 @click.option("--max-qscore", help="The maximum read qscore", default=266, show_default=True)
 @click.option("--user-metadata", callback=command_line_json, help="Additional user metadata to associate with this run")
 @click.pass_context
-def prepare(  # noqa: F811
-    ctx, fastq, output_prefix, batch_size, min_read_length, max_read_length, min_qscore, max_qscore, user_metadata
+def prepare(
+    ctx, fastq, output_prefix, batch_size, min_read_length, max_read_length, min_qscore, max_qscore, user_metadata,
 ):
     """Preprocess a set of reads for use with pore_c tools.
 
@@ -440,6 +440,41 @@ def assign_fragments(
     pore_c_df.to_parquet(pore_c_table, engine=PQ_ENGINE, index=False, version=PQ_VERSION)
     logger.info(f"Fragments written to {pore_c_table}")
     logger.info("Summary: \n{}".format(pore_c_df.filter_reason.value_counts()))
+
+
+@alignments.command(short_help="Filter bam using pore_c table")
+@click.argument("input_bam", type=click.Path(exists=True))
+@click.argument("pore_c_table", type=click.Path(exists=True))
+@click.argument("output_bam", type=click.Path(exists=False))
+@click.option(
+    "--clean-read-name", is_flag=True, help="Strip out the extra information placed in the BAM  by reformat_bam"
+)
+def filter_bam(input_bam, pore_c_table, output_bam, clean_read_name):
+    from pysam import AlignmentFile
+
+    inbam = AlignmentFile(input_bam, "rb")
+    outbam = AlignmentFile(output_bam, "wb", template=inbam)
+
+    aligns = pd.read_parquet(pore_c_table, engine=PQ_ENGINE, columns=["align_idx", "pass_filter"]).set_index(
+        ["align_idx"]
+    )
+    aligns = aligns[aligns["pass_filter"]]
+
+    expected = len(aligns)
+    counter = 0
+
+    for align in inbam.fetch(until_eof=True):
+        align_idx = int(align.query_name.rsplit(":")[2])
+        if align_idx not in aligns.index:
+            continue
+        if clean_read_name:
+            readname_only = align.query_name.split(":")[0]
+            align.query_name = readname_only
+        outbam.write(align)
+        counter += 1
+    if counter != expected:
+        raise ValueError(f"Number of alignments doesn't match. Expected {expected} got {counter}")
+    logger.info(f"Wrote {counter} reads to {output_bam}")
 
 
 @alignments.command(short_help="Parse a namesortd bam to pore-C alignment format")
