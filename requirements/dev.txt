@@ -11,14 +11,12 @@ appdirs==1.4.4
 asciitree==0.3.3
     # via cooler
 attrs==21.2.0
-    # via
-    #   flake8-bugbear
-    #   pytest
+    # via flake8-bugbear
 autoflake==1.4
     # via pore-c (setup.py)
 better-exceptions==0.3.3
     # via pore-c (setup.py)
-biopython==1.79
+biopython==1.77
     # via pore-c (setup.py)
 black==21.6b0
     # via pore-c (setup.py)
@@ -27,18 +25,17 @@ click==7.1.2
     #   black
     #   cooler
     #   distributed
+    #   pairtools
     #   pore-c (setup.py)
 cloudpickle==1.6.0
     # via distributed
-colorama==0.4.4
-    # via pytest-watch
 cooler==0.8.11
     # via pore-c (setup.py)
 cramjam==2.3.2
     # via fastparquet
 cython==0.29.23
     # via
-    #   pore-c (setup.py)
+    #   pairtools
     #   pyranges
     #   pyrle
     #   sorted-nearest
@@ -56,8 +53,6 @@ dill==0.3.4
     # via multiprocess
 distributed==2.30.1
     # via pore-c (setup.py)
-docopt==0.6.2
-    # via pytest-watch
 entrypoints==0.3
     # via intake
 fancycompleter==0.9.1
@@ -91,8 +86,6 @@ h5py==3.3.0
     # via cooler
 heapdict==1.0.1
     # via zict
-iniconfig==1.1.1
-    # via pytest
 intake==0.6.2
     # via
     #   intake-parquet
@@ -127,21 +120,24 @@ ncls==0.0.60
     #   pyranges
 networkx==2.5.1
     # via pore-c (setup.py)
-numpy==1.21.0
+nose==1.3.7
+    # via pairtools
+numpy==1.19.5
     # via
     #   biopython
     #   cooler
     #   fastparquet
     #   h5py
     #   ncls
+    #   pairtools
     #   pandas
     #   pore-c (setup.py)
     #   pyarrow
     #   pyrle
     #   scipy
     #   sorted-nearest
-packaging==21.0
-    # via pytest
+pairtools==0.3.0
+    # via pore-c (setup.py)
 pandas==1.3.0
     # via
     #   cooler
@@ -156,12 +152,8 @@ pdbpp==0.10.3
     # via pore-c (setup.py)
 pep8-naming==0.12.0
     # via pore-c (setup.py)
-pluggy==0.13.1
-    # via pytest
 psutil==5.8.0
     # via distributed
-py==1.10.0
-    # via pytest
 pyarrow==1.0.1
     # via
     #   intake-parquet
@@ -182,8 +174,6 @@ pygments==2.9.0
     # via pdbpp
 pypairix==0.3.7
     # via cooler
-pyparsing==2.4.7
-    # via packaging
 pyranges==0.0.71
     # via pore-c (setup.py)
 pyrepl==0.9.0
@@ -191,10 +181,6 @@ pyrepl==0.9.0
 pyrle==0.0.33
     # via pyranges
 pysam==0.16.0.1
-    # via pore-c (setup.py)
-pytest==6.2.4
-    # via pytest-watch
-pytest-watch==4.2.0
     # via pore-c (setup.py)
 python-dateutil==2.8.1
     # via pandas
@@ -238,7 +224,6 @@ toml==0.10.2
     # via
     #   black
     #   mypy
-    #   pytest
 toolz==0.11.1
     # via
     #   cytoolz
@@ -252,8 +237,6 @@ tqdm==4.61.2
     # via pore-c (setup.py)
 typing-extensions==3.10.0.0
     # via mypy
-watchdog==2.1.3
-    # via pytest-watch
 wmctrl==0.4
     # via pdbpp
 zict==2.0.0

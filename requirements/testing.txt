@@ -10,15 +10,18 @@ asciitree==0.3.3
     # via cooler
 attrs==21.2.0
     # via pytest
-biopython==1.79
+biopython==1.77
     # via pore-c (setup.py)
 click==7.1.2
     # via
     #   cooler
     #   distributed
+    #   pairtools
     #   pore-c (setup.py)
 cloudpickle==1.6.0
     # via distributed
+colorama==0.4.4
+    # via pytest-watch
 cooler==0.8.11
     # via pore-c (setup.py)
 coverage==5.5
@@ -27,7 +30,7 @@ cramjam==2.3.2
     # via fastparquet
 cython==0.29.23
     # via
-    #   pore-c (setup.py)
+    #   pairtools
     #   pyranges
     #   pyrle
     #   sorted-nearest
@@ -45,6 +48,8 @@ dill==0.3.4
     # via multiprocess
 distributed==2.30.1
     # via pore-c (setup.py)
+docopt==0.6.2
+    # via pytest-watch
 entrypoints==0.3
     # via intake
 execnet==1.9.0
@@ -85,13 +90,16 @@ ncls==0.0.60
     #   pyranges
 networkx==2.5.1
     # via pore-c (setup.py)
-numpy==1.21.0
+nose==1.3.7
+    # via pairtools
+numpy==1.19.5
     # via
     #   biopython
     #   cooler
     #   fastparquet
     #   h5py
     #   ncls
+    #   pairtools
     #   pandas
     #   pore-c (setup.py)
     #   pyarrow
@@ -100,6 +108,8 @@ numpy==1.21.0
     #   sorted-nearest
 packaging==21.0
     # via pytest
+pairtools==0.3.0
+    # via pore-c (setup.py)
 pandas==1.3.0
     # via
     #   cooler
@@ -139,11 +149,14 @@ pytest==6.2.4
     #   pore-c (setup.py)
     #   pytest-cov
     #   pytest-forked
+    #   pytest-watch
     #   pytest-xdist
 pytest-cov==2.12.1
     # via pore-c (setup.py)
 pytest-forked==1.3.0
     # via pytest-xdist
+pytest-watch==4.2.0
+    # via pore-c (setup.py)
 pytest-xdist==2.3.0
     # via pore-c (setup.py)
 python-dateutil==2.8.1
@@ -196,6 +209,8 @@ tornado==6.1
     #   streamz
 tqdm==4.61.2
     # via pore-c (setup.py)
+watchdog==2.1.3
+    # via pytest-watch
 zict==2.0.0
     # via
     #   distributed
