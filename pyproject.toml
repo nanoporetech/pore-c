@@ -90,3 +90,8 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.3.0"
+tag_format = "$version"
