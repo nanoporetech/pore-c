@@ -7,11 +7,7 @@ import pandas as pd
 
 import pore_c.catalogs as catalogs
 
-from .catalogs import (
-    RawReadCatalog,
-    ReferenceGenomeCatalog,
-    VirtualDigestCatalog,
-)
+from .catalogs import RawReadCatalog, ReferenceGenomeCatalog, VirtualDigestCatalog
 from .cli_utils import (
     ExportDependentOption,
     NaturalOrderGroup,
@@ -24,7 +20,6 @@ from .cli_utils import (
 from .config import INPUT_REFGENOME_REGEX, PQ_ENGINE, PQ_VERSION
 from .settings import setup_logging
 from .utils import DaskExecEnv
-
 
 logger = setup_logging()
 
@@ -94,7 +89,7 @@ def refgenome(ctx):
 @click.argument("output_prefix", callback=expand_output_prefix(ReferenceGenomeCatalog))
 @click.option("--genome-id", type=str, help="An ID for this genome assembly")
 @click.pass_context
-def prepare(ctx, reference_fasta, output_prefix, genome_id):
+def prepare(ctx, reference_fasta, output_prefix, genome_id):  # noqa: F811
     """Pre-process a reference genome for use by pore-C tools.
 
     Prepare a reference genome or draft assembly use by pore-c tools.
@@ -106,12 +101,14 @@ def prepare(ctx, reference_fasta, output_prefix, genome_id):
         <output_prefix>.catalog.yaml - An intake catalog of these files
 
     """
-    from pore_c.datasources import IndexedFasta
-    import pandas as pd
     import re
     import subprocess as sp
-    import pysam
     from shutil import copyfile
+
+    import pandas as pd
+    import pysam
+
+    from pore_c.datasources import IndexedFasta
 
     logger.info(f"Adding reference genome under prefix: {output_prefix}")
     file_paths = ctx.meta["file_paths"]
@@ -145,7 +142,7 @@ def prepare(ctx, reference_fasta, output_prefix, genome_id):
     chrom_df.to_csv(file_paths["chromsizes"], sep="\t", header=False, index=False)
     metadata = {"chrom_lengths": chrom_lengths, "genome_id": genome_id}
     rg_cat = ReferenceGenomeCatalog.create(file_paths, metadata, {})
-    logger.info("Added reference genome: {}".format(str(rg_cat)))
+    logger.info(f"Added reference genome: {str(rg_cat)}")
 
 
 @refgenome.command(short_help="Virtual digest of a reference genome.")
@@ -202,7 +199,7 @@ def virtual_digest(ctx, fasta, cut_on, output_prefix, digest_type, n_workers):
 
     metadata = {"digest_type": digest_type, "digest_param": cut_on, "num_fragments": len(frag_df)}
     vd_cat = VirtualDigestCatalog.create(ctx.meta["file_paths"], metadata, {})
-    logger.debug("Created Virtual Digest catalog: {}".format(vd_cat))
+    logger.debug(f"Created Virtual Digest catalog: {vd_cat}")
 
 
 @refgenome.command(short_help="Create a hicRef file for a virtual digest.")
@@ -227,7 +224,7 @@ def reads(ctx):
     pass
 
 
-@reads.command(short_help="Create a catalog file for a set of reads")
+@reads.command(short_help="Create a catalog file for a set of reads")  # noqa: F811
 @click.argument("fastq", type=click.Path(exists=True))
 @click.argument("output_prefix", callback=expand_output_prefix(RawReadCatalog))
 @click.option(
@@ -248,7 +245,15 @@ def reads(ctx):
 @click.option("--user-metadata", callback=command_line_json, help="Additional user metadata to associate with this run")
 @click.pass_context
 def prepare(  # noqa: F811
-    ctx, fastq, output_prefix, batch_size, min_read_length, max_read_length, min_qscore, max_qscore, user_metadata
+    ctx,
+    fastq,
+    output_prefix,
+    batch_size,
+    min_read_length,
+    max_read_length,
+    min_qscore,
+    max_qscore,
+    user_metadata,
 ):
     """Preprocess a set of reads for use with pore_c tools.
 
@@ -282,7 +287,7 @@ def prepare(  # noqa: F811
     )
 
     catalog = RawReadCatalog.create(file_paths, {"summary_stats": summary}, user_metadata)
-    logger.info("Created catalog for results: {}".format(catalog))
+    logger.info(f"Created catalog for results: {catalog}")
 
 
 @cli.group(cls=NaturalOrderGroup, short_help="Analyse aligned pore_c reads")
@@ -354,8 +359,9 @@ def reformat_bam(input_sam, output_sam, input_is_bam, output_is_bam, set_bx_flag
 @click.pass_context
 def create_table(ctx, input_bam, output_table, alignment_haplotypes):
     """Convert a BAM file to a tabular format sorted by read for downstream analysis"""
-    from pore_c import model
     from pysam import AlignmentFile
+
+    from pore_c import model
 
     tmp_table = output_table + ".tmp"
     logger.debug(f"Writing temporary unsorted data to {tmp_table}")
@@ -439,7 +445,42 @@ def assign_fragments(
     logger.info(f"Found {num_overlapping_alignments} overlapping alignments")
     pore_c_df.to_parquet(pore_c_table, engine=PQ_ENGINE, index=False, version=PQ_VERSION)
     logger.info(f"Fragments written to {pore_c_table}")
-    logger.info("Summary: \n{}".format(pore_c_df.filter_reason.value_counts()))
+    logger.info(f"Summary: \n{pore_c_df.filter_reason.value_counts()}")
+
+
+@alignments.command(short_help="Filter bam using pore_c table")
+@click.argument("input_bam", type=click.Path(exists=True))
+@click.argument("pore_c_table", type=click.Path(exists=True))
+@click.argument("output_bam", type=click.Path(exists=False))
+@click.option(
+    "--clean-read-name", is_flag=True, help="Strip out the extra information placed in the BAM  by reformat_bam"
+)
+def filter_bam(input_bam, pore_c_table, output_bam, clean_read_name):
+    from pysam import AlignmentFile
+
+    inbam = AlignmentFile(input_bam, "rb")
+    outbam = AlignmentFile(output_bam, "wb", template=inbam)
+
+    aligns = pd.read_parquet(pore_c_table, engine=PQ_ENGINE, columns=["align_idx", "pass_filter"]).set_index(
+        ["align_idx"]
+    )
+    aligns = aligns[aligns["pass_filter"]]
+
+    expected = len(aligns)
+    counter = 0
+
+    for align in inbam.fetch(until_eof=True):
+        align_idx = int(align.query_name.rsplit(":")[2])
+        if align_idx not in aligns.index:
+            continue
+        if clean_read_name:
+            readname_only = align.query_name.split(":")[0]
+            align.query_name = readname_only
+        outbam.write(align)
+        counter += 1
+    if counter != expected:
+        raise ValueError(f"Number of alignments doesn't match. Expected {expected} got {counter}")
+    logger.info(f"Wrote {counter} reads to {output_bam}")
 
 
 @alignments.command(short_help="Parse a namesortd bam to pore-C alignment format")
@@ -553,7 +594,7 @@ def merge(ctx, src_contact_tables, dest_contact_table, fofn):
         if errors:
             for e in errors:
                 logger.error(e)
-            raise IOError("Missing input files")
+            raise OSError("Missing input files")
 
     parts = []
     for i in src_contact_tables:
@@ -581,7 +622,9 @@ def merge(ctx, src_contact_tables, dest_contact_table, fofn):
     help=("Check if the difference between the sampled amout " "and the target amount is greater than this proportion"),
 )
 @click.option(
-    "--warn", is_flag=True, help=("If the a sample fails the --tol check print a warning rather than exiting"),
+    "--warn",
+    is_flag=True,
+    help=("If the a sample fails the --tol check print a warning rather than exiting"),
 )
 @click.option(
     "--max-attempts",
@@ -590,7 +633,7 @@ def merge(ctx, src_contact_tables, dest_contact_table, fofn):
     help=("The number of times to try and find a set of subsamples all within --tol"),
 )
 @click.pass_context
-def downsample(
+def downsample(  # noqa: C901
     ctx,
     src_contact_table,
     dest_contact_table_prefix,
@@ -603,6 +646,7 @@ def downsample(
 ):
     logger.warning("The downsample script is experimental and might change in the future")
     from numpy.random import RandomState
+
     from .utils import kmg_bases_to_int
 
     rs = RandomState(random_seed)
@@ -626,7 +670,7 @@ def downsample(
         # print(all_targets)
         targets = {key: val for key, val in all_targets.items() if val <= total_bases}
         if len(targets) != len(all_targets):
-            logger.warning("Not enough data to downsample to {}".format(set(all_targets.keys()) - set(targets.keys())))
+            logger.warning(f"Not enough data to downsample to {set(all_targets.keys()) - set(targets.keys())}")
             if len(targets) == 0:
                 raise ValueError(f"Not enough data to downsample {total_bases}: {all_targets.keys()}")
 
@@ -733,7 +777,11 @@ def downsample(
 )
 @click.pass_context
 def summarize(ctx, contact_table, read_summary_table, concatemer_table, concatemer_summary_csv, user_metadata):
-    from pore_c.analyses.contacts import gather_concatemer_stats, summarize_concatemer_table
+    from pore_c.analyses.contacts import (
+        gather_concatemer_stats,
+        summarize_concatemer_table,
+    )
+
     from .model import PoreCConcatemerRecord
 
     concatemer_meta = PoreCConcatemerRecord.pandas_dtype()
@@ -744,7 +792,7 @@ def summarize(ctx, contact_table, read_summary_table, concatemer_table, concatem
         concatemer_df.to_parquet(concatemer_table, engine=PQ_ENGINE, version=PQ_VERSION, index=False)
     long_summary_df = summarize_concatemer_table(concatemer_df, read_summary_table, user_metadata)
     long_summary_df.to_csv(concatemer_summary_csv)
-    logger.info("Concatemer summary written to {}:\n {}".format(concatemer_summary_csv, long_summary_df.to_string()))
+    logger.info(f"Concatemer summary written to {concatemer_summary_csv}:\n {long_summary_df.to_string()}")
 
 
 @contacts.command(short_help="Export contacts to various formats")
@@ -813,10 +861,10 @@ def export(
     """
     from pore_c.analyses.contacts import (
         export_to_cooler,
-        export_to_paired_end_fastq,
         export_to_merged_no_dups,
-        export_to_salsa_bed,
+        export_to_paired_end_fastq,
         export_to_pairs,
+        export_to_salsa_bed,
     )
 
     columns = []
