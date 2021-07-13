@@ -10,6 +10,8 @@ def _run_command(opts):
     comd = common_opts + [str(_) for _ in opts]
     print("Running command: {}".format(" ".join(comd)))
     result = runner.invoke(cli, comd)
+    if result.exit_code != 0:
+        print(result.output)
     return result
 
 
@@ -47,7 +49,7 @@ def test_contacts_to_salsa_bed(contact_table_pq, tmp_path_factory):
 
     result = _run_command(["contacts", "export", contact_table_pq, "salsa_bed", outdir / prefix])
 
-    new_files = set([f.name for f in outdir.glob("*.*")])
+    new_files = {f.name for f in outdir.glob("*.*")}
     expected_files = {prefix + ".salsa.bed"}
     assert result.exit_code == 0
     assert new_files == expected_files
@@ -61,7 +63,7 @@ def test_contacts_to_pairs(contact_table_pq, chromsizes, tmp_path_factory):
         ["contacts", "export", contact_table_pq, "pairs", outdir / prefix, "--chromsizes", chromsizes]
     )
 
-    new_files = set([f.name for f in outdir.glob("*.*")])
+    new_files = {f.name for f in outdir.glob("*.*")}
     expected_files = {prefix + ".pairs"}
     assert result.exit_code == 0
     assert new_files == expected_files
@@ -83,7 +85,7 @@ def test_contacts_to_paired_end_fastq(contact_table_pq, raw_refgenome_file, tmp_
         ]
     )
 
-    new_files = set([f.name for f in outdir.glob("*.*")])
+    new_files = {f.name for f in outdir.glob("*.*")}
     expected_files = {prefix + ".1.fastq", prefix + ".2.fastq"}
     assert result.exit_code == 0
     assert new_files == expected_files
@@ -108,7 +110,7 @@ def test_contacts_to_cool_by_haplotype(contact_table_pq, fragment_table_pq, chro
         ]
     )
     assert result.exit_code == 0
-    new_files = set([f.name for f in outdir.glob("*.*")])
+    new_files = {f.name for f in outdir.glob("*.*")}
     expected_files = {
         f"{prefix}.{ht_key}.cool" for ht_key in ("1_1", "1_2", "2_2", "nohap_1", "nohap_2", "nohap_nohap")
     }
@@ -227,17 +229,15 @@ def test_prepare_reads(read_fastq_file, tmp_path_factory):
         ]
     )
     assert result.exit_code == 0
-    new_files = set([f.name for f in outdir.glob("*.*")])
-    expected_files = set(
-        [
-            "reads.batch1.fq.gz",
-            "reads.batch2.fq.gz",
-            "reads.fail.fq.gz",
-            "reads.read_metadata.parquet",
-            "reads.summary.csv",
-            "reads.catalog.yaml",
-        ]
-    )
+    new_files = {f.name for f in outdir.glob("*.*")}
+    expected_files = {
+        "reads.batch1.fq.gz",
+        "reads.batch2.fq.gz",
+        "reads.fail.fq.gz",
+        "reads.read_metadata.parquet",
+        "reads.summary.csv",
+        "reads.catalog.yaml",
+    }
     df = pd.read_parquet(str(outdir / "reads.read_metadata.parquet"), engine="pyarrow")
     # g = df.groupby("pass_filter")[['read_length', 'qscore']].agg(["min", "max", "count"])
     res = df["pass_filter"].value_counts()
@@ -249,10 +249,14 @@ def test_prepare_refgenome(raw_refgenome_file, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("prepare_refgenome")
     result = _run_command(["refgenome", "prepare", str(raw_refgenome_file), outdir / "refgenome"])
     assert result.exit_code == 0
-    new_files = set([f.name for f in outdir.glob("*.*")])
-    expected_files = set(
-        ["refgenome.chromsizes", "refgenome.metadata.csv", "refgenome.fa.fai", "refgenome.catalog.yaml", "refgenome.fa"]
-    )
+    new_files = {f.name for f in outdir.glob("*.*")}
+    expected_files = {
+        "refgenome.chromsizes",
+        "refgenome.metadata.csv",
+        "refgenome.fa.fai",
+        "refgenome.catalog.yaml",
+        "refgenome.fa",
+    }
     assert new_files == expected_files
 
 
@@ -268,19 +272,17 @@ def test_virtual_digest(raw_refgenome_file, tmp_path_factory):
         ["refgenome", "virtual-digest", outdir / f"{refgenome_prefix}.fa", enzyme, outdir / digest_id]
     )
     assert result.exit_code == 0
-    new_files = set([f.name for f in outdir.glob("*.*")])
-    expected_files = set(
-        [
-            f"{digest_id}.catalog.yaml",
-            f"{digest_id}.digest_stats.csv",
-            f"{digest_id}.fragments.parquet",
-            f"{refgenome_prefix}.chromsizes",
-            f"{refgenome_prefix}.metadata.csv",
-            f"{refgenome_prefix}.fa.fai",
-            f"{refgenome_prefix}.catalog.yaml",
-            f"{refgenome_prefix}.fa",
-        ]
-    )
+    new_files = {f.name for f in outdir.glob("*.*")}
+    expected_files = {
+        f"{digest_id}.catalog.yaml",
+        f"{digest_id}.digest_stats.csv",
+        f"{digest_id}.fragments.parquet",
+        f"{refgenome_prefix}.chromsizes",
+        f"{refgenome_prefix}.metadata.csv",
+        f"{refgenome_prefix}.fa.fai",
+        f"{refgenome_prefix}.catalog.yaml",
+        f"{refgenome_prefix}.fa",
+    }
     assert new_files == expected_files
 
     result = _run_command(
@@ -310,7 +312,7 @@ def test_contacts_to_merged_no_dups(contact_table_pq, raw_refgenome_file, tmp_pa
         ]
     )
 
-    new_files = set([f.name for f in outdir.glob("*.*")])
+    new_files = {f.name for f in outdir.glob("*.*")}
     expected_files = {prefix + ".mnd.txt"}
     assert result.exit_code == 0
     assert new_files == expected_files

@@ -2,6 +2,8 @@
 requires = [
     "setuptools >= 40.0.4",
     "wheel >= 0.29.0",
+    "Cython", # pyrle
+    "numpy >= 1.16.1", # pairtools
 ]
 build-backend = 'setuptools.build_meta'
 

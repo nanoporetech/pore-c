@@ -12,17 +12,17 @@ repos:
       - id: pip-compile
         name: pip-compile setup.cfg
         files: ^(setup\.cfg|requirements\.txt)$
-        additional_dependencies: [cython] #pyrle requires cython to read setup.py
+        additional_dependencies: [cython, numpy>=1.17.3] #pyrle requires cython to read setup.py
       - id: pip-compile
         name: pip-compile dev
         args: [--extra=dev, --output-file=requirements/dev.txt]
         files: ^(setup\.cfg)$
-        additional_dependencies: [cython] #pyrle requires cython to read setup.py
+        additional_dependencies: [cython, numpy>=1.17.3] #pyrle requires cython to read setup.py
       - id: pip-compile
         name: pip-compile test
         args: [--extra=testing, --output-file=requirements/testing.txt]
         files: ^(setup\.cfg)$
-        additional_dependencies: [cython] #pyrle requires cython to read setup.py
+        additional_dependencies: [cython, numpy>=1.17.3] #pyrle requires cython to read setup.py
   - repo: https://github.com/psf/black
     rev: 21.6b0
     hooks:
