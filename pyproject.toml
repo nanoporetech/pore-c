@@ -1,80 +1,13 @@
 [build-system]
 requires = [
     "setuptools >= 40.0.4",
-    "setuptools_scm >= 2.0.0, <4",
     "wheel >= 0.29.0",
 ]
 build-backend = 'setuptools.build_meta'
 
-[tool.poetry]
-name = "pore_c"
-version = "0.3.0"
-description = "Tools to process data from an ONT poreC run"
-license = "MPL 2.0"
-repository = "https://github.com/nanoporetech/pore-c"
-classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
-    "Operating System :: Unix",
-    "Operating System :: POSIX",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: Implementation :: CPython",
-    "Topic :: Utilities"
-    ]
-maintainers = ["Eoghan Harrington <Eoghan.Harrington@nanoporetech.com>"]
-authors = ["Eoghan Harrington <Eoghan.Harrington@nanoporetech.com>", "Matthew Pendleton <Matthew.Pendleton@nanoporetech.com>"]
-readme = "README.md"
-packages = ['pore_c', 'pore_c.analyses']
-
-[tool.poetry.scripts]
-pore_c = 'pore_c.cli:cli'
-
-
-[tool.poetry.dependencies]
-biopython ="==1.77"
-click ="==7.0.*,>=7.0.0"
-cooler ="==0.8.*,>=0.8.5"
-cython =">=0.29"
-dask ="==2.*,>=2.0.0"
-distributed ="==2.*,>=2.9.3"
-intake = "*"
-intake-parquet ="*"
-ncls = "*"
-networkx ="==2.*,>=2.4.0"
-numpy =">=1.16.1"
-pairtools = "*"
-pandas =">=1.0.5"
-pyarrow ="==1.*,>=1.0.0"
-pydantic ="==1.6.1"
-pyranges ="==0.0.71"
-pysam = "*"
-streamz ="==0.*,>=0.5.2"
-tqdm = "*"
-python = "*"
-
-
-[tool.dephell.main]
-versioning = "semver"
-# read from poetry format
-from = {format = "poetry", path = "pyproject.toml"}
-# and convert into setup.py
-to = {format = "setuppy", path = "setup.py"}
-
 [tool.isort]
-line-length = 120
-known_third_party = ["click", "cooler", "dask", "intake", "networkx", "numpy", "pandas", "pyarrow", "pydantic", "pyranges", "pysam", "pytest", "streamz", "tqdm", "yaml"]
-multi_line_output= 3
-force_grid_wrap= 0
-use_parentheses= true
-lines_after_imports = 2
-combine_as_imports = true
-include_trailing_comma = true
+profile = "black"
 
-[tool.flake8]
-ignore = [ "E203"]
-max-line-length = 120
 
 [tool.black]
 line-length = 120
@@ -95,3 +28,5 @@ exclude = '''
 name = "cz_conventional_commits"
 version = "0.3.0"
 tag_format = "$version"
+
+
