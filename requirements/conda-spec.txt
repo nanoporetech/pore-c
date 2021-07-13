@@ -1,0 +1,23 @@
+# parameterize python version
+# Keep this in sync with setup.cfg
+biopython ==1.77
+click >=7.0.0,<8.0
+cooler ==0.8.*,>=0.8.5
+dask ==2.*,>=2.0.0
+distributed ==2.*,>=2.9.3
+intake
+intake-parquet
+ncls
+networkx ==2.*,>=2.4.0
+numpy <1.20.0
+pandas >=1.0.5
+pairtools
+pyarrow ==1.*,>=1.0.0
+pydantic ==1.6.1
+pyranges ==0.0.71
+pysam
+streamz ==0.*,>=0.5.2
+tqdm
+
+# conda-specific dependencies
+htslib
