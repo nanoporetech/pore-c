@@ -30,5 +30,13 @@ exclude = '''
 name = "cz_conventional_commits"
 version = "0.3.0"
 tag_format = "$version"
+version_files = [
+ "pyproject.toml",
+ "setup.cfg",
+ "pore_c/__init__.py"
+]
+update_changelog_on_bump = true
+changelog_start_rev = "0.3.0"
+
 
 
