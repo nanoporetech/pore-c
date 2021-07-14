@@ -28,7 +28,7 @@ exclude = '''
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.3.0"
+version = "0.4.0"
 tag_format = "$version"
 version_files = [
  "pyproject.toml",
@@ -36,7 +36,7 @@ version_files = [
  "pore_c/__init__.py"
 ]
 update_changelog_on_bump = true
-changelog_start_rev = "0.3.0"
+changelog_start_rev = "0.4.0"
 
 
 
