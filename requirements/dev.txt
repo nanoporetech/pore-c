@@ -162,7 +162,7 @@ pycodestyle==2.7.0
     # via
     #   flake8
     #   flake8-debugger
-pydantic==1.6.1
+pydantic==1.6.2
     # via pore-c (setup.py)
 pyfaidx==0.6.0
     # via cooler

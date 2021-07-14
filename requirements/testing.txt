@@ -130,7 +130,7 @@ pyarrow==1.0.1
     # via
     #   intake-parquet
     #   pore-c (setup.py)
-pydantic==1.6.1
+pydantic==1.6.2
     # via pore-c (setup.py)
 pyfaidx==0.6.0
     # via cooler
