@@ -12,7 +12,6 @@ from pore_c.utils import kmg_bases_to_int
 from ..config import PQ_ENGINE, PQ_VERSION
 from ..model import FragmentRecord, FragmentRecordDf
 
-
 # complement translation table with support for regex punctuation
 COMPLEMENT_TRANS = str.maketrans("ACGTWSMKRYBDHVNacgtwsmkrybdhvn-)(][", "TGCAWSKMYRVHDBNtgcawskmyrvhdbn-()[]")
 
@@ -73,8 +72,7 @@ def create_virtual_digest(
 
 
 def revcomp(seq: str) -> str:
-    """Return the reverse complement of a string:
-    """
+    """Return the reverse complement of a string:"""
     return seq[::-1].translate(COMPLEMENT_TRANS)
 
 
@@ -105,9 +103,7 @@ def create_regex(pattern: str) -> Pattern:
     try:
         regex = re.compile(fwd_rev_pattern)
     except Exception as exc:
-        raise ValueError(
-            "Error compiling regex for pattern {}, redundance form: {}\n{}".format(pattern, fwd_rev_pattern, exc)
-        )
+        raise ValueError(f"Error compiling regex for pattern {pattern}, redundance form: {fwd_rev_pattern}\n{exc}")
     return regex
 
 
@@ -152,12 +148,12 @@ def find_site_positions_regex(regex: Pattern, seq: str) -> List[int]:
 
 def find_site_positions_biopython(enzyme: str, seq: str) -> List[int]:
     from Bio import Restriction
-    from Bio.Seq import Seq
     from Bio.Alphabet.IUPAC import IUPACAmbiguousDNA
+    from Bio.Seq import Seq
 
     enz = getattr(Restriction, enzyme, None)
     if enz is None:
-        raise ValueError("Enzyme not found: {}".format(enzyme))
+        raise ValueError(f"Enzyme not found: {enzyme}")
     s = Seq(seq, IUPACAmbiguousDNA())
     positions = [_ - 1 for _ in enz.search(s)]
     return positions

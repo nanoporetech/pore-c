@@ -22,7 +22,6 @@ from pore_c.model import (
     PoreCContactRecordDf,
 )
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -629,7 +628,7 @@ def summarize_concatemer_table(
         elif i.length >= int(1e8):
             label = f"gt_{i.left}"
         else:
-            label = "{}-{}".format(i.left + 1, i.right)
+            label = f"{i.left + 1}-{i.right}"
         length_bin_labels[i] = label
 
     read_order_hist = (
@@ -666,7 +665,7 @@ def summarize_concatemer_table(
     )
 
     def normalize_levels(dfs):
-        max_levels = max([len(df.index.names) for df in dfs.values()])
+        max_levels = max(len(df.index.names) for df in dfs.values())
         level_labels = [f"level_{x}" for x in range(max_levels)]
         res = {}
         for key, val in dfs.items():
@@ -676,7 +675,7 @@ def summarize_concatemer_table(
             for x in range(add_levels):
                 val[level_labels[x]] = ""
                 val = val.set_index(level_labels[x], append=True)
-            new_labels = [rename_levels.get(l, l) for l in val.index.names]
+            new_labels = [rename_levels.get(_, _) for _ in val.index.names]
             val.index.rename(new_labels, inplace=True)
             val = val.reorder_levels(level_labels)
             res[key] = val

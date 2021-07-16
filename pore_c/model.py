@@ -26,7 +26,6 @@ from .config import (
 )
 from .utils import mean_qscore
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -60,7 +59,7 @@ class _BaseModel(BaseModel):
         return pa.Schema.from_pandas(df)
 
     def to_tuple(self):
-        return tuple([_[1] for _ in self])
+        return tuple(_[1] for _ in self)
 
     @classmethod
     def to_dataframe(cls, data: List, overrides=Optional[Dict]):
@@ -223,7 +222,7 @@ class AlignmentRecord(_BaseModel):
     @staticmethod
     def update_dataframe_with_haplotypes(align_df, haplotype_df):
         if len(haplotype_df) == 0:
-            logger.info(f"Aligment haplotypes dataframe is empty, haplotypes won't be added.")
+            logger.info("Aligment haplotypes dataframe is empty, haplotypes won't be added.")
             return align_df
         haplotype_df = (
             haplotype_df.join(
@@ -232,7 +231,12 @@ class AlignmentRecord(_BaseModel):
                 .rename({0: "read_name", 1: "read_idx", 2: "align_idx"}, axis=1)
             )
             .rename(columns={"phaseset": "phase_set"})
-            .replace(dict(haplotype={"none": -1, "H1": 1, "H2": 2}, phase_set={"none": 0},))
+            .replace(
+                dict(
+                    haplotype={"none": -1, "H1": 1, "H2": 2},
+                    phase_set={"none": 0},
+                )
+            )
             .astype(
                 {
                     "read_idx": READ_IDX_DTYPE,

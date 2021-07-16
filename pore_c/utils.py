@@ -8,7 +8,6 @@ import numpy as np
 from dask.distributed import Client, LocalCluster
 from tqdm import tqdm
 
-
 logger = getLogger(__name__)
 
 
@@ -68,7 +67,7 @@ class DaskExecEnv(AbstractContextManager):
             self._cluster.close()
 
 
-class DataFrameProgress(object):
+class DataFrameProgress:
     def __init__(self, save_to=None, **kwds):
         self._bar = tqdm(**kwds)
         self._data = None

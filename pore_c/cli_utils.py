@@ -6,7 +6,6 @@ from pathlib import Path
 import click
 from pysam import AlignmentFile
 
-
 logger = getLogger(__name__)
 
 
@@ -17,25 +16,23 @@ class ExportDependentOption(click.Option):
         kwds["help"] = kwds.get("help", "") + "(required if export format is in {})".format(
             ",".join(self.export_formats)
         )
-        super(ExportDependentOption, self).__init__(*args, **kwds)
+        super().__init__(*args, **kwds)
 
     def handle_parse_result(self, ctx, opts, args):
         fmt = ctx.params.get("format", None)
         if fmt in self.export_formats:
             if self.name not in opts:
-                raise click.UsageError("When exporting to {}, {} is a required parameter".format(fmt, self.name))
+                raise click.UsageError(f"When exporting to {fmt}, {self.name} is a required parameter")
             else:
                 self.prompt = None
-        return super(ExportDependentOption, self).handle_parse_result(ctx, opts, args)
+        return super().handle_parse_result(ctx, opts, args)
 
 
 class NaturalOrderGroup(click.Group):
-    """Command group trying to list subcommands in the order they were added.
-    """
+    """Command group trying to list subcommands in the order they were added."""
 
     def list_commands(self, ctx):
-        """List command names as they are in commands dict.
-        """
+        """List command names as they are in commands dict."""
         return self.commands.keys()
 
 

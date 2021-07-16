@@ -6,7 +6,6 @@ import yaml
 from intake.catalog.local import YAMLFileCatalog
 from intake.source.base import DataSource
 
-
 __all__ = [
     "RawReadCatalog",
     "VirtualDigestCatalog",
@@ -25,13 +24,13 @@ class basePoreCCatalog(YAMLFileCatalog):
         exists = []
         for key, val in cls._suffix_map.items():
             res[key] = Path(prefix + val)
-            logger.debug("Data for {} {} will be saved to: {}".format(cls.__name__, key, val))
+            logger.debug(f"Data for {cls.__name__} {key} will be saved to: {val}")
             if res[key].exists():
                 exists.append(key)
         if exists:
             for file_id in exists:
-                logger.error("Output file already exists for {}: {}".format(file_id, res[file_id]))
-            raise IOError("Please remove output files before continuing")
+                logger.error(f"Output file already exists for {file_id}: {res[file_id]}")
+            raise OSError("Please remove output files before continuing")
         return res
 
     @property
@@ -46,7 +45,7 @@ class basePoreCCatalog(YAMLFileCatalog):
         return md
 
     @staticmethod
-    def create_catalog_dict(klass, file_paths, metadata, user_metadata, drivers=None):
+    def create_catalog_dict(klass, file_paths, metadata, user_metadata, drivers=None):  # noqa: C901
         if drivers is None:
             drivers = {}
         if not metadata:
@@ -56,7 +55,7 @@ class basePoreCCatalog(YAMLFileCatalog):
         catalog_data = {
             "name": klass.name,
             "description": klass.description,
-            "driver": "pore_c.catalogs.{}".format(klass.__name__),
+            "driver": f"pore_c.catalogs.{klass.__name__}",
             "metadata": metadata,
             "sources": {},
         }

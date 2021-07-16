@@ -10,7 +10,6 @@ from pore_c.datasources import Fastq
 from pore_c.io import BatchedFastqWriter, FastqWriter
 from pore_c.utils import DataFrameProgress, mean_qscore
 
-
 logger = getLogger(__name__)
 
 
@@ -85,7 +84,7 @@ def prepare_fastq(
     assert (pass_writer._counter + fail_writer._counter) == summary_stats["all"]["num_sequences"]
     df = pd.DataFrame([v for v in summary_stats.values() if v], index=[k for k, v in summary_stats.items() if v])
     df.index.name = "read_subset"
-    logger.info("Finished processing {}:\n{}\n".format(input_fastq, str(df)))
+    logger.info(f"Finished processing {input_fastq}:\n{str(df)}\n")
     df.to_csv(summary)
     return summary_stats
 
@@ -113,7 +112,7 @@ class ReadFilterProgress(DataFrameProgress):
     def __init__(self, **kwds):
         kwds["desc"] = "Reads processed"
         kwds["unit"] = " reads"
-        super(ReadFilterProgress, self).__init__(**kwds)
+        super().__init__(**kwds)
 
     def update_data(self, read_df):
         count_cols = ["read_length", "pass_filter"]
