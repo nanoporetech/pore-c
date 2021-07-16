@@ -207,7 +207,7 @@ def virtual_digest(ctx, fasta, cut_on, output_prefix, digest_type, n_workers):
 @click.argument("hicref", type=click.Path(exists=False))
 def fragments_to_hicref(fragments_parquet, hicref):
     """
-    Convert a  *.fragments.parquet file to hicRef format
+    Convert a  .fragments.parquet file to hicRef format
     """
 
     frag_df = pd.read_parquet(fragments_parquet, engine=PQ_ENGINE)

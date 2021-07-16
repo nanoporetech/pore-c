@@ -1,4 +1,8 @@
+![.](.docs/_static/ONT_logo.png "Oxford Nanopore Technologies")
+
 # Pore-C tools
+
+<!-- start pore-c-overview -->
 
 This package is designed to analyse the data from multi-contact pore-C reads. It is similar to the
 [pairtools](https://github.com/mirnylab/pairtools) package in scope, however it is specifically designed to
@@ -12,6 +16,8 @@ operations:
 
 The recommended way to run Pore-C tools is through the associated [Pore-C-Snakemake](https://github.com/nanoporetech/Pore-C-Snakemake) pipeline. It wraps the `pore-C` commands and also handles some of the analysis steps outside the scope of `pore-C tools` such as read alignment and conversion of output files to `.cool` format. If you want to run
 the tools outside of this pipeline please see the section below on
+
+<!-- end pore-c-overview -->
 
 ### Sample data
 
