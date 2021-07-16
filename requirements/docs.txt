@@ -10,6 +10,8 @@ appdirs==1.4.4
     # via intake
 asciitree==0.3.3
     # via cooler
+attrs==21.2.0
+    # via markdown-it-py
 babel==2.9.1
     # via sphinx
 beautifulsoup4==4.9.3
@@ -55,8 +57,10 @@ distributed==2.30.1
     # via pore-c (setup.py)
 docutils==0.17.1
     # via
+    #   myst-parser
     #   sphinx
     #   sphinx-click
+    #   sphinx-jsonschema
 entrypoints==0.3
     # via intake
 fastparquet==0.6.3
@@ -84,13 +88,24 @@ intake-parquet==0.2.3
 jinja2==3.0.1
     # via
     #   intake
+    #   myst-parser
     #   sphinx
+jsonpointer==2.1
+    # via sphinx-jsonschema
+markdown-it-py==1.1.0
+    # via
+    #   mdit-py-plugins
+    #   myst-parser
 markupsafe==2.0.1
     # via jinja2
+mdit-py-plugins==0.2.8
+    # via myst-parser
 msgpack==1.0.2
     # via distributed
 multiprocess==0.70.12.2
     # via cooler
+myst-parser==0.15.1
+    # via pore-c (setup.py)
 natsort==7.1.1
     # via
     #   pyranges
@@ -163,8 +178,12 @@ pyyaml==5.4.1
     #   dask
     #   distributed
     #   intake
+    #   myst-parser
+    #   sphinx-jsonschema
 requests==2.26.0
-    # via sphinx
+    # via
+    #   sphinx
+    #   sphinx-jsonschema
 scipy==1.7.0
     # via cooler
 simplejson==3.17.3
@@ -187,9 +206,12 @@ soupsieve==2.2.1
 sphinx==4.1.1
     # via
     #   furo
+    #   myst-parser
     #   pore-c (setup.py)
     #   sphinx-click
 sphinx-click==3.0.1
+    # via pore-c (setup.py)
+sphinx-jsonschema==1.16.11
     # via pore-c (setup.py)
 sphinxcontrib-applehelp==1.0.2
     # via sphinx
