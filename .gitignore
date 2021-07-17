@@ -74,3 +74,6 @@ scratch
 .vim
 
 .snakemake
+
+docsrc/_build/
+docsrc/api/*.rst

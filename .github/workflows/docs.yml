@@ -1,0 +1,36 @@
+name: deploy-docs
+
+# Only run this when the master branch changes
+on:
+  push:
+    branches:
+      # FIXFIX: change this to master when things are settled
+      - docs
+
+# This job installs dependencies, build the book, and pushes it to `gh-pages`
+jobs:
+  deploy-book:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Install dependencies
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: Install dependencies
+        run: |
+          pip install tox tox-conda numpy cython
+      # Build the book
+      - name: Build the book
+        run: |
+          tox -e docs
+          tox -e gh-pages
+      # Push the book's HTML to github-pages
+      - name: GitHub Pages action
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/
