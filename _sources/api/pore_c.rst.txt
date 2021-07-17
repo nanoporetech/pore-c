@@ -1,0 +1,31 @@
+pore\_c package
+===============
+
+.. automodule:: pore_c
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 6
+
+   pore_c.analyses
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 6
+
+   pore_c.catalogs
+   pore_c.cli
+   pore_c.cli_utils
+   pore_c.config
+   pore_c.datasources
+   pore_c.io
+   pore_c.model
+   pore_c.settings
+   pore_c.utils

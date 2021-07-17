@@ -1,0 +1,1045 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pore_c.model &#8212; Pore-C Tools</title>
+    
+  <link href="../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    
+  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      <img src="../../_static/ONT_logo.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Pore-C Tools</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../quickstart.html">
+   Quickstart
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../cli.html">
+   Command Line Interface
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../schema.html">
+   Schemas
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../api/modules.html">
+   API
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../api/pore_c.html">
+     pore_c package
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../api/pore_c.analyses.html">
+       pore_c.analyses package
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../api/pore_c.analyses.alignments.html">
+         pore_c.analyses.alignments module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../api/pore_c.analyses.contacts.html">
+         pore_c.analyses.contacts module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../api/pore_c.analyses.reads.html">
+         pore_c.analyses.reads module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../api/pore_c.analyses.reference.html">
+         pore_c.analyses.reference module
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../api/pore_c.catalogs.html">
+       pore_c.catalogs module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../api/pore_c.cli.html">
+       pore_c.cli module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../api/pore_c.cli_utils.html">
+       pore_c.cli_utils module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../api/pore_c.config.html">
+       pore_c.config module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../api/pore_c.datasources.html">
+       pore_c.datasources module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../api/pore_c.io.html">
+       pore_c.io module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../api/pore_c.model.html">
+       pore_c.model module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../api/pore_c.settings.html">
+       pore_c.settings module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../api/pore_c.utils.html">
+       pore_c.utils module
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Development
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference external" href="https://github.com/nanoporetech/pore-c">
+   GitHub Repository
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference external" href="https://github.com/nanoporetech/Pore-C-Snakemake">
+   GitHub Snakemake Pipeline
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+            <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/nanoporetech/pore-c"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        
+        
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <h1>Source code for pore_c.model</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">NewType</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pyarrow</span> <span class="k">as</span> <span class="nn">pa</span>
+<span class="kn">import</span> <span class="nn">pysam</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">confloat</span><span class="p">,</span> <span class="n">conint</span><span class="p">,</span> <span class="n">constr</span>
+
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ALIGN_IDX_DTYPE</span><span class="p">,</span>
+    <span class="n">ALIGN_SCORE_DTYPE</span><span class="p">,</span>
+    <span class="n">FRAG_IDX_DTYPE</span><span class="p">,</span>
+    <span class="n">GENOMIC_COORD_DTYPE</span><span class="p">,</span>
+    <span class="n">GENOMIC_DISTANCE_DTYPE</span><span class="p">,</span>
+    <span class="n">HAPLOTYPE_IDX_DTYPE</span><span class="p">,</span>
+    <span class="n">MQ_DTYPE</span><span class="p">,</span>
+    <span class="n">PERCENTAGE_DTYPE</span><span class="p">,</span>
+    <span class="n">PHASE_SET_DTYPE</span><span class="p">,</span>
+    <span class="n">READ_COORD_DTYPE</span><span class="p">,</span>
+    <span class="n">READ_DISTANCE_DTYPE</span><span class="p">,</span>
+    <span class="n">READ_IDX_DTYPE</span><span class="p">,</span>
+    <span class="n">SHORT_RANGE_CUTOFF</span><span class="p">,</span>
+    <span class="n">STRAND_DTYPE</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">mean_qscore</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_BaseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">pandas_dtype</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">overrides</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">overrides</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">overrides</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">overrides</span> <span class="o">=</span> <span class="n">overrides</span> <span class="k">if</span> <span class="n">overrides</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">schema</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">col_schema</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;properties&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">overrides</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">overrides</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="s2">&quot;$ref&quot;</span> <span class="ow">in</span> <span class="n">col_schema</span><span class="p">:</span>
+                <span class="n">def_key</span> <span class="o">=</span> <span class="n">col_schema</span><span class="p">[</span><span class="s2">&quot;$ref&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">col_schema</span> <span class="o">=</span> <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;definitions&quot;</span><span class="p">][</span><span class="n">def_key</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">&quot;dtype&quot;</span> <span class="ow">in</span> <span class="n">col_schema</span><span class="p">:</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="n">col_schema</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="s2">&quot;enum&quot;</span> <span class="ow">in</span> <span class="n">col_schema</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">(</span><span class="n">col_schema</span><span class="p">[</span><span class="s2">&quot;enum&quot;</span><span class="p">],</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">res</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">dtype</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">pyarrow_schema</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">overrides</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">dtype</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pandas_dtype</span><span class="p">(</span><span class="n">overrides</span><span class="o">=</span><span class="n">overrides</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">dtype</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pa</span><span class="o">.</span><span class="n">Schema</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">to_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">to_dataframe</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">overrides</span><span class="o">=</span><span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]):</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">dtype</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pandas_dtype</span><span class="p">(</span><span class="n">overrides</span><span class="o">=</span><span class="n">overrides</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">to_tuple</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">data</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+
+<div class="viewcode-block" id="AlignmentType"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.AlignmentType">[docs]</a><span class="k">class</span> <span class="nc">AlignmentType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">unmapped</span> <span class="o">=</span> <span class="s2">&quot;unmapped&quot;</span>
+    <span class="n">primary</span> <span class="o">=</span> <span class="s2">&quot;primary&quot;</span>
+    <span class="n">secondary</span> <span class="o">=</span> <span class="s2">&quot;secondary&quot;</span>
+    <span class="n">supplementary</span> <span class="o">=</span> <span class="s2">&quot;supplementary&quot;</span></div>
+
+
+<div class="viewcode-block" id="FragmentRecord"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.FragmentRecord">[docs]</a><span class="k">class</span> <span class="nc">FragmentRecord</span><span class="p">(</span><span class="n">_BaseModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Meta-data associated with a restriction fragment&quot;&quot;&quot;</span>
+
+    <span class="n">chrom</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">strip_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">start</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">end</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">fragment_id</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">fragment_length</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FragmentRecord.Config"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.FragmentRecord.Config">[docs]</a>    <span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+        <span class="n">use_enum_values</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">chrom</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The chromosome/contig the fragment is derived from&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;category&quot;</span><span class="p">),</span>
+            <span class="n">start</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The zero-based start position on the genome of the fragment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">end</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The zero-based end position on the genome of the fragment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">fragment_id</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Unique integer ID of the fragment, starts at 1&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">FRAG_IDX_DTYPE</span><span class="p">),</span>
+            <span class="n">fragment_length</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Length of the fragment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span><span class="p">),</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="AlignmentRecord"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.AlignmentRecord">[docs]</a><span class="k">class</span> <span class="nc">AlignmentRecord</span><span class="p">(</span><span class="n">_BaseModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An alignment derived from a BAM file&quot;&quot;&quot;</span>
+
+    <span class="n">read_idx</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">align_idx</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">align_type</span><span class="p">:</span> <span class="n">AlignmentType</span>
+    <span class="n">chrom</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">strip_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">start</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">end</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">strand</span><span class="p">:</span> <span class="n">STRAND_DTYPE</span>
+    <span class="n">read_name</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">strip_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">read_length</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">read_start</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">read_end</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">mapping_quality</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
+    <span class="n">align_score</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">align_base_qscore</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">phase_set</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">phase_qual</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">haplotype</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+<div class="viewcode-block" id="AlignmentRecord.Config"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.AlignmentRecord.Config">[docs]</a>    <span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+        <span class="n">use_enum_values</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">read_idx</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Unique integer ID of the read&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">READ_IDX_DTYPE</span><span class="p">),</span>
+            <span class="n">align_idx</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Unique integer ID of the aligned segment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ALIGN_IDX_DTYPE</span><span class="p">),</span>
+            <span class="n">align_type</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The type of alignment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;category&quot;</span><span class="p">),</span>
+            <span class="n">chrom</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The chromosome/contig the read is aligned to&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;category&quot;</span><span class="p">),</span>
+            <span class="n">start</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The zero-based start position on the genome of the alignment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">end</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The end position on the genome of the alignment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span><span class="p">),</span>
+            <span class="n">strand</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The alignment strand&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">),</span>
+            <span class="n">read_name</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The original read name&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">),</span>
+            <span class="n">read_length</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The length of the read in bases&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">READ_COORD_DTYPE</span><span class="p">),</span>
+            <span class="n">read_start</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The start coordinate on the read (0-based)&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">READ_COORD_DTYPE</span><span class="p">),</span>
+            <span class="n">read_end</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The end coordinate on the read (0-based)&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">READ_COORD_DTYPE</span><span class="p">),</span>
+            <span class="n">mapping_quality</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The mapping quality as calculated by the aligner&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">MQ_DTYPE</span><span class="p">),</span>
+            <span class="n">align_score</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The alignment score as calculated by the aligner&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ALIGN_SCORE_DTYPE</span><span class="p">),</span>
+            <span class="n">align_base_qscore</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The mean read base score for the aligned segment (rounded to the nearest integer).&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">ALIGN_SCORE_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">phase_set</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The ID of the phase set, often this is the start position of the phase block&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">PHASE_SET_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">phase_qual</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The phred-scaled quality score of the haplotype assignment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">MQ_DTYPE</span><span class="p">),</span>
+            <span class="n">haplotype</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;The id of the haplotype within this block, usually set to 1 or 2. &quot;</span>
+                    <span class="s2">&quot;A value of -1 means that this alignment is unphased&quot;</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">HAPLOTYPE_IDX_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="AlignmentRecord.from_aligned_segment"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.AlignmentRecord.from_aligned_segment">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_aligned_segment</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">align</span><span class="p">:</span> <span class="n">pysam</span><span class="o">.</span><span class="n">AlignedSegment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AlignmentRecord&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Extract information from a pysam Aligned segment&quot;&quot;&quot;</span>
+        <span class="n">read_name</span><span class="p">,</span> <span class="n">read_idx</span><span class="p">,</span> <span class="n">align_idx</span> <span class="o">=</span> <span class="n">align</span><span class="o">.</span><span class="n">query_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+        <span class="n">read_idx</span><span class="p">,</span> <span class="n">align_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">read_idx</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">align_idx</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">align</span><span class="o">.</span><span class="n">is_unmapped</span><span class="p">:</span>
+            <span class="n">align_cat</span> <span class="o">=</span> <span class="s2">&quot;unmapped&quot;</span>
+            <span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">align_score</span> <span class="o">=</span> <span class="s2">&quot;NULL&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="n">read_length</span> <span class="o">=</span> <span class="n">align</span><span class="o">.</span><span class="n">query_length</span>
+            <span class="n">quals</span> <span class="o">=</span> <span class="n">align</span><span class="o">.</span><span class="n">query_qualities</span>
+            <span class="c1"># TODO: handle this more gracefully</span>
+            <span class="k">if</span> <span class="n">quals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">align_base_qscore</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">align_base_qscore</span> <span class="o">=</span> <span class="n">mean_qscore</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">align</span><span class="o">.</span><span class="n">query_qualities</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">align</span><span class="o">.</span><span class="n">reference_name</span><span class="p">,</span> <span class="n">align</span><span class="o">.</span><span class="n">reference_start</span><span class="p">,</span> <span class="n">align</span><span class="o">.</span><span class="n">reference_end</span><span class="p">)</span>
+            <span class="n">read_length</span> <span class="o">=</span> <span class="n">align</span><span class="o">.</span><span class="n">infer_read_length</span><span class="p">()</span>
+            <span class="n">align_score</span> <span class="o">=</span> <span class="n">align</span><span class="o">.</span><span class="n">get_tag</span><span class="p">(</span><span class="s2">&quot;AS&quot;</span><span class="p">)</span>
+            <span class="n">align_base_qscore</span> <span class="o">=</span> <span class="n">mean_qscore</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">align</span><span class="o">.</span><span class="n">query_alignment_qualities</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">align</span><span class="o">.</span><span class="n">is_secondary</span><span class="p">:</span>
+                <span class="n">align_cat</span> <span class="o">=</span> <span class="s2">&quot;secondary&quot;</span>
+            <span class="k">elif</span> <span class="n">align</span><span class="o">.</span><span class="n">is_supplementary</span><span class="p">:</span>
+                <span class="n">align_cat</span> <span class="o">=</span> <span class="s2">&quot;supplementary&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">align_cat</span> <span class="o">=</span> <span class="s2">&quot;primary&quot;</span>
+
+        <span class="n">optional</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="p">[(</span><span class="s2">&quot;haplotype&quot;</span><span class="p">,</span> <span class="s2">&quot;HP&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;phase_set&quot;</span><span class="p">,</span> <span class="s2">&quot;PS&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;phase_qual&quot;</span><span class="p">,</span> <span class="s2">&quot;PC&quot;</span><span class="p">)]:</span>
+            <span class="k">if</span> <span class="n">align</span><span class="o">.</span><span class="n">has_tag</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+                <span class="n">optional</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">align</span><span class="o">.</span><span class="n">get_tag</span><span class="p">(</span><span class="n">tag</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">read_idx</span><span class="o">=</span><span class="n">read_idx</span><span class="p">,</span>
+            <span class="n">align_idx</span><span class="o">=</span><span class="n">align_idx</span><span class="p">,</span>
+            <span class="n">align_type</span><span class="o">=</span><span class="n">align_cat</span><span class="p">,</span>
+            <span class="n">chrom</span><span class="o">=</span><span class="n">chrom</span><span class="p">,</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
+            <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span>
+            <span class="n">strand</span><span class="o">=</span><span class="ow">not</span> <span class="n">align</span><span class="o">.</span><span class="n">is_reverse</span><span class="p">,</span>
+            <span class="n">read_name</span><span class="o">=</span><span class="n">read_name</span><span class="p">,</span>
+            <span class="n">read_length</span><span class="o">=</span><span class="n">read_length</span><span class="p">,</span>
+            <span class="n">read_start</span><span class="o">=</span><span class="n">align</span><span class="o">.</span><span class="n">query_alignment_start</span><span class="p">,</span>
+            <span class="n">read_end</span><span class="o">=</span><span class="n">align</span><span class="o">.</span><span class="n">query_alignment_end</span><span class="p">,</span>
+            <span class="n">mapping_quality</span><span class="o">=</span><span class="n">align</span><span class="o">.</span><span class="n">mapq</span><span class="p">,</span>
+            <span class="n">align_score</span><span class="o">=</span><span class="n">align_score</span><span class="p">,</span>
+            <span class="n">align_base_qscore</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">align_base_qscore</span><span class="p">),</span>
+            <span class="o">**</span><span class="n">optional</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="AlignmentRecord.to_dataframe"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.AlignmentRecord.to_dataframe">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">to_dataframe</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">aligns</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">chrom_order</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">aligns</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">chrom_order</span><span class="p">:</span>
+            <span class="n">overrides</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;chrom&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">(</span><span class="n">chrom_order</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">overrides</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">dtype</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pandas_dtype</span><span class="p">(</span><span class="n">overrides</span><span class="o">=</span><span class="n">overrides</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">to_tuple</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">aligns</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="AlignmentRecord.update_dataframe_with_haplotypes"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.AlignmentRecord.update_dataframe_with_haplotypes">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">update_dataframe_with_haplotypes</span><span class="p">(</span><span class="n">align_df</span><span class="p">,</span> <span class="n">haplotype_df</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">haplotype_df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Aligment haplotypes dataframe is empty, haplotypes won&#39;t be added.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">align_df</span>
+        <span class="n">haplotype_df</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">haplotype_df</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">haplotype_df</span><span class="p">[</span><span class="s2">&quot;#readname&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;read_name&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;read_idx&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;align_idx&quot;</span><span class="p">},</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;phaseset&quot;</span><span class="p">:</span> <span class="s2">&quot;phase_set&quot;</span><span class="p">})</span>
+            <span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">haplotype</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;none&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;H1&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;H2&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+                    <span class="n">phase_set</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;none&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;read_idx&quot;</span><span class="p">:</span> <span class="n">READ_IDX_DTYPE</span><span class="p">,</span>
+                    <span class="s2">&quot;align_idx&quot;</span><span class="p">:</span> <span class="n">ALIGN_IDX_DTYPE</span><span class="p">,</span>
+                    <span class="s2">&quot;haplotype&quot;</span><span class="p">:</span> <span class="n">HAPLOTYPE_IDX_DTYPE</span><span class="p">,</span>
+                    <span class="s2">&quot;phase_set&quot;</span><span class="p">:</span> <span class="n">PHASE_SET_DTYPE</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;read_idx&quot;</span><span class="p">,</span> <span class="s2">&quot;align_idx&quot;</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="n">col_order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">align_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">align_df</span> <span class="o">=</span> <span class="n">align_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;read_idx&quot;</span><span class="p">,</span> <span class="s2">&quot;align_idx&quot;</span><span class="p">])</span>
+        <span class="n">align_df</span><span class="p">[</span><span class="s2">&quot;haplotype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">align_df</span><span class="p">[</span><span class="s2">&quot;phase_set&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">align_df</span><span class="p">[</span><span class="s2">&quot;phase_qual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">align_df</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">haplotype_df</span><span class="p">[[</span><span class="s2">&quot;haplotype&quot;</span><span class="p">,</span> <span class="s2">&quot;phase_set&quot;</span><span class="p">]],</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+        <span class="n">align_df</span> <span class="o">=</span> <span class="n">align_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[</span><span class="n">col_order</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;haplotype&quot;</span><span class="p">:</span> <span class="n">HAPLOTYPE_IDX_DTYPE</span><span class="p">,</span> <span class="s2">&quot;phase_set&quot;</span><span class="p">:</span> <span class="n">PHASE_SET_DTYPE</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">align_df</span></div></div>
+
+
+<div class="viewcode-block" id="AlignmentFilterReason"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.AlignmentFilterReason">[docs]</a><span class="k">class</span> <span class="nc">AlignmentFilterReason</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">null</span> <span class="o">=</span> <span class="s2">&quot;null&quot;</span>
+    <span class="n">Pass</span> <span class="o">=</span> <span class="s2">&quot;pass&quot;</span>
+    <span class="n">unmapped</span> <span class="o">=</span> <span class="s2">&quot;unmapped&quot;</span>
+    <span class="n">singleton</span> <span class="o">=</span> <span class="s2">&quot;singleton&quot;</span>
+    <span class="n">low_mq</span> <span class="o">=</span> <span class="s2">&quot;low_mq&quot;</span>
+    <span class="n">short_overlap</span> <span class="o">=</span> <span class="s2">&quot;short_overlap&quot;</span>
+    <span class="n">overlap_on_read</span> <span class="o">=</span> <span class="s2">&quot;overlap_on_read&quot;</span>
+    <span class="n">not_on_shortest_path</span> <span class="o">=</span> <span class="s2">&quot;not_on_shortest_path&quot;</span></div>
+
+
+<div class="viewcode-block" id="PoreCRecord"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.PoreCRecord">[docs]</a><span class="k">class</span> <span class="nc">PoreCRecord</span><span class="p">(</span><span class="n">AlignmentRecord</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An aligned segment from a BAM file with additional Pore-C related fields&quot;&quot;&quot;</span>
+
+    <span class="n">pass_filter</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">filter_reason</span><span class="p">:</span> <span class="n">AlignmentFilterReason</span> <span class="o">=</span> <span class="n">AlignmentFilterReason</span><span class="o">.</span><span class="n">null</span>
+    <span class="n">fragment_id</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">num_contained_fragments</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">num_overlapping_fragments</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">overlap_length</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">fragment_start</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">fragment_end</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">perc_of_alignment</span><span class="p">:</span> <span class="n">confloat</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">perc_of_fragment</span><span class="p">:</span> <span class="n">confloat</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">is_contained</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="PoreCRecord.Config"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.PoreCRecord.Config">[docs]</a>    <span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+        <span class="n">use_enum_values</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">pass_filter</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Boolean flag, true if alignment passes all filters&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">),</span>
+            <span class="n">filter_reason</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;If an alignment fails the filter the reason will be listed here&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;category&quot;</span>
+            <span class="p">),</span>
+            <span class="n">fragment_id</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The UID of the restriction fragment assigned to this alignment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">FRAG_IDX_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">num_contained_fragments</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of restriction fragments completely contained within this alignment&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">num_overlapping_fragments</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of restriction fragments overlapping this alignment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span>
+            <span class="p">),</span>
+            <span class="n">overlap_length</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The length of the overlap between alignment and fragment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">fragment_start</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The start point on the genome of this restriction fragment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">fragment_end</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The end point on the genome of this restriction fragment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">perc_of_alignment</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The percentage of the aligned segment that overlaps the assigned fragment&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">PERCENTAGE_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">perc_of_fragment</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The percentage of the assigned restriction fragment that overlaps the aligned segment&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">PERCENTAGE_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">is_contained</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Boolean flag to inidicate if the alignment is fully contained with the fragment&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="PoreCRecord.init_dataframe"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.PoreCRecord.init_dataframe">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">init_dataframe</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">align_df</span><span class="p">:</span> <span class="s2">&quot;AlignmentRecordDf&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PoreCRecordDf&quot;</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">align_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">schema</span><span class="p">()</span>
+
+        <span class="n">col_schema</span> <span class="o">=</span> <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;properties&quot;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">col_schema</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">&quot;$ref&quot;</span> <span class="ow">in</span> <span class="n">val</span><span class="p">:</span>
+                <span class="n">def_key</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="s2">&quot;$ref&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">col_schema</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;definitions&quot;</span><span class="p">][</span><span class="n">def_key</span><span class="p">]</span>
+
+        <span class="n">dtype</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pandas_dtype</span><span class="p">()</span>
+        <span class="n">additional_fields</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">dtype</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">align_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">align_df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+        <span class="n">num_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">col_schema</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">additional_fields</span><span class="p">]:</span>
+            <span class="n">cs</span> <span class="o">=</span> <span class="n">col_schema</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">&quot;default&quot;</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">:</span>
+                <span class="n">default_value</span> <span class="o">=</span> <span class="n">cs</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="s2">&quot;enum&quot;</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">:</span>
+                <span class="n">default_value</span> <span class="o">=</span> <span class="n">cs</span><span class="p">[</span><span class="s2">&quot;enum&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span>
+            <span class="n">res</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="n">default_value</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_rows</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">res</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">[</span><span class="n">column</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">res</span></div></div>
+
+
+<div class="viewcode-block" id="HaplotypePairType"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.HaplotypePairType">[docs]</a><span class="k">class</span> <span class="nc">HaplotypePairType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">null</span> <span class="o">=</span> <span class="s2">&quot;null&quot;</span>
+    <span class="n">trans</span> <span class="o">=</span> <span class="s2">&quot;trans&quot;</span>
+    <span class="n">unphased</span> <span class="o">=</span> <span class="s2">&quot;unphased&quot;</span>
+    <span class="n">semi_phased</span> <span class="o">=</span> <span class="s2">&quot;semi_phased&quot;</span>
+    <span class="n">phased_sets_differ</span> <span class="o">=</span> <span class="s2">&quot;phased_sets_differ&quot;</span>
+    <span class="n">phased_h_cis</span> <span class="o">=</span> <span class="s2">&quot;phased_h_cis&quot;</span>
+    <span class="n">phased_h_trans</span> <span class="o">=</span> <span class="s2">&quot;phased_h_trans&quot;</span></div>
+
+
+<div class="viewcode-block" id="PoreCContactRecord"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.PoreCContactRecord">[docs]</a><span class="k">class</span> <span class="nc">PoreCContactRecord</span><span class="p">(</span><span class="n">_BaseModel</span><span class="p">):</span>
+    <span class="n">read_name</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">strip_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">read_length</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">read_idx</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">contact_is_direct</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">contact_is_cis</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">contact_read_distance</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">contact_genome_distance</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">contact_fragment_adjacent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">contact_fragment_distance</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">haplotype_pair_type</span><span class="p">:</span> <span class="n">HaplotypePairType</span> <span class="o">=</span> <span class="n">HaplotypePairType</span><span class="o">.</span><span class="n">null</span>
+    <span class="n">align1_align_idx</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">align1_chrom</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">strip_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">align1_start</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">align1_end</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">align1_strand</span><span class="p">:</span> <span class="n">STRAND_DTYPE</span>
+    <span class="n">align1_mapping_quality</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
+    <span class="n">align1_align_score</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">align1_align_base_qscore</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">align1_phase_set</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">align1_phase_qual</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">align1_haplotype</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">align1_fragment_id</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">align1_fragment_start</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">align1_fragment_end</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">align2_align_idx</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">align2_chrom</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">strip_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">align2_start</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">align2_end</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">align2_strand</span><span class="p">:</span> <span class="n">STRAND_DTYPE</span>
+    <span class="n">align2_mapping_quality</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
+    <span class="n">align2_align_score</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">align2_align_base_qscore</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">align2_phase_set</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">align1_phase_qual</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">align2_haplotype</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">align2_fragment_id</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">align2_fragment_start</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">align2_fragment_end</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="PoreCContactRecord.Config"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.PoreCContactRecord.Config">[docs]</a>    <span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+        <span class="n">use_enum_values</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">read_name</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The original read name&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">),</span>
+            <span class="n">read_length</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The length of the read in bases&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">READ_COORD_DTYPE</span><span class="p">),</span>
+            <span class="n">read_idx</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Unique integer ID of the read&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">READ_IDX_DTYPE</span><span class="p">),</span>
+            <span class="n">contact_is_direct</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;There are no intervening assigned restriction fragments on the read&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span>
+            <span class="p">),</span>
+            <span class="n">contact_is_cis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Both alignments come from the same chromsome/contig&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">),</span>
+            <span class="n">contact_read_distance</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;The distance between the end of the left alignment and the start of the right &quot;</span>
+                    <span class="s2">&quot;alignment on the read&quot;</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">READ_DISTANCE_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">contact_genome_distance</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;The distance between the end of the left alignment and the start of the right alignment &quot;</span>
+                    <span class="s2">&quot;(valid for cis contacts only)&quot;</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_DISTANCE_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">contact_fragment_adjacent</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;A boolean to indicate if the contact is between the same or adjacent fragments&quot;</span><span class="p">,),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">contact_fragment_distance</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;The distance between the midpoints of the assigned fragments (valid for cis contacts only)&quot;</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_DISTANCE_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">haplotype_pair_type</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;A categorical variable describing the relationship between the haplotypes assigned to each of the &quot;</span>
+                    <span class="s2">&quot;alignments in a contact&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;category&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">align1_align_idx</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Unique integer ID of the first aligned segment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ALIGN_IDX_DTYPE</span><span class="p">),</span>
+            <span class="n">align1_chrom</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The chromosome/contig of the first aligned segment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;category&quot;</span><span class="p">),</span>
+            <span class="n">align1_start</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The zero-based start position on the genome of the alignment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">align1_end</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The end position on the genome of the alignment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span><span class="p">),</span>
+            <span class="n">align1_strand</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The alignment strand&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">),</span>
+            <span class="n">align1_mapping_quality</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The mapping quality as calculated by the aligner&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">MQ_DTYPE</span><span class="p">),</span>
+            <span class="n">align1_align_score</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The alignment score as calculated by the aligner&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ALIGN_SCORE_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">align1_align_base_qscore</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The mean read base score for the aligned segment (rounded to the nearest integer).&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">ALIGN_SCORE_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">align1_phase_set</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The ID of the phase set, often this is the start position of the phase block&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">PHASE_SET_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">align1_phase_qual</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The phred-scaled quality score of the haplotype assignment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">MQ_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">align1_haplotype</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;The id of the haplotype within this block, usually set to 1 or 2. &quot;</span>
+                    <span class="s2">&quot;A value of -1 means that this alignment is unphased&quot;</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">HAPLOTYPE_IDX_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">align1_fragment_id</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The UID of the restriction fragment assigned to this alignment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">FRAG_IDX_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">align1_fragment_start</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The start point on the genome of this restriction fragment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">align1_fragment_end</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The end point on the genome of this restriction fragment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">align2_align_idx</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Unique integer ID of the first aligned segment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ALIGN_IDX_DTYPE</span><span class="p">),</span>
+            <span class="n">align2_chrom</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The chromosome/contig of the first aligned segment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;category&quot;</span><span class="p">),</span>
+            <span class="n">align2_start</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The zero-based start position on the genome of the alignment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">align2_end</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The end position on the genome of the alignment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span><span class="p">),</span>
+            <span class="n">align2_strand</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The alignment strand&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">),</span>
+            <span class="n">align2_mapping_quality</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The mapping quality as calculated by the aligner&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">MQ_DTYPE</span><span class="p">),</span>
+            <span class="n">align2_align_score</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The alignment score as calculated by the aligner&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ALIGN_SCORE_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">align2_align_base_qscore</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The mean read base score for the aligned segment (rounded to the nearest integer).&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">ALIGN_SCORE_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">align2_phase_set</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The ID of the phase set, often this is the start position of the phase block&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">PHASE_SET_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">align2_phase_qual</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The phred-scaled quality score of the haplotype assignment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">MQ_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">align2_haplotype</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;The id of the haplotype within this block, usually set to 1 or 2. &quot;</span>
+                    <span class="s2">&quot;A value of -1 means that this alignment is unphased&quot;</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">HAPLOTYPE_IDX_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">align2_fragment_id</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The UID of the restriction fragment assigned to this alignment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">FRAG_IDX_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">align2_fragment_start</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The start point on the genome of this restriction fragment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span>
+            <span class="p">),</span>
+            <span class="n">align2_fragment_end</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The end point on the genome of this restriction fragment&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_COORD_DTYPE</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="PoreCContactRecord.from_pore_c_align_pair"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.PoreCContactRecord.from_pore_c_align_pair">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_pore_c_align_pair</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">read_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">read_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">read_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">align1</span><span class="p">,</span> <span class="n">align2</span><span class="p">):</span>
+        <span class="n">contact_read_distance</span> <span class="o">=</span> <span class="n">align2</span><span class="o">.</span><span class="n">read_start</span> <span class="o">-</span> <span class="n">align1</span><span class="o">.</span><span class="n">read_end</span>
+        <span class="n">contact_is_direct</span> <span class="o">=</span> <span class="n">align2</span><span class="o">.</span><span class="n">pos_on_read</span> <span class="o">-</span> <span class="n">align1</span><span class="o">.</span><span class="n">pos_on_read</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">align1</span><span class="o">.</span><span class="n">fragment_id</span> <span class="o">&gt;</span> <span class="n">align2</span><span class="o">.</span><span class="n">fragment_id</span><span class="p">:</span>
+            <span class="n">align1</span><span class="p">,</span> <span class="n">align2</span> <span class="o">=</span> <span class="n">align2</span><span class="p">,</span> <span class="n">align1</span>
+
+        <span class="n">contact_is_cis</span> <span class="o">=</span> <span class="n">align1</span><span class="o">.</span><span class="n">chrom</span> <span class="o">==</span> <span class="n">align2</span><span class="o">.</span><span class="n">chrom</span>
+        <span class="k">if</span> <span class="n">contact_is_cis</span><span class="p">:</span>
+            <span class="n">contact_genome_distance</span> <span class="o">=</span> <span class="n">align2</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="n">align1</span><span class="o">.</span><span class="n">end</span>
+            <span class="n">contact_fragment_distance</span> <span class="o">=</span> <span class="n">align2</span><span class="o">.</span><span class="n">fragment_midpoint</span> <span class="o">-</span> <span class="n">align1</span><span class="o">.</span><span class="n">fragment_midpoint</span>
+            <span class="n">contact_fragment_adjacent</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">align2</span><span class="o">.</span><span class="n">fragment_id</span> <span class="o">-</span> <span class="n">align1</span><span class="o">.</span><span class="n">fragment_id</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">contact_genome_distance</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">contact_fragment_distance</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">contact_fragment_adjacent</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">haplotype_pair_type</span> <span class="o">=</span> <span class="n">HaplotypePairType</span><span class="o">.</span><span class="n">null</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">contact_is_cis</span><span class="p">:</span>
+            <span class="n">haplotype_pair_type</span> <span class="o">=</span> <span class="n">HaplotypePairType</span><span class="o">.</span><span class="n">trans</span>
+        <span class="k">elif</span> <span class="n">align1</span><span class="o">.</span><span class="n">haplotype</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">align2</span><span class="o">.</span><span class="n">haplotype</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">haplotype_pair_type</span> <span class="o">=</span> <span class="n">HaplotypePairType</span><span class="o">.</span><span class="n">unphased</span>
+        <span class="k">elif</span> <span class="n">align1</span><span class="o">.</span><span class="n">haplotype</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">align2</span><span class="o">.</span><span class="n">haplotype</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">haplotype_pair_type</span> <span class="o">=</span> <span class="n">HaplotypePairType</span><span class="o">.</span><span class="n">semi_phased</span>
+        <span class="k">elif</span> <span class="n">align1</span><span class="o">.</span><span class="n">phase_set</span> <span class="o">!=</span> <span class="n">align2</span><span class="o">.</span><span class="n">phase_set</span><span class="p">:</span>
+            <span class="n">haplotype_pair_type</span> <span class="o">=</span> <span class="n">HaplotypePairType</span><span class="o">.</span><span class="n">phased_sets_differ</span>
+        <span class="k">elif</span> <span class="n">align1</span><span class="o">.</span><span class="n">haplotype</span> <span class="o">==</span> <span class="n">align2</span><span class="o">.</span><span class="n">haplotype</span><span class="p">:</span>
+            <span class="n">haplotype_pair_type</span> <span class="o">=</span> <span class="n">HaplotypePairType</span><span class="o">.</span><span class="n">phased_h_cis</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">haplotype_pair_type</span> <span class="o">=</span> <span class="n">HaplotypePairType</span><span class="o">.</span><span class="n">phased_h_trans</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">read_name</span><span class="o">=</span><span class="n">read_name</span><span class="p">,</span>
+            <span class="n">read_length</span><span class="o">=</span><span class="n">read_length</span><span class="p">,</span>
+            <span class="n">read_idx</span><span class="o">=</span><span class="n">read_idx</span><span class="p">,</span>
+            <span class="n">contact_is_direct</span><span class="o">=</span><span class="n">contact_is_direct</span><span class="p">,</span>
+            <span class="n">contact_is_cis</span><span class="o">=</span><span class="n">contact_is_cis</span><span class="p">,</span>
+            <span class="n">contact_read_distance</span><span class="o">=</span><span class="n">contact_read_distance</span><span class="p">,</span>
+            <span class="n">contact_genome_distance</span><span class="o">=</span><span class="n">contact_genome_distance</span><span class="p">,</span>
+            <span class="n">contact_fragment_adjacent</span><span class="o">=</span><span class="n">contact_fragment_adjacent</span><span class="p">,</span>
+            <span class="n">contact_fragment_distance</span><span class="o">=</span><span class="n">contact_fragment_distance</span><span class="p">,</span>
+            <span class="n">haplotype_pair_type</span><span class="o">=</span><span class="n">haplotype_pair_type</span><span class="p">,</span>
+            <span class="n">align1_align_idx</span><span class="o">=</span><span class="n">align1</span><span class="o">.</span><span class="n">align_idx</span><span class="p">,</span>
+            <span class="n">align1_chrom</span><span class="o">=</span><span class="n">align1</span><span class="o">.</span><span class="n">chrom</span><span class="p">,</span>
+            <span class="n">align1_start</span><span class="o">=</span><span class="n">align1</span><span class="o">.</span><span class="n">start</span><span class="p">,</span>
+            <span class="n">align1_end</span><span class="o">=</span><span class="n">align1</span><span class="o">.</span><span class="n">end</span><span class="p">,</span>
+            <span class="n">align1_strand</span><span class="o">=</span><span class="n">align1</span><span class="o">.</span><span class="n">strand</span><span class="p">,</span>
+            <span class="n">align1_mapping_quality</span><span class="o">=</span><span class="n">align1</span><span class="o">.</span><span class="n">mapping_quality</span><span class="p">,</span>
+            <span class="n">align1_align_score</span><span class="o">=</span><span class="n">align1</span><span class="o">.</span><span class="n">align_score</span><span class="p">,</span>
+            <span class="n">align1_align_base_qscore</span><span class="o">=</span><span class="n">align1</span><span class="o">.</span><span class="n">align_base_qscore</span><span class="p">,</span>
+            <span class="n">align1_phase_set</span><span class="o">=</span><span class="n">align1</span><span class="o">.</span><span class="n">phase_set</span><span class="p">,</span>
+            <span class="n">align1_phase_qual</span><span class="o">=</span><span class="n">align1</span><span class="o">.</span><span class="n">phase_qual</span><span class="p">,</span>
+            <span class="n">align1_haplotype</span><span class="o">=</span><span class="n">align1</span><span class="o">.</span><span class="n">haplotype</span><span class="p">,</span>
+            <span class="n">align1_fragment_id</span><span class="o">=</span><span class="n">align1</span><span class="o">.</span><span class="n">fragment_id</span><span class="p">,</span>
+            <span class="n">align1_fragment_start</span><span class="o">=</span><span class="n">align1</span><span class="o">.</span><span class="n">fragment_start</span><span class="p">,</span>
+            <span class="n">align1_fragment_end</span><span class="o">=</span><span class="n">align1</span><span class="o">.</span><span class="n">fragment_end</span><span class="p">,</span>
+            <span class="n">align2_align_idx</span><span class="o">=</span><span class="n">align2</span><span class="o">.</span><span class="n">align_idx</span><span class="p">,</span>
+            <span class="n">align2_chrom</span><span class="o">=</span><span class="n">align2</span><span class="o">.</span><span class="n">chrom</span><span class="p">,</span>
+            <span class="n">align2_start</span><span class="o">=</span><span class="n">align2</span><span class="o">.</span><span class="n">start</span><span class="p">,</span>
+            <span class="n">align2_end</span><span class="o">=</span><span class="n">align2</span><span class="o">.</span><span class="n">end</span><span class="p">,</span>
+            <span class="n">align2_strand</span><span class="o">=</span><span class="n">align2</span><span class="o">.</span><span class="n">strand</span><span class="p">,</span>
+            <span class="n">align2_mapping_quality</span><span class="o">=</span><span class="n">align2</span><span class="o">.</span><span class="n">mapping_quality</span><span class="p">,</span>
+            <span class="n">align2_align_score</span><span class="o">=</span><span class="n">align2</span><span class="o">.</span><span class="n">align_score</span><span class="p">,</span>
+            <span class="n">align2_align_base_qscore</span><span class="o">=</span><span class="n">align2</span><span class="o">.</span><span class="n">align_base_qscore</span><span class="p">,</span>
+            <span class="n">align2_phase_set</span><span class="o">=</span><span class="n">align2</span><span class="o">.</span><span class="n">phase_set</span><span class="p">,</span>
+            <span class="n">align2_phase_qual</span><span class="o">=</span><span class="n">align2</span><span class="o">.</span><span class="n">phase_qual</span><span class="p">,</span>
+            <span class="n">align2_haplotype</span><span class="o">=</span><span class="n">align2</span><span class="o">.</span><span class="n">haplotype</span><span class="p">,</span>
+            <span class="n">align2_fragment_id</span><span class="o">=</span><span class="n">align2</span><span class="o">.</span><span class="n">fragment_id</span><span class="p">,</span>
+            <span class="n">align2_fragment_start</span><span class="o">=</span><span class="n">align2</span><span class="o">.</span><span class="n">fragment_start</span><span class="p">,</span>
+            <span class="n">align2_fragment_end</span><span class="o">=</span><span class="n">align2</span><span class="o">.</span><span class="n">fragment_end</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PoreCConcatemerRecord"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.PoreCConcatemerRecord">[docs]</a><span class="k">class</span> <span class="nc">PoreCConcatemerRecord</span><span class="p">(</span><span class="n">_BaseModel</span><span class="p">):</span>
+    <span class="n">read_name</span><span class="p">:</span> <span class="n">constr</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">strip_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">read_length</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">read_idx</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">read_order</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">num_fragments</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">total_contacts</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">total_cis_contacts</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">total_trans_contacts</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">total_short_range_cis_contacts</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">total_long_range_cis_contacts</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">direct_contacts</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">direct_cis_contacts</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">direct_trans_contacts</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">direct_short_range_cis_contacts</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">direct_long_range_cis_contacts</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">indirect_contacts</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">indirect_cis_contacts</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">indirect_trans_contacts</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">indirect_short_range_cis_contacts</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">indirect_long_range_cis_contacts</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">haplotype_phased_h_cis</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">haplotype_phased_h_trans</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">haplotype_phased_sets_differ</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">haplotype_semi_phased</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">haplotype_unphased</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">max_indirect_contact_genome_distance</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">max_direct_contact_genome_distance</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">max_indirect_contact_fragment_distance</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">max_direct_contact_fragment_distance</span><span class="p">:</span> <span class="n">conint</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PoreCConcatemerRecord.Config"><a class="viewcode-back" href="../../api/pore_c.model.html#pore_c.model.PoreCConcatemerRecord.Config">[docs]</a>    <span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+        <span class="n">use_enum_values</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">read_name</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The original read name&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">),</span>
+            <span class="n">read_length</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The length of the read in bases&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">READ_COORD_DTYPE</span><span class="p">),</span>
+            <span class="n">read_idx</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Unique integer ID of the read&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">READ_IDX_DTYPE</span><span class="p">),</span>
+            <span class="n">read_order</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of monomers for this read&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span><span class="p">),</span>
+            <span class="n">total_contacts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The total (direct + indirect) number of contacts for this read&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span>
+            <span class="p">),</span>
+            <span class="n">direct_contacts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The total number direct (adjacent on read) contacts for this read&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span>
+            <span class="p">),</span>
+            <span class="n">indirect_contacts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The total number indirect (non-adjacent on read) contacts for this read&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span>
+            <span class="p">),</span>
+            <span class="n">total_cis_contacts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The total number of cis-contacts (direct + indirect) for this read&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span>
+            <span class="p">),</span>
+            <span class="n">total_trans_contacts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The total number of trans-contacts (direct + indirect) for this read&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span>
+            <span class="p">),</span>
+            <span class="n">direct_cis_contacts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of direct cis-contacts for this read&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span><span class="p">),</span>
+            <span class="n">direct_trans_contacts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of direct trans-contacts for this read&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span><span class="p">),</span>
+            <span class="n">indirect_cis_contacts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of indirect cis-contacts for this read&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span><span class="p">),</span>
+            <span class="n">indirect_trans_contacts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of indirect trans-contacts for this read&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span>
+            <span class="p">),</span>
+            <span class="n">total_short_range_cis_contacts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;The total number of cis contacts &lt; </span><span class="si">{</span><span class="n">SHORT_RANGE_CUTOFF</span><span class="si">}</span><span class="s2"> bases apart for this read&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">total_long_range_cis_contacts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;The total number of cis contacts &gt;= </span><span class="si">{</span><span class="n">SHORT_RANGE_CUTOFF</span><span class="si">}</span><span class="s2"> bases apart for this read&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">direct_short_range_cis_contacts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;The number of direct cis contacts &lt; </span><span class="si">{</span><span class="n">SHORT_RANGE_CUTOFF</span><span class="si">}</span><span class="s2"> bases apart for this read&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">direct_long_range_cis_contacts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;The number of direct cis contacts &gt;= </span><span class="si">{</span><span class="n">SHORT_RANGE_CUTOFF</span><span class="si">}</span><span class="s2"> bases apart for this read&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">indirect_short_range_cis_contacts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;The number of indirect cis contacts &lt; </span><span class="si">{</span><span class="n">SHORT_RANGE_CUTOFF</span><span class="si">}</span><span class="s2"> bases apart for this read&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">indirect_long_range_cis_contacts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;The number of indirect cis contacts &gt;= </span><span class="si">{</span><span class="n">SHORT_RANGE_CUTOFF</span><span class="si">}</span><span class="s2"> bases apart for this read&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">haplotype_unphased</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of cis contacts where both members of the pair are unphased&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span>
+            <span class="p">),</span>
+            <span class="n">haplotype_semi_phased</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of cis contacts where one member of the pair is unphased&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span>
+            <span class="p">),</span>
+            <span class="n">haplotype_phased_sets_differ</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;The number of cis contacts where both members of the pair are phased but the phase sets differ&quot;</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">haplotype_phased_h_trans</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;The number of cis contacts where both members of the pair are phased, are part of the same phase &quot;</span>
+                    <span class="s2">&quot;group, but the haplotypes differ&quot;</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">haplotype_phased_h_cis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;The number of cis contacts where both members of the pair are phased, are part of the same phase &quot;</span>
+                    <span class="s2">&quot;group, and the haplotypes agree&quot;</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">max_direct_contact_fragment_distance</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;The longest distance between fragment midpoints for all direct contacts&quot;</span><span class="p">,),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_DISTANCE_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">max_indirect_contact_fragment_distance</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;The longest distance between fragment midpoints for all indirect contacts&quot;</span><span class="p">,),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_DISTANCE_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">max_direct_contact_genome_distance</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;The longest distance between alignment endpoints for all direct contacts&quot;</span><span class="p">,),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_DISTANCE_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">max_indirect_contact_genome_distance</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;The longest distance between alignment endpoints for all indirect contacts&quot;</span><span class="p">,),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">GENOMIC_DISTANCE_DTYPE</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">num_fragments</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;The number of unique restriction fragments  represented in the concatemer&quot;</span><span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint32&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div></div>
+
+
+<span class="n">AlignmentRecordDf</span> <span class="o">=</span> <span class="n">NewType</span><span class="p">(</span><span class="s2">&quot;AlignmentRecordDf&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+<span class="n">FragmentRecordDf</span> <span class="o">=</span> <span class="n">NewType</span><span class="p">(</span><span class="s2">&quot;FragmentRecordDf&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+<span class="n">PoreCRecordDf</span> <span class="o">=</span> <span class="n">NewType</span><span class="p">(</span><span class="s2">&quot;PoreCRecordDf&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+<span class="n">PoreCContactRecordDf</span> <span class="o">=</span> <span class="n">NewType</span><span class="p">(</span><span class="s2">&quot;PoreCContactRecordDf&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+<span class="n">PoreCConcatemerRecordDf</span> <span class="o">=</span> <span class="n">NewType</span><span class="p">(</span><span class="s2">&quot;PoreCConcatemerRecordDf&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+
+<span class="n">Chrom</span> <span class="o">=</span> <span class="n">NewType</span><span class="p">(</span><span class="s2">&quot;Chrom&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+</pre></div>
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+          By ONT Applications<br/>
+        
+            &copy; Copyright 2021, Oxford Nanopore Technologies.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

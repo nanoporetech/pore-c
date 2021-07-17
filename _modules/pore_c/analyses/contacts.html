@@ -1,0 +1,1011 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pore_c.analyses.contacts &#8212; Pore-C Tools</title>
+    
+  <link href="../../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    
+  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../index.html">
+      
+      <img src="../../../_static/ONT_logo.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Pore-C Tools</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../quickstart.html">
+   Quickstart
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../cli.html">
+   Command Line Interface
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../schema.html">
+   Schemas
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../api/modules.html">
+   API
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../api/pore_c.html">
+     pore_c package
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../api/pore_c.analyses.html">
+       pore_c.analyses package
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../api/pore_c.analyses.alignments.html">
+         pore_c.analyses.alignments module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../api/pore_c.analyses.contacts.html">
+         pore_c.analyses.contacts module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../api/pore_c.analyses.reads.html">
+         pore_c.analyses.reads module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../api/pore_c.analyses.reference.html">
+         pore_c.analyses.reference module
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.catalogs.html">
+       pore_c.catalogs module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.cli.html">
+       pore_c.cli module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.cli_utils.html">
+       pore_c.cli_utils module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.config.html">
+       pore_c.config module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.datasources.html">
+       pore_c.datasources module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.io.html">
+       pore_c.io module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.model.html">
+       pore_c.model module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.settings.html">
+       pore_c.settings module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.utils.html">
+       pore_c.utils module
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Development
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference external" href="https://github.com/nanoporetech/pore-c">
+   GitHub Repository
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference external" href="https://github.com/nanoporetech/Pore-C-Snakemake">
+   GitHub Snakemake Pipeline
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+            <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/nanoporetech/pore-c"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        
+        
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <h1>Source code for pore_c.analyses.contacts</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">subprocess</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pyranges</span> <span class="k">as</span> <span class="nn">pr</span>
+<span class="kn">from</span> <span class="nn">cooler</span> <span class="kn">import</span> <span class="n">Cooler</span><span class="p">,</span> <span class="n">create_cooler</span>
+<span class="kn">from</span> <span class="nn">cooler.util</span> <span class="kn">import</span> <span class="n">binnify</span>
+<span class="kn">from</span> <span class="nn">pysam</span> <span class="kn">import</span> <span class="n">FastaFile</span>
+
+<span class="kn">from</span> <span class="nn">pore_c.analyses.reads</span> <span class="kn">import</span> <span class="n">read_length_stats</span>
+<span class="kn">from</span> <span class="nn">pore_c.analyses.reference</span> <span class="kn">import</span> <span class="n">revcomp</span>
+<span class="kn">from</span> <span class="nn">pore_c.config</span> <span class="kn">import</span> <span class="n">PQ_ENGINE</span><span class="p">,</span> <span class="n">PQ_VERSION</span><span class="p">,</span> <span class="n">SHORT_RANGE_CUTOFF</span>
+<span class="kn">from</span> <span class="nn">pore_c.model</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">PoreCConcatemerRecord</span><span class="p">,</span>
+    <span class="n">PoreCConcatemerRecordDf</span><span class="p">,</span>
+    <span class="n">PoreCContactRecordDf</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="export_to_cooler"><a class="viewcode-back" href="../../../api/pore_c.analyses.contacts.html#pore_c.analyses.contacts.export_to_cooler">[docs]</a><span class="k">def</span> <span class="nf">export_to_cooler</span><span class="p">(</span>
+    <span class="n">contact_table</span><span class="p">,</span>
+    <span class="n">output_prefix</span><span class="p">,</span>
+    <span class="n">cooler_resolution</span><span class="p">,</span>
+    <span class="n">fragment_table</span><span class="p">,</span>
+    <span class="n">chromsizes</span><span class="p">,</span>
+    <span class="n">query</span><span class="p">,</span>
+    <span class="n">query_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">by_haplotype</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">query_columns</span><span class="p">:</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">query_columns</span><span class="p">[:]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">columns</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;align1_fragment_id&quot;</span><span class="p">,</span> <span class="s2">&quot;align2_fragment_id&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">by_haplotype</span><span class="p">:</span>
+        <span class="n">columns</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;align1_haplotype&quot;</span><span class="p">,</span> <span class="s2">&quot;align2_haplotype&quot;</span><span class="p">])</span>
+    <span class="n">contact_df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">contact_table</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="n">PQ_ENGINE</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">PQ_VERSION</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">query</span><span class="p">:</span>
+        <span class="n">contact_df</span> <span class="o">=</span> <span class="n">contact_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+    <span class="n">chrom_dict</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">chromsizes</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chrom&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">],</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chrom&quot;</span><span class="p">],</span> <span class="n">squeeze</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="c1"># create even-widht bins using cooler</span>
+    <span class="n">bins_df</span> <span class="o">=</span> <span class="n">binnify</span><span class="p">(</span><span class="n">chrom_dict</span><span class="p">,</span> <span class="n">cooler_resolution</span><span class="p">)</span>
+    <span class="n">bins_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;bin_id&quot;</span>
+    <span class="c1"># convert to ranges for overlap</span>
+    <span class="n">bins</span> <span class="o">=</span> <span class="n">pr</span><span class="o">.</span><span class="n">PyRanges</span><span class="p">(</span><span class="n">bins_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="s2">&quot;Start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="s2">&quot;End&quot;</span><span class="p">,</span> <span class="s2">&quot;chrom&quot;</span><span class="p">:</span> <span class="s2">&quot;Chromosome&quot;</span><span class="p">}))</span>
+
+    <span class="n">fragment_df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">fragment_table</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="n">PQ_ENGINE</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">PQ_VERSION</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+    <span class="n">midpoint_df</span> <span class="o">=</span> <span class="n">pr</span><span class="o">.</span><span class="n">PyRanges</span><span class="p">(</span>
+        <span class="n">fragment_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[[</span><span class="s2">&quot;chrom&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;fragment_id&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">((</span><span class="n">x</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">end</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;end = start + 1&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;chrom&quot;</span><span class="p">:</span> <span class="s2">&quot;Chromosome&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="s2">&quot;Start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="s2">&quot;End&quot;</span><span class="p">})</span>
+    <span class="p">)</span>
+    <span class="c1"># use a pyranges joing to assign fragments to bins</span>
+    <span class="n">fragment_to_bin</span> <span class="o">=</span> <span class="n">midpoint_df</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;fragment_id&quot;</span><span class="p">,</span> <span class="s2">&quot;bin_id&quot;</span><span class="p">]]</span>
+    <span class="n">fragment_to_bin</span> <span class="o">=</span> <span class="n">fragment_to_bin</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;fragment_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>  <span class="c1"># .astype(np.uint32)</span>
+    <span class="n">nulls</span> <span class="o">=</span> <span class="n">fragment_to_bin</span><span class="p">[</span><span class="s2">&quot;bin_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">if</span> <span class="n">nulls</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Some fragments did not overlap bins, removing from analysis:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">fragment_to_bin</span><span class="p">[</span><span class="n">nulls</span><span class="p">]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fragment_df</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">fragment_to_bin</span> <span class="o">=</span> <span class="n">fragment_to_bin</span><span class="p">[</span><span class="o">~</span><span class="n">nulls</span><span class="p">]</span>
+
+    <span class="c1"># use a join to assign each end of a contact to a bin</span>
+    <span class="n">binned_contacts</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">contact_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">fragment_to_bin</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;align1_fragment_id&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">fragment_to_bin</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;align2_fragment_id&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;_2&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;bin_id&quot;</span><span class="p">:</span> <span class="s2">&quot;bin1_id&quot;</span><span class="p">,</span> <span class="s2">&quot;bin_id_2&quot;</span><span class="p">:</span> <span class="s2">&quot;bin2_id&quot;</span><span class="p">})</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">by_haplotype</span><span class="p">:</span>
+        <span class="n">cooler_path</span> <span class="o">=</span> <span class="n">output_prefix</span> <span class="o">+</span> <span class="s2">&quot;.cool&quot;</span>
+        <span class="c1"># group size == number of contacts per bin_pair</span>
+        <span class="n">pixels</span> <span class="o">=</span> <span class="n">binned_contacts</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;bin1_id&quot;</span><span class="p">,</span> <span class="s2">&quot;bin2_id&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">create_cooler</span><span class="p">(</span><span class="n">cooler_path</span><span class="p">,</span> <span class="n">bins_df</span><span class="p">,</span> <span class="n">pixels</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">symmetric_upper</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ensure_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">Cooler</span><span class="p">(</span><span class="n">cooler_path</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created cooler: </span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">info</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cooler_path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tmp_parquet</span> <span class="o">=</span> <span class="n">output_prefix</span> <span class="o">+</span> <span class="s2">&quot;.tmp.pq&quot;</span>
+        <span class="n">pixels</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="c1"># create a key to groupy by haplotype pair, order of haplotypes doesn&#39;t matter</span>
+            <span class="n">binned_contacts</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">hap_key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[[</span><span class="s2">&quot;align1_haplotype&quot;</span><span class="p">,</span> <span class="s2">&quot;align2_haplotype&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">y</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="nb">sorted</span><span class="p">(</span><span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-1&quot;</span><span class="p">,</span> <span class="s2">&quot;nohap&quot;</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="s2">&quot;object&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;hap_key&quot;</span><span class="p">,</span> <span class="s2">&quot;bin1_id&quot;</span><span class="p">,</span> <span class="s2">&quot;bin2_id&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">size</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">&quot;hap_key&quot;</span><span class="p">:</span> <span class="s2">&quot;category&quot;</span><span class="p">})</span>
+        <span class="p">)</span>
+
+        <span class="c1"># save to a temporary parquet file, this might not be necessary</span>
+        <span class="c1"># but want to avoid the whole contact matrix hitting memory</span>
+        <span class="n">pixels</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+            <span class="n">tmp_parquet</span><span class="p">,</span>
+            <span class="n">write_metadata_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">partition_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;hap_key&quot;</span><span class="p">],</span>
+            <span class="n">write_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">engine</span><span class="o">=</span><span class="n">PQ_ENGINE</span><span class="p">,</span>
+            <span class="n">version</span><span class="o">=</span><span class="n">PQ_VERSION</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">pixels</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">tmp_parquet</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="n">PQ_ENGINE</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">PQ_VERSION</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;hap_key&quot;</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">hap_keys</span> <span class="o">=</span> <span class="n">pixels</span><span class="p">[</span><span class="s2">&quot;hap_key&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+        <span class="c1"># create a cooler for each haplotype pair</span>
+        <span class="k">for</span> <span class="n">hap_key</span> <span class="ow">in</span> <span class="n">hap_keys</span><span class="p">:</span>
+            <span class="n">cooler_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_prefix</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">hap_key</span><span class="si">}</span><span class="s2">.cool&quot;</span>
+            <span class="n">pixels</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
+                <span class="n">tmp_parquet</span><span class="p">,</span>
+                <span class="n">filters</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;hap_key&quot;</span><span class="p">,</span> <span class="s2">&quot;==&quot;</span><span class="p">,</span> <span class="n">hap_key</span><span class="p">)],</span>
+                <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">engine</span><span class="o">=</span><span class="n">PQ_ENGINE</span><span class="p">,</span>
+                <span class="n">version</span><span class="o">=</span><span class="n">PQ_VERSION</span><span class="p">,</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;bin1_id&quot;</span><span class="p">,</span> <span class="s2">&quot;bin2_id&quot;</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">create_cooler</span><span class="p">(</span><span class="n">cooler_path</span><span class="p">,</span> <span class="n">bins_df</span><span class="p">,</span> <span class="n">pixels</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">symmetric_upper</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ensure_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">Cooler</span><span class="p">(</span><span class="n">cooler_path</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created cooler: </span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">info</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cooler_path</span><span class="p">)</span>
+
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">tmp_parquet</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">results</span></div>
+
+
+<div class="viewcode-block" id="export_to_salsa_bed"><a class="viewcode-back" href="../../../api/pore_c.analyses.contacts.html#pore_c.analyses.contacts.export_to_salsa_bed">[docs]</a><span class="k">def</span> <span class="nf">export_to_salsa_bed</span><span class="p">(</span><span class="n">contact_table</span><span class="p">,</span> <span class="n">output_prefix</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">query_columns</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">query_columns</span><span class="p">:</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">query_columns</span><span class="p">[:]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">columns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;read_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_chrom&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_start&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_end&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_strand&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_mapping_quality&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_chrom&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_start&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_end&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_strand&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_mapping_quality&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">contact_df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">contact_table</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="n">PQ_ENGINE</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">PQ_VERSION</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">query</span><span class="p">:</span>
+        <span class="n">contact_df</span> <span class="o">=</span> <span class="n">contact_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="n">bed_file</span> <span class="o">=</span> <span class="n">output_prefix</span> <span class="o">+</span> <span class="s2">&quot;.salsa.bed&quot;</span>
+
+    <span class="n">dtypes</span> <span class="o">=</span> <span class="n">contact_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">dtypes</span>
+    <span class="n">strand_dtype</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">([</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">],</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;chrom&quot;</span><span class="p">:</span> <span class="n">dtypes</span><span class="p">[</span><span class="s2">&quot;align1_chrom&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">dtypes</span><span class="p">[</span><span class="s2">&quot;align1_chrom&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">dtypes</span><span class="p">[</span><span class="s2">&quot;align1_chrom&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;read_pair_id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="s2">&quot;mapping_quality&quot;</span><span class="p">:</span> <span class="n">dtypes</span><span class="p">[</span><span class="s2">&quot;align1_mapping_quality&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;strand&quot;</span><span class="p">:</span> <span class="n">strand_dtype</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">to_salsa_long</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;read_name&quot;</span><span class="p">)</span>
+        <span class="n">contact_idx</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;read_name&quot;</span><span class="p">)[</span><span class="s2">&quot;align1_chrom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;align1_contact_idx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">contact_idx</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;align2_contact_idx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">contact_idx</span>
+        <span class="n">new_columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;align&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pair_idx&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">new_columns</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;pair_idx&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;read_pair_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;read_name&quot;</span><span class="p">,</span> <span class="s2">&quot;contact_idx&quot;</span><span class="p">,</span> <span class="s2">&quot;pair_idx&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;read</span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">read_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">contact_idx</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">pair_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;strand&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;strand&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">strand_dtype</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;chrom&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;read_pair_id&quot;</span><span class="p">,</span> <span class="s2">&quot;mapping_quality&quot;</span><span class="p">,</span> <span class="s2">&quot;strand&quot;</span><span class="p">]]</span>
+
+    <span class="n">contact_df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span><span class="n">to_salsa_long</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="n">meta</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">bed_file</span><span class="p">,</span> <span class="n">single_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bed_file</span></div>
+
+
+<div class="viewcode-block" id="export_to_pairs"><a class="viewcode-back" href="../../../api/pore_c.analyses.contacts.html#pore_c.analyses.contacts.export_to_pairs">[docs]</a><span class="k">def</span> <span class="nf">export_to_pairs</span><span class="p">(</span><span class="n">contact_table</span><span class="p">,</span> <span class="n">output_prefix</span><span class="p">,</span> <span class="n">chromsizes</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">query_columns</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">query_columns</span><span class="p">:</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">query_columns</span><span class="p">[:]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">columns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;read_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;contact_is_direct&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;contact_read_distance&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_align_idx&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_chrom&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_fragment_start&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_fragment_end&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_strand&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_mapping_quality&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_align_idx&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_chrom&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_fragment_start&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_fragment_end&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_strand&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_mapping_quality&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">contact_df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">contact_table</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="n">PQ_ENGINE</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">PQ_VERSION</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">chrom_dict</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">chromsizes</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chrom&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">],</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chrom&quot;</span><span class="p">],</span> <span class="n">squeeze</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">query</span><span class="p">:</span>
+        <span class="n">contact_df</span> <span class="o">=</span> <span class="n">contact_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+    <span class="n">dtypes</span> <span class="o">=</span> <span class="n">contact_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">dtypes</span>
+    <span class="n">strand_dtype</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">([</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">],</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">junction_dtype</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">([</span><span class="s2">&quot;DJ&quot;</span><span class="p">,</span> <span class="s2">&quot;IJ&quot;</span><span class="p">],</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;readID&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="s2">&quot;chr1&quot;</span><span class="p">:</span> <span class="n">dtypes</span><span class="p">[</span><span class="s2">&quot;align1_chrom&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;pos1&quot;</span><span class="p">:</span> <span class="n">dtypes</span><span class="p">[</span><span class="s2">&quot;align1_fragment_start&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;chr2&quot;</span><span class="p">:</span> <span class="n">dtypes</span><span class="p">[</span><span class="s2">&quot;align2_chrom&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;pos2&quot;</span><span class="p">:</span> <span class="n">dtypes</span><span class="p">[</span><span class="s2">&quot;align2_fragment_start&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;strand1&quot;</span><span class="p">:</span> <span class="n">strand_dtype</span><span class="p">,</span>
+        <span class="s2">&quot;strand2&quot;</span><span class="p">:</span> <span class="n">strand_dtype</span><span class="p">,</span>
+        <span class="s2">&quot;pair_type&quot;</span><span class="p">:</span> <span class="n">junction_dtype</span><span class="p">,</span>
+        <span class="s2">&quot;align1_idx&quot;</span><span class="p">:</span> <span class="n">dtypes</span><span class="p">[</span><span class="s2">&quot;align1_align_idx&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;align2_idx&quot;</span><span class="p">:</span> <span class="n">dtypes</span><span class="p">[</span><span class="s2">&quot;align2_align_idx&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;distance_on_read&quot;</span><span class="p">:</span> <span class="n">dtypes</span><span class="p">[</span><span class="s2">&quot;contact_read_distance&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+
+    <span class="n">pairs_file</span> <span class="o">=</span> <span class="n">output_prefix</span> <span class="o">+</span> <span class="s2">&quot;.pairs&quot;</span>
+    <span class="c1"># dask to_csv doesn&#39;t support append writing, so need to concatenate header after the fact</span>
+    <span class="n">header_file</span> <span class="o">=</span> <span class="n">output_prefix</span> <span class="o">+</span> <span class="s2">&quot;.pairs.header&quot;</span>
+    <span class="n">body_file</span> <span class="o">=</span> <span class="n">output_prefix</span> <span class="o">+</span> <span class="s2">&quot;.pairs.body&quot;</span>
+
+    <span class="n">header_lines</span> <span class="o">=</span> <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;## pairs format 1.0&quot;</span><span class="p">,</span> <span class="s2">&quot;#shape: upper triangle&quot;</span><span class="p">]</span>
+    <span class="n">header_lines</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;#chromsize: </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">chrom_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+    <span class="n">header_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;#columns: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">header_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">output_fh</span><span class="p">:</span>
+        <span class="n">output_fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">to_pairs_df</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;contact_idx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;read_name&quot;</span><span class="p">)[</span><span class="s2">&quot;align1_chrom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">readID</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[[</span><span class="s2">&quot;read_name&quot;</span><span class="p">,</span> <span class="s2">&quot;contact_idx&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">y</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;read</span><span class="si">{</span><span class="n">y</span><span class="o">.</span><span class="n">read_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">y</span><span class="o">.</span><span class="n">contact_idx</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+                <span class="p">),</span>
+                <span class="n">pos1</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;0.5 * (align1_fragment_start + align1_fragment_end)&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">pos2</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;0.5 * (align2_fragment_start + align2_fragment_end)&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">align1_strand</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;align1_strand&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">strand_dtype</span><span class="p">),</span>
+                <span class="n">align2_strand</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;align2_strand&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">strand_dtype</span><span class="p">),</span>
+                <span class="n">pair_type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;contact_is_direct&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;DJ&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot;IJ&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">junction_dtype</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">align1_chrom</span><span class="o">=</span><span class="s2">&quot;chr1&quot;</span><span class="p">,</span>
+                    <span class="n">align2_chrom</span><span class="o">=</span><span class="s2">&quot;chr2&quot;</span><span class="p">,</span>
+                    <span class="n">align1_strand</span><span class="o">=</span><span class="s2">&quot;strand1&quot;</span><span class="p">,</span>
+                    <span class="n">align2_strand</span><span class="o">=</span><span class="s2">&quot;strand2&quot;</span><span class="p">,</span>
+                    <span class="n">align2_align_idx</span><span class="o">=</span><span class="s2">&quot;align2_idx&quot;</span><span class="p">,</span>
+                    <span class="n">align1_align_idx</span><span class="o">=</span><span class="s2">&quot;align1_idx&quot;</span><span class="p">,</span>
+                    <span class="n">contact_read_distance</span><span class="o">=</span><span class="s2">&quot;distance_on_read&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+
+    <span class="n">contact_df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span><span class="n">to_pairs_df</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="n">meta</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">body_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w+&quot;</span><span class="p">,</span> <span class="n">single_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="n">sp</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cat </span><span class="si">{</span><span class="n">header_file</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">body_file</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">pairs_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">header_file</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">body_file</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pairs_file</span></div>
+
+
+<div class="viewcode-block" id="export_to_paired_end_fastq"><a class="viewcode-back" href="../../../api/pore_c.analyses.contacts.html#pore_c.analyses.contacts.export_to_paired_end_fastq">[docs]</a><span class="k">def</span> <span class="nf">export_to_paired_end_fastq</span><span class="p">(</span>
+    <span class="n">contact_table</span><span class="p">,</span> <span class="n">output_prefix</span><span class="p">,</span> <span class="n">reference_fasta</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">query_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">read_length</span><span class="o">=</span><span class="mi">50</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="n">query_columns</span><span class="p">:</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">query_columns</span><span class="p">[:]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">columns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;read_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_fragment_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_chrom&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_fragment_start&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_fragment_end&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_strand&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_fragment_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_chrom&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_fragment_start&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_fragment_end&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_strand&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">contact_df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">contact_table</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="n">PQ_ENGINE</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">PQ_VERSION</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">query</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">+=</span> <span class="s2">&quot; &amp; (align1_fragment_id != align2_fragment_id) &quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">+=</span> <span class="s2">&quot;(align1_fragment_id != align2_fragment_id) &quot;</span>
+
+    <span class="n">contact_df</span> <span class="o">=</span> <span class="n">contact_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="n">fastq1</span> <span class="o">=</span> <span class="n">output_prefix</span> <span class="o">+</span> <span class="s2">&quot;.1.fastq&quot;</span>
+    <span class="n">fastq2</span> <span class="o">=</span> <span class="n">output_prefix</span> <span class="o">+</span> <span class="s2">&quot;.2.fastq&quot;</span>
+
+    <span class="n">ref</span> <span class="o">=</span> <span class="n">FastaFile</span><span class="p">(</span><span class="n">reference_fasta</span><span class="p">)</span>
+
+    <span class="n">fhs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">open</span><span class="p">(</span><span class="n">fastq1</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">),</span> <span class="nb">open</span><span class="p">(</span><span class="n">fastq2</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)]</span>
+    <span class="n">qual_str</span> <span class="o">=</span> <span class="s2">&quot;I&quot;</span> <span class="o">*</span> <span class="n">read_length</span>
+    <span class="n">contact_counter</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">partition</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">contact_df</span><span class="o">.</span><span class="n">npartitions</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">contact_df</span><span class="o">.</span><span class="n">get_partition</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">pos1</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;0.5 * (align1_fragment_start + align1_fragment_end)&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">pos2</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;0.5 * (align2_fragment_start + align2_fragment_end)&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;pos1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="n">read_length</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;pos2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="n">read_length</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+
+            <span class="n">contact_counter</span><span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">read_name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">contact_idx</span> <span class="o">=</span> <span class="n">contact_counter</span><span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">read_name</span><span class="p">]</span>
+            <span class="n">read_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">read_name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">contact_idx</span><span class="si">:</span><span class="s2">04</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="n">read1</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">align1_chrom</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">pos1</span> <span class="o">-</span> <span class="n">read_length</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">pos1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">align1_strand</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">read1</span> <span class="o">=</span> <span class="n">revcomp</span><span class="p">(</span><span class="n">read1</span><span class="p">)</span>
+            <span class="n">fhs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;@</span><span class="si">{</span><span class="n">read_name</span><span class="si">}</span><span class="s2"> 1:N:0:1</span><span class="se">\n</span><span class="si">{</span><span class="n">read1</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">qual_str</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">read2</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">align2_chrom</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">pos2</span> <span class="o">-</span> <span class="n">read_length</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">pos2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">align2_strand</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">read2</span> <span class="o">=</span> <span class="n">revcomp</span><span class="p">(</span><span class="n">read2</span><span class="p">)</span>
+            <span class="n">fhs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;@</span><span class="si">{</span><span class="n">read_name</span><span class="si">}</span><span class="s2"> 2:N:0:1</span><span class="se">\n</span><span class="si">{</span><span class="n">read2</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">qual_str</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fastq1</span><span class="p">,</span> <span class="n">fastq2</span></div>
+
+
+<div class="viewcode-block" id="export_to_merged_no_dups"><a class="viewcode-back" href="../../../api/pore_c.analyses.contacts.html#pore_c.analyses.contacts.export_to_merged_no_dups">[docs]</a><span class="k">def</span> <span class="nf">export_to_merged_no_dups</span><span class="p">(</span><span class="n">contact_table</span><span class="p">,</span> <span class="n">output_prefix</span><span class="p">,</span> <span class="n">reference_fasta</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">query_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">read_length</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">query_columns</span><span class="p">:</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">query_columns</span><span class="p">[:]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">columns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;read_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_fragment_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_chrom&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_fragment_start&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_fragment_end&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align1_strand&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_fragment_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_chrom&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_fragment_start&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_fragment_end&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align2_strand&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">contact_df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">contact_table</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="n">PQ_ENGINE</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">PQ_VERSION</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">query</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">+=</span> <span class="s2">&quot; &amp; (align1_fragment_id != align2_fragment_id) &quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">+=</span> <span class="s2">&quot;(align1_fragment_id != align2_fragment_id) &quot;</span>
+
+    <span class="n">contact_df</span> <span class="o">=</span> <span class="n">contact_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="n">mnd_file</span> <span class="o">=</span> <span class="n">output_prefix</span> <span class="o">+</span> <span class="s2">&quot;.mnd.txt&quot;</span>
+    <span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">mnd_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+    <span class="n">ref</span> <span class="o">=</span> <span class="n">FastaFile</span><span class="p">(</span><span class="n">reference_fasta</span><span class="p">)</span>
+    <span class="n">cigar_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">read_length</span><span class="si">}</span><span class="s2">M&quot;</span>
+    <span class="n">contact_counter</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">partition</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">contact_df</span><span class="o">.</span><span class="n">npartitions</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">contact_df</span><span class="o">.</span><span class="n">get_partition</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">&quot;align1_strand&quot;</span><span class="p">:</span> <span class="s2">&quot;uint8&quot;</span><span class="p">,</span> <span class="s2">&quot;align2_strand&quot;</span><span class="p">:</span> <span class="s2">&quot;uint8&quot;</span><span class="p">})</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">pos1</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;0.5 * (align1_fragment_start + align1_fragment_end)&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">pos2</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;0.5 * (align2_fragment_start + align2_fragment_end)&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;pos1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="n">read_length</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;pos2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="n">read_length</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+
+            <span class="n">contact_counter</span><span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">read_name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">contact_idx</span> <span class="o">=</span> <span class="n">contact_counter</span><span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">read_name</span><span class="p">]</span>
+            <span class="n">read_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">read_name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">contact_idx</span><span class="si">:</span><span class="s2">04</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="n">read1</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">align1_chrom</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">pos1</span> <span class="o">-</span> <span class="n">read_length</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">pos1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">align1_strand</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">read1</span> <span class="o">=</span> <span class="n">revcomp</span><span class="p">(</span><span class="n">read1</span><span class="p">)</span>
+            <span class="n">read2</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">align2_chrom</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">pos2</span> <span class="o">-</span> <span class="n">read_length</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">pos2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">align2_strand</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">read2</span> <span class="o">=</span> <span class="n">revcomp</span><span class="p">(</span><span class="n">read2</span><span class="p">)</span>
+            <span class="c1"># &lt;str1&gt; &lt;chr1&gt; &lt;pos1&gt; &lt;frag1&gt;</span>
+            <span class="c1"># &lt;str2&gt; &lt;chr2&gt; &lt;pos2&gt; &lt;frag2&gt;</span>
+            <span class="c1"># &lt;mapq1&gt; &lt;cigar1&gt; &lt;sequence1&gt;</span>
+            <span class="c1"># &lt;mapq2&gt; &lt;cigar2&gt; &lt;sequence2&gt;</span>
+            <span class="c1"># &lt;readname1&gt; &lt;readname2&gt;</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">align1_strand</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">align1_chrom</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">pos1</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">align1_fragment_id</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">align2_strand</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">align2_chrom</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">pos2</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">align2_fragment_id</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;60 </span><span class="si">{</span><span class="n">cigar_str</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">read1</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;60 </span><span class="si">{</span><span class="n">cigar_str</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">read2</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">read_name</span><span class="si">}</span><span class="s2">:1 </span><span class="si">{</span><span class="n">read_name</span><span class="si">}</span><span class="s2">:2</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mnd_file</span></div>
+
+
+<div class="viewcode-block" id="gather_concatemer_stats"><a class="viewcode-back" href="../../../api/pore_c.analyses.contacts.html#pore_c.analyses.contacts.gather_concatemer_stats">[docs]</a><span class="k">def</span> <span class="nf">gather_concatemer_stats</span><span class="p">(</span><span class="n">contact_df</span><span class="p">:</span> <span class="n">PoreCContactRecordDf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PoreCConcatemerRecordDf</span><span class="p">:</span>
+
+    <span class="n">contact_df</span><span class="p">[</span><span class="s2">&quot;is_short_range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">contact_df</span><span class="p">[</span><span class="s2">&quot;contact_fragment_distance&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">SHORT_RANGE_CUTOFF</span>
+    <span class="n">by_read</span> <span class="o">=</span> <span class="n">contact_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;read_name&quot;</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">read_stats</span> <span class="o">=</span> <span class="n">by_read</span><span class="p">[[</span><span class="s2">&quot;read_length&quot;</span><span class="p">,</span> <span class="s2">&quot;read_idx&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+    <span class="n">num_fragments</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">by_read</span><span class="p">[[</span><span class="s2">&quot;align1_fragment_id&quot;</span><span class="p">,</span> <span class="s2">&quot;align2_fragment_id&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">unique</span><span class="p">()))</span>
+        <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">align1_fragment_id</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">align2_fragment_id</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;num_fragments&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">num_reads</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">by_read</span><span class="p">)</span>
+    <span class="n">by_read_and_type</span> <span class="o">=</span> <span class="n">contact_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;read_name&quot;</span><span class="p">,</span> <span class="s2">&quot;contact_is_direct&quot;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">flatten_index</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_flat_index</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="n">contact_counts</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">contact_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;read_name&quot;</span><span class="p">,</span> <span class="s2">&quot;contact_is_direct&quot;</span><span class="p">,</span> <span class="s2">&quot;contact_is_cis&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">size</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;direct&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot;indirect&quot;</span><span class="p">},</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;contact_is_direct&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;cis&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot;trans&quot;</span><span class="p">},</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;contact_is_cis&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;contact_is_direct&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;contact_is_cis&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">flatten_index</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;total_cis = direct_cis + indirect_cis&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;total_trans = direct_trans + indirect_trans&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;direct = direct_cis + direct_trans&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;indirect = indirect_cis + indirect_trans&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;total = total_cis + total_trans&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">add_suffix</span><span class="p">(</span><span class="s2">&quot;_contacts&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;read_order = direct_contacts + 1&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">short_range_counts</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">contact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">contact_df</span><span class="o">.</span><span class="n">contact_is_cis</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;read_name&quot;</span><span class="p">,</span> <span class="s2">&quot;contact_is_direct&quot;</span><span class="p">,</span> <span class="s2">&quot;is_short_range&quot;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">size</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;short_range&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot;long_range&quot;</span><span class="p">},</span> <span class="n">level</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;direct&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot;indirect&quot;</span><span class="p">},</span> <span class="n">level</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">flatten_index</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;total_short_range = direct_short_range + indirect_short_range&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;total_long_range = direct_long_range + indirect_long_range&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">add_suffix</span><span class="p">(</span><span class="s2">&quot;_cis_contacts&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">haplotype_stats</span> <span class="o">=</span> <span class="n">by_read</span><span class="p">[</span><span class="s2">&quot;haplotype_pair_type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">drop</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">contact_df</span><span class="o">.</span><span class="n">haplotype_pair_type</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">categories</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">cat</span> <span class="o">==</span> <span class="s2">&quot;null&quot;</span> <span class="ow">or</span> <span class="n">cat</span> <span class="o">==</span> <span class="s2">&quot;trans&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">haplotype_stats</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">drop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cat</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">cat</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">haplotype_stats</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">haplotype_stats</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">drop</span><span class="p">:</span>
+        <span class="n">haplotype_stats</span> <span class="o">=</span> <span class="n">haplotype_stats</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">drop</span><span class="p">)</span>
+    <span class="n">haplotype_stats</span> <span class="o">=</span> <span class="n">haplotype_stats</span><span class="o">.</span><span class="n">add_prefix</span><span class="p">(</span><span class="s2">&quot;haplotype_&quot;</span><span class="p">)</span>
+
+    <span class="n">max_distance</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">by_read_and_type</span><span class="p">[[</span><span class="s2">&quot;contact_genome_distance&quot;</span><span class="p">,</span> <span class="s2">&quot;contact_fragment_distance&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;direct&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot;indirect&quot;</span><span class="p">})</span>
+    <span class="p">)</span>
+    <span class="n">max_distance</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;max_</span><span class="si">{1}</span><span class="s2">_</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">max_distance</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="n">dtype</span> <span class="o">=</span> <span class="n">PoreCConcatemerRecord</span><span class="o">.</span><span class="n">pandas_dtype</span><span class="p">()</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">contact_counts</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">haplotype_stats</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">read_stats</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">max_distance</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">short_range_counts</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">num_fragments</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">fillna</span><span class="p">({</span><span class="n">c</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">short_range_counts</span><span class="o">.</span><span class="n">columns</span><span class="p">})</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="c1"># .astype(dtype)</span>
+        <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">dtype</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">==</span> <span class="n">num_reads</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="summarize_concatemer_table"><a class="viewcode-back" href="../../../api/pore_c.analyses.contacts.html#pore_c.analyses.contacts.summarize_concatemer_table">[docs]</a><span class="k">def</span> <span class="nf">summarize_concatemer_table</span><span class="p">(</span>
+    <span class="n">concatemer_df</span><span class="p">:</span> <span class="n">PoreCConcatemerRecordDf</span><span class="p">,</span> <span class="n">read_summary_table</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">user_metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">concatemer_read_length_stats</span> <span class="o">=</span> <span class="n">read_length_stats</span><span class="p">(</span><span class="n">concatemer_df</span><span class="p">[</span><span class="s2">&quot;read_length&quot;</span><span class="p">])</span>
+    <span class="c1"># read_subset_dtype = pd.CategoricalDtype([&quot;all&quot;, &quot;pass&quot;, &quot;fail&quot;])</span>
+    <span class="n">read_summary_table</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">read_summary_table</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;read_subset == &#39;all&#39;&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># .astype({&quot;read_subset&quot;: read_subset_dtype})</span>
+        <span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="s2">&quot;read_subset&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="s2">&quot;all_reads&quot;</span><span class="p">,</span> <span class="s2">&quot;pass&quot;</span><span class="p">:</span> <span class="s2">&quot;pass_read_qc&quot;</span><span class="p">,</span> <span class="s2">&quot;fail&quot;</span><span class="p">:</span> <span class="s2">&quot;fail_read_qc&quot;</span><span class="p">},</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># print(read_summary_table)</span>
+    <span class="k">if</span> <span class="n">user_metadata</span><span class="p">:</span>
+        <span class="n">user_metadata</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">user_metadata</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;value&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">user_metadata</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">contact_counts</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">concatemer_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_contacts&quot;</span><span class="p">)]]</span>
+        <span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">contact_counts</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">contact_counts</span><span class="o">.</span><span class="n">index</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;subset&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">contact_props</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">contact_counts</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">contact_counts</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="s2">&quot;contacts&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">drop_level</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;subset&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="mf">100.0</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="s2">&quot;perc&quot;</span><span class="p">})</span>
+    <span class="p">)</span>
+    <span class="n">contact_section</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">contact_counts</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">contact_props</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;variable&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">reorder_levels</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">sort_remaining</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">read_counts</span> <span class="o">=</span> <span class="n">read_summary_table</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="s2">&quot;num_sequences&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">read_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="n">read_counts</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;all_reads&quot;</span><span class="p">],</span> <span class="s2">&quot;concatemer&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">concatemer_df</span><span class="p">)}</span>
+    <span class="n">read_data</span><span class="p">[</span><span class="s2">&quot;fail_filter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_data</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">read_data</span><span class="p">[</span><span class="s2">&quot;concatemer&quot;</span><span class="p">]</span>
+    <span class="n">read_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">read_data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;count&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+    <span class="n">read_data</span><span class="p">[</span><span class="s2">&quot;perc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">read_data</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">read_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">]</span>
+
+    <span class="n">read_data</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">read_data</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;variable&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">reorder_levels</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="n">bases</span> <span class="o">=</span> <span class="n">read_summary_table</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="s2">&quot;total_bases&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">base_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="n">bases</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;all_reads&quot;</span><span class="p">],</span> <span class="s2">&quot;concatemer&quot;</span><span class="p">:</span> <span class="n">concatemer_read_length_stats</span><span class="p">[</span><span class="s2">&quot;total_bases&quot;</span><span class="p">]}</span>
+    <span class="n">base_data</span><span class="p">[</span><span class="s2">&quot;fail_filter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_data</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">base_data</span><span class="p">[</span><span class="s2">&quot;concatemer&quot;</span><span class="p">]</span>
+    <span class="n">base_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">base_data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bases&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+    <span class="n">base_data</span><span class="p">[</span><span class="s2">&quot;perc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">base_data</span><span class="p">[</span><span class="s2">&quot;bases&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">base_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="s2">&quot;bases&quot;</span><span class="p">]</span>
+    <span class="n">base_data</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">base_data</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;variable&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">reorder_levels</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">read_length_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="n">read_summary_table</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;N50&quot;</span><span class="p">,</span> <span class="s2">&quot;all_reads&quot;</span><span class="p">)],</span>
+        <span class="s2">&quot;concatemer&quot;</span><span class="p">:</span> <span class="n">concatemer_read_length_stats</span><span class="p">[</span><span class="s2">&quot;N50&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+    <span class="n">read_length_data</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">read_length_data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;subset&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">variable</span><span class="o">=</span><span class="s2">&quot;N50&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;variable&quot;</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">reorder_levels</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># fragments_per_alignment = concatemer_df.eval(&quot;(1.0 * num_fragments) /  read_order&quot;)</span>
+    <span class="c1"># print(fragments_per_alignment.describe())</span>
+    <span class="c1"># fragment_data = {</span>
+    <span class="c1">#    &quot;mean&quot;: fragments_per_alignment.mean(),</span>
+    <span class="c1">#    &quot;median&quot;: fragments_per_alignment.median(),</span>
+    <span class="c1"># }</span>
+    <span class="c1"># print(fragment_data)</span>
+
+    <span class="n">length_bins</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">IntervalIndex</span><span class="o">.</span><span class="n">from_breaks</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1e9</span><span class="p">)])</span>
+    <span class="n">length_bin_labels</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">length_bins</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">length</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1e8</span><span class="p">):</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;gt_</span><span class="si">{</span><span class="n">i</span><span class="o">.</span><span class="n">left</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="o">.</span><span class="n">left</span> <span class="o">+</span> <span class="mi">1</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">i</span><span class="o">.</span><span class="n">right</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">length_bin_labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
+
+    <span class="n">read_order_hist</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">concatemer_df</span><span class="p">[</span><span class="s2">&quot;read_order&quot;</span><span class="p">],</span> <span class="n">length_bins</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">length_bin_labels</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">read_order_hist</span> <span class="o">=</span> <span class="n">read_order_hist</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">length_bin_labels</span><span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;concatemer_order&quot;</span><span class="p">)</span>
+    <span class="n">read_order_hist</span><span class="p">[</span><span class="s2">&quot;perc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_order_hist</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">read_order_hist</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="n">read_order_hist</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">read_order_hist</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;variable&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">reorder_levels</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;variable&quot;</span><span class="p">,</span> <span class="n">sort_remaining</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">total_contacts</span> <span class="o">=</span> <span class="n">contact_section</span><span class="o">.</span><span class="n">at</span><span class="p">[(</span><span class="s2">&quot;total&quot;</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="s2">&quot;contacts&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">]</span>
+    <span class="n">density_data</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="mf">1e9</span> <span class="o">*</span> <span class="n">total_contacts</span> <span class="o">/</span> <span class="n">base_data</span><span class="o">.</span><span class="n">at</span><span class="p">[(</span><span class="s2">&quot;bases&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;concatemer&quot;</span><span class="p">:</span> <span class="mf">1e9</span> <span class="o">*</span> <span class="n">total_contacts</span> <span class="o">/</span> <span class="n">base_data</span><span class="o">.</span><span class="n">at</span><span class="p">[(</span><span class="s2">&quot;bases&quot;</span><span class="p">,</span> <span class="s2">&quot;concatemer&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;divisor&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">variable</span><span class="o">=</span><span class="s2">&quot;contacts_per_gb&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;variable&quot;</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">reorder_levels</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">normalize_levels</span><span class="p">(</span><span class="n">dfs</span><span class="p">):</span>
+        <span class="n">max_levels</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">dfs</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">level_labels</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;level_</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_levels</span><span class="p">)]</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">dfs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">existing_levels</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span>
+            <span class="n">add_levels</span> <span class="o">=</span> <span class="n">max_levels</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">existing_levels</span><span class="p">)</span>
+            <span class="n">rename_levels</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">existing_levels</span><span class="p">,</span> <span class="n">level_labels</span><span class="p">[</span><span class="n">add_levels</span><span class="p">:]))</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">add_levels</span><span class="p">):</span>
+                <span class="n">val</span><span class="p">[</span><span class="n">level_labels</span><span class="p">[</span><span class="n">x</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">level_labels</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">append</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">new_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">rename_levels</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
+            <span class="n">val</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">new_labels</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">reorder_levels</span><span class="p">(</span><span class="n">level_labels</span><span class="p">)</span>
+            <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;section&quot;</span><span class="p">])</span>
+        <span class="n">idx_names</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">idx_names</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="n">summary_dfs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;user_metadata&quot;</span><span class="p">:</span> <span class="n">user_metadata</span><span class="p">,</span>
+        <span class="s2">&quot;reads&quot;</span><span class="p">:</span> <span class="n">read_data</span><span class="p">,</span>
+        <span class="s2">&quot;read_length&quot;</span><span class="p">:</span> <span class="n">read_length_data</span><span class="p">,</span>
+        <span class="s2">&quot;bases&quot;</span><span class="p">:</span> <span class="n">base_data</span><span class="p">,</span>
+        <span class="s2">&quot;contacts&quot;</span><span class="p">:</span> <span class="n">contact_section</span><span class="p">,</span>
+        <span class="s2">&quot;density&quot;</span><span class="p">:</span> <span class="n">density_data</span><span class="p">,</span>
+        <span class="s2">&quot;concatemer_order&quot;</span><span class="p">:</span> <span class="n">read_order_hist</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">user_metadata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">summary_dfs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;user_metadata&quot;</span><span class="p">)</span>
+
+    <span class="n">long_df</span> <span class="o">=</span> <span class="n">normalize_levels</span><span class="p">(</span><span class="n">summary_dfs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">long_df</span></div>
+</pre></div>
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+          By ONT Applications<br/>
+        
+            &copy; Copyright 2021, Oxford Nanopore Technologies.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

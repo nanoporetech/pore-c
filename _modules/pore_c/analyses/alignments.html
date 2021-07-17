@@ -1,0 +1,565 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pore_c.analyses.alignments &#8212; Pore-C Tools</title>
+    
+  <link href="../../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    
+  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../index.html">
+      
+      <img src="../../../_static/ONT_logo.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Pore-C Tools</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../quickstart.html">
+   Quickstart
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../cli.html">
+   Command Line Interface
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../schema.html">
+   Schemas
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../api/modules.html">
+   API
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../api/pore_c.html">
+     pore_c package
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../api/pore_c.analyses.html">
+       pore_c.analyses package
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../api/pore_c.analyses.alignments.html">
+         pore_c.analyses.alignments module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../api/pore_c.analyses.contacts.html">
+         pore_c.analyses.contacts module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../api/pore_c.analyses.reads.html">
+         pore_c.analyses.reads module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../api/pore_c.analyses.reference.html">
+         pore_c.analyses.reference module
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.catalogs.html">
+       pore_c.catalogs module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.cli.html">
+       pore_c.cli module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.cli_utils.html">
+       pore_c.cli_utils module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.config.html">
+       pore_c.config module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.datasources.html">
+       pore_c.datasources module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.io.html">
+       pore_c.io module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.model.html">
+       pore_c.model module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.settings.html">
+       pore_c.settings module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.utils.html">
+       pore_c.utils module
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Development
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference external" href="https://github.com/nanoporetech/pore-c">
+   GitHub Repository
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference external" href="https://github.com/nanoporetech/Pore-C-Snakemake">
+   GitHub Snakemake Pipeline
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+            <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/nanoporetech/pore-c"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        
+        
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <h1>Source code for pore_c.analyses.alignments</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">combinations</span>
+
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pore_c.model</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AlignmentRecordDf</span><span class="p">,</span>
+    <span class="n">FragmentRecordDf</span><span class="p">,</span>
+    <span class="n">PoreCContactRecord</span><span class="p">,</span>
+    <span class="n">PoreCContactRecordDf</span><span class="p">,</span>
+    <span class="n">PoreCRecordDf</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="assign_fragments"><a class="viewcode-back" href="../../../api/pore_c.analyses.alignments.html#pore_c.analyses.alignments.assign_fragments">[docs]</a><span class="k">def</span> <span class="nf">assign_fragments</span><span class="p">(</span>
+    <span class="n">align_table</span><span class="p">:</span> <span class="n">AlignmentRecordDf</span><span class="p">,</span>
+    <span class="n">fragment_df</span><span class="p">:</span> <span class="n">FragmentRecordDf</span><span class="p">,</span>
+    <span class="n">mapping_quality_cutoff</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">min_overlap_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">containment_cutoff</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">99.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PoreCRecordDf</span><span class="p">:</span>
+
+    <span class="kn">from</span> <span class="nn">pore_c.model</span> <span class="kn">import</span> <span class="n">PoreCRecord</span>
+
+    <span class="c1"># initialise everything as having passed filter</span>
+    <span class="n">pore_c_table</span> <span class="o">=</span> <span class="n">PoreCRecord</span><span class="o">.</span><span class="n">init_dataframe</span><span class="p">(</span><span class="n">align_table</span><span class="p">)</span>
+    <span class="n">dtype</span> <span class="o">=</span> <span class="n">pore_c_table</span><span class="o">.</span><span class="n">dtypes</span>
+
+    <span class="n">align_types</span> <span class="o">=</span> <span class="n">pore_c_table</span><span class="o">.</span><span class="n">align_type</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="n">some_aligns</span> <span class="o">=</span> <span class="n">align_types</span><span class="p">[</span><span class="s2">&quot;unmapped&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">align_types</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">some_aligns</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No alignments in dataframe&quot;</span><span class="p">)</span>
+        <span class="n">pore_c_table</span><span class="p">[</span><span class="s2">&quot;pass_filter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">pore_c_table</span><span class="p">[</span><span class="s2">&quot;filter_reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;unmapped&quot;</span>
+        <span class="k">return</span> <span class="n">pore_c_table</span>
+
+    <span class="n">fragment_assignments</span> <span class="o">=</span> <span class="n">assign_fragment</span><span class="p">(</span><span class="n">pore_c_table</span><span class="p">,</span> <span class="n">fragment_df</span><span class="p">,</span> <span class="n">min_overlap_length</span><span class="p">,</span> <span class="n">containment_cutoff</span><span class="p">)</span>
+
+    <span class="n">pore_c_table</span> <span class="o">=</span> <span class="n">pore_c_table</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;align_idx&quot;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">pore_c_table</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">fragment_assignments</span><span class="p">)</span>
+
+    <span class="n">pore_c_table</span> <span class="o">=</span> <span class="n">pore_c_table</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="c1"># apply alignment-level filters</span>
+    <span class="n">unmapped_mask</span> <span class="o">=</span> <span class="n">pore_c_table</span><span class="o">.</span><span class="n">align_type</span> <span class="o">==</span> <span class="s2">&quot;unmapped&quot;</span>
+    <span class="n">pore_c_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">unmapped_mask</span><span class="p">,</span> <span class="s2">&quot;pass_filter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">pore_c_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">unmapped_mask</span><span class="p">,</span> <span class="s2">&quot;filter_reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;unmapped&quot;</span>
+
+    <span class="c1"># if not unmapped, but mapping quality below cutoff then fail</span>
+    <span class="n">fail_mq_mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">unmapped_mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">pore_c_table</span><span class="o">.</span><span class="n">mapping_quality</span> <span class="o">&lt;=</span> <span class="n">mapping_quality_cutoff</span><span class="p">)</span>
+    <span class="n">pore_c_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">fail_mq_mask</span><span class="p">,</span> <span class="s2">&quot;pass_filter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">pore_c_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">fail_mq_mask</span><span class="p">,</span> <span class="s2">&quot;filter_reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;low_mq&quot;</span>
+
+    <span class="c1"># short overlap filter</span>
+    <span class="n">short_overlap_mask</span> <span class="o">=</span> <span class="o">~</span><span class="p">(</span><span class="n">unmapped_mask</span> <span class="o">|</span> <span class="n">fail_mq_mask</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">pore_c_table</span><span class="o">.</span><span class="n">overlap_length</span> <span class="o">&lt;</span> <span class="n">min_overlap_length</span><span class="p">)</span>
+    <span class="n">pore_c_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">short_overlap_mask</span><span class="p">,</span> <span class="s2">&quot;pass_filter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">pore_c_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">short_overlap_mask</span><span class="p">,</span> <span class="s2">&quot;filter_reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;short_overlap&quot;</span>
+
+    <span class="c1"># no need to do other checks if nothing left</span>
+    <span class="k">if</span> <span class="n">pore_c_table</span><span class="p">[</span><span class="s2">&quot;pass_filter&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="c1"># for the remaining alignments filtering happens on a per-read basis</span>
+        <span class="n">by_read_res</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pore_c_table</span><span class="p">[</span><span class="n">pore_c_table</span><span class="o">.</span><span class="n">pass_filter</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;read_idx&quot;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">apply_per_read_filters</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">pore_c_table</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">by_read_res</span><span class="p">[[</span><span class="s2">&quot;pass_filter&quot;</span><span class="p">,</span> <span class="s2">&quot;filter_reason&quot;</span><span class="p">]])</span>
+        <span class="n">pore_c_table</span> <span class="o">=</span> <span class="n">pore_c_table</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No alignments passed filter&quot;</span><span class="p">)</span>
+
+    <span class="n">pore_c_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pore_c_table</span><span class="o">.</span><span class="n">pass_filter</span><span class="p">,</span> <span class="s2">&quot;filter_reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;pass&quot;</span>
+    <span class="k">return</span> <span class="n">pore_c_table</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;read_idx&quot;</span><span class="p">,</span> <span class="s2">&quot;align_idx&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="assign_fragment"><a class="viewcode-back" href="../../../api/pore_c.analyses.alignments.html#pore_c.analyses.alignments.assign_fragment">[docs]</a><span class="k">def</span> <span class="nf">assign_fragment</span><span class="p">(</span><span class="n">pore_c_table</span><span class="p">,</span> <span class="n">fragment_df</span><span class="p">,</span> <span class="n">min_overlap_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">containment_cutoff</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">pyranges</span> <span class="k">as</span> <span class="nn">pr</span>
+
+    <span class="n">align_range</span> <span class="o">=</span> <span class="n">pr</span><span class="o">.</span><span class="n">PyRanges</span><span class="p">(</span>
+        <span class="n">pore_c_table</span><span class="p">[[</span><span class="s2">&quot;chrom&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;align_idx&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;chrom&quot;</span><span class="p">:</span> <span class="s2">&quot;Chromosome&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="s2">&quot;Start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="s2">&quot;End&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">fragment_range</span> <span class="o">=</span> <span class="n">pr</span><span class="o">.</span><span class="n">PyRanges</span><span class="p">(</span>
+        <span class="n">fragment_df</span><span class="p">[[</span><span class="s2">&quot;chrom&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;fragment_id&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;chrom&quot;</span><span class="p">:</span> <span class="s2">&quot;Chromosome&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="s2">&quot;Start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="s2">&quot;End&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># all overlaps, one to many</span>
+    <span class="c1"># TODO: pyranges API has changed so that the new_position call overwrites the alignment start and end</span>
+    <span class="n">overlaps</span> <span class="o">=</span> <span class="n">align_range</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fragment_range</span><span class="p">)</span><span class="o">.</span><span class="n">new_position</span><span class="p">(</span><span class="s2">&quot;intersection&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">overlaps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No overlaps found between alignments and fragments, this shouldn&#39;t happen&quot;</span><span class="p">)</span>
+
+    <span class="n">overlaps</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">overlaps</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;Start&quot;</span><span class="p">:</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;End&quot;</span><span class="p">:</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Start_a&quot;</span><span class="p">:</span> <span class="s2">&quot;align_start&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;End_a&quot;</span><span class="p">:</span> <span class="s2">&quot;align_end&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Start_b&quot;</span><span class="p">:</span> <span class="s2">&quot;fragment_start&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;End_b&quot;</span><span class="p">:</span> <span class="s2">&quot;fragment_end&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;overlap_length = (end - start)&quot;</span><span class="p">)</span>
+        <span class="c1"># .query(f&quot;overlap_length &gt;= {min_overlap_length}&quot;)  # TODO: what if restriction fragment &lt; minimum</span>
+        <span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;perc_of_alignment = (100.0 * overlap_length) / (align_end - align_start)&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;perc_of_fragment = (100.0 * overlap_length) / (fragment_end - fragment_start)&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;is_contained = (perc_of_fragment &gt;= </span><span class="si">{</span><span class="n">containment_cutoff</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># per-alignment statistics</span>
+    <span class="n">by_align</span> <span class="o">=</span> <span class="n">overlaps</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;align_idx&quot;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">rank</span> <span class="o">=</span> <span class="n">by_align</span><span class="p">[</span><span class="s2">&quot;overlap_length&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rank</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">overlaps</span><span class="p">[</span><span class="s2">&quot;overlap_length_rank&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rank</span>
+
+    <span class="n">best_overlap</span> <span class="o">=</span> <span class="n">overlaps</span><span class="p">[</span><span class="n">overlaps</span><span class="o">.</span><span class="n">overlap_length_rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;align_idx&quot;</span><span class="p">])</span>
+
+    <span class="n">contained_fragments</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">by_align</span><span class="p">[</span><span class="s2">&quot;is_contained&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s2">&quot;size&quot;</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">&quot;sum&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">})</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="s2">&quot;num_overlapping_fragments&quot;</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">:</span> <span class="s2">&quot;num_contained_fragments&quot;</span><span class="p">})</span>
+    <span class="p">)</span>
+    <span class="n">align_df</span> <span class="o">=</span> <span class="n">contained_fragments</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">best_overlap</span><span class="p">[</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;fragment_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fragment_start&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fragment_end&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;overlap_length&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;perc_of_alignment&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;perc_of_fragment&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_contained&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">dtype</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">dtype</span> <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="n">pore_c_table</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">align_df</span><span class="o">.</span><span class="n">columns</span><span class="p">}</span>
+    <span class="n">align_df</span> <span class="o">=</span> <span class="n">align_df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">align_df</span></div>
+
+
+<div class="viewcode-block" id="apply_per_read_filters"><a class="viewcode-back" href="../../../api/pore_c.analyses.alignments.html#pore_c.analyses.alignments.apply_per_read_filters">[docs]</a><span class="k">def</span> <span class="nf">apply_per_read_filters</span><span class="p">(</span><span class="n">read_df</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">read_df</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">filter_singleton</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">filter_exact_overlap_on_query</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">filter_shortest_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="filter_singleton"><a class="viewcode-back" href="../../../api/pore_c.analyses.alignments.html#pore_c.analyses.alignments.filter_singleton">[docs]</a><span class="k">def</span> <span class="nf">filter_singleton</span><span class="p">(</span><span class="n">read_df</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">read_df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># if you have a single alignment at this point you fail</span>
+        <span class="n">read_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;pass_filter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">read_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;filter_reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;singleton&quot;</span>
+    <span class="k">return</span> <span class="n">read_df</span></div>
+
+
+<div class="viewcode-block" id="filter_exact_overlap_on_query"><a class="viewcode-back" href="../../../api/pore_c.analyses.alignments.html#pore_c.analyses.alignments.filter_exact_overlap_on_query">[docs]</a><span class="k">def</span> <span class="nf">filter_exact_overlap_on_query</span><span class="p">(</span><span class="n">read_df</span><span class="p">):</span>
+    <span class="n">overlap_on_read</span> <span class="o">=</span> <span class="n">read_df</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;read_start&quot;</span><span class="p">,</span> <span class="s2">&quot;read_end&quot;</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">overlap_on_read</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">best_align_idx</span> <span class="o">=</span> <span class="n">read_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">overlap_on_read</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;read_start&quot;</span><span class="p">,</span> <span class="s2">&quot;read_end&quot;</span><span class="p">])[</span><span class="s2">&quot;align_score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()</span>
+        <span class="n">overlap_on_read</span><span class="p">[</span><span class="n">best_align_idx</span><span class="o">.</span><span class="n">values</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">read_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">overlap_on_read</span><span class="p">,</span> <span class="s2">&quot;pass_filter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">read_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">overlap_on_read</span><span class="p">,</span> <span class="s2">&quot;filter_reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;overlap_on_read&quot;</span>
+    <span class="k">return</span> <span class="n">read_df</span></div>
+
+
+<div class="viewcode-block" id="minimap_gapscore"><a class="viewcode-back" href="../../../api/pore_c.analyses.alignments.html#pore_c.analyses.alignments.minimap_gapscore">[docs]</a><span class="k">def</span> <span class="nf">minimap_gapscore</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">o1</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">o2</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">e1</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">e2</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">([</span><span class="n">o1</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">length</span><span class="p">)</span> <span class="o">*</span> <span class="n">e1</span><span class="p">,</span> <span class="n">o2</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">length</span><span class="p">)</span> <span class="o">*</span> <span class="n">e2</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="bwa_gapscore"><a class="viewcode-back" href="../../../api/pore_c.analyses.alignments.html#pore_c.analyses.alignments.bwa_gapscore">[docs]</a><span class="k">def</span> <span class="nf">bwa_gapscore</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">O</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">E</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>  <span class="c1"># noqa: E741</span>
+    <span class="c1"># O=5 E=2 is default for bwa bwasw</span>
+    <span class="c1"># O=6 E=1 is default for bwa mem</span>
+    <span class="k">return</span> <span class="n">O</span> <span class="o">+</span> <span class="n">length</span> <span class="o">*</span> <span class="n">E</span></div>
+
+
+<div class="viewcode-block" id="create_align_graph"><a class="viewcode-back" href="../../../api/pore_c.analyses.alignments.html#pore_c.analyses.alignments.create_align_graph">[docs]</a><span class="k">def</span> <span class="nf">create_align_graph</span><span class="p">(</span><span class="n">aligns</span><span class="p">,</span> <span class="n">gap_fn</span><span class="p">):</span>
+    <span class="c1"># we&#39;ll visit the alignments in order of increasing endpoint on the read, need to keep</span>
+    <span class="c1"># the ids as the index in the original list of aligns for filtering later</span>
+    <span class="n">aligns</span> <span class="o">=</span> <span class="n">aligns</span><span class="p">[[</span><span class="s2">&quot;read_start&quot;</span><span class="p">,</span> <span class="s2">&quot;read_end&quot;</span><span class="p">,</span> <span class="s2">&quot;read_length&quot;</span><span class="p">,</span> <span class="s2">&quot;align_score&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;read_end&quot;</span><span class="p">])</span>
+    <span class="n">node_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">aligns</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
+    <span class="c1"># initialise graph with root and sink node, and one for each alignment</span>
+    <span class="c1"># edges in the graph will represent transitions from one alignment segment</span>
+    <span class="c1"># to the next</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">([</span><span class="s2">&quot;ROOT&quot;</span><span class="p">,</span> <span class="s2">&quot;SINK&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">node_ids</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">align</span> <span class="ow">in</span> <span class="n">aligns</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+        <span class="n">align_idx</span> <span class="o">=</span> <span class="n">align</span><span class="o">.</span><span class="n">Index</span>
+        <span class="n">align_score</span> <span class="o">=</span> <span class="n">align</span><span class="o">.</span><span class="n">align_score</span>
+        <span class="n">gap_penalty_start</span> <span class="o">=</span> <span class="n">gap_fn</span><span class="p">(</span><span class="n">align</span><span class="o">.</span><span class="n">read_start</span><span class="p">)</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;ROOT&quot;</span><span class="p">,</span> <span class="n">align_idx</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">gap_penalty_start</span> <span class="o">-</span> <span class="n">align_score</span><span class="p">)</span>
+        <span class="n">gap_penalty_end</span> <span class="o">=</span> <span class="n">gap_fn</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">align</span><span class="o">.</span><span class="n">read_length</span> <span class="o">-</span> <span class="n">align</span><span class="o">.</span><span class="n">read_end</span><span class="p">))</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">align_idx</span><span class="p">,</span> <span class="s2">&quot;SINK&quot;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">gap_penalty_end</span><span class="p">)</span>
+
+    <span class="c1"># for each pair of aligned segments add an edge</span>
+    <span class="k">for</span> <span class="n">idx_a</span><span class="p">,</span> <span class="n">align_idx_a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node_ids</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">align_a_end</span> <span class="o">=</span> <span class="n">aligns</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">align_idx_a</span><span class="p">,</span> <span class="s2">&quot;read_end&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">align_idx_b</span> <span class="ow">in</span> <span class="n">node_ids</span><span class="p">[</span><span class="n">idx_a</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]:</span>  <span class="c1"># noqa: E203 black does this</span>
+            <span class="n">align_b_score</span> <span class="o">=</span> <span class="n">aligns</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">align_idx_b</span><span class="p">,</span> <span class="s2">&quot;align_score&quot;</span><span class="p">]</span>
+            <span class="n">align_b_read_start</span> <span class="o">=</span> <span class="n">aligns</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">align_idx_b</span><span class="p">,</span> <span class="s2">&quot;read_start&quot;</span><span class="p">]</span>
+            <span class="n">gap_penalty</span> <span class="o">=</span> <span class="n">gap_fn</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">align_b_read_start</span><span class="p">)</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">align_a_end</span><span class="p">)))</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">align_idx_a</span><span class="p">,</span> <span class="n">align_idx_b</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">gap_penalty</span> <span class="o">-</span> <span class="n">align_b_score</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">graph</span></div>
+
+
+<div class="viewcode-block" id="filter_shortest_path"><a class="viewcode-back" href="../../../api/pore_c.analyses.alignments.html#pore_c.analyses.alignments.filter_shortest_path">[docs]</a><span class="k">def</span> <span class="nf">filter_shortest_path</span><span class="p">(</span><span class="n">read_df</span><span class="p">,</span> <span class="n">aligner</span><span class="o">=</span><span class="s2">&quot;minimap2&quot;</span><span class="p">):</span>
+    <span class="n">aligns</span> <span class="o">=</span> <span class="n">read_df</span><span class="p">[</span><span class="n">read_df</span><span class="o">.</span><span class="n">pass_filter</span><span class="p">]</span>
+    <span class="n">num_aligns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">aligns</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">num_aligns</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1"># can&#39;t build a graph, so nothing is filtered by this method</span>
+        <span class="k">return</span> <span class="n">read_df</span>
+
+    <span class="k">if</span> <span class="n">aligner</span> <span class="o">==</span> <span class="s2">&quot;minimap2&quot;</span><span class="p">:</span>
+        <span class="n">gap_fn</span> <span class="o">=</span> <span class="n">minimap_gapscore</span>
+    <span class="k">elif</span> <span class="n">aligner</span> <span class="o">==</span> <span class="s2">&quot;bwa&quot;</span><span class="p">:</span>
+        <span class="n">gap_fn</span> <span class="o">=</span> <span class="n">bwa_gapscore</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognised aligner: </span><span class="si">{</span><span class="n">aligner</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">create_align_graph</span><span class="p">(</span><span class="n">aligns</span><span class="p">,</span> <span class="n">gap_fn</span><span class="p">)</span>
+    <span class="n">distance</span><span class="p">,</span> <span class="n">shortest_path</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">single_source_bellman_ford</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="s2">&quot;ROOT&quot;</span><span class="p">,</span> <span class="s2">&quot;SINK&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">aligns</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shortest_path</span><span class="p">:</span>
+            <span class="n">read_df</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;pass_filter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">read_df</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;filter_reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;not_on_shortest_path&quot;</span>
+    <span class="k">return</span> <span class="n">read_df</span></div>
+
+
+<div class="viewcode-block" id="to_contacts"><a class="viewcode-back" href="../../../api/pore_c.analyses.alignments.html#pore_c.analyses.alignments.to_contacts">[docs]</a><span class="k">def</span> <span class="nf">to_contacts</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">PoreCRecordDf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PoreCContactRecordDf</span><span class="p">:</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">keep_segments</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;pass_filter == True&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">fragment_midpoint</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">((</span><span class="n">x</span><span class="o">.</span><span class="n">fragment_start</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">fragment_end</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">chrom_dtype</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dtypes</span><span class="p">[</span><span class="s2">&quot;chrom&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">read_name</span><span class="p">,</span> <span class="n">read_df</span><span class="p">)</span> <span class="ow">in</span> <span class="n">keep_segments</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;read_name&quot;</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">read_df</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">rows</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="n">read_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;read_start&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">pos_on_read</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+            <span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="n">read_idx</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">read_idx</span>
+        <span class="n">read_length</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">read_length</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">align_1</span><span class="p">,</span> <span class="n">align_2</span><span class="p">)</span> <span class="ow">in</span> <span class="n">combinations</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">contact</span> <span class="o">=</span> <span class="n">PoreCContactRecord</span><span class="o">.</span><span class="n">from_pore_c_align_pair</span><span class="p">(</span><span class="n">read_name</span><span class="p">,</span> <span class="n">read_length</span><span class="p">,</span> <span class="n">read_idx</span><span class="p">,</span> <span class="n">align_1</span><span class="p">,</span> <span class="n">align_2</span><span class="p">)</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">contact</span><span class="p">)</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">PoreCContactRecord</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">overrides</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;align1_chrom&quot;</span><span class="p">:</span> <span class="n">chrom_dtype</span><span class="p">,</span> <span class="s2">&quot;align2_chrom&quot;</span><span class="p">:</span> <span class="n">chrom_dtype</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+</pre></div>
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+          By ONT Applications<br/>
+        
+            &copy; Copyright 2021, Oxford Nanopore Technologies.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

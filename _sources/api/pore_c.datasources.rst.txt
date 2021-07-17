@@ -1,0 +1,7 @@
+pore\_c.datasources module
+==========================
+
+.. automodule:: pore_c.datasources
+   :members:
+   :undoc-members:
+   :show-inheritance:

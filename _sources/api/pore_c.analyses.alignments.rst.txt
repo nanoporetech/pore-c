@@ -1,0 +1,7 @@
+pore\_c.analyses.alignments module
+==================================
+
+.. automodule:: pore_c.analyses.alignments
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+pore\_c.analyses.reads module
+=============================
+
+.. automodule:: pore_c.analyses.reads
+   :members:
+   :undoc-members:
+   :show-inheritance:

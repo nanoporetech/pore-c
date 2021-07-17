@@ -1,0 +1,479 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pore_c.analyses.reference &#8212; Pore-C Tools</title>
+    
+  <link href="../../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    
+  <link rel="preload" as="script" href="../../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../index.html">
+      
+      <img src="../../../_static/ONT_logo.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Pore-C Tools</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../quickstart.html">
+   Quickstart
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../cli.html">
+   Command Line Interface
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../schema.html">
+   Schemas
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../api/modules.html">
+   API
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../api/pore_c.html">
+     pore_c package
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../api/pore_c.analyses.html">
+       pore_c.analyses package
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../api/pore_c.analyses.alignments.html">
+         pore_c.analyses.alignments module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../api/pore_c.analyses.contacts.html">
+         pore_c.analyses.contacts module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../api/pore_c.analyses.reads.html">
+         pore_c.analyses.reads module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../api/pore_c.analyses.reference.html">
+         pore_c.analyses.reference module
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.catalogs.html">
+       pore_c.catalogs module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.cli.html">
+       pore_c.cli module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.cli_utils.html">
+       pore_c.cli_utils module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.config.html">
+       pore_c.config module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.datasources.html">
+       pore_c.datasources module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.io.html">
+       pore_c.io module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.model.html">
+       pore_c.model module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.settings.html">
+       pore_c.settings module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../api/pore_c.utils.html">
+       pore_c.utils module
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Development
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference external" href="https://github.com/nanoporetech/pore-c">
+   GitHub Repository
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference external" href="https://github.com/nanoporetech/Pore-C-Snakemake">
+   GitHub Snakemake Pipeline
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+            <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/nanoporetech/pore-c"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        
+        
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <h1>Source code for pore_c.analyses.reference</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Pattern</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span>
+
+<span class="kn">from</span> <span class="nn">pore_c.datasources</span> <span class="kn">import</span> <span class="n">IndexedFasta</span>
+<span class="kn">from</span> <span class="nn">pore_c.utils</span> <span class="kn">import</span> <span class="n">kmg_bases_to_int</span>
+
+<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">PQ_ENGINE</span><span class="p">,</span> <span class="n">PQ_VERSION</span>
+<span class="kn">from</span> <span class="nn">..model</span> <span class="kn">import</span> <span class="n">FragmentRecord</span><span class="p">,</span> <span class="n">FragmentRecordDf</span>
+
+<span class="c1"># complement translation table with support for regex punctuation</span>
+<span class="n">COMPLEMENT_TRANS</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">(</span><span class="s2">&quot;ACGTWSMKRYBDHVNacgtwsmkrybdhvn-)(][&quot;</span><span class="p">,</span> <span class="s2">&quot;TGCAWSKMYRVHDBNtgcawskmyrvhdbn-()[]&quot;</span><span class="p">)</span>
+
+<span class="c1"># translate degenerate bases to regex set</span>
+<span class="n">DEGENERATE_TRANS</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">(</span>
+    <span class="nb">dict</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;[ACGT]&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;V&quot;</span><span class="p">,</span> <span class="s2">&quot;[ACG]&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;[ACT]&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;[AGT]&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;[CGT]&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;W&quot;</span><span class="p">,</span> <span class="s2">&quot;[AT]&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;[CG]&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="s2">&quot;[AC]&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="s2">&quot;[GT]&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;[AG]&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="s2">&quot;[CT]&quot;</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="create_virtual_digest"><a class="viewcode-back" href="../../../api/pore_c.analyses.reference.html#pore_c.analyses.reference.create_virtual_digest">[docs]</a><span class="k">def</span> <span class="nf">create_virtual_digest</span><span class="p">(</span>
+    <span class="n">reference_fasta</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">digest_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">digest_param</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fragments</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">digest_stats</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">FragmentRecordDf</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Iterate over the sequences in a fasta file and find the match positions for the restriction fragment&quot;&quot;&quot;</span>
+
+    <span class="c1"># convert the sequences to a dask bag</span>
+    <span class="n">ff</span> <span class="o">=</span> <span class="n">IndexedFasta</span><span class="p">(</span><span class="n">reference_fasta</span><span class="p">)</span>
+    <span class="n">seq_bag</span> <span class="o">=</span> <span class="n">ff</span><span class="o">.</span><span class="n">to_dask</span><span class="p">()</span>
+    <span class="n">dtype</span> <span class="o">=</span> <span class="n">FragmentRecord</span><span class="o">.</span><span class="n">pandas_dtype</span><span class="p">(</span><span class="n">overrides</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;chrom&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">(</span><span class="n">ff</span><span class="o">.</span><span class="n">_chroms</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">)})</span>
+
+    <span class="n">frag_df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="n">seq_bag</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;seqid&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;seq&quot;</span><span class="p">],</span> <span class="n">digest_type</span><span class="p">,</span> <span class="n">digest_param</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">create_fragment_dataframe</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">chrom</span><span class="o">=</span><span class="n">dtype</span><span class="p">[</span><span class="s2">&quot;chrom&quot;</span><span class="p">]))</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;chrom&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">fragment_id</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">frag_df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fragments</span><span class="p">),</span> <span class="n">engine</span><span class="o">=</span><span class="n">PQ_ENGINE</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">PQ_VERSION</span><span class="p">)</span>
+
+    <span class="n">summary_stats_df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">frag_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;chrom&quot;</span><span class="p">)[</span><span class="s2">&quot;fragment_length&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s2">&quot;size&quot;</span><span class="p">,</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">})</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="s2">&quot;num_fragments&quot;</span><span class="p">})</span>
+    <span class="p">)</span>
+    <span class="n">summary_stats_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">digest_stats</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">frag_df</span><span class="p">,</span> <span class="n">summary_stats_df</span></div>
+
+
+<div class="viewcode-block" id="revcomp"><a class="viewcode-back" href="../../../api/pore_c.analyses.reference.html#pore_c.analyses.reference.revcomp">[docs]</a><span class="k">def</span> <span class="nf">revcomp</span><span class="p">(</span><span class="n">seq</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return the reverse complement of a string:&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">seq</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">COMPLEMENT_TRANS</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="replace_degenerate"><a class="viewcode-back" href="../../../api/pore_c.analyses.reference.html#pore_c.analyses.reference.replace_degenerate">[docs]</a><span class="k">def</span> <span class="nf">replace_degenerate</span><span class="p">(</span><span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Replace degenerate bases with regex set&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pattern</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">DEGENERATE_TRANS</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="create_regex"><a class="viewcode-back" href="../../../api/pore_c.analyses.reference.html#pore_c.analyses.reference.create_regex">[docs]</a><span class="k">def</span> <span class="nf">create_regex</span><span class="p">(</span><span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Pattern</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Takes a raw restriction digest site in the form of a regular expression</span>
+<span class="sd">    string and returns a regular expression object consisting of both forward</span>
+<span class="sd">    and reverse complement versions of the pattern&quot;&quot;&quot;</span>
+
+    <span class="n">site_raw</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">sites_raw</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">sites_raw</span><span class="p">:</span>
+        <span class="n">sites_raw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">revcomp</span><span class="p">(</span><span class="n">entry</span><span class="p">))</span>
+
+    <span class="n">sites_raw</span> <span class="o">+=</span> <span class="n">site_raw</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sites_raw</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">fwd_rev_pattern</span> <span class="o">=</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">sites_raw</span><span class="p">))))</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fwd_rev_pattern</span> <span class="o">=</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">sites_raw</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+
+    <span class="c1">###</span>
+    <span class="n">fwd_rev_pattern</span> <span class="o">=</span> <span class="n">replace_degenerate</span><span class="p">(</span><span class="n">fwd_rev_pattern</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">fwd_rev_pattern</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error compiling regex for pattern </span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s2">, redundance form: </span><span class="si">{</span><span class="n">fwd_rev_pattern</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">regex</span></div>
+
+
+<div class="viewcode-block" id="find_fragment_intervals"><a class="viewcode-back" href="../../../api/pore_c.analyses.reference.html#pore_c.analyses.reference.find_fragment_intervals">[docs]</a><span class="k">def</span> <span class="nf">find_fragment_intervals</span><span class="p">(</span><span class="n">digest_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">digest_param</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">seq</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Finds the start positions of all matches of the regex in the sequence&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">digest_type</span> <span class="o">==</span> <span class="s2">&quot;regex&quot;</span><span class="p">:</span>
+        <span class="n">regex</span> <span class="o">=</span> <span class="n">create_regex</span><span class="p">(</span><span class="n">digest_param</span><span class="p">)</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">find_site_positions_regex</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">digest_type</span> <span class="o">==</span> <span class="s2">&quot;bin&quot;</span><span class="p">:</span>
+        <span class="n">bin_width</span> <span class="o">=</span> <span class="n">kmg_bases_to_int</span><span class="p">(</span><span class="n">digest_param</span><span class="p">)</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">find_site_positions_bins</span><span class="p">(</span><span class="n">bin_width</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">digest_type</span> <span class="o">==</span> <span class="s2">&quot;enzyme&quot;</span><span class="p">:</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">find_site_positions_biopython</span><span class="p">(</span><span class="n">digest_param</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span>
+    <span class="n">intervals</span> <span class="o">=</span> <span class="n">to_intervals</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">intervals</span></div>
+
+
+<div class="viewcode-block" id="to_intervals"><a class="viewcode-back" href="../../../api/pore_c.analyses.reference.html#pore_c.analyses.reference.to_intervals">[docs]</a><span class="k">def</span> <span class="nf">to_intervals</span><span class="p">(</span><span class="n">positions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">chrom_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">positions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">positions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">chrom_length</span><span class="p">:</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="p">[</span><span class="n">chrom_length</span><span class="p">]</span>
+    <span class="n">endpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">positions</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">endpoints</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">endpoints</span><span class="p">[</span><span class="mi">1</span><span class="p">:]}</span></div>
+
+
+<div class="viewcode-block" id="find_site_positions_bins"><a class="viewcode-back" href="../../../api/pore_c.analyses.reference.html#pore_c.analyses.reference.find_site_positions_bins">[docs]</a><span class="k">def</span> <span class="nf">find_site_positions_bins</span><span class="p">(</span><span class="n">bin_width</span><span class="p">,</span> <span class="n">seq</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Mimic a fixed-width sequence digest by returning the positions of fixed-width bin boundaries&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">bin_width</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">),</span> <span class="n">bin_width</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">positions</span></div>
+
+
+<div class="viewcode-block" id="find_site_positions_regex"><a class="viewcode-back" href="../../../api/pore_c.analyses.reference.html#pore_c.analyses.reference.find_site_positions_regex">[docs]</a><span class="k">def</span> <span class="nf">find_site_positions_regex</span><span class="p">(</span><span class="n">regex</span><span class="p">:</span> <span class="n">Pattern</span><span class="p">,</span> <span class="n">seq</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Finds the start positions of all matches of the regex in the sequence&quot;&quot;&quot;</span>
+    <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">seq</span><span class="o">.</span><span class="n">upper</span><span class="p">())]</span>
+    <span class="k">return</span> <span class="n">positions</span></div>
+
+
+<div class="viewcode-block" id="find_site_positions_biopython"><a class="viewcode-back" href="../../../api/pore_c.analyses.reference.html#pore_c.analyses.reference.find_site_positions_biopython">[docs]</a><span class="k">def</span> <span class="nf">find_site_positions_biopython</span><span class="p">(</span><span class="n">enzyme</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">seq</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="kn">from</span> <span class="nn">Bio</span> <span class="kn">import</span> <span class="n">Restriction</span>
+    <span class="kn">from</span> <span class="nn">Bio.Alphabet.IUPAC</span> <span class="kn">import</span> <span class="n">IUPACAmbiguousDNA</span>
+    <span class="kn">from</span> <span class="nn">Bio.Seq</span> <span class="kn">import</span> <span class="n">Seq</span>
+
+    <span class="n">enz</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">Restriction</span><span class="p">,</span> <span class="n">enzyme</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">enz</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Enzyme not found: </span><span class="si">{</span><span class="n">enzyme</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">IUPACAmbiguousDNA</span><span class="p">())</span>
+    <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">enz</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">s</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">positions</span></div>
+
+
+<div class="viewcode-block" id="create_fragment_dataframe"><a class="viewcode-back" href="../../../api/pore_c.analyses.reference.html#pore_c.analyses.reference.create_fragment_dataframe">[docs]</a><span class="k">def</span> <span class="nf">create_fragment_dataframe</span><span class="p">(</span><span class="n">seqid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">seq</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">digest_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">digest_param</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Iterate over the sequences in a fasta file and find the match positions for the restriction fragment&quot;&quot;&quot;</span>
+    <span class="n">intervals</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">DataFrame</span><span class="p">(</span><span class="n">find_fragment_intervals</span><span class="p">(</span><span class="n">digest_type</span><span class="p">,</span> <span class="n">digest_param</span><span class="p">,</span> <span class="n">seq</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">chrom</span><span class="o">=</span><span class="n">seqid</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;fragment_length = end - start&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">intervals</span></div>
+</pre></div>
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+          By ONT Applications<br/>
+        
+            &copy; Copyright 2021, Oxford Nanopore Technologies.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

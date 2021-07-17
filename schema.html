@@ -1,0 +1,2181 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Schemas &#8212; Pore-C Tools</title>
+    
+  <link href="_static/css/theme.css" rel="stylesheet" />
+  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    
+  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API" href="api/modules.html" />
+    <link rel="prev" title="Command Line Interface" href="cli.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+      <img src="_static/ONT_logo.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Pore-C Tools</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="quickstart.html">
+   Quickstart
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Reference
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="cli.html">
+   Command Line Interface
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Schemas
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="api/modules.html">
+   API
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="api/pore_c.html">
+     pore_c package
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="api/pore_c.analyses.html">
+       pore_c.analyses package
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="api/pore_c.analyses.alignments.html">
+         pore_c.analyses.alignments module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="api/pore_c.analyses.contacts.html">
+         pore_c.analyses.contacts module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="api/pore_c.analyses.reads.html">
+         pore_c.analyses.reads module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="api/pore_c.analyses.reference.html">
+         pore_c.analyses.reference module
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="api/pore_c.catalogs.html">
+       pore_c.catalogs module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="api/pore_c.cli.html">
+       pore_c.cli module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="api/pore_c.cli_utils.html">
+       pore_c.cli_utils module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="api/pore_c.config.html">
+       pore_c.config module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="api/pore_c.datasources.html">
+       pore_c.datasources module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="api/pore_c.io.html">
+       pore_c.io module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="api/pore_c.model.html">
+       pore_c.model module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="api/pore_c.settings.html">
+       pore_c.settings module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="api/pore_c.utils.html">
+       pore_c.utils module
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Development
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference external" href="https://github.com/nanoporetech/pore-c">
+   GitHub Repository
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference external" href="https://github.com/nanoporetech/Pore-C-Snakemake">
+   GitHub Snakemake Pipeline
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="_sources/schema.md.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.md</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/nanoporetech/pore-c"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        
+        <a class="edit-button" href="https://github.com/nanoporetech/pore-c/edit/master/schema.md"><button
+                type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip" data-placement="left"
+                title="Edit this page"><i class="fas fa-pencil-alt"></i>suggest edit</button></a>
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#porecconcatemerrecord">
+   PoreCConcatemerRecord
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     PoreCConcatemerRecord
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#poreccontactrecord">
+   PoreCContactRecord
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id2">
+     PoreCContactRecord
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#porecrecord">
+   PoreCRecord
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id3">
+     PoreCRecord
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#fragmentrecord">
+   FragmentRecord
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id4">
+     FragmentRecord
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#alignmentrecord">
+   AlignmentRecord
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id5">
+     AlignmentRecord
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="tex2jax_ignore mathjax_ignore section" id="schemas">
+<h1><a class="toc-backref" href="#id6">Schemas</a><a class="headerlink" href="#schemas" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#schemas" id="id6">Schemas</a></p>
+<ul>
+<li><p><a class="reference internal" href="#porecconcatemerrecord" id="id7">PoreCConcatemerRecord</a></p></li>
+<li><p><a class="reference internal" href="#poreccontactrecord" id="id8">PoreCContactRecord</a></p></li>
+<li><p><a class="reference internal" href="#porecrecord" id="id9">PoreCRecord</a></p></li>
+<li><p><a class="reference internal" href="#fragmentrecord" id="id10">FragmentRecord</a></p></li>
+<li><p><a class="reference internal" href="#alignmentrecord" id="id11">AlignmentRecord</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="porecconcatemerrecord">
+<h2><a class="toc-backref" href="#id7">PoreCConcatemerRecord</a><a class="headerlink" href="#porecconcatemerrecord" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>PoreCConcatemerRecord<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<table class="table">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_name</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read Name</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The original read name</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minLength</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_length</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read Length</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The length of the read in bases</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_idx</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read Idx</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>Unique integer ID of the read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_order</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read Order</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of monomers for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>num_fragments</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Num Fragments</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of unique restriction fragments  represented in the concatemer</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>total_contacts</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Total Contacts</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The total (direct + indirect) number of contacts for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>total_cis_contacts</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Total Cis Contacts</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The total number of cis-contacts (direct + indirect) for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>total_trans_contacts</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Total Trans Contacts</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The total number of trans-contacts (direct + indirect) for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>total_short_range_cis_contacts</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Total Short Range Cis Contacts</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The total number of cis contacts &lt; 20000 bases apart for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>total_long_range_cis_contacts</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Total Long Range Cis Contacts</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The total number of cis contacts &gt;= 20000 bases apart for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>direct_contacts</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Direct Contacts</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The total number direct (adjacent on read) contacts for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>direct_cis_contacts</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Direct Cis Contacts</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of direct cis-contacts for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>direct_trans_contacts</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Direct Trans Contacts</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of direct trans-contacts for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>direct_short_range_cis_contacts</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Direct Short Range Cis Contacts</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of direct cis contacts &lt; 20000 bases apart for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>direct_long_range_cis_contacts</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Direct Long Range Cis Contacts</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of direct cis contacts &gt;= 20000 bases apart for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>indirect_contacts</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Indirect Contacts</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The total number indirect (non-adjacent on read) contacts for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>indirect_cis_contacts</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Indirect Cis Contacts</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of indirect cis-contacts for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>indirect_trans_contacts</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Indirect Trans Contacts</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of indirect trans-contacts for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>indirect_short_range_cis_contacts</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Indirect Short Range Cis Contacts</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of indirect cis contacts &lt; 20000 bases apart for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>indirect_long_range_cis_contacts</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Indirect Long Range Cis Contacts</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of indirect cis contacts &gt;= 20000 bases apart for this read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>haplotype_phased_h_cis</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Haplotype Phased H Cis</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of cis contacts where both members of the pair are phased, are part of the same phase group, and the haplotypes agree</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>haplotype_phased_h_trans</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Haplotype Phased H Trans</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of cis contacts where both members of the pair are phased, are part of the same phase group, but the haplotypes differ</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>haplotype_phased_sets_differ</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Haplotype Phased Sets Differ</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of cis contacts where both members of the pair are phased but the phase sets differ</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>haplotype_semi_phased</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Haplotype Semi Phased</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of cis contacts where one member of the pair is unphased</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>haplotype_unphased</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Haplotype Unphased</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of cis contacts where both members of the pair are unphased</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>max_indirect_contact_genome_distance</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Max Indirect Contact Genome Distance</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>[‘The longest distance between alignment endpoints for all indirect contacts’]</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>max_direct_contact_genome_distance</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Max Direct Contact Genome Distance</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>[‘The longest distance between alignment endpoints for all direct contacts’]</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>max_indirect_contact_fragment_distance</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Max Indirect Contact Fragment Distance</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>[‘The longest distance between fragment midpoints for all indirect contacts’]</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>max_direct_contact_fragment_distance</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Max Direct Contact Fragment Distance</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>[‘The longest distance between fragment midpoints for all direct contacts’]</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="poreccontactrecord">
+<h2><a class="toc-backref" href="#id8">PoreCContactRecord</a><a class="headerlink" href="#poreccontactrecord" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h3>PoreCContactRecord<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<table class="table">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_name</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read Name</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The original read name</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minLength</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_length</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read Length</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The length of the read in bases</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_idx</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read Idx</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>Unique integer ID of the read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p>contact_is_direct</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Contact Is Direct</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>There are no intervening assigned restriction fragments on the read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>False</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p>contact_is_cis</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Contact Is Cis</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>Both alignments come from the same chromsome/contig</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>False</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p>contact_read_distance</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Contact Read Distance</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The distance between the end of the left alignment and the start of the right alignment on the read</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p>contact_genome_distance</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Contact Genome Distance</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The distance between the end of the left alignment and the start of the right alignment (valid for cis contacts only)</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p>contact_fragment_adjacent</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Contact Fragment Adjacent</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>[‘A boolean to indicate if the contact is between the same or adjacent fragments’]</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>False</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>contact_fragment_distance</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Contact Fragment Distance</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The distance between the midpoints of the assigned fragments (valid for cis contacts only)</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p>haplotype_pair_type</p></li>
+</ul>
+</td>
+<td colspan="2"><p>:ref:<code class="docutils literal notranslate"><span class="pre">#/definitions/HaplotypePairType</span></code></p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>align1_align_idx</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align1 Align Idx</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>Unique integer ID of the first aligned segment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>align1_chrom</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align1 Chrom</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The chromosome/contig of the first aligned segment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minLength</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>align1_start</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align1 Start</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The zero-based start position on the genome of the alignment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>align1_end</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align1 End</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The end position on the genome of the alignment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>align1_strand</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align1 Strand</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The alignment strand</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="5"><ul class="simple">
+<li><p><strong>align1_mapping_quality</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align1 Mapping Quality</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The mapping quality as calculated by the aligner</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>maximum</p></td>
+<td><p>255</p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>align1_align_score</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align1 Align Score</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The alignment score as calculated by the aligner</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>align1_align_base_qscore</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align1 Align Base Qscore</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The mean read base score for the aligned segment (rounded to the nearest integer).</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>align1_phase_set</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align1 Phase Set</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The ID of the phase set, often this is the start position of the phase block</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>align1_phase_qual</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align1 Phase Qual</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The phred-scaled quality score of the haplotype assignment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="5"><ul class="simple">
+<li><p>align1_haplotype</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align1 Haplotype</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The id of the haplotype within this block, usually set to 1 or 2. A value of -1 means that this alignment is unphased</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>-1</p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>-1</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="5"><ul class="simple">
+<li><p>align1_fragment_id</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align1 Fragment Id</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The UID of the restriction fragment assigned to this alignment</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="5"><ul class="simple">
+<li><p>align1_fragment_start</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align1 Fragment Start</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The start point on the genome of this restriction fragment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="5"><ul class="simple">
+<li><p>align1_fragment_end</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align1 Fragment End</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The end point on the genome of this restriction fragment</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>align2_align_idx</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align2 Align Idx</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>Unique integer ID of the first aligned segment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>align2_chrom</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align2 Chrom</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The chromosome/contig of the first aligned segment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minLength</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>align2_start</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align2 Start</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The zero-based start position on the genome of the alignment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>align2_end</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align2 End</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The end position on the genome of the alignment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>align2_strand</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align2 Strand</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The alignment strand</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="5"><ul class="simple">
+<li><p><strong>align2_mapping_quality</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align2 Mapping Quality</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The mapping quality as calculated by the aligner</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>maximum</p></td>
+<td><p>255</p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>align2_align_score</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align2 Align Score</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The alignment score as calculated by the aligner</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>align2_align_base_qscore</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align2 Align Base Qscore</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The mean read base score for the aligned segment (rounded to the nearest integer).</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>align2_phase_set</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align2 Phase Set</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The ID of the phase set, often this is the start position of the phase block</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="5"><ul class="simple">
+<li><p>align2_haplotype</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align2 Haplotype</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The id of the haplotype within this block, usually set to 1 or 2. A value of -1 means that this alignment is unphased</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>-1</p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>-1</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="5"><ul class="simple">
+<li><p>align2_fragment_id</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align2 Fragment Id</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The UID of the restriction fragment assigned to this alignment</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="5"><ul class="simple">
+<li><p>align2_fragment_start</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align2 Fragment Start</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The start point on the genome of this restriction fragment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="5"><ul class="simple">
+<li><p>align2_fragment_end</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align2 Fragment End</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The end point on the genome of this restriction fragment</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="porecrecord">
+<h2><a class="toc-backref" href="#id9">PoreCRecord</a><a class="headerlink" href="#porecrecord" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h3>PoreCRecord<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<table class="table">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p>An aligned segment from a BAM file with additional Pore-C related fields</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_idx</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read Idx</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>Unique integer ID of the read</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>align_idx</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align Idx</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>Unique integer ID of the aligned segment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><ul class="simple">
+<li><p><strong>align_type</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>:ref:<code class="docutils literal notranslate"><span class="pre">#/definitions/AlignmentType</span></code></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>chrom</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Chrom</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The chromosome/contig the read is aligned to</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minLength</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>start</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Start</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The zero-based start position on the genome of the alignment</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>end</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>End</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The end position on the genome of the alignment</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p><strong>strand</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Strand</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The alignment strand</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_name</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read Name</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The original read name</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minLength</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_length</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read Length</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The length of the read in bases</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_start</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read Start</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The start coordinate on the read (0-based)</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_end</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read End</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The end coordinate on the read (0-based)</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="5"><ul class="simple">
+<li><p><strong>mapping_quality</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Mapping Quality</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The mapping quality as calculated by the aligner</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>maximum</p></td>
+<td><p>255</p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>align_score</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align Score</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The alignment score as calculated by the aligner</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>align_base_qscore</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align Base Qscore</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The mean read base score for the aligned segment (rounded to the nearest integer).</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p>phase_set</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Phase Set</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The ID of the phase set, often this is the start position of the phase block</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="5"><ul class="simple">
+<li><p>phase_qual</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Phase Qual</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The phred-scaled quality score of the haplotype assignment</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="5"><ul class="simple">
+<li><p>haplotype</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Haplotype</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The id of the haplotype within this block, usually set to 1 or 2. A value of -1 means that this alignment is unphased</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>-1</p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>-1</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p>pass_filter</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Pass Filter</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>Boolean flag, true if alignment passes all filters</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>True</p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p>filter_reason</p></li>
+</ul>
+</td>
+<td colspan="2"><p>:ref:<code class="docutils literal notranslate"><span class="pre">#/definitions/AlignmentFilterReason</span></code></p></td>
+</tr>
+<tr class="row-even"><td rowspan="5"><ul class="simple">
+<li><p>fragment_id</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Fragment Id</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The UID of the restriction fragment assigned to this alignment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="5"><ul class="simple">
+<li><p>num_contained_fragments</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Num Contained Fragments</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The number of restriction fragments completely contained within this alignment</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="5"><ul class="simple">
+<li><p>num_overlapping_fragments</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Num Overlapping Fragments</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The number of restriction fragments overlapping this alignment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="5"><ul class="simple">
+<li><p>overlap_length</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Overlap Length</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The length of the overlap between alignment and fragment</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="5"><ul class="simple">
+<li><p>fragment_start</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Fragment Start</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The start point on the genome of this restriction fragment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="5"><ul class="simple">
+<li><p>fragment_end</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Fragment End</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The end point on the genome of this restriction fragment</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="6"><ul class="simple">
+<li><p>perc_of_alignment</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Perc Of Alignment</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The percentage of the aligned segment that overlaps the assigned fragment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>maximum</p></td>
+<td><p>100</p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0.0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="6"><ul class="simple">
+<li><p>perc_of_fragment</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Perc Of Fragment</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The percentage of the assigned restriction fragment that overlaps the aligned segment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>maximum</p></td>
+<td><p>100</p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0.0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>is_contained</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Is Contained</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>Boolean flag to inidicate if the alignment is fully contained with the fragment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>False</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="fragmentrecord">
+<h2><a class="toc-backref" href="#id10">FragmentRecord</a><a class="headerlink" href="#fragmentrecord" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h3>FragmentRecord<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<table class="table">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p>Meta-data associated with a restriction fragment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>chrom</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Chrom</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The chromosome/contig the fragment is derived from</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minLength</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>start</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Start</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The zero-based start position on the genome of the fragment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>end</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>End</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The zero-based end position on the genome of the fragment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>fragment_id</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Fragment Id</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>Unique integer ID of the fragment, starts at 1</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>fragment_length</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Fragment Length</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>Length of the fragment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>1</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="alignmentrecord">
+<h2><a class="toc-backref" href="#id11">AlignmentRecord</a><a class="headerlink" href="#alignmentrecord" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h3>AlignmentRecord<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<table class="table">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p>An alignment derived from a BAM file</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_idx</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read Idx</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>Unique integer ID of the read</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>align_idx</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align Idx</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>Unique integer ID of the aligned segment</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><ul class="simple">
+<li><p><strong>align_type</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>:ref:<code class="docutils literal notranslate"><span class="pre">#/definitions/AlignmentType</span></code></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>chrom</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Chrom</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The chromosome/contig the read is aligned to</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minLength</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>start</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Start</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The zero-based start position on the genome of the alignment</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>end</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>End</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The end position on the genome of the alignment</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p><strong>strand</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Strand</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The alignment strand</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_name</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read Name</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The original read name</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minLength</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_length</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read Length</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The length of the read in bases</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_start</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read Start</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The start coordinate on the read (0-based)</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>read_end</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Read End</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The end coordinate on the read (0-based)</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="5"><ul class="simple">
+<li><p><strong>mapping_quality</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Mapping Quality</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The mapping quality as calculated by the aligner</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>maximum</p></td>
+<td><p>255</p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>align_score</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align Score</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The alignment score as calculated by the aligner</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>align_base_qscore</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Align Base Qscore</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The mean read base score for the aligned segment (rounded to the nearest integer).</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p>phase_set</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Phase Set</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The ID of the phase set, often this is the start position of the phase block</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="5"><ul class="simple">
+<li><p>phase_qual</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Phase Qual</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>The phred-scaled quality score of the haplotype assignment</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="5"><ul class="simple">
+<li><p>haplotype</p></li>
+</ul>
+</td>
+<td colspan="2"><p><em>Haplotype</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>The id of the haplotype within this block, usually set to 1 or 2. A value of -1 means that this alignment is unphased</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>integer</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>-1</p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>-1</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+    <a class='left-prev' id="prev-link" href="cli.html" title="previous page">Command Line Interface</a>
+    <a class='right-next' id="next-link" href="api/modules.html" title="next page">API</a>
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+          By ONT Applications<br/>
+        
+            &copy; Copyright 2021, Oxford Nanopore Technologies.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

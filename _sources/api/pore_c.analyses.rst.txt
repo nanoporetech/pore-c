@@ -1,0 +1,18 @@
+pore\_c.analyses package
+========================
+
+.. automodule:: pore_c.analyses
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 6
+
+   pore_c.analyses.alignments
+   pore_c.analyses.contacts
+   pore_c.analyses.reads
+   pore_c.analyses.reference

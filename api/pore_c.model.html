@@ -1,0 +1,1085 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pore_c.model module &#8212; Pore-C Tools</title>
+    
+  <link href="../_static/css/theme.css" rel="stylesheet" />
+  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pore_c.settings module" href="pore_c.settings.html" />
+    <link rel="prev" title="pore_c.io module" href="pore_c.io.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      <img src="../_static/ONT_logo.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Pore-C Tools</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../quickstart.html">
+   Quickstart
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Reference
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../cli.html">
+   Command Line Interface
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../schema.html">
+   Schemas
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="modules.html">
+   API
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="pore_c.html">
+     pore_c package
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="pore_c.analyses.html">
+       pore_c.analyses package
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="pore_c.analyses.alignments.html">
+         pore_c.analyses.alignments module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="pore_c.analyses.contacts.html">
+         pore_c.analyses.contacts module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="pore_c.analyses.reads.html">
+         pore_c.analyses.reads module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="pore_c.analyses.reference.html">
+         pore_c.analyses.reference module
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pore_c.catalogs.html">
+       pore_c.catalogs module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pore_c.cli.html">
+       pore_c.cli module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pore_c.cli_utils.html">
+       pore_c.cli_utils module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pore_c.config.html">
+       pore_c.config module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pore_c.datasources.html">
+       pore_c.datasources module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pore_c.io.html">
+       pore_c.io module
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="#">
+       pore_c.model module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pore_c.settings.html">
+       pore_c.settings module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pore_c.utils.html">
+       pore_c.utils module
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Development
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference external" href="https://github.com/nanoporetech/pore-c">
+   GitHub Repository
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference external" href="https://github.com/nanoporetech/Pore-C-Snakemake">
+   GitHub Snakemake Pipeline
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../_sources/api/pore_c.model.rst.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.rst</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/nanoporetech/pore-c"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        
+        <a class="edit-button" href="https://github.com/nanoporetech/pore-c/edit/master/api/pore_c.model.rst"><button
+                type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip" data-placement="left"
+                title="Edit this page"><i class="fas fa-pencil-alt"></i>suggest edit</button></a>
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="section" id="module-pore_c.model">
+<span id="pore-c-model-module"></span><h1>pore_c.model module<a class="headerlink" href="#module-pore_c.model" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="pore_c.model.AlignmentFilterReason">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pore_c.model.</span></code><code class="sig-name descname"><span class="pre">AlignmentFilterReason</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pore_c/model.html#AlignmentFilterReason"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.AlignmentFilterReason" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentFilterReason.Pass">
+<code class="sig-name descname"><span class="pre">Pass</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'pass'</span></em><a class="headerlink" href="#pore_c.model.AlignmentFilterReason.Pass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentFilterReason.low_mq">
+<code class="sig-name descname"><span class="pre">low_mq</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'low_mq'</span></em><a class="headerlink" href="#pore_c.model.AlignmentFilterReason.low_mq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentFilterReason.not_on_shortest_path">
+<code class="sig-name descname"><span class="pre">not_on_shortest_path</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'not_on_shortest_path'</span></em><a class="headerlink" href="#pore_c.model.AlignmentFilterReason.not_on_shortest_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentFilterReason.null">
+<code class="sig-name descname"><span class="pre">null</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'null'</span></em><a class="headerlink" href="#pore_c.model.AlignmentFilterReason.null" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentFilterReason.overlap_on_read">
+<code class="sig-name descname"><span class="pre">overlap_on_read</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'overlap_on_read'</span></em><a class="headerlink" href="#pore_c.model.AlignmentFilterReason.overlap_on_read" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentFilterReason.short_overlap">
+<code class="sig-name descname"><span class="pre">short_overlap</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'short_overlap'</span></em><a class="headerlink" href="#pore_c.model.AlignmentFilterReason.short_overlap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentFilterReason.singleton">
+<code class="sig-name descname"><span class="pre">singleton</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'singleton'</span></em><a class="headerlink" href="#pore_c.model.AlignmentFilterReason.singleton" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentFilterReason.unmapped">
+<code class="sig-name descname"><span class="pre">unmapped</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'unmapped'</span></em><a class="headerlink" href="#pore_c.model.AlignmentFilterReason.unmapped" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pore_c.model.AlignmentRecord">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pore_c.model.</span></code><code class="sig-name descname"><span class="pre">AlignmentRecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_idx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align_idx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#pore_c.model.AlignmentType" title="pore_c.model.AlignmentType"><span class="pre">pore_c.model.AlignmentType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">chrom</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedStrValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strand</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedStrValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_length</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_start</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_end</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping_quality</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align_score</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align_base_qscore</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_set</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_qual</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">haplotype</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pore_c/model.html#AlignmentRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.AlignmentRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pore_c.model._BaseModel</span></code></p>
+<p>An alignment derived from a BAM file</p>
+<dl class="py class">
+<dt id="pore_c.model.AlignmentRecord.Config">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Config</span></code><a class="reference internal" href="../_modules/pore_c/model.html#AlignmentRecord.Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.AlignmentRecord.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.Config.fields">
+<code class="sig-name descname"><span class="pre">fields</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'align_base_qscore':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">mean</span> <span class="pre">read</span> <span class="pre">base</span> <span class="pre">score</span> <span class="pre">for</span> <span class="pre">the</span> <span class="pre">aligned</span> <span class="pre">segment</span> <span class="pre">(rounded</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">nearest</span> <span class="pre">integer).',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align_idx':</span> <span class="pre">{'description':</span> <span class="pre">'Unique</span> <span class="pre">integer</span> <span class="pre">ID</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">aligned</span> <span class="pre">segment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align_score':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">alignment</span> <span class="pre">score</span> <span class="pre">as</span> <span class="pre">calculated</span> <span class="pre">by</span> <span class="pre">the</span> <span class="pre">aligner',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align_type':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">type</span> <span class="pre">of</span> <span class="pre">alignment',</span> <span class="pre">'dtype':</span> <span class="pre">'category'},</span> <span class="pre">'chrom':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">chromosome/contig</span> <span class="pre">the</span> <span class="pre">read</span> <span class="pre">is</span> <span class="pre">aligned</span> <span class="pre">to',</span> <span class="pre">'dtype':</span> <span class="pre">'category'},</span> <span class="pre">'end':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">end</span> <span class="pre">position</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">genome</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">alignment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'haplotype':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">id</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">haplotype</span> <span class="pre">within</span> <span class="pre">this</span> <span class="pre">block,</span> <span class="pre">usually</span> <span class="pre">set</span> <span class="pre">to</span> <span class="pre">1</span> <span class="pre">or</span> <span class="pre">2.</span> <span class="pre">A</span> <span class="pre">value</span> <span class="pre">of</span> <span class="pre">-1</span> <span class="pre">means</span> <span class="pre">that</span> <span class="pre">this</span> <span class="pre">alignment</span> <span class="pre">is</span> <span class="pre">unphased',</span> <span class="pre">'dtype':</span> <span class="pre">'int8'},</span> <span class="pre">'mapping_quality':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">mapping</span> <span class="pre">quality</span> <span class="pre">as</span> <span class="pre">calculated</span> <span class="pre">by</span> <span class="pre">the</span> <span class="pre">aligner',</span> <span class="pre">'dtype':</span> <span class="pre">'uint8'},</span> <span class="pre">'phase_qual':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">phred-scaled</span> <span class="pre">quality</span> <span class="pre">score</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">haplotype</span> <span class="pre">assignment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint8'},</span> <span class="pre">'phase_set':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">ID</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">phase</span> <span class="pre">set,</span> <span class="pre">often</span> <span class="pre">this</span> <span class="pre">is</span> <span class="pre">the</span> <span class="pre">start</span> <span class="pre">position</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">phase</span> <span class="pre">block',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'read_end':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">end</span> <span class="pre">coordinate</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">read</span> <span class="pre">(0-based)',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'read_idx':</span> <span class="pre">{'description':</span> <span class="pre">'Unique</span> <span class="pre">integer</span> <span class="pre">ID</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'read_length':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">length</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">read</span> <span class="pre">in</span> <span class="pre">bases',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'read_name':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">original</span> <span class="pre">read</span> <span class="pre">name',</span> <span class="pre">'dtype':</span> <span class="pre">'str'},</span> <span class="pre">'read_start':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">start</span> <span class="pre">coordinate</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">read</span> <span class="pre">(0-based)',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'start':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">zero-based</span> <span class="pre">start</span> <span class="pre">position</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">genome</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">alignment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'strand':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">alignment</span> <span class="pre">strand',</span> <span class="pre">'dtype':</span> <span class="pre">'bool'}}</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.Config.fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.Config.use_enum_values">
+<code class="sig-name descname"><span class="pre">use_enum_values</span></code><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.Config.use_enum_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.align_base_qscore">
+<code class="sig-name descname"><span class="pre">align_base_qscore</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.align_base_qscore" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.align_idx">
+<code class="sig-name descname"><span class="pre">align_idx</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.align_idx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.align_score">
+<code class="sig-name descname"><span class="pre">align_score</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.align_score" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.align_type">
+<code class="sig-name descname"><span class="pre">align_type</span></code><em class="property"><span class="pre">:</span> <a class="reference internal" href="#pore_c.model.AlignmentType" title="pore_c.model.AlignmentType"><span class="pre">pore_c.model.AlignmentType</span></a></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.align_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.chrom">
+<code class="sig-name descname"><span class="pre">chrom</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedStrValue</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.chrom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.end">
+<code class="sig-name descname"><span class="pre">end</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pore_c.model.AlignmentRecord.from_aligned_segment">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_aligned_segment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">align</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pysam.libcalignedsegment.AlignedSegment</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pore_c.model.AlignmentRecord" title="pore_c.model.AlignmentRecord"><span class="pre">pore_c.model.AlignmentRecord</span></a><a class="reference internal" href="../_modules/pore_c/model.html#AlignmentRecord.from_aligned_segment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.AlignmentRecord.from_aligned_segment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract information from a pysam Aligned segment</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.haplotype">
+<code class="sig-name descname"><span class="pre">haplotype</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.haplotype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.mapping_quality">
+<code class="sig-name descname"><span class="pre">mapping_quality</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.mapping_quality" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.phase_qual">
+<code class="sig-name descname"><span class="pre">phase_qual</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.phase_qual" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.phase_set">
+<code class="sig-name descname"><span class="pre">phase_set</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.phase_set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.read_end">
+<code class="sig-name descname"><span class="pre">read_end</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.read_end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.read_idx">
+<code class="sig-name descname"><span class="pre">read_idx</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.read_idx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.read_length">
+<code class="sig-name descname"><span class="pre">read_length</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.read_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.read_name">
+<code class="sig-name descname"><span class="pre">read_name</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedStrValue</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.read_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.read_start">
+<code class="sig-name descname"><span class="pre">read_start</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.read_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.start">
+<code class="sig-name descname"><span class="pre">start</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentRecord.strand">
+<code class="sig-name descname"><span class="pre">strand</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#pore_c.model.AlignmentRecord.strand" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pore_c.model.AlignmentRecord.to_dataframe">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">to_dataframe</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aligns</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chrom_order</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pore_c/model.html#AlignmentRecord.to_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.AlignmentRecord.to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pore_c.model.AlignmentRecord.update_dataframe_with_haplotypes">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">update_dataframe_with_haplotypes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">align_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">haplotype_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pore_c/model.html#AlignmentRecord.update_dataframe_with_haplotypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.AlignmentRecord.update_dataframe_with_haplotypes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pore_c.model.AlignmentType">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pore_c.model.</span></code><code class="sig-name descname"><span class="pre">AlignmentType</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pore_c/model.html#AlignmentType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.AlignmentType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentType.primary">
+<code class="sig-name descname"><span class="pre">primary</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'primary'</span></em><a class="headerlink" href="#pore_c.model.AlignmentType.primary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentType.secondary">
+<code class="sig-name descname"><span class="pre">secondary</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'secondary'</span></em><a class="headerlink" href="#pore_c.model.AlignmentType.secondary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentType.supplementary">
+<code class="sig-name descname"><span class="pre">supplementary</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'supplementary'</span></em><a class="headerlink" href="#pore_c.model.AlignmentType.supplementary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.AlignmentType.unmapped">
+<code class="sig-name descname"><span class="pre">unmapped</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'unmapped'</span></em><a class="headerlink" href="#pore_c.model.AlignmentType.unmapped" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pore_c.model.FragmentRecord">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pore_c.model.</span></code><code class="sig-name descname"><span class="pre">FragmentRecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chrom</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedStrValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fragment_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fragment_length</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pore_c/model.html#FragmentRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.FragmentRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pore_c.model._BaseModel</span></code></p>
+<p>Meta-data associated with a restriction fragment</p>
+<dl class="py class">
+<dt id="pore_c.model.FragmentRecord.Config">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Config</span></code><a class="reference internal" href="../_modules/pore_c/model.html#FragmentRecord.Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.FragmentRecord.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt id="pore_c.model.FragmentRecord.Config.fields">
+<code class="sig-name descname"><span class="pre">fields</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'chrom':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">chromosome/contig</span> <span class="pre">the</span> <span class="pre">fragment</span> <span class="pre">is</span> <span class="pre">derived</span> <span class="pre">from',</span> <span class="pre">'dtype':</span> <span class="pre">'category'},</span> <span class="pre">'end':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">zero-based</span> <span class="pre">end</span> <span class="pre">position</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">genome</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">fragment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'fragment_id':</span> <span class="pre">{'description':</span> <span class="pre">'Unique</span> <span class="pre">integer</span> <span class="pre">ID</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">fragment,</span> <span class="pre">starts</span> <span class="pre">at</span> <span class="pre">1',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'fragment_length':</span> <span class="pre">{'description':</span> <span class="pre">'Length</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">fragment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'start':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">zero-based</span> <span class="pre">start</span> <span class="pre">position</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">genome</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">fragment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'}}</span></em><a class="headerlink" href="#pore_c.model.FragmentRecord.Config.fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.FragmentRecord.Config.use_enum_values">
+<code class="sig-name descname"><span class="pre">use_enum_values</span></code><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#pore_c.model.FragmentRecord.Config.use_enum_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.FragmentRecord.chrom">
+<code class="sig-name descname"><span class="pre">chrom</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedStrValue</span></em><a class="headerlink" href="#pore_c.model.FragmentRecord.chrom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.FragmentRecord.end">
+<code class="sig-name descname"><span class="pre">end</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.FragmentRecord.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.FragmentRecord.fragment_id">
+<code class="sig-name descname"><span class="pre">fragment_id</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.FragmentRecord.fragment_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.FragmentRecord.fragment_length">
+<code class="sig-name descname"><span class="pre">fragment_length</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.FragmentRecord.fragment_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.FragmentRecord.start">
+<code class="sig-name descname"><span class="pre">start</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.FragmentRecord.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pore_c.model.HaplotypePairType">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pore_c.model.</span></code><code class="sig-name descname"><span class="pre">HaplotypePairType</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pore_c/model.html#HaplotypePairType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.HaplotypePairType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt id="pore_c.model.HaplotypePairType.null">
+<code class="sig-name descname"><span class="pre">null</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'null'</span></em><a class="headerlink" href="#pore_c.model.HaplotypePairType.null" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.HaplotypePairType.phased_h_cis">
+<code class="sig-name descname"><span class="pre">phased_h_cis</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'phased_h_cis'</span></em><a class="headerlink" href="#pore_c.model.HaplotypePairType.phased_h_cis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.HaplotypePairType.phased_h_trans">
+<code class="sig-name descname"><span class="pre">phased_h_trans</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'phased_h_trans'</span></em><a class="headerlink" href="#pore_c.model.HaplotypePairType.phased_h_trans" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.HaplotypePairType.phased_sets_differ">
+<code class="sig-name descname"><span class="pre">phased_sets_differ</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'phased_sets_differ'</span></em><a class="headerlink" href="#pore_c.model.HaplotypePairType.phased_sets_differ" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.HaplotypePairType.semi_phased">
+<code class="sig-name descname"><span class="pre">semi_phased</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'semi_phased'</span></em><a class="headerlink" href="#pore_c.model.HaplotypePairType.semi_phased" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.HaplotypePairType.trans">
+<code class="sig-name descname"><span class="pre">trans</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'trans'</span></em><a class="headerlink" href="#pore_c.model.HaplotypePairType.trans" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.HaplotypePairType.unphased">
+<code class="sig-name descname"><span class="pre">unphased</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'unphased'</span></em><a class="headerlink" href="#pore_c.model.HaplotypePairType.unphased" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pore_c.model.PoreCConcatemerRecord">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pore_c.model.</span></code><code class="sig-name descname"><span class="pre">PoreCConcatemerRecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedStrValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_length</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_idx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_order</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_fragments</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_contacts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_cis_contacts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_trans_contacts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_short_range_cis_contacts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_long_range_cis_contacts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct_contacts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct_cis_contacts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct_trans_contacts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct_short_range_cis_contacts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct_long_range_cis_contacts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indirect_contacts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indirect_cis_contacts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indirect_trans_contacts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indirect_short_range_cis_contacts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indirect_long_range_cis_contacts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">haplotype_phased_h_cis</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">haplotype_phased_h_trans</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">haplotype_phased_sets_differ</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">haplotype_semi_phased</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">haplotype_unphased</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_indirect_contact_genome_distance</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_direct_contact_genome_distance</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_indirect_contact_fragment_distance</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_direct_contact_fragment_distance</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pore_c.model.ConstrainedIntValue</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pore_c/model.html#PoreCConcatemerRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pore_c.model._BaseModel</span></code></p>
+<dl class="py class">
+<dt id="pore_c.model.PoreCConcatemerRecord.Config">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Config</span></code><a class="reference internal" href="../_modules/pore_c/model.html#PoreCConcatemerRecord.Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.Config.fields">
+<code class="sig-name descname"><span class="pre">fields</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'direct_cis_contacts':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">direct</span> <span class="pre">cis-contacts</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'direct_contacts':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">total</span> <span class="pre">number</span> <span class="pre">direct</span> <span class="pre">(adjacent</span> <span class="pre">on</span> <span class="pre">read)</span> <span class="pre">contacts</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'direct_long_range_cis_contacts':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">direct</span> <span class="pre">cis</span> <span class="pre">contacts</span> <span class="pre">&gt;=</span> <span class="pre">20000</span> <span class="pre">bases</span> <span class="pre">apart</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'direct_short_range_cis_contacts':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">direct</span> <span class="pre">cis</span> <span class="pre">contacts</span> <span class="pre">&lt;</span> <span class="pre">20000</span> <span class="pre">bases</span> <span class="pre">apart</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'direct_trans_contacts':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">direct</span> <span class="pre">trans-contacts</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'haplotype_phased_h_cis':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">cis</span> <span class="pre">contacts</span> <span class="pre">where</span> <span class="pre">both</span> <span class="pre">members</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">pair</span> <span class="pre">are</span> <span class="pre">phased,</span> <span class="pre">are</span> <span class="pre">part</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">same</span> <span class="pre">phase</span> <span class="pre">group,</span> <span class="pre">and</span> <span class="pre">the</span> <span class="pre">haplotypes</span> <span class="pre">agree',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'haplotype_phased_h_trans':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">cis</span> <span class="pre">contacts</span> <span class="pre">where</span> <span class="pre">both</span> <span class="pre">members</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">pair</span> <span class="pre">are</span> <span class="pre">phased,</span> <span class="pre">are</span> <span class="pre">part</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">same</span> <span class="pre">phase</span> <span class="pre">group,</span> <span class="pre">but</span> <span class="pre">the</span> <span class="pre">haplotypes</span> <span class="pre">differ',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'haplotype_phased_sets_differ':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">cis</span> <span class="pre">contacts</span> <span class="pre">where</span> <span class="pre">both</span> <span class="pre">members</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">pair</span> <span class="pre">are</span> <span class="pre">phased</span> <span class="pre">but</span> <span class="pre">the</span> <span class="pre">phase</span> <span class="pre">sets</span> <span class="pre">differ',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'haplotype_semi_phased':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">cis</span> <span class="pre">contacts</span> <span class="pre">where</span> <span class="pre">one</span> <span class="pre">member</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">pair</span> <span class="pre">is</span> <span class="pre">unphased',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'haplotype_unphased':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">cis</span> <span class="pre">contacts</span> <span class="pre">where</span> <span class="pre">both</span> <span class="pre">members</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">pair</span> <span class="pre">are</span> <span class="pre">unphased',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'indirect_cis_contacts':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">indirect</span> <span class="pre">cis-contacts</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'indirect_contacts':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">total</span> <span class="pre">number</span> <span class="pre">indirect</span> <span class="pre">(non-adjacent</span> <span class="pre">on</span> <span class="pre">read)</span> <span class="pre">contacts</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'indirect_long_range_cis_contacts':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">indirect</span> <span class="pre">cis</span> <span class="pre">contacts</span> <span class="pre">&gt;=</span> <span class="pre">20000</span> <span class="pre">bases</span> <span class="pre">apart</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'indirect_short_range_cis_contacts':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">indirect</span> <span class="pre">cis</span> <span class="pre">contacts</span> <span class="pre">&lt;</span> <span class="pre">20000</span> <span class="pre">bases</span> <span class="pre">apart</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'indirect_trans_contacts':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">indirect</span> <span class="pre">trans-contacts</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'max_direct_contact_fragment_distance':</span> <span class="pre">{'description':</span> <span class="pre">('The</span> <span class="pre">longest</span> <span class="pre">distance</span> <span class="pre">between</span> <span class="pre">fragment</span> <span class="pre">midpoints</span> <span class="pre">for</span> <span class="pre">all</span> <span class="pre">direct</span> <span class="pre">contacts',),</span> <span class="pre">'dtype':</span> <span class="pre">'int32'},</span> <span class="pre">'max_direct_contact_genome_distance':</span> <span class="pre">{'description':</span> <span class="pre">('The</span> <span class="pre">longest</span> <span class="pre">distance</span> <span class="pre">between</span> <span class="pre">alignment</span> <span class="pre">endpoints</span> <span class="pre">for</span> <span class="pre">all</span> <span class="pre">direct</span> <span class="pre">contacts',),</span> <span class="pre">'dtype':</span> <span class="pre">'int32'},</span> <span class="pre">'max_indirect_contact_fragment_distance':</span> <span class="pre">{'description':</span> <span class="pre">('The</span> <span class="pre">longest</span> <span class="pre">distance</span> <span class="pre">between</span> <span class="pre">fragment</span> <span class="pre">midpoints</span> <span class="pre">for</span> <span class="pre">all</span> <span class="pre">indirect</span> <span class="pre">contacts',),</span> <span class="pre">'dtype':</span> <span class="pre">'int32'},</span> <span class="pre">'max_indirect_contact_genome_distance':</span> <span class="pre">{'description':</span> <span class="pre">('The</span> <span class="pre">longest</span> <span class="pre">distance</span> <span class="pre">between</span> <span class="pre">alignment</span> <span class="pre">endpoints</span> <span class="pre">for</span> <span class="pre">all</span> <span class="pre">indirect</span> <span class="pre">contacts',),</span> <span class="pre">'dtype':</span> <span class="pre">'int32'},</span> <span class="pre">'num_fragments':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">unique</span> <span class="pre">restriction</span> <span class="pre">fragments</span>&#160; <span class="pre">represented</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">concatemer',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'read_idx':</span> <span class="pre">{'description':</span> <span class="pre">'Unique</span> <span class="pre">integer</span> <span class="pre">ID</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'read_length':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">length</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">read</span> <span class="pre">in</span> <span class="pre">bases',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'read_name':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">original</span> <span class="pre">read</span> <span class="pre">name',</span> <span class="pre">'dtype':</span> <span class="pre">'str'},</span> <span class="pre">'read_order':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">monomers</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'total_cis_contacts':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">total</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">cis-contacts</span> <span class="pre">(direct</span> <span class="pre">+</span> <span class="pre">indirect)</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'total_contacts':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">total</span> <span class="pre">(direct</span> <span class="pre">+</span> <span class="pre">indirect)</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">contacts</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'total_long_range_cis_contacts':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">total</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">cis</span> <span class="pre">contacts</span> <span class="pre">&gt;=</span> <span class="pre">20000</span> <span class="pre">bases</span> <span class="pre">apart</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'total_short_range_cis_contacts':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">total</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">cis</span> <span class="pre">contacts</span> <span class="pre">&lt;</span> <span class="pre">20000</span> <span class="pre">bases</span> <span class="pre">apart</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'total_trans_contacts':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">total</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">trans-contacts</span> <span class="pre">(direct</span> <span class="pre">+</span> <span class="pre">indirect)</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'}}</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.Config.fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.Config.use_enum_values">
+<code class="sig-name descname"><span class="pre">use_enum_values</span></code><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.Config.use_enum_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.direct_cis_contacts">
+<code class="sig-name descname"><span class="pre">direct_cis_contacts</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.direct_cis_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.direct_contacts">
+<code class="sig-name descname"><span class="pre">direct_contacts</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.direct_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.direct_long_range_cis_contacts">
+<code class="sig-name descname"><span class="pre">direct_long_range_cis_contacts</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.direct_long_range_cis_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.direct_short_range_cis_contacts">
+<code class="sig-name descname"><span class="pre">direct_short_range_cis_contacts</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.direct_short_range_cis_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.direct_trans_contacts">
+<code class="sig-name descname"><span class="pre">direct_trans_contacts</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.direct_trans_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.haplotype_phased_h_cis">
+<code class="sig-name descname"><span class="pre">haplotype_phased_h_cis</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.haplotype_phased_h_cis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.haplotype_phased_h_trans">
+<code class="sig-name descname"><span class="pre">haplotype_phased_h_trans</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.haplotype_phased_h_trans" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.haplotype_phased_sets_differ">
+<code class="sig-name descname"><span class="pre">haplotype_phased_sets_differ</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.haplotype_phased_sets_differ" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.haplotype_semi_phased">
+<code class="sig-name descname"><span class="pre">haplotype_semi_phased</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.haplotype_semi_phased" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.haplotype_unphased">
+<code class="sig-name descname"><span class="pre">haplotype_unphased</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.haplotype_unphased" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.indirect_cis_contacts">
+<code class="sig-name descname"><span class="pre">indirect_cis_contacts</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.indirect_cis_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.indirect_contacts">
+<code class="sig-name descname"><span class="pre">indirect_contacts</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.indirect_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.indirect_long_range_cis_contacts">
+<code class="sig-name descname"><span class="pre">indirect_long_range_cis_contacts</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.indirect_long_range_cis_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.indirect_short_range_cis_contacts">
+<code class="sig-name descname"><span class="pre">indirect_short_range_cis_contacts</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.indirect_short_range_cis_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.indirect_trans_contacts">
+<code class="sig-name descname"><span class="pre">indirect_trans_contacts</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.indirect_trans_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.max_direct_contact_fragment_distance">
+<code class="sig-name descname"><span class="pre">max_direct_contact_fragment_distance</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.max_direct_contact_fragment_distance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.max_direct_contact_genome_distance">
+<code class="sig-name descname"><span class="pre">max_direct_contact_genome_distance</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.max_direct_contact_genome_distance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.max_indirect_contact_fragment_distance">
+<code class="sig-name descname"><span class="pre">max_indirect_contact_fragment_distance</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.max_indirect_contact_fragment_distance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.max_indirect_contact_genome_distance">
+<code class="sig-name descname"><span class="pre">max_indirect_contact_genome_distance</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.max_indirect_contact_genome_distance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.num_fragments">
+<code class="sig-name descname"><span class="pre">num_fragments</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.num_fragments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.read_idx">
+<code class="sig-name descname"><span class="pre">read_idx</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.read_idx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.read_length">
+<code class="sig-name descname"><span class="pre">read_length</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.read_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.read_name">
+<code class="sig-name descname"><span class="pre">read_name</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedStrValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.read_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.read_order">
+<code class="sig-name descname"><span class="pre">read_order</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.read_order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.total_cis_contacts">
+<code class="sig-name descname"><span class="pre">total_cis_contacts</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.total_cis_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.total_contacts">
+<code class="sig-name descname"><span class="pre">total_contacts</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.total_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.total_long_range_cis_contacts">
+<code class="sig-name descname"><span class="pre">total_long_range_cis_contacts</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.total_long_range_cis_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.total_short_range_cis_contacts">
+<code class="sig-name descname"><span class="pre">total_short_range_cis_contacts</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.total_short_range_cis_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCConcatemerRecord.total_trans_contacts">
+<code class="sig-name descname"><span class="pre">total_trans_contacts</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCConcatemerRecord.total_trans_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pore_c.model.PoreCContactRecord">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pore_c.model.</span></code><code class="sig-name descname"><span class="pre">PoreCContactRecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">*</span></em>, <em class="sig-param"><span class="pre">read_name:</span> <span class="pre">pore_c.model.ConstrainedStrValue</span></em>, <em class="sig-param"><span class="pre">read_length:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">read_idx:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">contact_is_direct:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">contact_is_cis:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">contact_read_distance:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">contact_genome_distance:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">contact_fragment_adjacent:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">contact_fragment_distance:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">haplotype_pair_type:</span> <span class="pre">pore_c.model.HaplotypePairType</span> <span class="pre">=</span> <span class="pre">&lt;HaplotypePairType.null:</span> <span class="pre">'null'&gt;</span></em>, <em class="sig-param"><span class="pre">align1_align_idx:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align1_chrom:</span> <span class="pre">pore_c.model.ConstrainedStrValue</span></em>, <em class="sig-param"><span class="pre">align1_start:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align1_end:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align1_strand:</span> <span class="pre">bool</span></em>, <em class="sig-param"><span class="pre">align1_mapping_quality:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align1_align_score:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align1_align_base_qscore:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align1_phase_set:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">align1_phase_qual:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">align1_haplotype:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">-1</span></em>, <em class="sig-param"><span class="pre">align1_fragment_id:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">align1_fragment_start:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">align1_fragment_end:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">align2_align_idx:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align2_chrom:</span> <span class="pre">pore_c.model.ConstrainedStrValue</span></em>, <em class="sig-param"><span class="pre">align2_start:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align2_end:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align2_strand:</span> <span class="pre">bool</span></em>, <em class="sig-param"><span class="pre">align2_mapping_quality:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align2_align_score:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align2_align_base_qscore:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align2_phase_set:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">align2_haplotype:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">-1</span></em>, <em class="sig-param"><span class="pre">align2_fragment_id:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">align2_fragment_start:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">align2_fragment_end:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pore_c/model.html#PoreCContactRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.PoreCContactRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pore_c.model._BaseModel</span></code></p>
+<dl class="py class">
+<dt id="pore_c.model.PoreCContactRecord.Config">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Config</span></code><a class="reference internal" href="../_modules/pore_c/model.html#PoreCContactRecord.Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.PoreCContactRecord.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.Config.fields">
+<code class="sig-name descname"><span class="pre">fields</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'align1_align_base_qscore':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">mean</span> <span class="pre">read</span> <span class="pre">base</span> <span class="pre">score</span> <span class="pre">for</span> <span class="pre">the</span> <span class="pre">aligned</span> <span class="pre">segment</span> <span class="pre">(rounded</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">nearest</span> <span class="pre">integer).',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align1_align_idx':</span> <span class="pre">{'description':</span> <span class="pre">'Unique</span> <span class="pre">integer</span> <span class="pre">ID</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">first</span> <span class="pre">aligned</span> <span class="pre">segment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align1_align_score':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">alignment</span> <span class="pre">score</span> <span class="pre">as</span> <span class="pre">calculated</span> <span class="pre">by</span> <span class="pre">the</span> <span class="pre">aligner',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align1_chrom':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">chromosome/contig</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">first</span> <span class="pre">aligned</span> <span class="pre">segment',</span> <span class="pre">'dtype':</span> <span class="pre">'category'},</span> <span class="pre">'align1_end':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">end</span> <span class="pre">position</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">genome</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">alignment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align1_fragment_end':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">end</span> <span class="pre">point</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">genome</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">restriction</span> <span class="pre">fragment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align1_fragment_id':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">UID</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">restriction</span> <span class="pre">fragment</span> <span class="pre">assigned</span> <span class="pre">to</span> <span class="pre">this</span> <span class="pre">alignment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align1_fragment_start':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">start</span> <span class="pre">point</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">genome</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">restriction</span> <span class="pre">fragment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align1_haplotype':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">id</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">haplotype</span> <span class="pre">within</span> <span class="pre">this</span> <span class="pre">block,</span> <span class="pre">usually</span> <span class="pre">set</span> <span class="pre">to</span> <span class="pre">1</span> <span class="pre">or</span> <span class="pre">2.</span> <span class="pre">A</span> <span class="pre">value</span> <span class="pre">of</span> <span class="pre">-1</span> <span class="pre">means</span> <span class="pre">that</span> <span class="pre">this</span> <span class="pre">alignment</span> <span class="pre">is</span> <span class="pre">unphased',</span> <span class="pre">'dtype':</span> <span class="pre">'int8'},</span> <span class="pre">'align1_mapping_quality':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">mapping</span> <span class="pre">quality</span> <span class="pre">as</span> <span class="pre">calculated</span> <span class="pre">by</span> <span class="pre">the</span> <span class="pre">aligner',</span> <span class="pre">'dtype':</span> <span class="pre">'uint8'},</span> <span class="pre">'align1_phase_qual':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">phred-scaled</span> <span class="pre">quality</span> <span class="pre">score</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">haplotype</span> <span class="pre">assignment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint8'},</span> <span class="pre">'align1_phase_set':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">ID</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">phase</span> <span class="pre">set,</span> <span class="pre">often</span> <span class="pre">this</span> <span class="pre">is</span> <span class="pre">the</span> <span class="pre">start</span> <span class="pre">position</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">phase</span> <span class="pre">block',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align1_start':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">zero-based</span> <span class="pre">start</span> <span class="pre">position</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">genome</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">alignment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align1_strand':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">alignment</span> <span class="pre">strand',</span> <span class="pre">'dtype':</span> <span class="pre">'bool'},</span> <span class="pre">'align2_align_base_qscore':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">mean</span> <span class="pre">read</span> <span class="pre">base</span> <span class="pre">score</span> <span class="pre">for</span> <span class="pre">the</span> <span class="pre">aligned</span> <span class="pre">segment</span> <span class="pre">(rounded</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">nearest</span> <span class="pre">integer).',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align2_align_idx':</span> <span class="pre">{'description':</span> <span class="pre">'Unique</span> <span class="pre">integer</span> <span class="pre">ID</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">first</span> <span class="pre">aligned</span> <span class="pre">segment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align2_align_score':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">alignment</span> <span class="pre">score</span> <span class="pre">as</span> <span class="pre">calculated</span> <span class="pre">by</span> <span class="pre">the</span> <span class="pre">aligner',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align2_chrom':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">chromosome/contig</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">first</span> <span class="pre">aligned</span> <span class="pre">segment',</span> <span class="pre">'dtype':</span> <span class="pre">'category'},</span> <span class="pre">'align2_end':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">end</span> <span class="pre">position</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">genome</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">alignment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align2_fragment_end':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">end</span> <span class="pre">point</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">genome</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">restriction</span> <span class="pre">fragment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align2_fragment_id':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">UID</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">restriction</span> <span class="pre">fragment</span> <span class="pre">assigned</span> <span class="pre">to</span> <span class="pre">this</span> <span class="pre">alignment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align2_fragment_start':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">start</span> <span class="pre">point</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">genome</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">restriction</span> <span class="pre">fragment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align2_haplotype':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">id</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">haplotype</span> <span class="pre">within</span> <span class="pre">this</span> <span class="pre">block,</span> <span class="pre">usually</span> <span class="pre">set</span> <span class="pre">to</span> <span class="pre">1</span> <span class="pre">or</span> <span class="pre">2.</span> <span class="pre">A</span> <span class="pre">value</span> <span class="pre">of</span> <span class="pre">-1</span> <span class="pre">means</span> <span class="pre">that</span> <span class="pre">this</span> <span class="pre">alignment</span> <span class="pre">is</span> <span class="pre">unphased',</span> <span class="pre">'dtype':</span> <span class="pre">'int8'},</span> <span class="pre">'align2_mapping_quality':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">mapping</span> <span class="pre">quality</span> <span class="pre">as</span> <span class="pre">calculated</span> <span class="pre">by</span> <span class="pre">the</span> <span class="pre">aligner',</span> <span class="pre">'dtype':</span> <span class="pre">'uint8'},</span> <span class="pre">'align2_phase_qual':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">phred-scaled</span> <span class="pre">quality</span> <span class="pre">score</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">haplotype</span> <span class="pre">assignment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint8'},</span> <span class="pre">'align2_phase_set':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">ID</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">phase</span> <span class="pre">set,</span> <span class="pre">often</span> <span class="pre">this</span> <span class="pre">is</span> <span class="pre">the</span> <span class="pre">start</span> <span class="pre">position</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">phase</span> <span class="pre">block',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align2_start':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">zero-based</span> <span class="pre">start</span> <span class="pre">position</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">genome</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">alignment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'align2_strand':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">alignment</span> <span class="pre">strand',</span> <span class="pre">'dtype':</span> <span class="pre">'bool'},</span> <span class="pre">'contact_fragment_adjacent':</span> <span class="pre">{'description':</span> <span class="pre">('A</span> <span class="pre">boolean</span> <span class="pre">to</span> <span class="pre">indicate</span> <span class="pre">if</span> <span class="pre">the</span> <span class="pre">contact</span> <span class="pre">is</span> <span class="pre">between</span> <span class="pre">the</span> <span class="pre">same</span> <span class="pre">or</span> <span class="pre">adjacent</span> <span class="pre">fragments',),</span> <span class="pre">'dtype':</span> <span class="pre">'bool'},</span> <span class="pre">'contact_fragment_distance':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">distance</span> <span class="pre">between</span> <span class="pre">the</span> <span class="pre">midpoints</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">assigned</span> <span class="pre">fragments</span> <span class="pre">(valid</span> <span class="pre">for</span> <span class="pre">cis</span> <span class="pre">contacts</span> <span class="pre">only)',</span> <span class="pre">'dtype':</span> <span class="pre">'int32'},</span> <span class="pre">'contact_genome_distance':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">distance</span> <span class="pre">between</span> <span class="pre">the</span> <span class="pre">end</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">left</span> <span class="pre">alignment</span> <span class="pre">and</span> <span class="pre">the</span> <span class="pre">start</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">right</span> <span class="pre">alignment</span> <span class="pre">(valid</span> <span class="pre">for</span> <span class="pre">cis</span> <span class="pre">contacts</span> <span class="pre">only)',</span> <span class="pre">'dtype':</span> <span class="pre">'int32'},</span> <span class="pre">'contact_is_cis':</span> <span class="pre">{'description':</span> <span class="pre">'Both</span> <span class="pre">alignments</span> <span class="pre">come</span> <span class="pre">from</span> <span class="pre">the</span> <span class="pre">same</span> <span class="pre">chromsome/contig',</span> <span class="pre">'dtype':</span> <span class="pre">'bool'},</span> <span class="pre">'contact_is_direct':</span> <span class="pre">{'description':</span> <span class="pre">'There</span> <span class="pre">are</span> <span class="pre">no</span> <span class="pre">intervening</span> <span class="pre">assigned</span> <span class="pre">restriction</span> <span class="pre">fragments</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'bool'},</span> <span class="pre">'contact_read_distance':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">distance</span> <span class="pre">between</span> <span class="pre">the</span> <span class="pre">end</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">left</span> <span class="pre">alignment</span> <span class="pre">and</span> <span class="pre">the</span> <span class="pre">start</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">right</span> <span class="pre">alignment</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'int32'},</span> <span class="pre">'haplotype_pair_type':</span> <span class="pre">{'description':</span> <span class="pre">('A</span> <span class="pre">categorical</span> <span class="pre">variable</span> <span class="pre">describing</span> <span class="pre">the</span> <span class="pre">relationship</span> <span class="pre">between</span> <span class="pre">the</span> <span class="pre">haplotypes</span> <span class="pre">assigned</span> <span class="pre">to</span> <span class="pre">each</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">alignments</span> <span class="pre">in</span> <span class="pre">a</span> <span class="pre">contact',),</span> <span class="pre">'dtype':</span> <span class="pre">'category'},</span> <span class="pre">'read_idx':</span> <span class="pre">{'description':</span> <span class="pre">'Unique</span> <span class="pre">integer</span> <span class="pre">ID</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">read',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'read_length':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">length</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">read</span> <span class="pre">in</span> <span class="pre">bases',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'read_name':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">original</span> <span class="pre">read</span> <span class="pre">name',</span> <span class="pre">'dtype':</span> <span class="pre">'str'}}</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.Config.fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.Config.use_enum_values">
+<code class="sig-name descname"><span class="pre">use_enum_values</span></code><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.Config.use_enum_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align1_align_base_qscore">
+<code class="sig-name descname"><span class="pre">align1_align_base_qscore</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align1_align_base_qscore" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align1_align_idx">
+<code class="sig-name descname"><span class="pre">align1_align_idx</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align1_align_idx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align1_align_score">
+<code class="sig-name descname"><span class="pre">align1_align_score</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align1_align_score" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align1_chrom">
+<code class="sig-name descname"><span class="pre">align1_chrom</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedStrValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align1_chrom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align1_end">
+<code class="sig-name descname"><span class="pre">align1_end</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align1_end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align1_fragment_end">
+<code class="sig-name descname"><span class="pre">align1_fragment_end</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align1_fragment_end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align1_fragment_id">
+<code class="sig-name descname"><span class="pre">align1_fragment_id</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align1_fragment_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align1_fragment_start">
+<code class="sig-name descname"><span class="pre">align1_fragment_start</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align1_fragment_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align1_haplotype">
+<code class="sig-name descname"><span class="pre">align1_haplotype</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align1_haplotype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align1_mapping_quality">
+<code class="sig-name descname"><span class="pre">align1_mapping_quality</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align1_mapping_quality" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align1_phase_qual">
+<code class="sig-name descname"><span class="pre">align1_phase_qual</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align1_phase_qual" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align1_phase_set">
+<code class="sig-name descname"><span class="pre">align1_phase_set</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align1_phase_set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align1_start">
+<code class="sig-name descname"><span class="pre">align1_start</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align1_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align1_strand">
+<code class="sig-name descname"><span class="pre">align1_strand</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align1_strand" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align2_align_base_qscore">
+<code class="sig-name descname"><span class="pre">align2_align_base_qscore</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align2_align_base_qscore" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align2_align_idx">
+<code class="sig-name descname"><span class="pre">align2_align_idx</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align2_align_idx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align2_align_score">
+<code class="sig-name descname"><span class="pre">align2_align_score</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align2_align_score" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align2_chrom">
+<code class="sig-name descname"><span class="pre">align2_chrom</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedStrValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align2_chrom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align2_end">
+<code class="sig-name descname"><span class="pre">align2_end</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align2_end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align2_fragment_end">
+<code class="sig-name descname"><span class="pre">align2_fragment_end</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align2_fragment_end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align2_fragment_id">
+<code class="sig-name descname"><span class="pre">align2_fragment_id</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align2_fragment_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align2_fragment_start">
+<code class="sig-name descname"><span class="pre">align2_fragment_start</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align2_fragment_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align2_haplotype">
+<code class="sig-name descname"><span class="pre">align2_haplotype</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align2_haplotype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align2_mapping_quality">
+<code class="sig-name descname"><span class="pre">align2_mapping_quality</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align2_mapping_quality" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align2_phase_set">
+<code class="sig-name descname"><span class="pre">align2_phase_set</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align2_phase_set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align2_start">
+<code class="sig-name descname"><span class="pre">align2_start</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align2_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.align2_strand">
+<code class="sig-name descname"><span class="pre">align2_strand</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.align2_strand" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.contact_fragment_adjacent">
+<code class="sig-name descname"><span class="pre">contact_fragment_adjacent</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.contact_fragment_adjacent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.contact_fragment_distance">
+<code class="sig-name descname"><span class="pre">contact_fragment_distance</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.contact_fragment_distance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.contact_genome_distance">
+<code class="sig-name descname"><span class="pre">contact_genome_distance</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.contact_genome_distance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.contact_is_cis">
+<code class="sig-name descname"><span class="pre">contact_is_cis</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.contact_is_cis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.contact_is_direct">
+<code class="sig-name descname"><span class="pre">contact_is_direct</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.contact_is_direct" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.contact_read_distance">
+<code class="sig-name descname"><span class="pre">contact_read_distance</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.contact_read_distance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pore_c.model.PoreCContactRecord.from_pore_c_align_pair">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_pore_c_align_pair</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_length</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_idx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pore_c/model.html#PoreCContactRecord.from_pore_c_align_pair"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.PoreCContactRecord.from_pore_c_align_pair" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.haplotype_pair_type">
+<code class="sig-name descname"><span class="pre">haplotype_pair_type</span></code><em class="property"><span class="pre">:</span> <a class="reference internal" href="#pore_c.model.HaplotypePairType" title="pore_c.model.HaplotypePairType"><span class="pre">pore_c.model.HaplotypePairType</span></a></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.haplotype_pair_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.read_idx">
+<code class="sig-name descname"><span class="pre">read_idx</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.read_idx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.read_length">
+<code class="sig-name descname"><span class="pre">read_length</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.read_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCContactRecord.read_name">
+<code class="sig-name descname"><span class="pre">read_name</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedStrValue</span></em><a class="headerlink" href="#pore_c.model.PoreCContactRecord.read_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pore_c.model.PoreCRecord">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pore_c.model.</span></code><code class="sig-name descname"><span class="pre">PoreCRecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">*</span></em>, <em class="sig-param"><span class="pre">read_idx:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align_idx:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align_type:</span> <span class="pre">pore_c.model.AlignmentType</span></em>, <em class="sig-param"><span class="pre">chrom:</span> <span class="pre">pore_c.model.ConstrainedStrValue</span></em>, <em class="sig-param"><span class="pre">start:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">end:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">strand:</span> <span class="pre">bool</span></em>, <em class="sig-param"><span class="pre">read_name:</span> <span class="pre">pore_c.model.ConstrainedStrValue</span></em>, <em class="sig-param"><span class="pre">read_length:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">read_start:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">read_end:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">mapping_quality:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align_score:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">align_base_qscore:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em>, <em class="sig-param"><span class="pre">phase_set:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">phase_qual:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">haplotype:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">-1</span></em>, <em class="sig-param"><span class="pre">pass_filter:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></em>, <em class="sig-param"><span class="pre">filter_reason:</span> <span class="pre">pore_c.model.AlignmentFilterReason</span> <span class="pre">=</span> <span class="pre">&lt;AlignmentFilterReason.null:</span> <span class="pre">'null'&gt;</span></em>, <em class="sig-param"><span class="pre">fragment_id:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">num_contained_fragments:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">num_overlapping_fragments:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">overlap_length:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">fragment_start:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">fragment_end:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">perc_of_alignment:</span> <span class="pre">pore_c.model.ConstrainedFloatValue</span> <span class="pre">=</span> <span class="pre">0.0</span></em>, <em class="sig-param"><span class="pre">perc_of_fragment:</span> <span class="pre">pore_c.model.ConstrainedFloatValue</span> <span class="pre">=</span> <span class="pre">0.0</span></em>, <em class="sig-param"><span class="pre">is_contained:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pore_c/model.html#PoreCRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.PoreCRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pore_c.model.AlignmentRecord" title="pore_c.model.AlignmentRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">pore_c.model.AlignmentRecord</span></code></a></p>
+<p>An aligned segment from a BAM file with additional Pore-C related fields</p>
+<dl class="py class">
+<dt id="pore_c.model.PoreCRecord.Config">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Config</span></code><a class="reference internal" href="../_modules/pore_c/model.html#PoreCRecord.Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.PoreCRecord.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCRecord.Config.fields">
+<code class="sig-name descname"><span class="pre">fields</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'filter_reason':</span> <span class="pre">{'description':</span> <span class="pre">'If</span> <span class="pre">an</span> <span class="pre">alignment</span> <span class="pre">fails</span> <span class="pre">the</span> <span class="pre">filter</span> <span class="pre">the</span> <span class="pre">reason</span> <span class="pre">will</span> <span class="pre">be</span> <span class="pre">listed</span> <span class="pre">here',</span> <span class="pre">'dtype':</span> <span class="pre">'category'},</span> <span class="pre">'fragment_end':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">end</span> <span class="pre">point</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">genome</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">restriction</span> <span class="pre">fragment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'fragment_id':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">UID</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">restriction</span> <span class="pre">fragment</span> <span class="pre">assigned</span> <span class="pre">to</span> <span class="pre">this</span> <span class="pre">alignment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'fragment_start':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">start</span> <span class="pre">point</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">genome</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">restriction</span> <span class="pre">fragment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'is_contained':</span> <span class="pre">{'description':</span> <span class="pre">'Boolean</span> <span class="pre">flag</span> <span class="pre">to</span> <span class="pre">inidicate</span> <span class="pre">if</span> <span class="pre">the</span> <span class="pre">alignment</span> <span class="pre">is</span> <span class="pre">fully</span> <span class="pre">contained</span> <span class="pre">with</span> <span class="pre">the</span> <span class="pre">fragment',</span> <span class="pre">'dtype':</span> <span class="pre">'bool'},</span> <span class="pre">'num_contained_fragments':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">restriction</span> <span class="pre">fragments</span> <span class="pre">completely</span> <span class="pre">contained</span> <span class="pre">within</span> <span class="pre">this</span> <span class="pre">alignment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'num_overlapping_fragments':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">restriction</span> <span class="pre">fragments</span> <span class="pre">overlapping</span> <span class="pre">this</span> <span class="pre">alignment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'overlap_length':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">length</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">overlap</span> <span class="pre">between</span> <span class="pre">alignment</span> <span class="pre">and</span> <span class="pre">fragment',</span> <span class="pre">'dtype':</span> <span class="pre">'uint32'},</span> <span class="pre">'pass_filter':</span> <span class="pre">{'description':</span> <span class="pre">'Boolean</span> <span class="pre">flag,</span> <span class="pre">true</span> <span class="pre">if</span> <span class="pre">alignment</span> <span class="pre">passes</span> <span class="pre">all</span> <span class="pre">filters',</span> <span class="pre">'dtype':</span> <span class="pre">'bool'},</span> <span class="pre">'perc_of_alignment':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">percentage</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">aligned</span> <span class="pre">segment</span> <span class="pre">that</span> <span class="pre">overlaps</span> <span class="pre">the</span> <span class="pre">assigned</span> <span class="pre">fragment',</span> <span class="pre">'dtype':</span> <span class="pre">'float32'},</span> <span class="pre">'perc_of_fragment':</span> <span class="pre">{'description':</span> <span class="pre">'The</span> <span class="pre">percentage</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">assigned</span> <span class="pre">restriction</span> <span class="pre">fragment</span> <span class="pre">that</span> <span class="pre">overlaps</span> <span class="pre">the</span> <span class="pre">aligned</span> <span class="pre">segment',</span> <span class="pre">'dtype':</span> <span class="pre">'float32'}}</span></em><a class="headerlink" href="#pore_c.model.PoreCRecord.Config.fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCRecord.Config.use_enum_values">
+<code class="sig-name descname"><span class="pre">use_enum_values</span></code><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#pore_c.model.PoreCRecord.Config.use_enum_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCRecord.filter_reason">
+<code class="sig-name descname"><span class="pre">filter_reason</span></code><em class="property"><span class="pre">:</span> <a class="reference internal" href="#pore_c.model.AlignmentFilterReason" title="pore_c.model.AlignmentFilterReason"><span class="pre">pore_c.model.AlignmentFilterReason</span></a></em><a class="headerlink" href="#pore_c.model.PoreCRecord.filter_reason" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCRecord.fragment_end">
+<code class="sig-name descname"><span class="pre">fragment_end</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCRecord.fragment_end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCRecord.fragment_id">
+<code class="sig-name descname"><span class="pre">fragment_id</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCRecord.fragment_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCRecord.fragment_start">
+<code class="sig-name descname"><span class="pre">fragment_start</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCRecord.fragment_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pore_c.model.PoreCRecord.init_dataframe">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">init_dataframe</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">align_df</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">AlignmentRecordDf</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">PoreCRecordDf</span><a class="reference internal" href="../_modules/pore_c/model.html#PoreCRecord.init_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pore_c.model.PoreCRecord.init_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCRecord.is_contained">
+<code class="sig-name descname"><span class="pre">is_contained</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#pore_c.model.PoreCRecord.is_contained" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCRecord.num_contained_fragments">
+<code class="sig-name descname"><span class="pre">num_contained_fragments</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCRecord.num_contained_fragments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCRecord.num_overlapping_fragments">
+<code class="sig-name descname"><span class="pre">num_overlapping_fragments</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCRecord.num_overlapping_fragments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCRecord.overlap_length">
+<code class="sig-name descname"><span class="pre">overlap_length</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedIntValue</span></em><a class="headerlink" href="#pore_c.model.PoreCRecord.overlap_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCRecord.pass_filter">
+<code class="sig-name descname"><span class="pre">pass_filter</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#pore_c.model.PoreCRecord.pass_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCRecord.perc_of_alignment">
+<code class="sig-name descname"><span class="pre">perc_of_alignment</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedFloatValue</span></em><a class="headerlink" href="#pore_c.model.PoreCRecord.perc_of_alignment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pore_c.model.PoreCRecord.perc_of_fragment">
+<code class="sig-name descname"><span class="pre">perc_of_fragment</span></code><em class="property"><span class="pre">:</span> <span class="pre">pore_c.model.ConstrainedFloatValue</span></em><a class="headerlink" href="#pore_c.model.PoreCRecord.perc_of_fragment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+    <a class='left-prev' id="prev-link" href="pore_c.io.html" title="previous page">pore_c.io module</a>
+    <a class='right-next' id="next-link" href="pore_c.settings.html" title="next page">pore_c.settings module</a>
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+          By ONT Applications<br/>
+        
+            &copy; Copyright 2021, Oxford Nanopore Technologies.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

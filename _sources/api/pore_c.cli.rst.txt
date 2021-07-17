@@ -1,0 +1,7 @@
+pore\_c.cli module
+==================
+
+.. automodule:: pore_c.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:

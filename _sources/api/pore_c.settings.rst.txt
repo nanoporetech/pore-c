@@ -1,0 +1,7 @@
+pore\_c.settings module
+=======================
+
+.. automodule:: pore_c.settings
+   :members:
+   :undoc-members:
+   :show-inheritance:
