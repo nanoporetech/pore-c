@@ -1,4 +1,4 @@
-![.](.docs/_static/ONT_logo.png "Oxford Nanopore Technologies")
+![.](./ONT_logo.png "Oxford Nanopore Technologies")
 
 # Pore-C tools
 

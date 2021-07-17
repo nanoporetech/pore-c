@@ -19,15 +19,16 @@ quickstart
 
 ```{toctree}
 :caption: Reference
-:maxdepth: 3
+:hidden:
 
 cli
+schema
+api/modules
 ```
 
 ```{toctree}
 :caption: Development
 :hidden:
-
 
 GitHub Repository <https://github.com/nanoporetech/pore-c>
 GitHub Snakemake Pipeline <https://github.com/nanoporetech/Pore-C-Snakemake>

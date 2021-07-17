@@ -77,7 +77,7 @@ class AlignmentType(str, Enum):
 
 
 class FragmentRecord(_BaseModel):
-    """Meta-data associated with a restriction fragments"""
+    """Meta-data associated with a restriction fragment"""
 
     chrom: constr(min_length=1, strip_whitespace=True)
     start: conint(ge=0)
@@ -101,7 +101,7 @@ class FragmentRecord(_BaseModel):
 
 
 class AlignmentRecord(_BaseModel):
-    """A subset of the fields in the BAM file"""
+    """An alignment derived from a BAM file"""
 
     read_idx: conint(ge=0, strict=True)
     align_idx: conint(ge=0, strict=True)
@@ -271,6 +271,8 @@ class AlignmentFilterReason(str, Enum):
 
 
 class PoreCRecord(AlignmentRecord):
+    """An aligned segment from a BAM file with additional Pore-C related fields"""
+
     pass_filter: bool = True
     filter_reason: AlignmentFilterReason = AlignmentFilterReason.null
     fragment_id: conint(ge=0) = 0

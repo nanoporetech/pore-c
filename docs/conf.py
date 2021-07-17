@@ -17,9 +17,9 @@
 
 # -- Project information -----------------------------------------------------
 
-project = "PoreC Tools"
-copyright = "2021, Eoghan Harrington"
-author = "Eoghan Harrington"
+project = "Pore-C Tools"
+copyright = "2021, Oxford Nanopore Technologies"
+author = "ONT Applications"
 
 # The full version, including alpha/beta/rc tags
 release = "0.4.0"
@@ -62,6 +62,10 @@ myst_enable_extensions = [
 ]
 myst_heading_anchors = 3
 
+# -- Options for Autodoc     -------------------------------------------------
+
+autodoc_default_options = {"autodoc_typehints": "both"}
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -69,10 +73,15 @@ myst_heading_anchors = 3
 #
 html_theme = "sphinx_book_theme"
 html_title = "Pore-C Tools"
+html_logo = "../ONT_logo.png"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-html_theme_options = {}
+html_theme_options = {
+    "repository_url": "https://github.com/nanoporetech/pore-c",
+    "use_edit_page_button": True,
+    "use_repository_button": True,
+}

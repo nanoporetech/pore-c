@@ -1,0 +1,987 @@
+{
+  "title": "PoreC Data Model",
+  "definitions": {
+    "FragmentRecord": {
+      "title": "FragmentRecord",
+      "description": "Meta-data associated with a restriction fragment",
+      "type": "object",
+      "properties": {
+        "chrom": {
+          "title": "Chrom",
+          "description": "The chromosome/contig the fragment is derived from",
+          "dtype": "category",
+          "minLength": 1,
+          "type": "string"
+        },
+        "start": {
+          "title": "Start",
+          "description": "The zero-based start position on the genome of the fragment",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "end": {
+          "title": "End",
+          "description": "The zero-based end position on the genome of the fragment",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "fragment_id": {
+          "title": "Fragment Id",
+          "description": "Unique integer ID of the fragment, starts at 1",
+          "dtype": "uint32",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "fragment_length": {
+          "title": "Fragment Length",
+          "description": "Length of the fragment",
+          "dtype": "uint32",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": ["chrom", "start", "end", "fragment_id", "fragment_length"]
+    },
+    "AlignmentType": {
+      "title": "AlignmentType",
+      "description": "An enumeration.",
+      "enum": ["unmapped", "primary", "secondary", "supplementary"],
+      "type": "string"
+    },
+    "AlignmentRecord": {
+      "title": "AlignmentRecord",
+      "description": "An alignment derived from a BAM file",
+      "type": "object",
+      "properties": {
+        "read_idx": {
+          "title": "Read Idx",
+          "description": "Unique integer ID of the read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align_idx": {
+          "title": "Align Idx",
+          "description": "Unique integer ID of the aligned segment",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align_type": {
+          "$ref": "#/definitions/AlignmentType"
+        },
+        "chrom": {
+          "title": "Chrom",
+          "description": "The chromosome/contig the read is aligned to",
+          "dtype": "category",
+          "minLength": 1,
+          "type": "string"
+        },
+        "start": {
+          "title": "Start",
+          "description": "The zero-based start position on the genome of the alignment",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "end": {
+          "title": "End",
+          "description": "The end position on the genome of the alignment",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "strand": {
+          "title": "Strand",
+          "description": "The alignment strand",
+          "dtype": "bool",
+          "type": "boolean"
+        },
+        "read_name": {
+          "title": "Read Name",
+          "description": "The original read name",
+          "dtype": "str",
+          "minLength": 1,
+          "type": "string"
+        },
+        "read_length": {
+          "title": "Read Length",
+          "description": "The length of the read in bases",
+          "dtype": "uint32",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "read_start": {
+          "title": "Read Start",
+          "description": "The start coordinate on the read (0-based)",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "read_end": {
+          "title": "Read End",
+          "description": "The end coordinate on the read (0-based)",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "mapping_quality": {
+          "title": "Mapping Quality",
+          "description": "The mapping quality as calculated by the aligner",
+          "dtype": "uint8",
+          "minimum": 0,
+          "maximum": 255,
+          "type": "integer"
+        },
+        "align_score": {
+          "title": "Align Score",
+          "description": "The alignment score as calculated by the aligner",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align_base_qscore": {
+          "title": "Align Base Qscore",
+          "description": "The mean read base score for the aligned segment (rounded to the nearest integer).",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "phase_set": {
+          "title": "Phase Set",
+          "description": "The ID of the phase set, often this is the start position of the phase block",
+          "default": 0,
+          "dtype": "uint32",
+          "type": "integer"
+        },
+        "phase_qual": {
+          "title": "Phase Qual",
+          "description": "The phred-scaled quality score of the haplotype assignment",
+          "default": 0,
+          "dtype": "uint8",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "haplotype": {
+          "title": "Haplotype",
+          "description": "The id of the haplotype within this block, usually set to 1 or 2. A value of -1 means that this alignment is unphased",
+          "default": -1,
+          "dtype": "int8",
+          "minimum": -1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "read_idx",
+        "align_idx",
+        "align_type",
+        "chrom",
+        "start",
+        "end",
+        "strand",
+        "read_name",
+        "read_length",
+        "read_start",
+        "read_end",
+        "mapping_quality",
+        "align_score",
+        "align_base_qscore"
+      ]
+    },
+    "AlignmentFilterReason": {
+      "title": "AlignmentFilterReason",
+      "description": "An enumeration.",
+      "enum": [
+        "null",
+        "pass",
+        "unmapped",
+        "singleton",
+        "low_mq",
+        "short_overlap",
+        "overlap_on_read",
+        "not_on_shortest_path"
+      ],
+      "type": "string"
+    },
+    "PoreCRecord": {
+      "title": "PoreCRecord",
+      "description": "An aligned segment from a BAM file with additional Pore-C related fields",
+      "type": "object",
+      "properties": {
+        "read_idx": {
+          "title": "Read Idx",
+          "description": "Unique integer ID of the read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align_idx": {
+          "title": "Align Idx",
+          "description": "Unique integer ID of the aligned segment",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align_type": {
+          "$ref": "#/definitions/AlignmentType"
+        },
+        "chrom": {
+          "title": "Chrom",
+          "description": "The chromosome/contig the read is aligned to",
+          "dtype": "category",
+          "minLength": 1,
+          "type": "string"
+        },
+        "start": {
+          "title": "Start",
+          "description": "The zero-based start position on the genome of the alignment",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "end": {
+          "title": "End",
+          "description": "The end position on the genome of the alignment",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "strand": {
+          "title": "Strand",
+          "description": "The alignment strand",
+          "dtype": "bool",
+          "type": "boolean"
+        },
+        "read_name": {
+          "title": "Read Name",
+          "description": "The original read name",
+          "dtype": "str",
+          "minLength": 1,
+          "type": "string"
+        },
+        "read_length": {
+          "title": "Read Length",
+          "description": "The length of the read in bases",
+          "dtype": "uint32",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "read_start": {
+          "title": "Read Start",
+          "description": "The start coordinate on the read (0-based)",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "read_end": {
+          "title": "Read End",
+          "description": "The end coordinate on the read (0-based)",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "mapping_quality": {
+          "title": "Mapping Quality",
+          "description": "The mapping quality as calculated by the aligner",
+          "dtype": "uint8",
+          "minimum": 0,
+          "maximum": 255,
+          "type": "integer"
+        },
+        "align_score": {
+          "title": "Align Score",
+          "description": "The alignment score as calculated by the aligner",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align_base_qscore": {
+          "title": "Align Base Qscore",
+          "description": "The mean read base score for the aligned segment (rounded to the nearest integer).",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "phase_set": {
+          "title": "Phase Set",
+          "description": "The ID of the phase set, often this is the start position of the phase block",
+          "default": 0,
+          "dtype": "uint32",
+          "type": "integer"
+        },
+        "phase_qual": {
+          "title": "Phase Qual",
+          "description": "The phred-scaled quality score of the haplotype assignment",
+          "default": 0,
+          "dtype": "uint8",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "haplotype": {
+          "title": "Haplotype",
+          "description": "The id of the haplotype within this block, usually set to 1 or 2. A value of -1 means that this alignment is unphased",
+          "default": -1,
+          "dtype": "int8",
+          "minimum": -1,
+          "type": "integer"
+        },
+        "pass_filter": {
+          "title": "Pass Filter",
+          "description": "Boolean flag, true if alignment passes all filters",
+          "default": true,
+          "dtype": "bool",
+          "type": "boolean"
+        },
+        "filter_reason": {
+          "$ref": "#/definitions/AlignmentFilterReason"
+        },
+        "fragment_id": {
+          "title": "Fragment Id",
+          "description": "The UID of the restriction fragment assigned to this alignment",
+          "default": 0,
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "num_contained_fragments": {
+          "title": "Num Contained Fragments",
+          "description": "The number of restriction fragments completely contained within this alignment",
+          "default": 0,
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "num_overlapping_fragments": {
+          "title": "Num Overlapping Fragments",
+          "description": "The number of restriction fragments overlapping this alignment",
+          "default": 0,
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "overlap_length": {
+          "title": "Overlap Length",
+          "description": "The length of the overlap between alignment and fragment",
+          "default": 0,
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "fragment_start": {
+          "title": "Fragment Start",
+          "description": "The start point on the genome of this restriction fragment",
+          "default": 0,
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "fragment_end": {
+          "title": "Fragment End",
+          "description": "The end point on the genome of this restriction fragment",
+          "default": 0,
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "perc_of_alignment": {
+          "title": "Perc Of Alignment",
+          "description": "The percentage of the aligned segment that overlaps the assigned fragment",
+          "default": 0.0,
+          "dtype": "float32",
+          "minimum": 0,
+          "maximum": 100,
+          "type": "number"
+        },
+        "perc_of_fragment": {
+          "title": "Perc Of Fragment",
+          "description": "The percentage of the assigned restriction fragment that overlaps the aligned segment",
+          "default": 0.0,
+          "dtype": "float32",
+          "minimum": 0,
+          "maximum": 100,
+          "type": "number"
+        },
+        "is_contained": {
+          "title": "Is Contained",
+          "description": "Boolean flag to inidicate if the alignment is fully contained with the fragment",
+          "default": false,
+          "dtype": "bool",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "read_idx",
+        "align_idx",
+        "align_type",
+        "chrom",
+        "start",
+        "end",
+        "strand",
+        "read_name",
+        "read_length",
+        "read_start",
+        "read_end",
+        "mapping_quality",
+        "align_score",
+        "align_base_qscore"
+      ]
+    },
+    "HaplotypePairType": {
+      "title": "HaplotypePairType",
+      "description": "An enumeration.",
+      "enum": [
+        "null",
+        "trans",
+        "unphased",
+        "semi_phased",
+        "phased_sets_differ",
+        "phased_h_cis",
+        "phased_h_trans"
+      ],
+      "type": "string"
+    },
+    "PoreCContactRecord": {
+      "title": "PoreCContactRecord",
+      "type": "object",
+      "properties": {
+        "read_name": {
+          "title": "Read Name",
+          "description": "The original read name",
+          "dtype": "str",
+          "minLength": 1,
+          "type": "string"
+        },
+        "read_length": {
+          "title": "Read Length",
+          "description": "The length of the read in bases",
+          "dtype": "uint32",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "read_idx": {
+          "title": "Read Idx",
+          "description": "Unique integer ID of the read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "contact_is_direct": {
+          "title": "Contact Is Direct",
+          "description": "There are no intervening assigned restriction fragments on the read",
+          "default": false,
+          "dtype": "bool",
+          "type": "boolean"
+        },
+        "contact_is_cis": {
+          "title": "Contact Is Cis",
+          "description": "Both alignments come from the same chromsome/contig",
+          "default": false,
+          "dtype": "bool",
+          "type": "boolean"
+        },
+        "contact_read_distance": {
+          "title": "Contact Read Distance",
+          "description": "The distance between the end of the left alignment and the start of the right alignment on the read",
+          "default": 0,
+          "dtype": "int32",
+          "type": "integer"
+        },
+        "contact_genome_distance": {
+          "title": "Contact Genome Distance",
+          "description": "The distance between the end of the left alignment and the start of the right alignment (valid for cis contacts only)",
+          "default": 0,
+          "dtype": "int32",
+          "type": "integer"
+        },
+        "contact_fragment_adjacent": {
+          "title": "Contact Fragment Adjacent",
+          "description": [
+            "A boolean to indicate if the contact is between the same or adjacent fragments"
+          ],
+          "default": false,
+          "dtype": "bool",
+          "type": "boolean"
+        },
+        "contact_fragment_distance": {
+          "title": "Contact Fragment Distance",
+          "description": "The distance between the midpoints of the assigned fragments (valid for cis contacts only)",
+          "dtype": "int32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "haplotype_pair_type": {
+          "$ref": "#/definitions/HaplotypePairType"
+        },
+        "align1_align_idx": {
+          "title": "Align1 Align Idx",
+          "description": "Unique integer ID of the first aligned segment",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align1_chrom": {
+          "title": "Align1 Chrom",
+          "description": "The chromosome/contig of the first aligned segment",
+          "dtype": "category",
+          "minLength": 1,
+          "type": "string"
+        },
+        "align1_start": {
+          "title": "Align1 Start",
+          "description": "The zero-based start position on the genome of the alignment",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align1_end": {
+          "title": "Align1 End",
+          "description": "The end position on the genome of the alignment",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align1_strand": {
+          "title": "Align1 Strand",
+          "description": "The alignment strand",
+          "dtype": "bool",
+          "type": "boolean"
+        },
+        "align1_mapping_quality": {
+          "title": "Align1 Mapping Quality",
+          "description": "The mapping quality as calculated by the aligner",
+          "dtype": "uint8",
+          "minimum": 0,
+          "maximum": 255,
+          "type": "integer"
+        },
+        "align1_align_score": {
+          "title": "Align1 Align Score",
+          "description": "The alignment score as calculated by the aligner",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align1_align_base_qscore": {
+          "title": "Align1 Align Base Qscore",
+          "description": "The mean read base score for the aligned segment (rounded to the nearest integer).",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align1_phase_set": {
+          "title": "Align1 Phase Set",
+          "description": "The ID of the phase set, often this is the start position of the phase block",
+          "default": 0,
+          "dtype": "uint32",
+          "type": "integer"
+        },
+        "align1_phase_qual": {
+          "title": "Align1 Phase Qual",
+          "description": "The phred-scaled quality score of the haplotype assignment",
+          "default": 0,
+          "dtype": "uint8",
+          "type": "integer"
+        },
+        "align1_haplotype": {
+          "title": "Align1 Haplotype",
+          "description": "The id of the haplotype within this block, usually set to 1 or 2. A value of -1 means that this alignment is unphased",
+          "default": -1,
+          "dtype": "int8",
+          "minimum": -1,
+          "type": "integer"
+        },
+        "align1_fragment_id": {
+          "title": "Align1 Fragment Id",
+          "description": "The UID of the restriction fragment assigned to this alignment",
+          "default": 0,
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align1_fragment_start": {
+          "title": "Align1 Fragment Start",
+          "description": "The start point on the genome of this restriction fragment",
+          "default": 0,
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align1_fragment_end": {
+          "title": "Align1 Fragment End",
+          "description": "The end point on the genome of this restriction fragment",
+          "default": 0,
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align2_align_idx": {
+          "title": "Align2 Align Idx",
+          "description": "Unique integer ID of the first aligned segment",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align2_chrom": {
+          "title": "Align2 Chrom",
+          "description": "The chromosome/contig of the first aligned segment",
+          "dtype": "category",
+          "minLength": 1,
+          "type": "string"
+        },
+        "align2_start": {
+          "title": "Align2 Start",
+          "description": "The zero-based start position on the genome of the alignment",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align2_end": {
+          "title": "Align2 End",
+          "description": "The end position on the genome of the alignment",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align2_strand": {
+          "title": "Align2 Strand",
+          "description": "The alignment strand",
+          "dtype": "bool",
+          "type": "boolean"
+        },
+        "align2_mapping_quality": {
+          "title": "Align2 Mapping Quality",
+          "description": "The mapping quality as calculated by the aligner",
+          "dtype": "uint8",
+          "minimum": 0,
+          "maximum": 255,
+          "type": "integer"
+        },
+        "align2_align_score": {
+          "title": "Align2 Align Score",
+          "description": "The alignment score as calculated by the aligner",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align2_align_base_qscore": {
+          "title": "Align2 Align Base Qscore",
+          "description": "The mean read base score for the aligned segment (rounded to the nearest integer).",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align2_phase_set": {
+          "title": "Align2 Phase Set",
+          "description": "The ID of the phase set, often this is the start position of the phase block",
+          "default": 0,
+          "dtype": "uint32",
+          "type": "integer"
+        },
+        "align2_haplotype": {
+          "title": "Align2 Haplotype",
+          "description": "The id of the haplotype within this block, usually set to 1 or 2. A value of -1 means that this alignment is unphased",
+          "default": -1,
+          "dtype": "int8",
+          "minimum": -1,
+          "type": "integer"
+        },
+        "align2_fragment_id": {
+          "title": "Align2 Fragment Id",
+          "description": "The UID of the restriction fragment assigned to this alignment",
+          "default": 0,
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align2_fragment_start": {
+          "title": "Align2 Fragment Start",
+          "description": "The start point on the genome of this restriction fragment",
+          "default": 0,
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "align2_fragment_end": {
+          "title": "Align2 Fragment End",
+          "description": "The end point on the genome of this restriction fragment",
+          "default": 0,
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "read_name",
+        "read_length",
+        "read_idx",
+        "contact_fragment_distance",
+        "align1_align_idx",
+        "align1_chrom",
+        "align1_start",
+        "align1_end",
+        "align1_strand",
+        "align1_mapping_quality",
+        "align1_align_score",
+        "align1_align_base_qscore",
+        "align2_align_idx",
+        "align2_chrom",
+        "align2_start",
+        "align2_end",
+        "align2_strand",
+        "align2_mapping_quality",
+        "align2_align_score",
+        "align2_align_base_qscore"
+      ]
+    },
+    "PoreCConcatemerRecord": {
+      "title": "PoreCConcatemerRecord",
+      "type": "object",
+      "properties": {
+        "read_name": {
+          "title": "Read Name",
+          "description": "The original read name",
+          "dtype": "str",
+          "minLength": 1,
+          "type": "string"
+        },
+        "read_length": {
+          "title": "Read Length",
+          "description": "The length of the read in bases",
+          "dtype": "uint32",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "read_idx": {
+          "title": "Read Idx",
+          "description": "Unique integer ID of the read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "read_order": {
+          "title": "Read Order",
+          "description": "The number of monomers for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "num_fragments": {
+          "title": "Num Fragments",
+          "description": "The number of unique restriction fragments  represented in the concatemer",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total_contacts": {
+          "title": "Total Contacts",
+          "description": "The total (direct + indirect) number of contacts for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total_cis_contacts": {
+          "title": "Total Cis Contacts",
+          "description": "The total number of cis-contacts (direct + indirect) for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total_trans_contacts": {
+          "title": "Total Trans Contacts",
+          "description": "The total number of trans-contacts (direct + indirect) for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total_short_range_cis_contacts": {
+          "title": "Total Short Range Cis Contacts",
+          "description": "The total number of cis contacts < 20000 bases apart for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total_long_range_cis_contacts": {
+          "title": "Total Long Range Cis Contacts",
+          "description": "The total number of cis contacts >= 20000 bases apart for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "direct_contacts": {
+          "title": "Direct Contacts",
+          "description": "The total number direct (adjacent on read) contacts for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "direct_cis_contacts": {
+          "title": "Direct Cis Contacts",
+          "description": "The number of direct cis-contacts for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "direct_trans_contacts": {
+          "title": "Direct Trans Contacts",
+          "description": "The number of direct trans-contacts for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "direct_short_range_cis_contacts": {
+          "title": "Direct Short Range Cis Contacts",
+          "description": "The number of direct cis contacts < 20000 bases apart for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "direct_long_range_cis_contacts": {
+          "title": "Direct Long Range Cis Contacts",
+          "description": "The number of direct cis contacts >= 20000 bases apart for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "indirect_contacts": {
+          "title": "Indirect Contacts",
+          "description": "The total number indirect (non-adjacent on read) contacts for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "indirect_cis_contacts": {
+          "title": "Indirect Cis Contacts",
+          "description": "The number of indirect cis-contacts for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "indirect_trans_contacts": {
+          "title": "Indirect Trans Contacts",
+          "description": "The number of indirect trans-contacts for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "indirect_short_range_cis_contacts": {
+          "title": "Indirect Short Range Cis Contacts",
+          "description": "The number of indirect cis contacts < 20000 bases apart for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "indirect_long_range_cis_contacts": {
+          "title": "Indirect Long Range Cis Contacts",
+          "description": "The number of indirect cis contacts >= 20000 bases apart for this read",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "haplotype_phased_h_cis": {
+          "title": "Haplotype Phased H Cis",
+          "description": "The number of cis contacts where both members of the pair are phased, are part of the same phase group, and the haplotypes agree",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "haplotype_phased_h_trans": {
+          "title": "Haplotype Phased H Trans",
+          "description": "The number of cis contacts where both members of the pair are phased, are part of the same phase group, but the haplotypes differ",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "haplotype_phased_sets_differ": {
+          "title": "Haplotype Phased Sets Differ",
+          "description": "The number of cis contacts where both members of the pair are phased but the phase sets differ",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "haplotype_semi_phased": {
+          "title": "Haplotype Semi Phased",
+          "description": "The number of cis contacts where one member of the pair is unphased",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "haplotype_unphased": {
+          "title": "Haplotype Unphased",
+          "description": "The number of cis contacts where both members of the pair are unphased",
+          "dtype": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_indirect_contact_genome_distance": {
+          "title": "Max Indirect Contact Genome Distance",
+          "description": [
+            "The longest distance between alignment endpoints for all indirect contacts"
+          ],
+          "dtype": "int32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_direct_contact_genome_distance": {
+          "title": "Max Direct Contact Genome Distance",
+          "description": [
+            "The longest distance between alignment endpoints for all direct contacts"
+          ],
+          "dtype": "int32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_indirect_contact_fragment_distance": {
+          "title": "Max Indirect Contact Fragment Distance",
+          "description": [
+            "The longest distance between fragment midpoints for all indirect contacts"
+          ],
+          "dtype": "int32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_direct_contact_fragment_distance": {
+          "title": "Max Direct Contact Fragment Distance",
+          "description": [
+            "The longest distance between fragment midpoints for all direct contacts"
+          ],
+          "dtype": "int32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "read_name",
+        "read_length",
+        "read_idx",
+        "read_order",
+        "num_fragments",
+        "total_contacts",
+        "total_cis_contacts",
+        "total_trans_contacts",
+        "total_short_range_cis_contacts",
+        "total_long_range_cis_contacts",
+        "direct_contacts",
+        "direct_cis_contacts",
+        "direct_trans_contacts",
+        "direct_short_range_cis_contacts",
+        "direct_long_range_cis_contacts",
+        "indirect_contacts",
+        "indirect_cis_contacts",
+        "indirect_trans_contacts",
+        "indirect_short_range_cis_contacts",
+        "indirect_long_range_cis_contacts",
+        "haplotype_phased_h_cis",
+        "haplotype_phased_h_trans",
+        "haplotype_phased_sets_differ",
+        "haplotype_semi_phased",
+        "haplotype_unphased",
+        "max_indirect_contact_genome_distance",
+        "max_direct_contact_genome_distance",
+        "max_indirect_contact_fragment_distance",
+        "max_direct_contact_fragment_distance"
+      ]
+    }
+  }
+}
