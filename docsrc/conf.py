@@ -2,7 +2,7 @@
 #
 # This file only contains a selection of the most common options. For a full
 # list see the documentation:
-# http://www.sphinx-doc.org/en/master/config
+# https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 # -- Path setup --------------------------------------------------------------
 
@@ -10,18 +10,19 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
-import sys
-
-
-sys.path.insert(0, os.path.abspath(".."))
+# import os
+# import sys
+# sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = "Pore-C Tools"
-copyright = "2019, Matthew Pendleton, Eoghan Harrington"
-author = "Matthew Pendleton, Eoghan Harrington"
+copyright = "2021, Oxford Nanopore Technologies"
+author = "ONT Applications"
+
+# The full version, including alpha/beta/rc tags
+release = "0.4.0"
 
 
 # -- General configuration ---------------------------------------------------
@@ -30,17 +31,20 @@ author = "Matthew Pendleton, Eoghan Harrington"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    # Sphinx's own extensions
     "sphinx.ext.autodoc",
-    "sphinx.ext.napoleon",
-    "sphinx.ext.autosummary",
-    "sphinxcontrib.apidoc",
-    "sphinx_click.ext",
+    "sphinx.ext.extlinks",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.todo",
+    "sphinx.ext.viewcode",
+    # External stuff
+    "myst_parser",
+    "sphinx_click",
     "sphinx-jsonschema",
+    # "sphinx_copybutton",
+    # "sphinx_inline_tabs",
 ]
-
-apidoc_module_dir = "../../pore_c"
-apidoc_excluded_paths = ["tests"]
-apidoc_separate_modules = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -48,17 +52,36 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+#
+# -- Options for Markdown files ----------------------------------------------
+#
+myst_enable_extensions = [
+    "colon_fence",
+    "deflist",
+]
+myst_heading_anchors = 3
 
+# -- Options for Autodoc     -------------------------------------------------
+
+autodoc_default_options = {"autodoc_typehints": "both"}
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "sphinx_book_theme"
+html_title = "Pore-C Tools"
+html_logo = "../ONT_logo.png"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+html_theme_options = {
+    "repository_url": "https://github.com/nanoporetech/pore-c",
+    "use_edit_page_button": True,
+    "use_repository_button": True,
+}

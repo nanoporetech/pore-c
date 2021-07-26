@@ -5,11 +5,10 @@ from pathlib import Path
 import pyarrow as pa
 from pyarrow import parquet as pq
 
-
 logger = getLogger(__name__)
 
 
-class FastqWriter(object):
+class FastqWriter:
     def __init__(self, output_path):
         self._output_path = output_path
         if self._output_path.suffix == ".gz":
@@ -34,14 +33,14 @@ class FastqWriter(object):
             assert self._counter == 0
             return
         self._fh.close()
-        logger.debug("Wrote {} sequences to {}".format(self._counter, self._raw_output_path))
+        logger.debug(f"Wrote {self._counter} sequences to {self._raw_output_path}")
         # TODO: this could all be cleaned up a bit
         if self._compress:
-            logger.info("Compressing {} using bgzip".format(self._raw_output_path))
+            logger.info(f"Compressing {self._raw_output_path} using bgzip")
             sp.check_call(["bgzip", str(self._raw_output_path)])
 
 
-class BatchedFastqWriter(object):
+class BatchedFastqWriter:
     def __init__(self, output_path: Path):
         self._output_path = output_path
         if self._output_path.suffix == ".gz":
@@ -63,7 +62,7 @@ class BatchedFastqWriter(object):
         with open(output_path, "w") as fh:
             fh.write("%s\n" % "\n".join(sequences))
         if self._compress:
-            logger.info("Compressing {} using bgzip".format(output_path))
+            logger.info(f"Compressing {output_path} using bgzip")
             sp.check_call(["bgzip", str(output_path)])
         self.output_paths.append(output_path)
         self._counter += len(sequences)
@@ -74,7 +73,7 @@ class BatchedFastqWriter(object):
         )
 
 
-class TableWriter(object):
+class TableWriter:
     def __init__(self, path, version="2.0"):
         self.path = path
         self.writer = None
@@ -91,7 +90,7 @@ class TableWriter(object):
         try:
             self.writer.write_table(table)
         except Exception as exc:
-            raise IOError("Error writing batch {} to {}:\n{}\n{}".format(self.counter, self.path, df.head(), exc))
+            raise OSError(f"Error writing batch {self.counter} to {self.path}:\n{df.head()}\n{exc}")
         self.row_counter += len(df)
         self.counter += 1
 

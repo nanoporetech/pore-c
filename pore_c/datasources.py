@@ -12,7 +12,7 @@ class Fastq(DataSource):
 
     def __init__(self, urlpath, metadata=None):
         self._urlpath = urlpath
-        super(Fastq, self).__init__(metadata=metadata)
+        super().__init__(metadata=metadata)
 
     def _open_dataset(self):
         return FastxFile(self._urlpath)
@@ -24,8 +24,7 @@ class Fastq(DataSource):
         self._load_metadata()
         from toolz import partition_all
 
-        for records in partition_all(chunksize, self._open_dataset()):
-            yield records
+        yield from partition_all(chunksize, self._open_dataset())
 
     def _close(self):
         if self._dataset is not None:
@@ -44,7 +43,7 @@ class IndexedFasta(DataSource):
         self._dataset = None
         self._dtype = None
         self._chroms = None
-        super(IndexedFasta, self).__init__(metadata=metadata)
+        super().__init__(metadata=metadata)
 
     def _open_dataset(self):
         self._dataset = FastaFile(self._urlpath)

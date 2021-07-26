@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pytest
 
-
 DATA_DIR = Path(__file__).parent / "data"
 
 

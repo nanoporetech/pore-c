@@ -26,7 +26,6 @@ from .config import (
 )
 from .utils import mean_qscore
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -60,7 +59,7 @@ class _BaseModel(BaseModel):
         return pa.Schema.from_pandas(df)
 
     def to_tuple(self):
-        return tuple([_[1] for _ in self])
+        return tuple(_[1] for _ in self)
 
     @classmethod
     def to_dataframe(cls, data: List, overrides=Optional[Dict]):
@@ -78,7 +77,7 @@ class AlignmentType(str, Enum):
 
 
 class FragmentRecord(_BaseModel):
-    """Meta-data associated with a restriction fragments"""
+    """Meta-data associated with a restriction fragment"""
 
     chrom: constr(min_length=1, strip_whitespace=True)
     start: conint(ge=0)
@@ -102,7 +101,7 @@ class FragmentRecord(_BaseModel):
 
 
 class AlignmentRecord(_BaseModel):
-    """A subset of the fields in the BAM file"""
+    """An alignment derived from a BAM file"""
 
     read_idx: conint(ge=0, strict=True)
     align_idx: conint(ge=0, strict=True)
@@ -223,7 +222,7 @@ class AlignmentRecord(_BaseModel):
     @staticmethod
     def update_dataframe_with_haplotypes(align_df, haplotype_df):
         if len(haplotype_df) == 0:
-            logger.info(f"Aligment haplotypes dataframe is empty, haplotypes won't be added.")
+            logger.info("Aligment haplotypes dataframe is empty, haplotypes won't be added.")
             return align_df
         haplotype_df = (
             haplotype_df.join(
@@ -232,7 +231,12 @@ class AlignmentRecord(_BaseModel):
                 .rename({0: "read_name", 1: "read_idx", 2: "align_idx"}, axis=1)
             )
             .rename(columns={"phaseset": "phase_set"})
-            .replace(dict(haplotype={"none": -1, "H1": 1, "H2": 2}, phase_set={"none": 0},))
+            .replace(
+                dict(
+                    haplotype={"none": -1, "H1": 1, "H2": 2},
+                    phase_set={"none": 0},
+                )
+            )
             .astype(
                 {
                     "read_idx": READ_IDX_DTYPE,
@@ -267,6 +271,8 @@ class AlignmentFilterReason(str, Enum):
 
 
 class PoreCRecord(AlignmentRecord):
+    """An aligned segment from a BAM file with additional Pore-C related fields"""
+
     pass_filter: bool = True
     filter_reason: AlignmentFilterReason = AlignmentFilterReason.null
     fragment_id: conint(ge=0) = 0

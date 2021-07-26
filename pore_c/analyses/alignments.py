@@ -12,7 +12,6 @@ from pore_c.model import (
     PoreCRecordDf,
 )
 
-
 logger = logging.getLogger(__name__)
 
 

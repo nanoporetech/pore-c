@@ -1,27 +1,27 @@
 name: pore_c_dev
 channels:
-- defaults
-- bioconda
-- conda-forge
+  - defaults
+  - bioconda
+  - conda-forge
 dependencies:
-- python == 3.7.*
-- biopython
-- click ==7.0.*,>=7.0.0
-- cooler ==0.8.*,>=0.8.5
-- cython >=0.29
-- dask ==2.*,>=2.0.0
-- distributed ==2.*,>=2.9.3
-- intake
-- intake-parquet
-- ncls
-- networkx ==2.*,>=2.4.0
-- numpy >=1.16.1
-- pairtools
-- pandas >=1.0.5
-- pyarrow ==1.*,>=1.0.0
-- pydantic ==1.6.1
-- pyranges ==0.0.71
-- pysam
-- streamz ==0.*,>=0.5.2
-- tqdm
-- pip
+  - python == 3.7.*
+  - biopython
+  - click ==7.0.*,>=7.0.0
+  - cooler ==0.8.*,>=0.8.5
+  - cython >=0.29
+  - dask ==2.*,>=2.0.0
+  - distributed ==2.*,>=2.9.3
+  - intake
+  - intake-parquet
+  - ncls
+  - networkx ==2.*,>=2.4.0
+  - numpy >=1.16.1
+  - pairtools
+  - pandas >=1.0.5
+  - pyarrow ==1.*,>=1.0.0
+  - pydantic ==1.6.1
+  - pyranges ==0.0.71
+  - pysam
+  - streamz ==0.*,>=0.5.2
+  - tqdm
+  - pip

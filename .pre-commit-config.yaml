@@ -23,6 +23,12 @@ repos:
         args: [--extra=testing, --output-file=requirements/testing.txt]
         files: ^(setup\.cfg)$
         additional_dependencies: [cython, numpy>=1.17.3] #pyrle requires cython to read setup.py
+      - id: pip-compile
+        name: pip-compile docs
+        args: [--extra=docs, --output-file=requirements/docs.txt]
+        files: ^(setup\.cfg)$
+        additional_dependencies: [cython, numpy>=1.17.3] #pyrle requires cython to read setup.py
+
   - repo: https://github.com/psf/black
     rev: 21.6b0
     hooks:
