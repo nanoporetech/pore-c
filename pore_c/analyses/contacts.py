@@ -179,28 +179,29 @@ def export_to_salsa_bed(contact_table, output_prefix, query, query_columns):
         "strand": strand_dtype,
     }
 
-    def to_salsa_long(df):
-        df = df.set_index("read_name")
-        contact_idx = df.groupby(level="read_name")["align1_chrom"].transform(lambda x: np.arange(len(x), dtype=int))
-        df["align1_contact_idx"] = contact_idx
-        df["align2_contact_idx"] = contact_idx
-        new_columns = pd.MultiIndex.from_tuples(
-            [c.replace("align", "").split("_", 1) for c in df.columns], names=["pair_idx", "value"]
-        )
-        df.columns = new_columns
-        df = df.stack(level="pair_idx").reset_index()
-        df["read_pair_id"] = df[["read_name", "contact_idx", "pair_idx"]].apply(
-            lambda x: f"read{x.read_name}_{x.contact_idx}/{x.pair_idx}", axis=1
-        )
-        df["strand"] = df["strand"].replace({True: "+", False: "-"}).astype(strand_dtype)
-
-        return df[["chrom", "start", "end", "read_pair_id", "mapping_quality", "strand"]]
-
-    contact_df.map_partitions(to_salsa_long, meta=meta).to_csv(
+    contact_df.map_partitions(to_salsa_long, strand_dtype, meta=meta).to_csv(
         bed_file, single_file=True, sep="\t", header=False, index=False
     )
 
     return bed_file
+
+
+def to_salsa_long(df, strand_dtype):
+    df = df.set_index("read_name")
+    contact_idx = df.groupby(level="read_name")["align1_chrom"].transform(lambda x: np.arange(len(x), dtype=int))
+    df["align1_contact_idx"] = contact_idx
+    df["align2_contact_idx"] = contact_idx
+    new_columns = pd.MultiIndex.from_tuples(
+        [c.replace("align", "").split("_", 1) for c in df.columns], names=["pair_idx", "value"]
+    )
+    df.columns = new_columns
+    df = df.stack(level="pair_idx").reset_index()
+    df["read_pair_id"] = df[["read_name", "contact_idx", "pair_idx"]].apply(
+        lambda x: f"read{x.read_name}_{x.contact_idx}/{x.pair_idx}", axis=1
+    )
+    df["strand"] = df["strand"].replace({True: "+", False: "-"}).astype(strand_dtype)
+
+    return df[["chrom", "start", "end", "read_pair_id", "mapping_quality", "strand"]]
 
 
 def export_to_pairs(contact_table, output_prefix, chromsizes, query, query_columns):

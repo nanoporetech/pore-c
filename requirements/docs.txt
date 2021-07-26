@@ -19,7 +19,9 @@ beautifulsoup4==4.9.3
     #   pydata-sphinx-theme
     #   sphinx-book-theme
 biopython==1.77
-    # via pore-c (setup.py)
+    # via
+    #   pore-c (setup.py)
+    #   whatshap
 certifi==2021.5.30
     # via requests
 charset-normalizer==2.0.2
@@ -33,7 +35,9 @@ click==7.1.2
     #   sphinx-book-theme
     #   sphinx-click
 cloudpickle==1.6.0
-    # via distributed
+    # via
+    #   dask
+    #   distributed
 colorama==0.4.4
     # via sphinx-autobuild
 cooler==0.8.11
@@ -48,7 +52,7 @@ cython==0.29.24
     #   sorted-nearest
 cytoolz==0.10.1
     # via cooler
-dask==2.30.0
+dask==2021.7.1
     # via
     #   distributed
     #   intake
@@ -58,7 +62,7 @@ decorator==4.4.2
     # via networkx
 dill==0.3.4
     # via multiprocess
-distributed==2.30.1
+distributed==2021.7.1
     # via pore-c (setup.py)
 docutils==0.16
     # via
@@ -74,6 +78,7 @@ fastparquet==0.6.3
     # via intake-parquet
 fsspec==2021.7.0
     # via
+    #   dask
     #   fastparquet
     #   intake
 h5py==3.3.0
@@ -99,6 +104,8 @@ jsonpointer==2.1
     # via sphinx-jsonschema
 livereload==2.6.3
     # via sphinx-autobuild
+locket==0.2.1
+    # via partd
 markdown-it-py==1.1.0
     # via
     #   mdit-py-plugins
@@ -122,7 +129,9 @@ ncls==0.0.60
     #   pore-c (setup.py)
     #   pyranges
 networkx==2.5.1
-    # via pore-c (setup.py)
+    # via
+    #   pore-c (setup.py)
+    #   whatshap
 nose==1.3.7
     # via pairtools
 numpy==1.19.5
@@ -140,7 +149,9 @@ numpy==1.19.5
     #   scipy
     #   sorted-nearest
 packaging==21.0
-    # via sphinx
+    # via
+    #   dask
+    #   sphinx
 pairtools==0.3.0
     # via pore-c (setup.py)
 pandas==1.3.0
@@ -151,9 +162,11 @@ pandas==1.3.0
     #   pore-c (setup.py)
     #   pyranges
     #   pyrle
+partd==1.2.0
+    # via dask
 psutil==5.8.0
     # via distributed
-pyarrow==1.0.1
+pyarrow==4.0.1
     # via
     #   intake-parquet
     #   pore-c (setup.py)
@@ -162,7 +175,9 @@ pydantic==1.6.2
 pydata-sphinx-theme==0.6.3
     # via sphinx-book-theme
 pyfaidx==0.6.1
-    # via cooler
+    # via
+    #   cooler
+    #   whatshap
 pygments==2.9.0
     # via sphinx
 pypairix==0.3.7
@@ -174,7 +189,9 @@ pyranges==0.0.71
 pyrle==0.0.33
     # via pyranges
 pysam==0.16.0.1
-    # via pore-c (setup.py)
+    # via
+    #   pore-c (setup.py)
+    #   whatshap
 python-dateutil==2.8.2
     # via pandas
 pytz==2021.1
@@ -195,7 +212,9 @@ requests==2.26.0
     #   sphinx
     #   sphinx-jsonschema
 scipy==1.7.0
-    # via cooler
+    # via
+    #   cooler
+    #   whatshap
 simplejson==3.17.3
     # via cooler
 six==1.16.0
@@ -255,7 +274,10 @@ thrift==0.13.0
 toolz==0.11.1
     # via
     #   cytoolz
+    #   dask
     #   distributed
+    #   partd
+    #   pore-c (setup.py)
     #   streamz
 tornado==6.1
     # via
@@ -266,6 +288,10 @@ tqdm==4.61.2
     # via pore-c (setup.py)
 urllib3==1.26.6
     # via requests
+whatshap==1.1
+    # via pore-c (setup.py)
+xopen==1.1.0
+    # via whatshap
 zict==2.0.0
     # via
     #   distributed

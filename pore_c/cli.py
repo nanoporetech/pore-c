@@ -18,8 +18,8 @@ from .cli_utils import (
     pipeable_sam_output,
 )
 from .config import INPUT_REFGENOME_REGEX, PQ_ENGINE, PQ_VERSION
+from .dask import ExecContext, SchedulerType
 from .settings import setup_logging
-from .utils import DaskExecEnv
 
 logger = setup_logging()
 
@@ -27,33 +27,64 @@ logger = setup_logging()
 @click.group(cls=NaturalOrderGroup)
 @click.option("-v", "--verbosity", count=True, help="Increase level of logging information, eg. -vvv")
 @click.option("--quiet", is_flag=True, default=False, help="Turn off all logging", show_default=True)
-@click.option("--dask-num-workers", type=int, default=1, help="Number of dask workers")
-@click.option("--dask-use-threads", is_flag=True, default=False, help="Use threads instead of processes")
-@click.option("--dask-threads-per-worker", type=int, default=1, help="Number of threads per worker")
+@click.option(
+    "--dask-scheduler",
+    type=click.Choice([v.value for v in SchedulerType]),
+    default="default",
+    help="The dask scheduler to use",
+)
+@click.option(
+    "--dask-num-workers",
+    type=int,
+    default=1,
+    help="Number of dask workers, depending on the scheduler this can be either threads or processes.",
+)
+@click.option(
+    "--dask-use-threads",
+    is_flag=True,
+    default=False,
+    help="Use threads instead of processes (valid for 'local_cluster' scheduler",
+)
+@click.option(
+    "--dask-threads-per-worker",
+    type=int,
+    default=1,
+    help="Number of threads per worker (valid for 'local_cluster' scheduler",
+)
 @click.option(
     "--dask-scheduler-port",
     type=int,
     default=8786,
-    help="The port to use for the dask scheduler, set to 0 to use a random port",
+    help="The port to use for the dask scheduler, set to 0 to use a random port (valid for 'local_cluster' scheduler)",
 )
 @click.option(
     "--dask-dashboard-port",
     type=int,
     default=8787,
-    help="The port to use for the dask dashboard, set to 0 to use a random port",
+    help="The port to use for the dask dashboard, set to 0 to use a random port (valid for 'local_cluster' scheduler)",
 )
-@click.option("--dask-disable-dashboard", is_flag=True, default=False, help="Disable the dask dashboard")
+@click.option(
+    "--dask-disable-dashboard",
+    is_flag=True,
+    default=False,
+    help="Disable the dask dashboard (valid for 'local_cluster' scheduler)",
+)
+@click.option(
+    "--dask-performance-report", type=click.Path(), help="Output a dask.distributed performance report to this path"
+)
 @click.pass_context
 def cli(
     ctx,
     verbosity,
     quiet,
+    dask_scheduler,
     dask_num_workers,
     dask_use_threads,
     dask_threads_per_worker,
     dask_scheduler_port,
     dask_dashboard_port,
     dask_disable_dashboard,
+    dask_performance_report,
 ):
     """Pore-C tools
 
@@ -68,13 +99,19 @@ def cli(
         logger.setLevel(LOG_LEVELS[idx])
     else:
         logger.setLevel(logging.INFO)
+
     logger.debug("Logger set up")
-    ctx.meta["dask_env"] = DaskExecEnv(
-        n_workers=dask_num_workers,
-        threads_per_worker=dask_threads_per_worker,
-        processes=not dask_use_threads,
-        scheduler_port=dask_scheduler_port,
-        dashboard_port=None if dask_disable_dashboard else dask_dashboard_port,
+    scheduler = SchedulerType(dask_scheduler)
+    ctx.obj = ExecContext(
+        scheduler,
+        dict(
+            n_workers=dask_num_workers,
+            threads_per_worker=dask_threads_per_worker,
+            processes=not dask_use_threads,
+            scheduler_port=dask_scheduler_port,
+            dashboard_address=None if dask_disable_dashboard else f":{dask_dashboard_port}",
+            performance_report=dask_performance_report,
+        ),
     )
 
 
@@ -288,6 +325,92 @@ def prepare(  # noqa: F811
 
     catalog = RawReadCatalog.create(file_paths, {"summary_stats": summary}, user_metadata)
     logger.info(f"Created catalog for results: {catalog}")
+
+
+@cli.group(cls=NaturalOrderGroup, short_help="Analyse variants on pore-c reads")
+def variants():
+    pass
+
+
+@variants.command(short_help="Extract SNV linkages between reads")
+@click.argument("input_bam", type=click.Path(exists=True))
+@click.argument("input_vcf", type=click.Path(exists=True))
+@click.argument("reference_fasta", type=click.Path(exists=True))
+@click.argument("link_table")
+@click.option(
+    "--mapping_quality_cutoff",
+    type=int,
+    default=10,
+    help="Minimum mapping quality for an alignment to be considered",
+    show_default=True,
+)
+@click.option(
+    "--variant_quality_cutoff",
+    type=int,
+    default=10,
+    help="Minimum mapping quality for an alignment to be considered",
+    show_default=True,
+)
+def extract_snv_links(
+    input_bam, input_vcf, reference_fasta, link_table, mapping_quality_cutoff, variant_quality_cutoff
+):
+    """ """
+    from .analyses.variants import extract_snv_links as fn
+
+    link_df = fn(input_bam, input_vcf, reference_fasta, mapping_quality_cutoff, variant_quality_cutoff)
+    logger.info(f"Found {len(link_df)} SNV links")
+    link_df.to_parquet(link_table, engine=PQ_ENGINE, index=False, version=PQ_VERSION)
+
+
+@variants.command(short_help="Aggregate link counts from multiple files")
+@click.argument("src_link_tables", nargs=-1, type=click.Path(exists=True))
+@click.argument("dest_link_table", type=click.Path(exists=False))
+@click.option(
+    "--fofn",
+    is_flag=True,
+    help=(
+        "If this flag is set then the SRC_LINK_TABLES is a "
+        "file of filenames corresponding to the contact tables you want to merge. "
+        "This is workaround for when the command line gets too long."
+    ),
+)
+@click.pass_context
+def aggregate_links(ctx, src_link_tables, dest_link_table, fofn):
+    import pyarrow.parquet as pq
+    from pyarrow import dataset
+
+    if fofn:
+        assert len(src_link_tables) == 1, "If using --fofn you can only pass a single source file"
+        src_fofn = src_link_tables[0]
+        src_link_tables = []
+        errors = []
+
+        for file_path in open(src_fofn):
+            input_file = Path(file_path.strip())
+            if not input_file.resolve().exists():
+                errors.append(f"Input file missing: {input_file}")
+            src_link_tables.append(input_file)
+        if errors:
+            for e in errors:
+                logger.error(e)
+            raise OSError("Missing input files")
+
+    parts = []
+    for i in src_link_tables:
+        md = pq.read_metadata(i)
+        if md.num_rows == 0:
+            logger.warning(f"The following contact file has no entries, removing from merge: {i}")
+            continue
+        parts.append(i)
+
+    ds = dataset.dataset(parts, format="parquet")
+    df = dd.read_parquet(parts, engine=PQ_ENGINE, version=PQ_VERSION, index=False)
+    df = (
+        df.groupby(["var1_chrom", "var1_position", "var2_chrom", "var2_position"], observed=True)
+        .agg({"cis_count": "sum", "trans_count": "sum"})
+        .reset_index()
+    )
+    df.to_parquet(dest_link_table, engine=PQ_ENGINE, version=PQ_VERSION, schema=ds.schema, write_index=False)
 
 
 @cli.group(cls=NaturalOrderGroup, short_help="Analyse aligned pore_c reads")
@@ -563,7 +686,7 @@ def contacts():
     pass
 
 
-@contacts.command(short_help="Summarise a contact table")
+@contacts.command(short_help="Concatenate multple contact tables")
 @click.argument("src_contact_tables", nargs=-1, type=click.Path(exists=True))
 @click.argument("dest_contact_table", type=click.Path(exists=False))
 @click.option(
@@ -786,7 +909,7 @@ def summarize(ctx, contact_table, read_summary_table, concatemer_table, concatem
 
     concatemer_meta = PoreCConcatemerRecord.pandas_dtype()
 
-    with ctx.meta["dask_env"]:
+    with ctx.obj:
         contacts_df = dd.read_parquet(contact_table, engine=PQ_ENGINE, version=PQ_VERSION, index=False)
         concatemer_df = contacts_df.map_partitions(gather_concatemer_stats, meta=concatemer_meta).compute()
         concatemer_df.to_parquet(concatemer_table, engine=PQ_ENGINE, version=PQ_VERSION, index=False)
@@ -838,9 +961,9 @@ def summarize(ctx, contact_table, read_summary_table, concatemer_table, concatem
     export_formats=["paired_end_fastq", "merged_no_dups"],
     help="The reference genome used to generate the contact table",
 )
-@click.pass_context
+@click.pass_obj
 def export(
-    ctx,
+    obj,
     contact_table,
     format,
     output_prefix,
@@ -859,6 +982,7 @@ def export(
      - paired_end_fastq: for each contact create a pseudo pair-end read using the reference genome sequence
 
     """
+
     from pore_c.analyses.contacts import (
         export_to_cooler,
         export_to_merged_no_dups,
@@ -897,7 +1021,7 @@ def export(
         for cooler_path in cooler_paths:
             logger.info(f"Wrote cooler to {cooler_path}")
     elif format == "salsa_bed":
-        with ctx.meta["dask_env"]:
+        with obj:
             bed_path = export_to_salsa_bed(contact_table, output_prefix, query, query_columns=columns)
         logger.info(f"Wrote cooler to {bed_path}")
     elif format == "paired_end_fastq":
@@ -928,7 +1052,7 @@ def utils():
 def parquet_to_csv(ctx, input_parquet, output_csv):
     """Convert a parquet file to CSV"""
 
-    with ctx.meta["dask_env"]:
+    with ctx.obj:
         df = dd.read_parquet(input_parquet, engine=PQ_ENGINE, version=PQ_VERSION)
         df.to_csv(
             output_csv, single_file=True, compute=True, compression="gzip" if output_csv.endswith(".gz") else None

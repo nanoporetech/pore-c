@@ -726,6 +726,36 @@ class PoreCConcatemerRecord(_BaseModel):
         )
 
 
+class VariantPairRecord(_BaseModel):
+    var1_chrom: constr(min_length=1, strip_whitespace=True)
+    var1_position: conint(ge=0)
+    var2_chrom: constr(min_length=1, strip_whitespace=True)
+    var2_position: conint(ge=0)
+    cis_count: conint(ge=0)
+    trans_count: conint(ge=0)
+
+    class Config:
+        use_enum_values = True
+        fields = dict(
+            var1_chrom=dict(description="The chromosome/contig of the first variant", dtype="category"),
+            var1_position=dict(
+                description="The zero-based position position on the genome of the variant", dtype=GENOMIC_COORD_DTYPE
+            ),
+            var2_chrom=dict(description="The chromosome/contig of the second variant", dtype="category"),
+            var2_position=dict(
+                description="The zero-based position position on the genome of the variant", dtype=GENOMIC_COORD_DTYPE
+            ),
+            cis_count=dict(
+                description="The number of pore-c reads supporting a cis-linkage between these SNPs, that is var1 and var2 are either both the reference allele or both the alternative allele",
+                dtype=np.uint32,
+            ),
+            trans_count=dict(
+                description="The number of pore-c reads supporting a trans-linkage between these variants, that is var1 is the reference allele and var2 is the alternative allele or vice versa",
+                dtype=np.uint32,
+            ),
+        )
+
+
 AlignmentRecordDf = NewType("AlignmentRecordDf", pd.DataFrame)
 FragmentRecordDf = NewType("FragmentRecordDf", pd.DataFrame)
 PoreCRecordDf = NewType("PoreCRecordDf", pd.DataFrame)

@@ -1,13 +1,42 @@
 import pandas as pd
+import pytest
 from click.testing import CliRunner
 
 from pore_c.cli import cli
 
 
-def _run_command(opts):
+@pytest.fixture(
+    scope="session",
+    params=[
+        ["--dask-scheduler", "default"],
+        pytest.param(["--dask-scheduler", "processes", "--dask-num-workers", "2"], marks=pytest.mark.skip),
+        ["--dask-scheduler", "threads", "--dask-num-workers", "2"],
+        pytest.param(
+            [
+                "--dask-scheduler",
+                "local_cluster",
+                "--dask-num-workers",
+                "2",
+                "--dask-threads-per-worker",
+                "2",
+                "--dask-disable-dashboard",
+            ],
+            marks=pytest.mark.skip,
+        ),
+    ],
+    ids=["sched-default", "sched-processes", "sched-threads", "sched-local-cluster"],
+)
+def dask_settings(request):
+    return request.param
+
+
+def _run_command(opts, dask_settings=None):
     runner = CliRunner()
-    common_opts = ["-vvv", "--dask-use-threads", "--dask-disable-dashboard", "--dask-scheduler-port", "0"]
-    comd = common_opts + [str(_) for _ in opts]
+    common_opts = ["-vvv"]
+
+    if dask_settings is None:
+        dask_settings = ["--dask-scheduler", "default", "--dask-num-workers", "1"]
+    comd = common_opts + dask_settings + [str(_) for _ in opts]
     print("Running command: {}".format(" ".join(comd)))
     result = runner.invoke(cli, comd)
     if result.exit_code != 0:
@@ -15,24 +44,25 @@ def _run_command(opts):
     return result
 
 
-def test_parquet_to_csv(pore_c_table_pq, tmp_path_factory):
+def test_parquet_to_csv(dask_settings, pore_c_table_pq, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("utils")
 
     prefix = pore_c_table_pq.name.split(".")[0]
 
     output_csv = outdir / (prefix + ".pore_c.csv.gz")
-    result = _run_command(["utils", "parquet-to-csv", pore_c_table_pq, output_csv])
+    result = _run_command(["utils", "parquet-to-csv", pore_c_table_pq, output_csv], dask_settings=dask_settings)
 
     assert result.exit_code == 0
 
 
-def test_haplotype_consensus(pore_c_table_pq, tmp_path_factory):
+def test_haplotype_consensus(dask_settings, pore_c_table_pq, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("haplotype_consensus")
     prefix = pore_c_table_pq.name.split(".")[0]
 
     output_pq = outdir / (prefix + ".pore_c.parquet")
     result = _run_command(
-        ["alignments", "assign-consensus-haplotype", pore_c_table_pq, output_pq, "--threshold", "0.51"]
+        ["alignments", "assign-consensus-haplotype", pore_c_table_pq, output_pq, "--threshold", "0.51"],
+        dask_settings=dask_settings,
     )
 
     assert result.exit_code == 0
@@ -43,11 +73,13 @@ def test_haplotype_consensus(pore_c_table_pq, tmp_path_factory):
     assert changes == 7
 
 
-def test_contacts_to_salsa_bed(contact_table_pq, tmp_path_factory):
+def test_contacts_to_salsa_bed(dask_settings, contact_table_pq, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("contacts")
     prefix = contact_table_pq.name.split(".")[0]
 
-    result = _run_command(["contacts", "export", contact_table_pq, "salsa_bed", outdir / prefix])
+    result = _run_command(
+        ["contacts", "export", contact_table_pq, "salsa_bed", outdir / prefix], dask_settings=dask_settings
+    )
 
     new_files = {f.name for f in outdir.glob("*.*")}
     expected_files = {prefix + ".salsa.bed"}
@@ -55,12 +87,13 @@ def test_contacts_to_salsa_bed(contact_table_pq, tmp_path_factory):
     assert new_files == expected_files
 
 
-def test_contacts_to_pairs(contact_table_pq, chromsizes, tmp_path_factory):
+def test_contacts_to_pairs(dask_settings, contact_table_pq, chromsizes, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("contacts")
     prefix = contact_table_pq.name.split(".")[0]
 
     result = _run_command(
-        ["contacts", "export", contact_table_pq, "pairs", outdir / prefix, "--chromsizes", chromsizes]
+        ["contacts", "export", contact_table_pq, "pairs", outdir / prefix, "--chromsizes", chromsizes],
+        dask_settings=dask_settings,
     )
 
     new_files = {f.name for f in outdir.glob("*.*")}
@@ -69,7 +102,7 @@ def test_contacts_to_pairs(contact_table_pq, chromsizes, tmp_path_factory):
     assert new_files == expected_files
 
 
-def test_contacts_to_paired_end_fastq(contact_table_pq, raw_refgenome_file, tmp_path_factory):
+def test_contacts_to_paired_end_fastq(dask_settings, contact_table_pq, raw_refgenome_file, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("contacts")
     prefix = contact_table_pq.name.split(".")[0]
 
@@ -82,7 +115,8 @@ def test_contacts_to_paired_end_fastq(contact_table_pq, raw_refgenome_file, tmp_
             outdir / prefix,
             "--reference-fasta",
             raw_refgenome_file,
-        ]
+        ],
+        dask_settings=dask_settings,
     )
 
     new_files = {f.name for f in outdir.glob("*.*")}
@@ -91,7 +125,9 @@ def test_contacts_to_paired_end_fastq(contact_table_pq, raw_refgenome_file, tmp_
     assert new_files == expected_files
 
 
-def test_contacts_to_cool_by_haplotype(contact_table_pq, fragment_table_pq, chromsizes, tmp_path_factory):
+def test_contacts_to_cool_by_haplotype(
+    dask_settings, contact_table_pq, fragment_table_pq, chromsizes, tmp_path_factory
+):
     outdir = tmp_path_factory.mktemp("to_cool_by_haplotype")
     prefix = contact_table_pq.name.split(".")[0]
 
@@ -107,7 +143,8 @@ def test_contacts_to_cool_by_haplotype(contact_table_pq, fragment_table_pq, chro
             "--chromsizes",
             chromsizes,
             "--by-haplotype",
-        ]
+        ],
+        dask_settings=dask_settings,
     )
     assert result.exit_code == 0
     new_files = {f.name for f in outdir.glob("*.*")}
@@ -117,7 +154,7 @@ def test_contacts_to_cool_by_haplotype(contact_table_pq, fragment_table_pq, chro
     assert new_files == expected_files
 
 
-def test_contacts_to_cool(contact_table_pq, fragment_table_pq, chromsizes, tmp_path_factory):
+def test_contacts_to_cool(dask_settings, contact_table_pq, fragment_table_pq, chromsizes, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("contacts")
     prefix = contact_table_pq.name.split(".")[0]
 
@@ -132,22 +169,23 @@ def test_contacts_to_cool(contact_table_pq, fragment_table_pq, chromsizes, tmp_p
             fragment_table_pq,
             "--chromsizes",
             chromsizes,
-        ]
+        ],
+        dask_settings=dask_settings,
     )
     assert result.exit_code == 0
 
 
-def test_fragments_to_contacts(pore_c_table_pq, tmp_path_factory):
+def test_fragments_to_contacts(dask_settings, pore_c_table_pq, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("contacts")
     prefix = pore_c_table_pq.name.split(".")[0]
 
     contact_table = str(outdir / (prefix + ".contacts.parquet"))
 
-    result = _run_command(["alignments", "to-contacts", pore_c_table_pq, contact_table])
+    result = _run_command(["alignments", "to-contacts", pore_c_table_pq, contact_table], dask_settings)
     assert result.exit_code == 0
 
 
-def test_contact_summary(contact_table_pq, read_summary_csv, tmp_path_factory):
+def test_contact_summary(dask_settings, contact_table_pq, read_summary_csv, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("contacts")
     prefix = contact_table_pq.name.split(".")[0]
 
@@ -155,12 +193,13 @@ def test_contact_summary(contact_table_pq, read_summary_csv, tmp_path_factory):
     concatemer_summary = str(outdir / (prefix + ".concatemer.summary.csv"))
 
     result = _run_command(
-        ["contacts", "summarize", contact_table_pq, read_summary_csv, concatemer_table, concatemer_summary]
+        ["contacts", "summarize", contact_table_pq, read_summary_csv, concatemer_table, concatemer_summary],
+        dask_settings=dask_settings,
     )
     assert result.exit_code == 0
 
 
-def test_assign_fragments(align_table_pq, fragment_table_pq, tmp_path_factory):
+def test_assign_fragments(dask_settings, align_table_pq, fragment_table_pq, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("assign_fragments")
     prefix = fragment_table_pq.name.split(".")[0]
 
@@ -171,20 +210,23 @@ def test_assign_fragments(align_table_pq, fragment_table_pq, tmp_path_factory):
             str(align_table_pq),
             str(fragment_table_pq),
             str(outdir / (prefix + ".pore_c.parquet")),
-        ]
+        ],
+        dask_settings=dask_settings,
     )
     assert result.exit_code == 0
 
 
-def test_create_table(haplotagged_bam, tmp_path_factory):
+def test_create_table(dask_settings, haplotagged_bam, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("create_table")
     align_table = str(outdir / "align_table.parquet")
 
-    result = _run_command(["alignments", "create-table", str(haplotagged_bam), align_table])
+    result = _run_command(
+        ["alignments", "create-table", str(haplotagged_bam), align_table], dask_settings=dask_settings
+    )
     assert result.exit_code == 0
 
 
-def test_create_table_with_haplotagged_aligns(coord_sorted_bam, haplotagged_aligns, tmp_path_factory):
+def test_create_table_with_haplotagged_aligns(dask_settings, coord_sorted_bam, haplotagged_aligns, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("create_table")
     align_table = str(outdir / "align_table.parquet")
 
@@ -196,18 +238,22 @@ def test_create_table_with_haplotagged_aligns(coord_sorted_bam, haplotagged_alig
             align_table,
             "--alignment-haplotypes",
             str(haplotagged_aligns),
-        ]
+        ],
+        dask_settings=dask_settings,
     )
     assert result.exit_code == 0
 
 
-def test_reformat_bam(read_sorted_bam, tmp_path_factory):
+def test_reformat_bam(dask_settings, read_sorted_bam, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("reformat_bam")
-    result = _run_command(["alignments", "reformat-bam", str(read_sorted_bam), str(outdir / "reformatted.bam")])
+    result = _run_command(
+        ["alignments", "reformat-bam", str(read_sorted_bam), str(outdir / "reformatted.bam")],
+        dask_settings=dask_settings,
+    )
     assert result.exit_code == 0
 
 
-def test_prepare_reads(read_fastq_file, tmp_path_factory):
+def test_prepare_reads(dask_settings, read_fastq_file, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("prepare_reads")
 
     result = _run_command(
@@ -226,7 +272,8 @@ def test_prepare_reads(read_fastq_file, tmp_path_factory):
             "500",
             "--max-read-length",
             "5000",
-        ]
+        ],
+        dask_settings=dask_settings,
     )
     assert result.exit_code == 0
     new_files = {f.name for f in outdir.glob("*.*")}
@@ -245,9 +292,11 @@ def test_prepare_reads(read_fastq_file, tmp_path_factory):
     assert new_files == expected_files
 
 
-def test_prepare_refgenome(raw_refgenome_file, tmp_path_factory):
+def test_prepare_refgenome(dask_settings, raw_refgenome_file, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("prepare_refgenome")
-    result = _run_command(["refgenome", "prepare", str(raw_refgenome_file), outdir / "refgenome"])
+    result = _run_command(
+        ["refgenome", "prepare", str(raw_refgenome_file), outdir / "refgenome"], dask_settings=dask_settings
+    )
     assert result.exit_code == 0
     new_files = {f.name for f in outdir.glob("*.*")}
     expected_files = {
@@ -260,7 +309,7 @@ def test_prepare_refgenome(raw_refgenome_file, tmp_path_factory):
     assert new_files == expected_files
 
 
-def test_virtual_digest(raw_refgenome_file, tmp_path_factory):
+def test_virtual_digest(dask_settings, raw_refgenome_file, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("virtual_digest")
 
     refgenome_prefix = raw_refgenome_file.name.split(".")[0]
@@ -269,7 +318,7 @@ def test_virtual_digest(raw_refgenome_file, tmp_path_factory):
 
     result = _run_command(["refgenome", "prepare", str(raw_refgenome_file), outdir / refgenome_prefix])
     result = _run_command(
-        ["refgenome", "virtual-digest", outdir / f"{refgenome_prefix}.fa", enzyme, outdir / digest_id]
+        ["refgenome", "virtual-digest", outdir / f"{refgenome_prefix}.fa", enzyme, outdir / digest_id], dask_settings
     )
     assert result.exit_code == 0
     new_files = {f.name for f in outdir.glob("*.*")}
@@ -291,12 +340,13 @@ def test_virtual_digest(raw_refgenome_file, tmp_path_factory):
             "fragments-to-hicref",
             outdir / f"{digest_id}.fragments.parquet",
             outdir / f"{refgenome_prefix}.hicRef",
-        ]
+        ],
+        dask_settings=dask_settings,
     )
     assert result.exit_code == 0
 
 
-def test_contacts_to_merged_no_dups(contact_table_pq, raw_refgenome_file, tmp_path_factory):
+def test_contacts_to_merged_no_dups(dask_settings, contact_table_pq, raw_refgenome_file, tmp_path_factory):
     outdir = tmp_path_factory.mktemp("contacts")
     prefix = contact_table_pq.name.split(".")[0]
 
@@ -309,10 +359,55 @@ def test_contacts_to_merged_no_dups(contact_table_pq, raw_refgenome_file, tmp_pa
             outdir / prefix,
             "--reference-fasta",
             raw_refgenome_file,
-        ]
+        ],
+        dask_settings=dask_settings,
     )
 
     new_files = {f.name for f in outdir.glob("*.*")}
     expected_files = {prefix + ".mnd.txt"}
     assert result.exit_code == 0
+    assert new_files == expected_files
+
+
+def test_extract_snv_links(
+    dask_settings, coord_sorted_bam, phased_vcf, raw_refgenome_file_decompressed, tmp_path_factory
+):
+    outdir = tmp_path_factory.mktemp("extract_snv_links")
+    prefix = coord_sorted_bam.name.split(".")[0]
+
+    for x in range(2):
+        result = _run_command(
+            [
+                "variants",
+                "extract-snv-links",
+                coord_sorted_bam,
+                phased_vcf,
+                raw_refgenome_file_decompressed,
+                outdir / f"{prefix}_{x}.var_links.pq",
+            ],
+            dask_settings=dask_settings,
+        )
+        assert result.exit_code == 0
+
+    new_files = {f.name for f in outdir.glob("*.*")}
+
+    dfs = [pd.read_parquet(outdir / f) for f in new_files]
+
+    agg_counts = pd.concat([_[["cis_count", "trans_count"]] for _ in dfs], axis=0).sum().to_dict()
+    expected_files = {f"{prefix}_{x}.var_links.pq" for x in range(2)}
+    result = _run_command(
+        [
+            "variants",
+            "aggregate-links",
+            outdir / f"{prefix}_0.var_links.pq",
+            outdir / f"{prefix}_1.var_links.pq",
+            outdir / f"{prefix}_agg.var_links.pq",
+        ],
+        dask_settings=dask_settings,
+    )
+
+    merged_df = pd.read_parquet(outdir / f"{prefix}_agg.var_links.pq")
+    assert agg_counts == merged_df[["cis_count", "trans_count"]].sum().to_dict()
+    assert result.exit_code == 0
+
     assert new_files == expected_files

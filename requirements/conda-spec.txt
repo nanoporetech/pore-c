@@ -3,8 +3,8 @@
 biopython ==1.77
 click >=7.0.0,<8.0
 cooler ==0.8.*,>=0.8.5
-dask ==2.*,>=2.0.0
-distributed ==2.*,>=2.9.3
+dask ==2021.7.1
+distributed ==2021.7.1
 intake
 intake-parquet
 ncls
@@ -12,12 +12,15 @@ networkx ==2.*,>=2.4.0
 numpy <1.20.0
 pandas >=1.0.5
 pairtools
-pyarrow ==1.*,>=1.0.0
-pydantic ==1.6.1
+pyarrow ==4.*,>=4.0.1
+pydantic >=1.6.2
 pyranges ==0.0.71
 pysam
 streamz ==0.*,>=0.5.2
+toolz >=0.11.1
 tqdm
+whatshap ==1.1
+
 
 # conda-specific dependencies
 htslib

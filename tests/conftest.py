@@ -11,6 +11,11 @@ def raw_refgenome_file():
 
 
 @pytest.fixture(scope="session")
+def raw_refgenome_file_decompressed():
+    return DATA_DIR / "GRCh38.fasta"
+
+
+@pytest.fixture(scope="session")
 def read_fastq_file():
     return DATA_DIR / "GM12878_NlaIII_reads.fq.gz"
 
@@ -73,3 +78,8 @@ def chromsizes():
 @pytest.fixture(scope="session")
 def read_summary_csv():
     return DATA_DIR / "reads.summary.csv"
+
+
+@pytest.fixture(scope="session")
+def phased_vcf():
+    return DATA_DIR / "GM12878.phased.conf.vcf.gz"
