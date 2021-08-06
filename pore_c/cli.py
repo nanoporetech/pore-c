@@ -332,34 +332,46 @@ def variants():
     pass
 
 
-@variants.command(short_help="Extract SNV linkages between reads")
+@variants.command(short_help="Extract variant info")
 @click.argument("input_bam", type=click.Path(exists=True))
 @click.argument("input_vcf", type=click.Path(exists=True))
 @click.argument("reference_fasta", type=click.Path(exists=True))
-@click.argument("link_table")
+@click.argument("output_table")
 @click.option(
-    "--mapping_quality_cutoff",
+    "--mapping-quality-cutoff",
     type=int,
-    default=10,
+    default=5,
     help="Minimum mapping quality for an alignment to be considered",
     show_default=True,
 )
 @click.option(
-    "--variant_quality_cutoff",
+    "--base-quality-cutoff",
     type=int,
-    default=10,
-    help="Minimum mapping quality for an alignment to be considered",
+    default=5,
+    help="Minimum read base quality for a variant to be considered",
     show_default=True,
 )
-def extract_snv_links(
-    input_bam, input_vcf, reference_fasta, link_table, mapping_quality_cutoff, variant_quality_cutoff
+@click.option(
+    "--pore-c-table", type=click.Path(exists=True), help="An optional pore_c table to filter the alignments against"
+)
+def extract_variant_info(
+    input_bam, input_vcf, reference_fasta, output_table, mapping_quality_cutoff, base_quality_cutoff, pore_c_table
 ):
     """ """
-    from .analyses.variants import extract_snv_links as fn
+    from .analyses.variants import extract_variant_info as fn
 
-    link_df = fn(input_bam, input_vcf, reference_fasta, mapping_quality_cutoff, variant_quality_cutoff)
-    logger.info(f"Found {len(link_df)} SNV links")
-    link_df.to_parquet(link_table, engine=PQ_ENGINE, index=False, version=PQ_VERSION)
+    num_records = fn(
+        output_table,
+        input_bam,
+        input_vcf,
+        reference_fasta,
+        mapping_quality_cutoff,
+        base_quality_cutoff,
+        pore_c_table=pore_c_table,
+    )
+    logger.info(f"Found {num_records} read x SNV records")
+    if num_records == 0:
+        raise NotImplementedError("Need to write empty table")
 
 
 @variants.command(short_help="Aggregate link counts from multiple files")

@@ -369,8 +369,8 @@ def test_contacts_to_merged_no_dups(dask_settings, contact_table_pq, raw_refgeno
     assert new_files == expected_files
 
 
-def test_extract_snv_links(
-    dask_settings, coord_sorted_bam, phased_vcf, raw_refgenome_file_decompressed, tmp_path_factory
+def test_extract_variant_info(
+    dask_settings, coord_sorted_bam, phased_vcf, raw_refgenome_file_decompressed, pore_c_table_pq, tmp_path_factory
 ):
     outdir = tmp_path_factory.mktemp("extract_snv_links")
     prefix = coord_sorted_bam.name.split(".")[0]
@@ -379,11 +379,13 @@ def test_extract_snv_links(
         result = _run_command(
             [
                 "variants",
-                "extract-snv-links",
+                "extract-variant-info",
                 coord_sorted_bam,
                 phased_vcf,
                 raw_refgenome_file_decompressed,
                 outdir / f"{prefix}_{x}.var_links.pq",
+                "--pore-c-table",
+                pore_c_table_pq,
             ],
             dask_settings=dask_settings,
         )

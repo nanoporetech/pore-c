@@ -11,6 +11,7 @@ from pydantic import BaseModel, confloat, conint, constr
 from .config import (
     ALIGN_IDX_DTYPE,
     ALIGN_SCORE_DTYPE,
+    ALLELE_DTYPE,
     FRAG_IDX_DTYPE,
     GENOMIC_COORD_DTYPE,
     GENOMIC_DISTANCE_DTYPE,
@@ -726,6 +727,50 @@ class PoreCConcatemerRecord(_BaseModel):
         )
 
 
+class VariantPhaseRecord(_BaseModel):
+    # (read_name, align_idx, chrom, var.position, var.allele, phaseset, haplotype, read.mapqs[0]))
+    read_name: constr(min_length=1, strip_whitespace=True)
+    align_idx: conint(ge=0, strict=True)
+    chrom: constr(min_length=1, strip_whitespace=True)
+    position: conint(ge=0)
+    allele: conint(ge=0)  # probably just 0/1
+
+    mapping_quality: conint(ge=0, le=255)
+    base_quality: conint(ge=0)
+    phase_set: int = 0
+    haplotype: conint(ge=-1) = -1
+
+    class Config:
+        use_enum_values = True
+        fields = dict(
+            read_name=dict(description="The original read name", dtype="str"),
+            align_idx=dict(description="Unique integer ID of the aligned segment", dtype=ALIGN_IDX_DTYPE),
+            chrom=dict(description="The chromosome/contig the read is aligned to", dtype="category"),
+            position=dict(
+                description="The zero-based start position of the variant on the genome", dtype=GENOMIC_COORD_DTYPE
+            ),
+            allele=dict(
+                description="The allele seen in the read (0=reference, >=1 = alternative).", dtype=ALLELE_DTYPE
+            ),
+            mapping_quality=dict(description="The mapping quality as calculated by the aligner", dtype=MQ_DTYPE),
+            base_quality=dict(
+                description="The base quality score reported by whatshap",
+                dtype=ALIGN_SCORE_DTYPE,
+            ),
+            phase_set=dict(
+                description="The ID of the phase set, often this is the start position of the phase block",
+                dtype=PHASE_SET_DTYPE,
+            ),
+            haplotype=dict(
+                description=(
+                    "The id of the haplotype within this block, usually set to 1 or 2. "
+                    "A value of -1 means that this alignment is unphased"
+                ),
+                dtype=HAPLOTYPE_IDX_DTYPE,
+            ),
+        )
+
+
 class VariantPairRecord(_BaseModel):
     var1_chrom: constr(min_length=1, strip_whitespace=True)
     var1_position: conint(ge=0)
@@ -761,5 +806,5 @@ FragmentRecordDf = NewType("FragmentRecordDf", pd.DataFrame)
 PoreCRecordDf = NewType("PoreCRecordDf", pd.DataFrame)
 PoreCContactRecordDf = NewType("PoreCContactRecordDf", pd.DataFrame)
 PoreCConcatemerRecordDf = NewType("PoreCConcatemerRecordDf", pd.DataFrame)
-
+VariantPhaseRecordDf = NewType("VariantPhaseRecord", pd.DataFrame)
 Chrom = NewType("Chrom", str)
