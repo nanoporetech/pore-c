@@ -36,7 +36,7 @@ cython==0.29.23
     #   sorted-nearest
 cytoolz==0.10.1
     # via cooler
-dask==2.30.0
+dask==2021.10.0
     # via
     #   distributed
     #   intake
