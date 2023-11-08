@@ -3,7 +3,7 @@
 biopython ==1.77
 click >=7.0.0,<8.0
 cooler ==0.8.*,>=0.8.5
-dask ==2.*,>=2.0.0
+dask ==2021.*
 distributed ==2.*,>=2.9.3
 intake
 intake-parquet
